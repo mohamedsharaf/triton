@@ -1,6 +1,6 @@
 @extends('inspinia_v27.app1')
 
-@section('title', $title)
+@section('title', 'Centralizador de Asistencias')
 
 @section('css_plugins')
     <link href="{!! asset('inspinia_v27/css/plugins/iCheck/custom.css') !!}" rel="stylesheet">

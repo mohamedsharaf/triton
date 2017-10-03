@@ -1,47 +1,47 @@
-@extends('layouts.app')
+@extends('inspinia_v27.app1')
+
+@section('title', 'Restablecer contraseña')
+
+@section('css')
+    <style type="text/css">
+        body:not(.mini-navbar){
+            background-color: #262626;
+        }
+    </style>
+@endsection
 
 @section('content')
-<div class="container">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">Reset Password</div>
 
-                <div class="panel-body">
-                    @if (session('status'))
-                        <div class="alert alert-success">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    <form class="form-horizontal" method="POST" action="{{ route('password.email') }}">
-                        {{ csrf_field() }}
-
-                        <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                            <label for="email" class="col-md-4 control-label">E-Mail Address</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
-
-                                @if ($errors->has('email'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
-                                    Send Password Reset Link
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <div>
+        <img alt="image" class="img-circle" width="180" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
     </div>
-</div>
+
+    <h3 class="text-white">Restablecer contraseña</h3>
+
+    @if (session('status'))
+        <div class="alert alert-success">
+            {{ session('status') }}
+        </div>
+    @endif
+
+    <form class="m-t" role="form" method="POST" action="{{ route('password.email') }}">
+        {{ csrf_field() }}
+
+        <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+            <input id="email" type="email" class="form-control" name="email" placeholder="Correo electrónico" value="{{ old('email') }}" required autofocus>
+
+            @if ($errors->has('email'))
+                <span class="help-block">
+                    <strong>{{ $errors->first('email') }}</strong>
+                </span>
+            @endif
+        </div>
+
+        <button type="submit" class="btn btn-success block full-width m-b">Enviar enlace para restablecer contraseña</button>
+
+        <p class="text-muted text-center"><small>¿Ya tienes una cuenta?</small></p>
+
+        <a class="btn btn-sm btn-white btn-block" href="{{ route('login') }}">Iniciar sesión</a>
+    </form>
+
 @endsection
