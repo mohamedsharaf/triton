@@ -1,5 +1,5 @@
 <?php
-dd(env('APP_VERSION'));
+// dd(env('APP_VERSION'));
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -22,3 +22,5 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');
