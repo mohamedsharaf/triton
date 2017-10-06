@@ -12,6 +12,7 @@
         #alertmod_table_list_2 {
             top: 900px !important;
         }
+
     </style>
 @endsection
 
@@ -121,26 +122,40 @@
             $("#table_list_1").jqGrid({
                 data: mydata,
                 datatype: "local",
-                height: 250,
-                autowidth: true,
+                height: 'auto',
+                // autowidth: true,
                 shrinkToFit: true,
-                rowNum: 14,
+                rowNum: 10,
                 rowList: [10, 20, 30],
                 colNames: ['Inv No', 'Date', 'Client', 'Amount', 'Tax', 'Total', 'Notes'],
                 colModel: [
                     {name: 'id', index: 'id', width: 60, sorttype: "int"},
                     {name: 'invdate', index: 'invdate', width: 90, sorttype: "date", formatter: "date"},
-                    {name: 'name', index: 'name', width: 100},
+                    {name: 'name', index: 'name', width: 500},
                     {name: 'amount', index: 'amount', width: 80, align: "right", sorttype: "float", formatter: "number"},
-                    {name: 'tax', index: 'tax', width: 80, align: "right", sorttype: "float"},
-                    {name: 'total', index: 'total', width: 80, align: "right", sorttype: "float"},
+                    {name: 'tax', index: 'tax', width: 300, align: "right", sorttype: "float"},
+                    {name: 'total', index: 'total', width: 800, align: "right", sorttype: "float"},
                     {name: 'note', index: 'note', width: 150, sortable: false}
                 ],
                 pager: "#pager_list_1",
                 viewrecords: true,
                 caption: "Example jqGrid 1",
-                hidegrid: false
+                hidegrid: false,
+                //autowidth: true,
+                //gridview:true,
+                shrinkToFit: false,
+                //forceFit: true,
+                rownumbers:true,
+                multiboxonly: true,
+                altRows: true,
+                multiselect : true,
+                //toolbarfilter : true,
+                loadComplete: function(){
+                    $("tr.jqgrow:odd").css("background", "#DDDDDC");
+                }
             });
+
+            $("#table_list_1").jqGrid('filterToolbar',{searchOnEnter : true, stringResult:true, defaultSearch: 'cn'});
 
             // Configuration for jqGrid Example 2
             $("#table_list_2").jqGrid({
@@ -193,8 +208,15 @@
                 $('.wrapper-content').removeClass('animated fadeInRight');
                 $("#table_list_1").jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
                 $("#table_list_2").jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
-            },700);
+            },0);
 
+            $( "#navbar-minimalize-button" ).on( "click", function() {
+                setTimeout(function(){
+                    $('.wrapper-content').removeClass('animated fadeInRight');
+                    $("#table_list_1").jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
+                    $("#table_list_2").jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
+                },500);
+            });
         });
 
         $(window).on('resize.jqGrid', function() {

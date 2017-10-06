@@ -1,7 +1,7 @@
 <div class="row border-bottom">
     <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
-            <button type="button" class="navbar-minimalize minimalize-styl-2 btn btn-primary">
+            <button id="navbar-minimalize-button" type="button" class="navbar-minimalize minimalize-styl-2 btn btn-primary">
                 <i class="fa fa-bars"></i>
             </button>
             <!-- <a class="navbar-minimalize minimalize-styl-2 btn btn-primary" href="javascript:void(0);"><i class="fa fa-bars"></i> </a> -->
