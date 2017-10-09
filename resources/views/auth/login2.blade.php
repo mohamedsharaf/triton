@@ -59,6 +59,9 @@
         <button type="submit" class="btn btn-success block full-width m-b">Iniciar sesión</button>
 
         <a href="{{ route('password.request') }}"><small>¿Olvidaste tu contraseña?</small></a>
+
+        <p class="text-muted text-center"><small>¿No tienes cuenta?</small></p>
+        <a class="btn btn-sm btn-white btn-block" href="{{ route('register') }}">Crear cuenta</a>
     </form>
 
 @endsection
