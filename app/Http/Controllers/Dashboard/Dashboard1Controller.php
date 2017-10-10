@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use TADPHP\TADFactory;
 use TADPHP\TAD;
 
+use Exception;
+
 class Dashboard1Controller extends Controller
 {
     /**
@@ -27,10 +29,8 @@ class Dashboard1Controller extends Controller
      */
     public function index()
     {
-        try
-        {
           $opciones = array(
-              'ip'            => '200.107.241.111', // '192.168.30.19' by default (totally useless!!!).
+              'ip'            => '192.168.30.30', // '192.168.30.30' '200.107.241.111' by default (totally useless!!!).
               'internal_id'   => 1146351,         // 1 by default.
               'com_key'       => 5587,            // 0 by default.
               //'description' => '',              // 'N/A' by default.
@@ -44,16 +44,18 @@ class Dashboard1Controller extends Controller
           //
           // // $dt = $tad->get_date();
           //
-          // $logs1 = $tad->get_att_log()->to_json();
-          //
-          // throw new Exception("sera");
-          //
-          // return $logs1;
-        }
-        catch (Exception $e)
-        {
-          return $e;
-        }
+
+          try
+          {
+              // $logs1 = $tad->get_att_log()->to_json();
+              $logs1 = $tad->get_user_info(['pin' => '1146351'])->to_json();
+          }
+          catch (Exception $e)
+          {
+            $logs1 = $e;
+          }
+
+          return $logs1;
 
 
 
