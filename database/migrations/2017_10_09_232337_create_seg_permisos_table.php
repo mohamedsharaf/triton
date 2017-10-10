@@ -13,8 +13,20 @@ class CreateSegPermisosTable extends Migration
      */
     public function up()
     {
-        Schema::table('seg_permisos', function (Blueprint $table) {
-            //
+        Schema::create('seg_permisos', function (Blueprint $table) {
+          $table->increments('id');
+          $table->integer('modulo_id')->unsigned();
+
+          $table->smallInteger('estado')->default('1')->unsigned();
+          $table->string('codigo', 4)->unique()->nullable();
+          $table->string('nombre', 500)->nullable();
+
+          $table->timestamps();
+
+          $table->foreign('modulo_id')
+            ->references('id')
+            ->on('seg_modulos')
+            ->onDelete('cascade');
         });
     }
 
@@ -25,8 +37,6 @@ class CreateSegPermisosTable extends Migration
      */
     public function down()
     {
-        Schema::table('seg_permisos', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('seg_permisos');
     }
 }

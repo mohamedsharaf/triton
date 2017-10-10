@@ -13,23 +13,24 @@ class CreateRrhhBiometricosTable extends Migration
      */
     public function up()
     {
-        Schema::table('rrhh_biometricos', function (Blueprint $table) {
+        Schema::create('rrhh_biometricos', function (Blueprint $table) {
           $table->increments('id');
           $table->integer('unidad_desconcentrada_id')->unsigned();
 
           $table->smallInteger('estado')->default('1')->unsigned();
-          $table->string('ip', 20);
-          $table->integer('internal_id')->unsigned();
-          $table->integer('com_key')->unsigned();
-          $table->integer('soap_port')->unsigned();
-          $table->integer('udp_port')->unsigned();
-          $table->string('encoding', 50);
-          $table->string('description', 250);
+          $table->string('ip', 20)->nullable();
+          $table->integer('internal_id')->unsigned()->nullable();
+          $table->integer('com_key')->unsigned()->nullable();
+          $table->integer('soap_port')->unsigned()->nullable();
+          $table->integer('udp_port')->unsigned()->nullable();
+          $table->string('encoding', 50)->nullable();
+          $table->string('description', 250)->nullable();
+
           $table->timestamps();
 
           $table->foreign('unidad_desconcentrada_id')
             ->references('id')
-            ->on('unidades_desconcentradas')
+            ->on('inst_unidades_desconcentradas')
             ->onDelete('cascade');
         });
     }
@@ -41,8 +42,6 @@ class CreateRrhhBiometricosTable extends Migration
      */
     public function down()
     {
-        Schema::table('rrhh_biometricos', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('rrhh_biometricos');
     }
 }

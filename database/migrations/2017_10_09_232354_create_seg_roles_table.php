@@ -13,8 +13,13 @@ class CreateSegRolesTable extends Migration
      */
     public function up()
     {
-        Schema::table('seg_roles', function (Blueprint $table) {
-            //
+        Schema::create('seg_roles', function (Blueprint $table) {
+          $table->increments('id');
+
+          $table->smallInteger('estado')->default('1')->unsigned();
+          $table->string('nombre', 500)->nullable();
+
+          $table->timestamps();
         });
     }
 
@@ -25,8 +30,6 @@ class CreateSegRolesTable extends Migration
      */
     public function down()
     {
-        Schema::table('seg_roles', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('seg_roles');
     }
 }

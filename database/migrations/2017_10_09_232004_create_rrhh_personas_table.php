@@ -13,13 +13,15 @@ class CreateRrhhPersonasTable extends Migration
      */
     public function up()
     {
-        Schema::table('rrhh_personas', function (Blueprint $table) {
+        Schema::create('rrhh_personas', function (Blueprint $table) {
           $table->increments('id');
+
           $table->smallInteger('estado')->default('1')->unsigned();
-          $table->integer('n_documento')->unique()->unsigned();
-          $table->string('nombre', 250);
-          $table->smallInteger('privilegio')->unsigned();
-          $table->integer('password')->unsigned();
+          $table->integer('n_documento')->unique()->unsigned()->nullable();
+          $table->string('nombre', 250)->nullable();
+          $table->smallInteger('privilegio')->unsigned()->nullable();
+          $table->integer('password')->unsigned()->nullable();
+
           $table->timestamps();
         });
     }
@@ -31,8 +33,6 @@ class CreateRrhhPersonasTable extends Migration
      */
     public function down()
     {
-        Schema::table('rrhh_personas', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('rrhh_personas');
     }
 }

@@ -13,17 +13,17 @@ class CreateUbgeProvinciasTable extends Migration
      */
     public function up()
     {
-        Schema::table('ubge_provincias', function (Blueprint $table) {
+        Schema::create('ubge_provincias', function (Blueprint $table) {
           $table->increments('id');
           $table->integer('departamento_id')->unsigned();
+
           $table->smallInteger('estado')->default('1')->unsigned();
-          $table->string('codigo', 4)->unique();
-          $table->string('nombre', 250);
-          $table->timestamps();
+          $table->string('codigo', 4)->unique()->nullable();
+          $table->string('nombre', 250)->nullable();
 
           $table->foreign('departamento_id')
             ->references('id')
-            ->on('departamentos')
+            ->on('ubge_departamentos')
             ->onDelete('cascade');
         });
     }
@@ -35,8 +35,6 @@ class CreateUbgeProvinciasTable extends Migration
      */
     public function down()
     {
-        Schema::table('ubge_provincias', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('ubge_provincias');
     }
 }

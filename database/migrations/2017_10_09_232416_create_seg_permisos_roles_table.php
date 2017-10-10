@@ -13,8 +13,22 @@ class CreateSegPermisosRolesTable extends Migration
      */
     public function up()
     {
-        Schema::table('seg_permisos_roles', function (Blueprint $table) {
-            //
+        Schema::create('seg_permisos_roles', function (Blueprint $table) {
+          $table->increments('id');
+          $table->integer('permiso_id')->unsigned();
+          $table->integer('rol_id')->unsigned();
+
+          $table->timestamps();
+
+          $table->foreign('permiso_id')
+            ->references('id')
+            ->on('seg_permisos')
+            ->onDelete('cascade');
+
+          $table->foreign('rol_id')
+            ->references('id')
+            ->on('seg_roles')
+            ->onDelete('cascade');
         });
     }
 
@@ -25,8 +39,7 @@ class CreateSegPermisosRolesTable extends Migration
      */
     public function down()
     {
-        Schema::table('seg_permisos_roles', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('seg_permisos_roles');
     }
+
 }

@@ -13,13 +13,13 @@ class CreateUbgeDepartamentosTable extends Migration
      */
     public function up()
     {
-        Schema::table('ubge_departamentos', function (Blueprint $table) {
+        Schema::create('ubge_departamentos', function (Blueprint $table) {
             $table->increments('id');
+
             $table->smallInteger('estado')->default('1')->unsigned();
-            $table->string('codigo', 2)->unique();
-            $table->string('codigo_2', 2)->unique();
-            $table->string('nombre', 250);
-            $table->timestamps();
+            $table->string('codigo', 2)->unique()->nullable();
+            $table->string('codigo_2', 2)->unique()->nullable();
+            $table->string('nombre', 250)->nullable();
         });
     }
 
@@ -30,8 +30,6 @@ class CreateUbgeDepartamentosTable extends Migration
      */
     public function down()
     {
-        Schema::table('ubge_departamentos', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('ubge_departamentos');
     }
 }

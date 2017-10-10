@@ -13,8 +13,14 @@ class CreateSegModulosTable extends Migration
      */
     public function up()
     {
-        Schema::table('seg_modulos', function (Blueprint $table) {
-            //
+        Schema::create('seg_modulos', function (Blueprint $table) {
+          $table->increments('id');
+
+          $table->smallInteger('estado')->default('1')->unsigned();
+          $table->string('codigo', 2)->unique()->nullable();
+          $table->string('nombre', 500)->nullable();
+
+          $table->timestamps();
         });
     }
 
@@ -25,8 +31,6 @@ class CreateSegModulosTable extends Migration
      */
     public function down()
     {
-        Schema::table('seg_modulos', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('seg_modulos');
     }
 }

@@ -31,7 +31,7 @@ class Dashboard1Controller extends Controller
     {
           $opciones = array(
               'ip'            => '192.168.30.30', // '192.168.30.30' '200.107.241.111' by default (totally useless!!!).
-              'internal_id'   => 1146351,         // 1 by default.
+              'internal_id'   => 1,         // 1 by default.
               'com_key'       => 5587,            // 0 by default.
               //'description' => '',              // 'N/A' by default.
               'soap_port'     => 80,              // 80 by default,
@@ -47,8 +47,8 @@ class Dashboard1Controller extends Controller
 
           try
           {
-              // $logs1 = $tad->get_att_log()->to_json();
-              $logs1 = $tad->get_user_info(['pin' => '1146351'])->to_json();
+              $logs1 = $tad->get_att_log()->to_json();
+              // $logs1 = $tad->get_user_info(['pin' => '1146351'])->to_json();
           }
           catch (Exception $e)
           {

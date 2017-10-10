@@ -13,8 +13,20 @@ class CreateRrhhLogAlertasTable extends Migration
      */
     public function up()
     {
-        Schema::table('rrhh_log_alertas', function (Blueprint $table) {
-            //
+        Schema::create('rrhh_log_alertas', function (Blueprint $table) {
+          $table->increments('id');
+          $table->integer('biometrico_id')->unsigned();
+
+          $table->smallInteger('tipo_emisor')->unsigned()->nullable();
+          $table->dateTime('f_alerta')->nullable();
+          $table->text('mensaje')->nullable();
+
+          $table->timestamps();
+
+          $table->foreign('biometrico_id')
+            ->references('id')
+            ->on('rrhh_biometricos')
+            ->onDelete('cascade');
         });
     }
 
@@ -25,8 +37,6 @@ class CreateRrhhLogAlertasTable extends Migration
      */
     public function down()
     {
-        Schema::table('rrhh_log_alertas', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('rrhh_log_alertas');
     }
 }

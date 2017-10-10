@@ -13,8 +13,25 @@ class CreateRrhhPersonasBiometricosTable extends Migration
      */
     public function up()
     {
-        Schema::table('rrhh_personas_biometricos', function (Blueprint $table) {
-            //
+        Schema::create('rrhh_personas_biometricos', function (Blueprint $table) {
+          $table->increments('id');
+          $table->integer('persona_id')->unsigned();
+          $table->integer('biometrico_id')->unsigned();
+
+          $table->smallInteger('estado')->default('1')->unsigned();
+          $table->dateTime('f_registro_biometrico')->nullable();
+
+          $table->timestamps();
+
+          $table->foreign('persona_id')
+            ->references('id')
+            ->on('rrhh_personas')
+            ->onDelete('cascade');
+
+          $table->foreign('biometrico_id')
+            ->references('id')
+            ->on('rrhh_biometricos')
+            ->onDelete('cascade');
         });
     }
 
@@ -25,8 +42,6 @@ class CreateRrhhPersonasBiometricosTable extends Migration
      */
     public function down()
     {
-        Schema::table('rrhh_personas_biometricos', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('rrhh_personas_biometricos');
     }
 }

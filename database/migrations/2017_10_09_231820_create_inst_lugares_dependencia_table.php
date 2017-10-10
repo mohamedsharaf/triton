@@ -13,11 +13,11 @@ class CreateInstLugaresDependenciaTable extends Migration
      */
     public function up()
     {
-        Schema::table('inst_lugares_dependencia', function (Blueprint $table) {
+        Schema::create('inst_lugares_dependencia', function (Blueprint $table) {
           $table->increments('id');
+
           $table->smallInteger('estado')->default('1')->unsigned();
-          $table->string('nombre', 250);
-          $table->timestamps();
+          $table->string('nombre', 250)->nullable();
         });
     }
 
@@ -28,8 +28,6 @@ class CreateInstLugaresDependenciaTable extends Migration
      */
     public function down()
     {
-        Schema::table('inst_lugares_dependencia', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('inst_lugares_dependencia');
     }
 }

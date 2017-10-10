@@ -13,8 +13,23 @@ class CreateRrhhLogMarcacionesTable extends Migration
      */
     public function up()
     {
-        Schema::table('rrhh_log_marcaciones', function (Blueprint $table) {
-            //
+        Schema::create('rrhh_log_marcaciones', function (Blueprint $table) {
+          $table->increments('id');
+          $table->integer('biometrico_id')->unsigned();
+
+          $table->smallInteger('tipo_marcacion')->default('1')->unsigned();
+          $table->integer('n_documento')->unsigned()->nullable();
+          $table->dateTime('f_marcacion')->nullable();
+          $table->smallInteger('verified')->unsigned()->nullable();
+          $table->smallInteger('status')->unsigned()->nullable();
+          $table->smallInteger('workcode')->unsigned()->nullable();
+
+          $table->timestamps();
+
+          $table->foreign('biometrico_id')
+            ->references('id')
+            ->on('rrhh_biometricos')
+            ->onDelete('cascade');
         });
     }
 
@@ -25,8 +40,6 @@ class CreateRrhhLogMarcacionesTable extends Migration
      */
     public function down()
     {
-        Schema::table('rrhh_log_marcaciones', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('rrhh_log_marcaciones');
     }
 }

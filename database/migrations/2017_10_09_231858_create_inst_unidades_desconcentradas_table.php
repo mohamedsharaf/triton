@@ -13,24 +13,24 @@ class CreateInstUnidadesDesconcentradasTable extends Migration
      */
     public function up()
     {
-        Schema::table('inst_unidades_desconcentradas', function (Blueprint $table) {
+        Schema::create('inst_unidades_desconcentradas', function (Blueprint $table) {
           $table->increments('id');
-          $table->integer('lugar_dependencia_id')->unsigned();
-          $table->integer('municipio_id')->unsigned();
+          $table->integer('lugar_dependencia_id')->unsigned()->nullable();
+          $table->integer('municipio_id')->unsigned()->nullable();
 
           $table->smallInteger('estado')->default('1')->unsigned();
-          $table->string('nombre', 1000);
-          $table->string('direccion', 1000);
+          $table->string('nombre', 1000)->nullable();
+          $table->string('direccion', 1000)->nullable();
           $table->timestamps();
 
           $table->foreign('lugar_dependencia_id')
             ->references('id')
-            ->on('lugares_dependencia')
+            ->on('inst_lugares_dependencia')
             ->onDelete('cascade');
 
           $table->foreign('municipio_id')
             ->references('id')
-            ->on('municipios')
+            ->on('ubge_municipios')
             ->onDelete('cascade');
         });
     }
@@ -42,8 +42,6 @@ class CreateInstUnidadesDesconcentradasTable extends Migration
      */
     public function down()
     {
-        Schema::table('inst_unidades_desconcentradas', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('inst_unidades_desconcentradas');
     }
 }
