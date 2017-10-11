@@ -23,6 +23,13 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $data = array(
+            'title'       => 'Inicio',
+            'title_table' => 'Inicio',
+            'modulo'      => 'Inicio',
+            'submodulo'   => 'Inicio'
+        );
+        // return view('dashboard.dashboard1.dashboard1')->with($data);
+        return view('home')->with($data);
     }
 }

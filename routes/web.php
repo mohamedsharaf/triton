@@ -37,4 +37,8 @@ Route::get('/', function () {
 
 Route::get('/home', 'HomeController@index')->name('home');
 
+Route::get('/modulo', 'Seguridad\ModuloController@index')->name('modulo');
+
+
+
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');
