@@ -29,7 +29,6 @@ class HomeController extends Controller
             'modulo'      => 'Inicio',
             'submodulo'   => 'Inicio'
         );
-        // return view('dashboard.dashboard1.dashboard1')->with($data);
         return view('home')->with($data);
     }
 }

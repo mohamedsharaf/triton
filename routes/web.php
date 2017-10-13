@@ -38,6 +38,7 @@ Route::get('/', function () {
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/modulo', 'Seguridad\ModuloController@index')->name('modulo');
+Route::match(["get", "post"], '/modulo/view_jqgrid', 'Seguridad\ModuloController@view_jqgrid');
 
 
 

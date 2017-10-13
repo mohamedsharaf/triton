@@ -69,18 +69,51 @@
       var base_url       = "{!! url('') !!}";
       var url_controller = "{!! url('/modulo') !!}";
 
-      var jqgrid1  = "#jqgrid1";
-      var pjqgrid1 = "#pjqgrid1";
+      // === JQGRID1 ===
+        var title_table = "{!! $title_table !!}";
+        var jqgrid1  = "#jqgrid1";
+        var pjqgrid1 = "#pjqgrid1";
+        var col_name_1 = new Array(
+          "",
+          "ESTADO",
+          "CODIGO",
+          "MODULO",
+          ""
+        );
+        var col_m_name_1 = new Array(
+          "act",
+          "estado",
+          "codigo",
+          "nombre",
+          "val_json"
+        );
+        var col_m_index_1 = new Array(
+          "",
+          "a1.estado",
+          "a1.codigo",
+          "a1.nombre",
+          ""
+        );
+        var col_m_width_1 = new Array(
+          50,
+          150,
+          80,
+          500,
+          10
+        );
+        var col_m_align_1 = new Array(
+          "center",
+          "center",
+          "center",
+          "left",
+          "center"
+        );
 
-      var title_table = "{!! $title_table !!}";
+      // === FORMULARIO 1 ===
+        var form_1 = "#form_1";
 
-      var col_name_1 = new Array("", "CODIGO", "MODULO", "");
-      var col_width_1 = new Array(50, 75, 300, 10);
-
-      // === JSON ===
-        var estado_json = $.parseJSON('{!! json_encode($estado_array) !!}');
-
-    // === ESTADO PDF ===
+    // === ESTADO ===
+      var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
       var estado_select = '';
       var estado_jqgrid = ':Todos';
 
@@ -89,97 +122,67 @@
         estado_jqgrid += ';' + index + ':' + value;
       });
 
+    var mydata = [
+          {id: "1", invdate: "2010-05-24", name: "test", note: "note", tax: "10.00", total: "2111.00"} ,
+          {id: "2", invdate: "2010-05-25", name: "test2", note: "note2", tax: "20.00", total: "320.00"},
+          {id: "3", invdate: "2007-09-01", name: "test3", note: "note3", tax: "30.00", total: "430.00"},
+          {id: "4", invdate: "2007-10-04", name: "test", note: "note", tax: "10.00", total: "210.00"},
+          {id: "5", invdate: "2007-10-05", name: "test2", note: "note2", tax: "20.00", total: "320.00"},
+          {id: "6", invdate: "2007-09-06", name: "test3", note: "note3", tax: "30.00", total: "430.00"},
+          {id: "7", invdate: "2007-10-04", name: "test", note: "note", tax: "10.00", total: "210.00"},
+          {id: "8", invdate: "2007-10-03", name: "test2", note: "note2", amount: "300.00", tax: "21.00", total: "320.00"},
+          {id: "9", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
+          {id: "11", invdate: "2007-10-01", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
+          {id: "12", invdate: "2007-10-02", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
+          {id: "13", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
+          {id: "14", invdate: "2007-10-04", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
+          {id: "15", invdate: "2007-10-05", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
+          {id: "16", invdate: "2007-09-06", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
+          {id: "17", invdate: "2007-10-04", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
+          {id: "18", invdate: "2007-10-03", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
+          {id: "19", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
+          {id: "21", invdate: "2007-10-01", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
+          {id: "22", invdate: "2007-10-02", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
+          {id: "23", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
+          {id: "24", invdate: "2007-10-04", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
+          {id: "25", invdate: "2007-10-05", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
+          {id: "26", invdate: "2007-09-06", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
+          {id: "27", invdate: "2007-10-04", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
+          {id: "28", invdate: "2007-10-03", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
+          {id: "29", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"}
+      ];
+
     $(document).ready(function(){
-        // Examle data for jqGrid
-        var mydata = [
-            {id: "1", invdate: "2010-05-24", name: "test", note: "note", tax: "10.00", total: "2111.00"} ,
-            {id: "2", invdate: "2010-05-25", name: "test2", note: "note2", tax: "20.00", total: "320.00"},
-            {id: "3", invdate: "2007-09-01", name: "test3", note: "note3", tax: "30.00", total: "430.00"},
-            {id: "4", invdate: "2007-10-04", name: "test", note: "note", tax: "10.00", total: "210.00"},
-            {id: "5", invdate: "2007-10-05", name: "test2", note: "note2", tax: "20.00", total: "320.00"},
-            {id: "6", invdate: "2007-09-06", name: "test3", note: "note3", tax: "30.00", total: "430.00"},
-            {id: "7", invdate: "2007-10-04", name: "test", note: "note", tax: "10.00", total: "210.00"},
-            {id: "8", invdate: "2007-10-03", name: "test2", note: "note2", amount: "300.00", tax: "21.00", total: "320.00"},
-            {id: "9", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
-            {id: "11", invdate: "2007-10-01", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
-            {id: "12", invdate: "2007-10-02", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
-            {id: "13", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
-            {id: "14", invdate: "2007-10-04", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
-            {id: "15", invdate: "2007-10-05", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
-            {id: "16", invdate: "2007-09-06", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
-            {id: "17", invdate: "2007-10-04", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
-            {id: "18", invdate: "2007-10-03", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
-            {id: "19", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
-            {id: "21", invdate: "2007-10-01", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
-            {id: "22", invdate: "2007-10-02", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
-            {id: "23", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
-            {id: "24", invdate: "2007-10-04", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
-            {id: "25", invdate: "2007-10-05", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
-            {id: "26", invdate: "2007-09-06", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"},
-            {id: "27", invdate: "2007-10-04", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "210.00"},
-            {id: "28", invdate: "2007-10-03", name: "test2", note: "note2", amount: "300.00", tax: "20.00", total: "320.00"},
-            {id: "29", invdate: "2007-09-01", name: "test3", note: "note3", amount: "400.00", tax: "30.00", total: "430.00"}
-        ];
-
-        // Configuration for jqGrid Example 1
-        $(jqgrid1).jqGrid({
-          caption: title_table,
-          data: mydata,
-          datatype: "local",
-          height: 'auto',
-          // autowidth: true,
-          shrinkToFit: true,
-          rowNum: 10,
-          rowList: [10, 20, 30],
-          colNames: [
-            'Inv No', 'Date', 'Client', 'Amount', 'Tax', 'Total', 'Notes'],
-          colModel: [
-              {name: 'id', index: 'id', width: 60, sorttype: "int"},
-              {name: 'invdate', index: 'invdate', width: 90, sorttype: "date", formatter: "date"},
-              {name: 'name', index: 'name', width: 500},
-              {name: 'amount', index: 'amount', width: 80, align: "right", sorttype: "float", formatter: "number"},
-              {name: 'tax', index: 'tax', width: 300, align: "right", sorttype: "float"},
-              {name: 'total', index: 'total', width: 800, align: "right", sorttype: "float"},
-              {name: 'note', index: 'note', width: 150, sortable: false}
-          ],
-          pager: pjqgrid1,
-          viewrecords: true,
-          hidegrid: false,
-          //autowidth: true,
-          //gridview:true,
-          shrinkToFit: false,
-          //forceFit: true,
-          rownumbers:true,
-          multiboxonly: true,
-          altRows: true,
-          multiselect : true,
-          //toolbarfilter : true,
-          loadComplete: function(){
-              $("tr.jqgrow:odd").css("background", "#DDDDDC");
-          }
-        });
-
-        $(jqgrid1).jqGrid('filterToolbar',{searchOnEnter : true, stringResult:true, defaultSearch: 'cn'});
-
-        // Add responsive to jqGrid
-        $(window).bind('resize', function () {
-            var width = $('.jqGrid_wrapper').width();
-            $(jqgrid1).setGridWidth(width);
-        });
 
 
-        setTimeout(function(){
-            $('.wrapper-content').removeClass('animated fadeInRight');
-            $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
-        },0);
+      // === JQGRID 1 ===
+        var valor1 = new Array();
+        valor1[0]  = 1;
+        utilitarios(valor1);
 
-        $( "#navbar-minimalize-button" ).on( "click", function() {
-            setTimeout(function(){
-                $('.wrapper-content').removeClass('animated fadeInRight');
-                $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
-            },500);
-        });
+      // Add responsive to jqGrid
+      $(window).bind('resize', function () {
+          var width = $('.jqGrid_wrapper').width();
+          $(jqgrid1).setGridWidth(width);
       });
+
+
+      setTimeout(function(){
+          $('.wrapper-content').removeClass('animated fadeInRight');
+          var valor1 = new Array();
+          valor1[0]  = 0;
+          utilitarios(valor1);
+      },0);
+
+      $( "#navbar-minimalize-button" ).on( "click", function() {
+          setTimeout(function(){
+              $('.wrapper-content').removeClass('animated fadeInRight');
+              var valor1 = new Array();
+              valor1[0]  = 0;
+              utilitarios(valor1);
+          },500);
+      });
+    });
 
     $(window).on('resize.jqGrid', function() {
       var valor1 = new Array();
@@ -189,11 +192,105 @@
 
     function utilitarios(valor){
       switch(valor[0]){
+        // === JQGRID REDIMENCIONAR ===
         case 0:
           $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
           break;
+        // === JQGRID 1 ===
+        case 1:
+          $(jqgrid1).jqGrid({
+            caption      : title_table,
+            url          : url_controller + '/view_jqgrid?tipo=1',
+            datatype     : 'json',
+            mtype        : 'post',
+            height       : 'auto',
+            pager        : pjqgrid1,
+            rowNum       : 10,
+            rowList      : [10, 20, 30],
+            sortname     : 'a1.id',
+            sortorder    : "desc",
+            viewrecords  : true,
+            shrinkToFit  : false,
+            hidegrid     : false,
+            multiboxonly : true,
+            altRows      : true,
+            rownumbers   : true,
+            multiselect  : true,
+            //autowidth     : true,
+            //gridview      :true,
+            //forceFit      : true,
+            //toolbarfilter : true,
+            colNames: [
+              col_name_1[0],
+              col_name_1[1],
+              col_name_1[2],
+              col_name_1[3],
+              col_name_1[4]
+            ],
+            colModel: [
+              {
+                name    : col_m_name_1[0],
+                index   : col_m_index_1[0],
+                width   : col_m_width_1[0],
+                align   : col_m_align_1[0],
+                fixed   : true,
+                sortable: false,
+                resize  : false,
+                search  : false
+              },
+              {
+                name       : col_m_name_1[1],
+                index      : col_m_index_1[1],
+                width      : col_m_width_1[1],
+                align      : col_m_align_1[1],
+                stype      :'select',
+                editoptions: {value:estado_jqgrid}
+              },
+              {
+                name  : col_m_name_1[2],
+                index : col_m_index_1[2],
+                width : col_m_width_1[2],
+                align : col_m_align_1[2]
+              },
+              {
+                name  : col_m_name_1[3],
+                index : col_m_index_1[3],
+                width : col_m_width_1[3],
+                align : col_m_align_1[3]
+              },
+              // === OCULTO ===
+                {
+                  name  : col_m_name_1[4],
+                  index : col_m_index_1[4],
+                  width : col_m_width_1[4],
+                  align : col_m_align_1[4],
+                  search: false,
+                  hidden: true
+                }
+            ],
+            loadComplete: function(){
+              $("tr.jqgrow:odd").css("background", "#DDDDDC");
+            }
+          });
+
+          $(jqgrid1).jqGrid('filterToolbar',{
+            searchOnEnter : true,
+            stringResult  : true,
+            defaultSearch : 'cn'
+          });
+
+          $(jqgrid1).jqGrid('navGrid', pjqgrid1, {
+              edit  : false,
+              add   : false,
+              del   : false,
+              search: false
+          });
+
+          // $(".ui-icon.ui-icon-refresh").removeClass().addClass("fa fa-refresh");
+          // $("#refresh_jqgrid1 div").addClass("btn btn-primary dim");
+          break;
         default:
-            break;
+          break;
       }
     }
   </script>
