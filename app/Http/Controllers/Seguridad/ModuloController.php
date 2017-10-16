@@ -45,7 +45,7 @@ class ModuloController extends Controller
   public function view_jqgrid(Request $request)
   {
     if($request->ajax())
-    {      
+    {
       $tipo = $request->input('tipo');
       return $tipo;
     }

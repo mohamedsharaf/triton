@@ -23,6 +23,13 @@
             <link href="{!! asset('inspinia_v27/css/style.css') !!}" rel="stylesheet">
 
             @yield('css')
+
+            <!-- Scripts -->
+            <script>
+              window.Laravel = {!! json_encode([
+                'csrfToken' => csrf_token(),
+              ]) !!};
+            </script>
     </head>
 
     <body>
