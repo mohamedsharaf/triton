@@ -73,8 +73,8 @@
                 <div class="col-sm-12 b-r">
                   <form id="form_1" role="form" action="#">
                     <input type="hidden" id="modulo_id" name="id" value=""/>
-                    <input type="hidden" id="tipo1" name="tipo" value="10"/>
-                    <input type="hidden" id="csrf_token1" name="_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" id="tipo1" name="tipo" value="1"/>
+                    {{ csrf_field() }}
 
                     <div class="form-group">
                       <label>Estado</label>
@@ -433,29 +433,25 @@
             });
             $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
 
-            setTimeout(function(){
-                swal.close();
-                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-            },2000);
-              // var valor = new Array();
-              // valor[0]  = "<strong>ENVIANDO INFORMACIÓN</strong>";
-              // valor[1]  = '<p class="text-center"><i class="fa fa-refresh fa-4x fa-spin"></i></p>';
-              // mensaje(2, valor);
-              //
-              // var tipo  = 0;
-              // var valor = new Array();
-              // valor[0]  = url_controller + '/send_ajax';
-              // valor[1]  = 'POST';
-              // valor[2]  = true;
-              // valor[3]  = $(form_1).serialize();
-              // valor[4]  = 'json';
-              // send_ajax(tipo, valor);
+            // setTimeout(function(){
+            //     swal.close();
+            //     $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+            // },2000);
+
+            var valor1 = new Array();
+            valor1[0]  = 150;
+            valor1[1]  = url_controller + '/send_ajax';
+            valor1[2]  = 'POST';
+            valor1[3]  = true;
+            valor1[4]  = $(form_1).serialize();
+            valor1[5]  = 'json';
+            utilitarios(valor1);
           }
           else{
             var valor1 = new Array();
             valor1[0]  = 101;
-            valor1[1]  = "ERROR DE VALIDACION";
-            valor1[2]  = "¡Favor complete o corrija los datos solicitados!";
+            valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+            valor1[2]  = "¡Favor complete o corrija los datos solicitados!"; //+ '<div class="text-center"><strong>VERIFIQUE POR FAVOR!!!</strong></div>';
             utilitarios(valor1);
           }
           break;
@@ -471,8 +467,65 @@
           });
           break;
         // === MENSAJE ERROR ===
+        case 100:
+          toastr.success(valor[2], valor[1], options1);
+          break;
+        // === MENSAJE ERROR ===
         case 101:
           toastr.error(valor[2], valor[1], options1);
+          break;
+        // === AJAX ===
+        case 150:
+          $.ajax({
+            url: valor[1],
+            type: valor[2],
+            async: valor[3],
+            data: valor[4],
+            dataType: valor[5],
+            success: function(data){
+              switch(data.tipo){
+                  // === INSERT UPDATE ===
+                  case '1':
+                    if(data.sw === 1){
+                      var valor1 = new Array();
+                      valor1[0]  = 100;
+                      valor1[1]  = data.titulo;
+                      valor1[2]  = data.respuesta;
+                      utilitarios(valor1);
+
+                      $(jqgrid1).trigger("reloadGrid");
+                      if(data.iu === 1){
+                        var valor1 = new Array();
+                        valor1[0]  = 14;
+                        utilitarios(valor1);
+                      }
+                      else if(data.iu === 2){
+                        $('#modal_1').modal('hide');
+                      }
+                    }
+                    else if(data.sw === 0){
+                      var valor1 = new Array();
+                      valor1[0]  = 101;
+                      valor1[1]  = data.titulo;
+                      valor1[2]  = data.respuesta;
+                      utilitarios(valor1);
+                    }
+                    else if(data.sw === 2){
+                      window.location.reload();
+                    }
+                    swal.close();
+                    $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                    break;
+                  default:
+                    break;
+                }
+            },
+            error: function(result) {
+              alert(result.responseText);
+              window.location.reload();
+              //console.error("Este callback maneja los errores", result);
+            }
+          });
           break;
         default:
           break;

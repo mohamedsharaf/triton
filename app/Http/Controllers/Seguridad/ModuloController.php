@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Libraries\JqgridClass;
+use App\Libraries\UtilClass;
+
+use App\Models\Seguridad\SegModulo;
 
 class ModuloController extends Controller
 {
@@ -153,9 +156,9 @@ class ModuloController extends Controller
     if( ! $request->ajax())
     {
       $respuesta = [
-        'page'    => 0,
-        'total'   => 0,
-        'records' => 0
+        'sw'        => 0,
+        'titulo'    => 'GESTOR DE MODULOS',
+        'respuesta' => 'No es solicitud AJAX.'
       ];
       return json_encode($respuesta);
     }
@@ -164,10 +167,86 @@ class ModuloController extends Controller
 
     switch($tipo)
     {
+      // === INSERT UPDATE GESTOR DE MODULOS ===
       case '1':
-        # code...
-        break;
+        // dd($request->all);
+        // === LIBRERIAS ===
+          $util = new UtilClass();
+          // return strtoupper($util->getNoAcentoNoComilla(trim('"   sérÁñ    "')));
 
+        // === INICIALIZACION DE VARIABLES ===
+          $data1     = array();
+          $respuesta = array(
+            'sw'         => 0,
+            'titulo'     => '<div class="text-center"><strong>GESTOR DE MODULOS</strong></div>',
+            'respuesta'  => '',
+            'tipo'       => $tipo,
+            'm_error_sw' => 2,
+            'm_error'    => '',
+            'iu'         => 1
+          );
+          $opcion = 'n';
+          $error  = FALSE;
+
+          // $f_actual       = date("Y-m-d");
+          // $f_modificacion = date("Y-m-d H:i:s");
+
+        // === PERMISOS ===
+            $id = trim($request->input('id'));
+            if($id != '')
+            {
+              $opcion              = 'e';
+              // $data1['updated_at'] = $f_modificacion;
+            }
+            else
+            {
+              // $data1['created_at'] = $f_modificacion;
+            }
+          //=== OPERACION ===
+            $estado = trim($request->input('estado'));
+            $nombre = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+            if($opcion == 'n')
+            {
+              $c_nombre = SegModulo::where('nombre', '=', $nombre)->count();
+              if($c_nombre < 1)
+              {
+                $iu         = new SegModulo;
+                $iu->estado = $estado;
+                $iu->codigo = str_pad(SegModulo::count()+1, 2, "0", STR_PAD_LEFT);
+                $iu->nombre = $nombre;
+                $iu->save();
+
+                $respuesta['respuesta'] .= "El MODULO se registro con éxito.";
+                $respuesta['sw']         = 1;
+              }
+              else
+              {
+                $respuesta['respuesta'] .= "El NOMBRE del MODULO ya fue registro.";
+              }
+            }
+            else
+            {
+              $c_nombre = SegModulo::where('nombre', '=', $nombre)->where('id', '<>', $id)->count();
+              if($c_nombre < 1)
+              {
+                $iu         = SegModulo::find($id);
+                $iu->estado = $request->input('estado');
+                $iu->nombre = $request->input('nombre');
+                $iu->save();
+
+                $respuesta['respuesta'] .= "El MODULO se edito con éxito.";
+                $respuesta['sw']         = 1;
+                $respuesta['iu']         = 2;
+              }
+              else
+              {
+                $respuesta['respuesta'] .= "El NOMBRE del MODULO ya fue registro.";
+              }
+            }
+          //=== respuesta ===
+            // sleep(5);
+            return json_encode($respuesta);
+        break;
       default:
         break;
     }
