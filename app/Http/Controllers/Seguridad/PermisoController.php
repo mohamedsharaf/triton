@@ -11,8 +11,9 @@ use App\Libraries\JqgridClass;
 use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegModulo;
+use App\Models\Seguridad\SegPermiso;
 
-class ModuloController extends Controller
+class PermisoController extends Controller
 {
   private $estado;
 
@@ -39,14 +40,15 @@ class ModuloController extends Controller
   public function index()
   {
     $data = [
-      'title'        => 'Gestor de módulos',
+      'title'        => 'Gestor de permisos',
       'home'         => 'Inicio',
       'sistema'      => 'Seguridad',
-      'modulo'       => 'Gestor de módulos',
-      'title_table'  => 'Modulos',
-      'estado_array' => $this->estado
+      'modulo'       => 'Gestor de permisos',
+      'title_table'  => 'Permisos',
+      'estado_array' => $this->estado,
+      'modulo_array' => SegModulo::where('estado', '=', 1)->select("id", "nombre")->get()->toArray()
     ];
-    return view('seguridad.modulo.modulo')->with($data);
+    return view('seguridad.permiso.permiso')->with($data);
   }
 
   public function view_jqgrid(Request $request)
@@ -69,10 +71,12 @@ class ModuloController extends Controller
         $jqgrid = new JqgridClass($request);
 
         $select = "
-          seg_modulos.id,
-          seg_modulos.estado,
-          seg_modulos.codigo,
-          seg_modulos.nombre
+          seg_permisos.id,
+          seg_permisos.modulo_id,
+          seg_permisos.estado,
+          seg_permisos.codigo,
+          seg_permisos.nombre,
+          seg_modulos.nombre AS modulo
         ";
 
         $array_where = [
@@ -80,11 +84,14 @@ class ModuloController extends Controller
 
         $array_where = array_merge($array_where, $jqgrid->getWhere());
 
-        $count = SegModulo::where($array_where)->count();
+        $count = SegPermiso::leftJoin("seg_modulos", "seg_modulos.id", "=", "seg_permisos.modulo_id")
+          ->where($array_where)
+          ->count();
 
         $limit_offset = $jqgrid->getLimitOffset($count);
 
-        $query = SegModulo::where($array_where)
+        $query = SegPermiso::leftJoin("seg_modulos", "seg_modulos.id", "=", "seg_permisos.modulo_id")
+          ->where($array_where)
           ->select(DB::raw($select))
           ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
           ->offset($limit_offset['start'])
@@ -102,7 +109,8 @@ class ModuloController extends Controller
         foreach ($query as $row)
         {
             $val_array = array(
-                'estado'=> $row["estado"]
+              'estado'    => $row["estado"],
+              'modulo_id' => $row["modulo_id"]
             );
 
             $respuesta['rows'][$i]['id'] = $row["id"];
@@ -112,6 +120,7 @@ class ModuloController extends Controller
                 // $row["estado"],
                 $row["codigo"],
                 $row["nombre"],
+                $row["modulo"],
                 //=== VARIABLES OCULTOS ===
                 json_encode($val_array)
             );
@@ -136,7 +145,7 @@ class ModuloController extends Controller
     {
       $respuesta = [
         'sw'        => 0,
-        'titulo'    => 'GESTOR DE MODULOS',
+        'titulo'    => 'GESTOR DE PERMISOS',
         'respuesta' => 'No es solicitud AJAX.'
       ];
       return json_encode($respuesta);

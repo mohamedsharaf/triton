@@ -37,9 +37,15 @@ Route::get('/', function () {
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/modulo', 'Seguridad\ModuloController@index')->name('modulo');
-  // Route::post('/modulo/view_jqgrid', 'Seguridad\ModuloController@view_jqgrid');
-  Route::match(["get", "post"], '/modulo/view_jqgrid', 'Seguridad\ModuloController@view_jqgrid');
-  Route::post('/modulo/send_ajax', 'Seguridad\ModuloController@send_ajax');
+//=== GESTOR DE MODULOS ===
+  Route::get('/modulo', 'Seguridad\ModuloController@index')->name('modulo');
+    // Route::post('/modulo/view_jqgrid', 'Seguridad\ModuloController@view_jqgrid');
+    Route::match(["get", "post"], '/modulo/view_jqgrid', 'Seguridad\ModuloController@view_jqgrid');
+    Route::post('/modulo/send_ajax', 'Seguridad\ModuloController@send_ajax');
+
+//=== GESTOR DE PERMISOS ===
+  Route::get('/permiso', 'Seguridad\PermisoController@index')->name('modulo');
+    Route::match(["get", "post"], '/permiso/view_jqgrid', 'Seguridad\PermisoController@view_jqgrid');
+    Route::post('/permiso/send_ajax', 'Seguridad\PermisoController@send_ajax');
 
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');
