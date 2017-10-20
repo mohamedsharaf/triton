@@ -44,8 +44,18 @@ Route::get('/home', 'HomeController@index')->name('home');
     Route::post('/modulo/send_ajax', 'Seguridad\ModuloController@send_ajax');
 
 //=== GESTOR DE PERMISOS ===
-  Route::get('/permiso', 'Seguridad\PermisoController@index')->name('modulo');
+  Route::get('/permiso', 'Seguridad\PermisoController@index')->name('permiso');
     Route::match(["get", "post"], '/permiso/view_jqgrid', 'Seguridad\PermisoController@view_jqgrid');
     Route::post('/permiso/send_ajax', 'Seguridad\PermisoController@send_ajax');
+
+//=== GESTOR DE ROLES ===
+  Route::get('/rol', 'Seguridad\RolController@index')->name('rol');
+    Route::match(["get", "post"], '/rol/view_jqgrid', 'Seguridad\RolController@view_jqgrid');
+    Route::post('/rol/send_ajax', 'Seguridad\RolController@send_ajax');
+
+//=== GESTOR DE ROLES ===
+  Route::get('/permiso_rol', 'Seguridad\PermisoRolController@index')->name('permiso_rol');
+    Route::match(["get", "post"], '/permiso_rol/view_jqgrid', 'Seguridad\PermisoRolController@view_jqgrid');
+    Route::post('/permiso_rol/send_ajax', 'Seguridad\PermisoRolController@send_ajax');
 
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');

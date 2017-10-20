@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SegPermiso extends Model
 {
-  protected $table    = 'seg_permisos';
+  protected $table = 'seg_permisos';
   
   protected $fillable = [
     'modulo_id',

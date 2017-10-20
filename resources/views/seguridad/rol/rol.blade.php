@@ -11,23 +11,14 @@
 
   <!-- Sweet Alert -->
     <link href="{!! asset('inspinia_v27/css/plugins/sweetalert/sweetalert.css') !!}" rel="stylesheet">
-
-    <link href="{!! asset('inspinia_v27/css/plugins/select2/select2.min.css') !!}" rel="stylesheet">
 @endsection
 
 @section('css')
-  <style type="text/css">
-    #alertmod_table_list_2 {
-        top: 900px !important;
-    }
-
-    .select2-close-mask{
-      z-index: 2099;
-    }
-    .select2-dropdown{
-      z-index: 3051;
-    }
-  </style>
+    <style type="text/css">
+        #alertmod_table_list_2 {
+            top: 900px !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -80,7 +71,7 @@
               <div class="row">
                 <div class="col-sm-12 b-r">
                   <form id="form_1" role="form" action="#">
-                    <input type="hidden" id="permiso_id" name="id" value=""/>
+                    <input type="hidden" id="rol_id" name="id" value=""/>
                     <input type="hidden" id="tipo1" name="tipo" value="1"/>
                     {{ csrf_field() }}
 
@@ -98,20 +89,9 @@
                       </div>
                     </div>
 
-                    <div id="modulo_id_div" class="form-group">
+                    <div class="form-group">
                       <label>Módulo</label>
-                      <select name="modulo_id" id="modulo_id" data-placeholder="Módulo" multiple="multiple" style="width: 100%;">
-                      </select>
-                    </div>
-
-                    <div class="form-group">
-                      <label>Código</label>
-                      <input type="text" class="form-control" id="codigo" placeholder="El código se generara automáticamente" disabled="disabled">
-                    </div>
-
-                    <div class="form-group">
-                      <label>Permiso</label>
-                      <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del permiso" >
+                      <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del módulo" >
                     </div>
                   </form>
                 </div>
@@ -151,10 +131,6 @@
 
   <!-- Sweet alert -->
     <script src="{{ asset('inspinia_v27/js/plugins/sweetalert/sweetalert.min.js') }}"></script>
-
-  <!-- Select2 -->
-    <script src="{{ asset('inspinia_v27/js/plugins/select2/select2.full.min.js') }}"></script>
-    <script src="{{ asset('inspinia_v27/js/plugins/select2/es.js') }}"></script>
 @endsection
 
 @section('js')
@@ -179,7 +155,7 @@
       };
     // === VARIABLES GLOBALES ===
       var base_url       = "{!! url('') !!}";
-      var url_controller = "{!! url('/permiso') !!}";
+      var url_controller = "{!! url('/rol') !!}";
       var csrf_token     = "{!! csrf_token() !!}";
 
       // === JQGRID1 ===
@@ -189,40 +165,30 @@
         var col_name_1    = new Array(
           "",
           "ESTADO",
-          "CODIGO",
-          "PERMISO",
-          "MODULO",
+          "ROL",
           ""
         );
         var col_m_name_1  = new Array(
           "act",
           "estado",
-          "codigo",
           "nombre",
-          "modulo",
           "val_json"
         );
         var col_m_index_1 = new Array(
           "",
-          "seg_permisos.estado",
-          "seg_permisos.codigo",
-          "seg_permisos.nombre",
-          "seg_modulos.nombre",
+          "seg_roles.estado",
+          "seg_roles.nombre",
           ""
         );
         var col_m_width_1 = new Array(
           33,
           100,
-          70,
-          500,
           500,
           10
         );
         var col_m_align_1 = new Array(
           "center",
           "center",
-          "center",
-          "left",
           "left",
           "center"
         );
@@ -240,24 +206,7 @@
         estado_jqgrid += ';' + index + ':' + value;
       });
 
-    // === MODULO ===
-      var modulo_json   = $.parseJSON('{!! json_encode($modulo_array) !!}');
-      var modulo_select = '';
-      var modulo_jqgrid = ':Todos';
-
-      $.each(modulo_json, function(index, value) {
-        modulo_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-        modulo_jqgrid += ';' + value.nombre + ':' + value.nombre;
-      });
-
     $(document).ready(function(){
-      //=== INICIALIZAR ===
-        $('#modulo_id').append(modulo_select);
-        $("#modulo_id").select2({
-          maximumSelectionLength: 1
-        });
-        $("#modulo_id").appendTo("#modulo_id_div");
-
       // === JQGRID 1 ===
         var valor1 = new Array();
         valor1[0]  = 10;
@@ -314,7 +263,7 @@
             pager        : pjqgrid1,
             rowNum       : 10,
             rowList      : [10, 20, 30],
-            sortname     : 'seg_permisos.id',
+            sortname     : 'seg_roles.id',
             sortorder    : "desc",
             viewrecords  : true,
             shrinkToFit  : false,
@@ -331,9 +280,7 @@
               col_name_1[0],
               col_name_1[1],
               col_name_1[2],
-              col_name_1[3],
-              col_name_1[4],
-              col_name_1[5]
+              col_name_1[3]
             ],
             colModel : [
               {
@@ -360,26 +307,12 @@
                 width : col_m_width_1[2],
                 align : col_m_align_1[2]
               },
-              {
-                name  : col_m_name_1[3],
-                index : col_m_index_1[3],
-                width : col_m_width_1[3],
-                align : col_m_align_1[3]
-              },
-              {
-                name       : col_m_name_1[4],
-                index      : col_m_index_1[4],
-                width      : col_m_width_1[4],
-                align      : col_m_align_1[4],
-                stype      :'select',
-                editoptions: {value:modulo_jqgrid}
-              },
               // === OCULTO ===
                 {
-                  name  : col_m_name_1[5],
-                  index : col_m_index_1[5],
-                  width : col_m_width_1[5],
-                  align : col_m_align_1[5],
+                  name  : col_m_name_1[3],
+                  index : col_m_index_1[3],
+                  width : col_m_width_1[3],
+                  align : col_m_align_1[3],
                   search: false,
                   hidden: true
                 }
@@ -476,17 +409,14 @@
           valor1[0]  = 14;
           utilitarios(valor1);
 
-          $("#modulo_id").select2("enable", false);
           $('#modal_1_title').empty();
-          $('#modal_1_title').append('Modificar permiso');
-          $("#permiso_id").val(valor[1]);
+          $('#modal_1_title').append('Modificar rol');
+          $("#rol_id").val(valor[1]);
 
           var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
           var val_json = $.parseJSON(ret.val_json);
 
           $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
-          $("#modulo_id").select2("val", val_json.modulo_id);
-          $("#codigo").val(ret.codigo);
           $("#nombre").val(ret.nombre);
           $('#modal_1').modal();
           break;
@@ -497,11 +427,9 @@
         // === RESETEAR FORMULARIO ===
         case 14:
           $('#modal_1_title').empty();
-          $('#modal_1_title').append('Agregar nuevo permiso');
+          $('#modal_1_title').append('Agregar nuevo rol');
 
-          $("#modulo_id").select2("enable", true);
-          $("#permiso_id").val('');
-          $('#modulo_id').select2("val", "");
+          $("#rol_id").val('');
           $(form_1)[0].reset();
           break;
         // === GUARDAR REGISTRO ===
@@ -537,9 +465,6 @@
         case 16:
           $(form_1).validate({
             rules: {
-              modulo_id:{
-                required: true
-              },
               nombre:{
                 required : true,
                 maxlength: 500

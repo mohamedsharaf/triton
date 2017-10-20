@@ -4,15 +4,14 @@ namespace App\Models\Seguridad;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SegModulo extends Model
+class SegPermisoRol extends Model
 {
-  protected $table = 'seg_modulos';
-  
+  protected $table = 'seg_permisos_roles';
+
   protected $fillable = [
-    'estado',
-    'codigo',
-    'nombre'
+    'permiso_id',
+    'rol_id'
   ];
-  
+
   protected $guarded  = [];
 }
