@@ -64,23 +64,22 @@
                 <span id="modal_1_title"></span>
               </h4>
 
-              <!-- <small class="font-bold">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</small> -->
+              <small class="font-bold" id="modal_1_subtitle"></small>
             </div>
 
             <div class="modal-body">
               <div class="row">
                 <div class="col-sm-12 b-r">
                   <form id="form_1" role="form" action="#">
-                    <input type="hidden" id="rol_id" name="id" value=""/>
+                    <input type="hidden" id="rol_id" name="rol_id" value=""/>
                     <input type="hidden" id="tipo1" name="tipo" value="1"/>
                     {{ csrf_field() }}
-
                   </form>
                 </div>
               </div>
             </div>
 
-            <div class="modal-footer">
+            <div id="modal_1_footer" class="modal-footer">
               <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
               <button type="button" class="btn btn-danger" data-dismiss="modal">Salir</button>
             </div>
@@ -90,28 +89,31 @@
 @endsection
 
 @section('js_plugins')
-  <!-- Peity -->
-    <script src="{{ asset('inspinia_v27/js/plugins/peity/jquery.peity.min.js') }}"></script>
+    <!-- Peity -->
+        <script src="{{ asset('inspinia_v27/js/plugins/peity/jquery.peity.min.js') }}"></script>
 
-  <!-- jqGrid -->
-    <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/i18n/grid.locale-es.js') }}"></script>
-    <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/jquery.jqGrid.min.js') }}"></script>
+    <!-- jqGrid -->
+        <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/i18n/grid.locale-es.js') }}"></script>
+        <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/jquery.jqGrid.min.js') }}"></script>
 
-  <!-- Custom and plugin javascript -->
-    <script src="{{ asset('inspinia_v27/js/inspinia.js') }}"></script>
-    <script src="{{ asset('inspinia_v27/js/plugins/pace/pace.min.js') }}"></script>
+    <!-- Custom and plugin javascript -->
+        <script src="{{ asset('inspinia_v27/js/inspinia.js') }}"></script>
+        <script src="{{ asset('inspinia_v27/js/plugins/pace/pace.min.js') }}"></script>
 
-    <script src="{{ asset('inspinia_v27/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+        <script src="{{ asset('inspinia_v27/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
 
-  <!-- Jquery Validate -->
-    <script src="{{ asset('inspinia_v27/js/plugins/validate/jquery.validate.min.js') }}"></script>
-    <script src="{{ asset('inspinia_v27/js/plugins/validate/messages_es.js') }}"></script>
+    <!-- Jquery Validate -->
+        <script src="{{ asset('inspinia_v27/js/plugins/validate/jquery.validate.min.js') }}"></script>
+        <script src="{{ asset('inspinia_v27/js/plugins/validate/messages_es.js') }}"></script>
 
-  <!-- Toastr script -->
-    <script src="{{ asset('inspinia_v27/js/plugins/toastr/toastr.min.js') }}"></script>
+    <!-- Toastr script -->
+        <script src="{{ asset('inspinia_v27/js/plugins/toastr/toastr.min.js') }}"></script>
 
-  <!-- Sweet alert -->
-    <script src="{{ asset('inspinia_v27/js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <!-- Sweet alert -->
+        <script src="{{ asset('inspinia_v27/js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+
+    <!-- Nestable List -->
+        <script src="{{ asset('inspinia_v27/js/plugins/nestable/jquery.nestable.js') }}"></script>
 @endsection
 
 @section('js')
@@ -172,17 +174,79 @@
       // === FORMULARIO 1 ===
         var form_1 = "#form_1";
 
-    // === ESTADO ===
-      var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
-      var estado_select = '';
-      var estado_jqgrid = ':Todos';
+    // === MP ===
+          var mp_json     = $.parseJSON('{!! json_encode($mp_array) !!}');
+          var mp_nestable = "";
 
-      $.each(estado_json, function(index, value) {
-        estado_select += '<option value="' + index + '">' + value + '</option>';
-        estado_jqgrid += ';' + index + ':' + value;
-      });
+          if(mp_json.length != 0){
+              var mp_modulo    = '';
+              var mp_modulo_sw = true;
+
+              mp_nestable += '<div id="div_nestable" class="dd">';
+              mp_nestable += '<ol class="dd-list">';
+              $.each(mp_json, function(index, value){
+                  if(mp_modulo != value.modulo_codigo){
+                      if(mp_modulo_sw){
+                          mp_modulo_sw = false;
+
+                          mp_nestable += '<li class="dd-item" data-id="' + value.modulo_codigo + '">';
+                      }
+                      else{
+                          mp_nestable += '</ol>';
+                          mp_nestable += '</li>';
+                          mp_nestable += '<li class="dd-item" data-id="' + value.modulo_codigo + '">';
+                      }
+
+                      mp_nestable += '<div class="dd-handle">';
+                      mp_nestable += '<span class="label label-success">' + value.modulo_codigo + '</span> <b>' + value.mudulo_nombre + '</b>';
+                      mp_nestable += '</div>';
+                      mp_nestable += '<ol class="dd-list">';
+
+                      mp_modulo = value.modulo_codigo;
+                  }
+
+                  mp_nestable += '<li class="dd-item dd-nodrag" data-id="' + value.codigo + '">';
+                  mp_nestable += '<div class="dd-handle">';
+
+                  mp_nestable += '<span class="pull-right">';
+                  mp_nestable += '<div class="onoffswitch">';
+                  mp_nestable += '<input type="checkbox" class="onoffswitch-checkbox" id="pc_' + value.id + '" name="permiso_id[]" value="' + value.id + '">';
+                  mp_nestable += '<label class="onoffswitch-label" for="pc_' + value.id + '">';
+                  mp_nestable += '<span class="onoffswitch-inner"></span>';
+                  mp_nestable += '<span class="onoffswitch-switch"></span>';
+                  mp_nestable += '</label>';
+                  mp_nestable += '</div>';
+                  mp_nestable += '</span>';
+
+                  mp_nestable += '<span class="label label-info">' + value.codigo + '</span> ' + value.nombre;
+                  mp_nestable += '</div>';
+                  mp_nestable += '</li>';
+              });
+
+              mp_nestable += '</ol>';
+              mp_nestable += '</li>';
+              mp_nestable += '</ol>';
+              mp_nestable += '</div>';
+          }
 
     $(document).ready(function(){
+        if(mp_nestable != ''){
+            $('#form_1').append(mp_nestable);
+
+            $('#div_nestable').nestable({
+                group   : 0,
+                maxDepth: 0
+            });
+
+            $('#div_nestable').nestable('collapseAll');
+
+            var expand_all   = '<button type ="button" class ="btn btn-info pull-left" onclick    ="utilitarios([17]);">Expandir</button>';
+            var collapse_all = '<button type ="button" class ="btn btn-success pull-left" onclick ="utilitarios([18]);">Contraer</button>';
+
+            $('#modal_1_footer').append(expand_all);
+            $('#modal_1_footer').append(collapse_all);
+        }
+
       // === JQGRID 1 ===
         var valor1 = new Array();
         valor1[0]  = 10;
@@ -376,9 +440,21 @@
           valor1[0]  = 14;
           utilitarios(valor1);
 
-          $('#modal_1_title').empty();
+          var ret = $(jqgrid1).jqGrid('getRowData', valor[1]);
+
+          $('#modal_1_title, #modal_1_subtitle').empty();
           $('#modal_1_title').append('Asignación de permisos');
+          $('#modal_1_subtitle').append(ret.nombre);
           $("#rol_id").val(valor[1]);
+
+          var valor1 = new Array();
+          valor1[0]  = 150;
+          valor1[1]  = url_controller + '/send_ajax';
+          valor1[2]  = 'POST';
+          valor1[3]  = true;
+          valor1[4]  = 'tipo=100&_token=' + csrf_token + '&rol_id=' + valor[1];
+          valor1[5]  = 'json';
+          utilitarios(valor1);
 
           $('#modal_1').modal();
           break;
@@ -393,7 +469,6 @@
           break;
         // === GUARDAR REGISTRO ===
         case 15:
-          if($(form_1).valid()){
             swal({
               title             : "ENVIANDO INFORMACIÓN",
               text              : "Espere a que guarde la información.",
@@ -411,15 +486,7 @@
             valor1[4]  = $(form_1).serialize();
             valor1[5]  = 'json';
             utilitarios(valor1);
-          }
-          else{
-            var valor1 = new Array();
-            valor1[0]  = 101;
-            valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-            valor1[2]  = "¡Favor complete o corrija los datos solicitados!"; //+ '<div class="text-center"><strong>VERIFIQUE POR FAVOR!!!</strong></div>';
-            utilitarios(valor1);
-          }
-          break;
+            break;
         // === VALIDACION ===
         case 16:
           $(form_1).validate({
@@ -431,6 +498,12 @@
             }
           });
           break;
+        case 17:
+            $('#div_nestable').nestable('expandAll');
+            break;
+        case 18:
+            $('#div_nestable').nestable('collapseAll');
+            break;
         // === MENSAJE ERROR ===
         case 100:
           toastr.success(valor[2], valor[1], options1);
@@ -450,7 +523,7 @@
             success: function(data){
               switch(data.tipo){
                   // === INSERT UPDATE ===
-                  case '1':
+                    case '1':
                     if(data.sw === 1){
                       var valor1 = new Array();
                       valor1[0]  = 100;
@@ -458,7 +531,7 @@
                       valor1[2]  = data.respuesta;
                       utilitarios(valor1);
 
-                      $(jqgrid1).trigger("reloadGrid");
+                    //   $(jqgrid1).trigger("reloadGrid");
                       if(data.iu === 1){
                         var valor1 = new Array();
                         valor1[0]  = 14;
@@ -481,6 +554,23 @@
                     swal.close();
                     $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                     break;
+                  // === ROL PERMISOS ===
+                    case '100':
+                      if(data.sw === 1){
+                          if(data.consulta.length != 0){
+                              $.each(data.consulta, function(index, value){
+                                  $("#pc_" + value.permiso_id).prop('checked', true);
+                              });
+                          }
+                      }
+                      else if(data.sw === 0){
+                      }
+                      else if(data.sw === 2){
+                        window.location.reload();
+                      }
+                      swal.close();
+                      $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                      break;
                   default:
                     break;
                 }

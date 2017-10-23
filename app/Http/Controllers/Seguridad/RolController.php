@@ -157,8 +157,6 @@ class RolController extends Controller
             'titulo'     => '<div class="text-center"><strong>GESTOR DE ROLES</strong></div>',
             'respuesta'  => '',
             'tipo'       => $tipo,
-            'm_error_sw' => 2,
-            'm_error'    => '',
             'iu'         => 1
           );
           $opcion = 'n';
