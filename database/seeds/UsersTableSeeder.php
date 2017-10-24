@@ -14,8 +14,7 @@ class UsersTableSeeder extends Seeder
         DB::table('users')->insert([
             [
                 "rol_id"      => "1",
-                "n_documento" => "1",
-                "name"        => "Informatica",
+                "name"        => "INFORMATICA",
                 "email"       => "informatica@fiscalia.gob.bo",
                 "password"    => bcrypt('123456'),
                 "created_at"  => date("Y-m-d H:i:s"),

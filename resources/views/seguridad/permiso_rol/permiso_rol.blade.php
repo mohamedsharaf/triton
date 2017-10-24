@@ -515,12 +515,12 @@
         // === AJAX ===
         case 150:
           $.ajax({
-            url: valor[1],
-            type: valor[2],
-            async: valor[3],
-            data: valor[4],
+            url     : valor[1],
+            type    : valor[2],
+            async   : valor[3],
+            data    : valor[4],
             dataType: valor[5],
-            success: function(data){
+            success : function(data){
               switch(data.tipo){
                   // === INSERT UPDATE ===
                     case '1':

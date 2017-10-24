@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Seguridad;
+namespace App\Http\Controllers\Rrhh;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +12,10 @@ use App\Libraries\JqgridClass;
 use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegModulo;
+use App\Models\Seguridad\SegPermiso;
 use App\Models\Seguridad\SegPermisoRol;
 
-class ModuloController extends Controller
+class PersonaController extends Controller
 {
   private $estado;
 
@@ -40,7 +41,7 @@ class ModuloController extends Controller
    * Show the application dashboard.
    *
    * @return \Illuminate\Http\Response
-    */
+   */
     public function index()
     {
         $this->rol_id   = Auth::user()->rol_id;
@@ -54,14 +55,15 @@ class ModuloController extends Controller
             $data = [
                 'rol_id'       => $this->rol_id,
                 'permisos'     => $this->permisos,
-                'title'        => 'Gestor de módulos',
+                'title'        => 'Gestor de permisos',
                 'home'         => 'Inicio',
                 'sistema'      => 'Seguridad',
-                'modulo'       => 'Gestor de módulos',
-                'title_table'  => 'Modulos',
-                'estado_array' => $this->estado
+                'modulo'       => 'Gestor de permisos',
+                'title_table'  => 'Permisos',
+                'estado_array' => $this->estado,
+                'modulo_array' => SegModulo::where('estado', '=', 1)->select("id", "nombre")->orderBy("nombre")->get()->toArray()
             ];
-            return view('seguridad.modulo.modulo')->with($data);
+            return view('seguridad.permiso.permiso')->with($data);
         }
         else
         {
@@ -89,10 +91,12 @@ class ModuloController extends Controller
         $jqgrid = new JqgridClass($request);
 
         $select = "
-          seg_modulos.id,
-          seg_modulos.estado,
-          seg_modulos.codigo,
-          seg_modulos.nombre
+          seg_permisos.id,
+          seg_permisos.modulo_id,
+          seg_permisos.estado,
+          seg_permisos.codigo,
+          seg_permisos.nombre,
+          seg_modulos.nombre AS modulo
         ";
 
         $array_where = [
@@ -100,11 +104,14 @@ class ModuloController extends Controller
 
         $array_where = array_merge($array_where, $jqgrid->getWhere());
 
-        $count = SegModulo::where($array_where)->count();
+        $count = SegPermiso::leftJoin("seg_modulos", "seg_modulos.id", "=", "seg_permisos.modulo_id")
+          ->where($array_where)
+          ->count();
 
         $limit_offset = $jqgrid->getLimitOffset($count);
 
-        $query = SegModulo::where($array_where)
+        $query = SegPermiso::leftJoin("seg_modulos", "seg_modulos.id", "=", "seg_permisos.modulo_id")
+          ->where($array_where)
           ->select(DB::raw($select))
           ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
           ->offset($limit_offset['start'])
@@ -122,7 +129,8 @@ class ModuloController extends Controller
         foreach ($query as $row)
         {
             $val_array = array(
-                'estado'=> $row["estado"]
+              'estado'    => $row["estado"],
+              'modulo_id' => $row["modulo_id"]
             );
 
             $respuesta['rows'][$i]['id'] = $row["id"];
@@ -132,6 +140,7 @@ class ModuloController extends Controller
                 // $row["estado"],
                 $row["codigo"],
                 $row["nombre"],
+                $row["modulo"],
                 //=== VARIABLES OCULTOS ===
                 json_encode($val_array)
             );
@@ -156,7 +165,7 @@ class ModuloController extends Controller
     {
       $respuesta = [
         'sw'        => 0,
-        'titulo'    => 'GESTOR DE MODULOS',
+        'titulo'    => 'GESTOR DE PERMISOS',
         'respuesta' => 'No es solicitud AJAX.'
       ];
       return json_encode($respuesta);
@@ -168,7 +177,6 @@ class ModuloController extends Controller
     {
       // === INSERT UPDATE GESTOR DE MODULOS ===
       case '1':
-        // dd($request->all);
         // === LIBRERIAS ===
           $util = new UtilClass();
           // return strtoupper($util->getNoAcentoNoComilla(trim('"   sérÁñ    "')));
@@ -177,7 +185,7 @@ class ModuloController extends Controller
           $data1     = array();
           $respuesta = array(
             'sw'         => 0,
-            'titulo'     => '<div class="text-center"><strong>GESTOR DE MODULOS</strong></div>',
+            'titulo'     => '<div class="text-center"><strong>GESTOR DE PERMISOS</strong></div>',
             'respuesta'  => '',
             'tipo'       => $tipo,
             'iu'         => 1
@@ -200,48 +208,51 @@ class ModuloController extends Controller
               // $data1['created_at'] = $f_modificacion;
             }
           //=== OPERACION ===
-            $estado = trim($request->input('estado'));
-            $nombre = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+            $modulo_id = trim($request->input('modulo_id'));
+            $estado    = trim($request->input('estado'));
+            $nombre    = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
             if($opcion == 'n')
             {
-              $c_nombre = SegModulo::where('nombre', '=', $nombre)->count();
+              $c_nombre = SegPermiso::where('nombre', '=', $nombre)->where('modulo_id', '=', $modulo_id)->count();
               if($c_nombre < 1)
               {
-                $iu         = new SegModulo;
-                $iu->estado = $estado;
-                $iu->codigo = str_pad(SegModulo::count()+1, 2, "0", STR_PAD_LEFT);
-                $iu->nombre = $nombre;
+                $seg_modulo    = SegModulo::where('id', '=', $modulo_id)->select("codigo")->first();
+                $iu            = new SegPermiso;
+                $iu->modulo_id = $modulo_id;
+                $iu->estado    = $estado;
+                $iu->codigo    = $seg_modulo->codigo . str_pad((SegPermiso::where('modulo_id', '=', $modulo_id)->count())+1, 2, "0", STR_PAD_LEFT);
+                $iu->nombre    = $nombre;
                 $iu->save();
 
-                $respuesta['respuesta'] .= "El MODULO se registro con éxito.";
+                $respuesta['respuesta'] .= "El PERMISO se registro con éxito.";
                 $respuesta['sw']         = 1;
               }
               else
               {
-                $respuesta['respuesta'] .= "El NOMBRE del MODULO ya fue registro.";
+                $respuesta['respuesta'] .= "El NOMBRE del PERMISO ya fue registro.";
               }
             }
             else
             {
-              $c_nombre = SegModulo::where('nombre', '=', $nombre)->where('id', '<>', $id)->count();
+              $seg_permiso = SegPermiso::where('id', '=', $id)->select("modulo_id")->first();
+              $c_nombre    = SegPermiso::where('nombre', '=', $nombre)->where('id', '<>', $id)->where('modulo_id', '=', $seg_permiso->modulo_id)->count();
               if($c_nombre < 1)
               {
-                $iu         = SegModulo::find($id);
+                $iu         = SegPermiso::find($id);
                 $iu->estado = $estado;
                 $iu->nombre = $nombre;
                 $iu->save();
 
-                $respuesta['respuesta'] .= "El MODULO se edito con éxito.";
+                $respuesta['respuesta'] .= "El PERMISO se edito con éxito.";
                 $respuesta['sw']         = 1;
                 $respuesta['iu']         = 2;
               }
               else
               {
-                $respuesta['respuesta'] .= "El NOMBRE del MODULO ya fue registro.";
+                $respuesta['respuesta'] .= "El NOMBRE del PERMISO ya fue registro.";
               }
             }
           //=== respuesta ===
-            // sleep(5);
             return json_encode($respuesta);
         break;
       default:

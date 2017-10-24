@@ -17,12 +17,11 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('rol_id')->unsigned()->nullable();
+            $table->integer('persona_id')->unsigned()->nullable();
 
-            $table->string('n_documento', 25)->unique()->nullable();
+            $table->smallInteger('estado')->default('1')->unsigned();
             $table->string('name');
-            $table->string('ap_paterno', 50)->nullable();
-            $table->string('ap_materno', 50)->nullable();
-            $table->string('ap_esposo', 50)->nullable();
+
             $table->string('imagen', 250)->nullable();
 
             $table->string('email')->unique();
@@ -35,6 +34,11 @@ class CreateUsersTable extends Migration
               ->references('id')
               ->on('seg_roles')
               ->onDelete('cascade');
+
+            $table->foreign('persona_id')
+                ->references('id')
+                ->on('rrhh_personas')
+                ->onDelete('cascade');
         });
     }
 

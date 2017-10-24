@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Seguridad;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Controller;
 
@@ -16,44 +17,62 @@ use App\Models\Seguridad\SegPermisoRol;
 
 class PermisoRolController extends Controller
 {
-  /**
-   * Create a new controller instance.
-   *
-   * @return void
-   */
+    private $rol_id;
+    private $permisos;
+
+    /**
+    * Create a new controller instance.
+    *
+    * @return void
+    */
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-  /**
-   * Show the application dashboard.
-   *
-   * @return \Illuminate\Http\Response
-   */
+    /**
+    * Show the application dashboard.
+    *
+    * @return \Illuminate\Http\Response
+    */
     public function index()
     {
-        $data = [
-        'title'       => 'Asignación de permisos',
-        'home'        => 'Inicio',
-        'sistema'     => 'Seguridad',
-        'modulo'      => 'Asignación de permisos',
-        'title_table' => 'Roles',
-        'mp_array'    => SegPermiso::leftJoin("seg_modulos", "seg_modulos.id", "=", "seg_permisos.modulo_id")
-                            ->where("seg_modulos.estado", "=", 1)
-                            ->where("seg_permisos.estado", "=", 1)
-                            ->select(
-                                "seg_modulos.codigo AS modulo_codigo",
-                                "seg_modulos.nombre AS mudulo_nombre",
-                                "seg_permisos.id",
-                                "seg_permisos.codigo",
-                                "seg_permisos.nombre"
-                            )
-                            ->orderBy("seg_permisos.codigo", "ASC")
+        $this->rol_id   = Auth::user()->rol_id;
+        $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                            ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                            ->select("seg_permisos.codigo")
                             ->get()
-                            ->toArray()
-        ];
-        return view('seguridad.permiso_rol.permiso_rol')->with($data);
+                            ->toArray();
+        if($this->rol_id == 1)
+        {
+            $data = [
+                'rol_id'       => $this->rol_id,
+                'permisos'     => $this->permisos,
+                'title'       => 'Asignación de permisos',
+                'home'        => 'Inicio',
+                'sistema'     => 'Seguridad',
+                'modulo'      => 'Asignación de permisos',
+                'title_table' => 'Roles',
+                'mp_array'    => SegPermiso::leftJoin("seg_modulos", "seg_modulos.id", "=", "seg_permisos.modulo_id")
+                                    ->where("seg_modulos.estado", "=", 1)
+                                    ->where("seg_permisos.estado", "=", 1)
+                                    ->select(
+                                        "seg_modulos.codigo AS modulo_codigo",
+                                        "seg_modulos.nombre AS mudulo_nombre",
+                                        "seg_permisos.id",
+                                        "seg_permisos.codigo",
+                                        "seg_permisos.nombre"
+                                    )
+                                    ->orderBy("seg_permisos.codigo", "ASC")
+                                    ->get()
+                                    ->toArray()
+            ];
+            return view('seguridad.permiso_rol.permiso_rol')->with($data);
+        }
+        else
+        {
+            return back()->withInput();
+        }
     }
 
     public function view_jqgrid(Request $request)

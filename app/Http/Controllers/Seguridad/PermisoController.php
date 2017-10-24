@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Seguridad;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Controller;
 
@@ -12,10 +13,14 @@ use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegModulo;
 use App\Models\Seguridad\SegPermiso;
+use App\Models\Seguridad\SegPermisoRol;
 
 class PermisoController extends Controller
 {
   private $estado;
+
+  private $rol_id;
+  private $permisos;
 
   /**
    * Create a new controller instance.
@@ -37,19 +42,34 @@ class PermisoController extends Controller
    *
    * @return \Illuminate\Http\Response
    */
-  public function index()
-  {
-    $data = [
-      'title'        => 'Gestor de permisos',
-      'home'         => 'Inicio',
-      'sistema'      => 'Seguridad',
-      'modulo'       => 'Gestor de permisos',
-      'title_table'  => 'Permisos',
-      'estado_array' => $this->estado,
-      'modulo_array' => SegModulo::where('estado', '=', 1)->select("id", "nombre")->orderBy("nombre")->get()->toArray()
-    ];
-    return view('seguridad.permiso.permiso')->with($data);
-  }
+    public function index()
+    {
+        $this->rol_id   = Auth::user()->rol_id;
+        $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                            ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                            ->select("seg_permisos.codigo")
+                            ->get()
+                            ->toArray();
+        if($this->rol_id == 1)
+        {
+            $data = [
+                'rol_id'       => $this->rol_id,
+                'permisos'     => $this->permisos,
+                'title'        => 'Gestor de permisos',
+                'home'         => 'Inicio',
+                'sistema'      => 'Seguridad',
+                'modulo'       => 'Gestor de permisos',
+                'title_table'  => 'Permisos',
+                'estado_array' => $this->estado,
+                'modulo_array' => SegModulo::where('estado', '=', 1)->select("id", "nombre")->orderBy("nombre")->get()->toArray()
+            ];
+            return view('seguridad.permiso.permiso')->with($data);
+        }
+        else
+        {
+            return back()->withInput();
+        }
+    }
 
   public function view_jqgrid(Request $request)
   {
