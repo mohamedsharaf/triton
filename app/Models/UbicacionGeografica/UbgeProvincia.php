@@ -4,14 +4,14 @@ namespace App\Models\UbicacionGeografica;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UbgeDepartamento extends Model
+class UbgeProvincia extends Model
 {
-    protected $table    = 'ubge_departamentos';
+    protected $table    = 'ubge_provincias';
 
     protected $fillable = [
+        'departamento_id',
         'estado',
         'codigo',
-        'codigo_2',
         'nombre'
     ];
 
