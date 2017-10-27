@@ -30,13 +30,19 @@
                 <a href="{{ url('/home') }}"><i class="fa fa-home"></i> <span class="nav-label">Inicio</span></a>
             </li>
 
-            <li class="{{ isActiveRoute('persona') }}{{ isActiveRoute('funcionario') }}">
-                <a href="#"><i class="fa fa-group"></i> <span class="nav-label">Recursos humanos</span> </a>
-                <ul class="nav nav-second-level collapse">
-                    <li class="{{ isActiveRoute('persona') }}"><a href="{{ url('/persona') }}">Personas</a></li>
-                    <li class="{{ isActiveRoute('funcionario') }}"><a href="{{ url('/funcionario') }}">Funcionarios</a></li>
-                </ul>
-            </li>
+            @if(in_array(['codigo' => '0501'], $permisos) || in_array(['codigo' => '0601'], $permisos))
+                <li class="{{ isActiveRoute('persona') }}{{ isActiveRoute('funcionario') }}">
+                    <a href="#"><i class="fa fa-group"></i> <span class="nav-label">Recursos humanos</span> </a>
+                    <ul class="nav nav-second-level collapse">
+                        @if(in_array(['codigo' => '0501'], $permisos))
+                            <li class="{{ isActiveRoute('persona') }}"><a href="{{ url('/persona') }}">Personas</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '0601'], $permisos))
+                            <li class="{{ isActiveRoute('funcionario') }}"><a href="{{ url('/funcionario') }}">Funcionarios</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
 
             <li class="{{ isActiveRoute('biometrico') }}{{ isActiveRoute('persona_biometrico') }}">
                 <a href="#"><i class="fa fa-sitemap"></i> <span class="nav-label">Biometricos</span> </a>

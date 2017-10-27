@@ -52,7 +52,7 @@ class UnidadDesconcentradaController extends Controller
                             ->select("seg_permisos.codigo")
                             ->get()
                             ->toArray();
-        if($this->rol_id == 1)
+        if(in_array(['codigo' => '0201'], $this->permisos))
         {
             $data = [
                 'rol_id'                  => $this->rol_id,
@@ -214,6 +214,13 @@ class UnidadDesconcentradaController extends Controller
         {
             // === INSERT UPDATE GESTOR DE MODULOS ===
             case '1':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
                 // === LIBRERIAS ===
                     $util = new UtilClass();
 
@@ -234,56 +241,68 @@ class UnidadDesconcentradaController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        // $data1['updated_at'] = $f_modificacion;
+                        if(!in_array(['codigo' => '0203'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
                     }
                     else
                     {
-                    // $data1['created_at'] = $f_modificacion;
+                        if(!in_array(['codigo' => '0202'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
                     }
 
                 //=== OPERACION ===
-                    $modulo_id = trim($request->input('modulo_id'));
-                    $estado    = trim($request->input('estado'));
-                    $nombre    = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                    $estado               = trim($request->input('estado'));
+                    $municipio_id         = trim($request->input('municipio_id'));
+                    $lugar_dependencia_id = trim($request->input('lugar_dependencia_id'));
+                    $nombre               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                    $direccion            = strtoupper($util->getNoAcentoNoComilla(trim($request->input('direccion'))));
                     if($opcion == 'n')
                     {
-                        $c_nombre = SegPermiso::where('nombre', '=', $nombre)->where('modulo_id', '=', $modulo_id)->count();
+                        $c_nombre = InstUnidadDesconcentrada::where('nombre', '=', $nombre)->where('lugar_dependencia_id', '=', $lugar_dependencia_id)->count();
                         if($c_nombre < 1)
                         {
-                            $seg_modulo    = SegModulo::where('id', '=', $modulo_id)->select("codigo")->first();
-                            $iu            = new SegPermiso;
-                            $iu->modulo_id = $modulo_id;
-                            $iu->estado    = $estado;
-                            $iu->codigo    = $seg_modulo->codigo . str_pad((SegPermiso::where('modulo_id', '=', $modulo_id)->count())+1, 2, "0", STR_PAD_LEFT);
-                            $iu->nombre    = $nombre;
+                            $iu                       = new InstUnidadDesconcentrada;
+                            $iu->estado               = $estado;
+                            $iu->municipio_id         = $municipio_id;
+                            $iu->lugar_dependencia_id = $lugar_dependencia_id;
+                            $iu->nombre               = $nombre;
+                            $iu->direccion            = $direccion;
                             $iu->save();
 
-                            $respuesta['respuesta'] .= "El PERMISO se registro con éxito.";
+                            $respuesta['respuesta'] .= "La UNIDAD DESCONCENTRADA se registro con éxito.";
                             $respuesta['sw']         = 1;
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "El NOMBRE del PERMISO ya fue registro.";
+                            $respuesta['respuesta'] .= "El NOMBRE de la UNIDAD DESCONCENTRADA ya fue registra.";
                         }
                     }
                     else
                     {
-                        $seg_permiso = SegPermiso::where('id', '=', $id)->select("modulo_id")->first();
-                        $c_nombre    = SegPermiso::where('nombre', '=', $nombre)->where('id', '<>', $id)->where('modulo_id', '=', $seg_permiso->modulo_id)->count();
+                        $c_nombre = InstUnidadDesconcentrada::where('nombre', '=', $nombre)->where('id', '<>', $id)->where('lugar_dependencia_id', '=', $lugar_dependencia_id)->count();
                         if($c_nombre < 1)
                         {
-                            $iu         = SegPermiso::find($id);
-                            $iu->estado = $estado;
-                            $iu->nombre = $nombre;
+                            $iu                       = InstUnidadDesconcentrada::find($id);
+                            $iu->estado               = $estado;
+                            $iu->municipio_id         = $municipio_id;
+                            $iu->lugar_dependencia_id = $lugar_dependencia_id;
+                            $iu->nombre               = $nombre;
+                            $iu->direccion            = $direccion;
                             $iu->save();
 
-                            $respuesta['respuesta'] .= "El PERMISO se edito con éxito.";
+                            $respuesta['respuesta'] .= "La UNIDAD DESCONCENTRADA se edito con éxito.";
                             $respuesta['sw']         = 1;
                             $respuesta['iu']         = 2;
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "El NOMBRE del PERMISO ya fue registro.";
+                            $respuesta['respuesta'] .= "El NOMBRE de la UNIDAD DESCONCENTRADA ya fue registra.";
                         }
                     }
                 //=== respuesta ===

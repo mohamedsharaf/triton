@@ -63,4 +63,12 @@ Route::get('/home', 'HomeController@index')->name('home');
         Route::match(["get", "post"], '/unidad_desconcentrada/view_jqgrid', 'Institucion\UnidadDesconcentradaController@view_jqgrid');
         Route::post('/unidad_desconcentrada/send_ajax', 'Institucion\UnidadDesconcentradaController@send_ajax');
 
+
+
+
+//=== PERSONA ===
+    Route::get('/persona', 'Rrhh\PersonaController@index')->name('persona');
+        Route::match(["get", "post"], '/persona/view_jqgrid', 'Rrhh\PersonaController@view_jqgrid');
+        Route::post('/persona/send_ajax', 'Rrhh\PersonaController@send_ajax');
+
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');
