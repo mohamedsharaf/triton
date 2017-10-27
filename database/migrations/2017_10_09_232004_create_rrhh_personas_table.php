@@ -28,8 +28,8 @@ class CreateRrhhPersonasTable extends Migration
             $table->date('f_nacimiento')->nullable();
             $table->smallInteger('estado_civil')->unsigned()->nullable();
             $table->string('domicilio', 500)->nullable();
-            $table->string('telefono', 500)->nullable();
-            $table->string('celular', 500)->nullable();
+            $table->string('telefono', 50)->nullable();
+            $table->string('celular', 50)->nullable();
 
             $table->timestamps();
 

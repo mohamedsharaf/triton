@@ -273,7 +273,7 @@ class PersonaController extends Controller
                     $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>UNIDADES DESCONCENTRADAS</strong></div>',
+                        'titulo'     => '<div class="text-center"><strong>PERSONAS</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
                         'iu'         => 1
@@ -286,7 +286,7 @@ class PersonaController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '0203'], $this->permisos))
+                        if(!in_array(['codigo' => '0503'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
@@ -294,7 +294,7 @@ class PersonaController extends Controller
                     }
                     else
                     {
-                        if(!in_array(['codigo' => '0202'], $this->permisos))
+                        if(!in_array(['codigo' => '0502'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
                             return json_encode($respuesta);
@@ -302,11 +302,27 @@ class PersonaController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $estado               = trim($request->input('estado'));
-                    $municipio_id         = trim($request->input('municipio_id'));
-                    $lugar_dependencia_id = trim($request->input('lugar_dependencia_id'));
-                    $nombre               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
-                    $direccion            = strtoupper($util->getNoAcentoNoComilla(trim($request->input('direccion'))));
+                    $estado                  = trim($request->input('estado'));
+                    $n_documento             = trim($request->input('n_documento'));
+                    $n_documento_1           = strtoupper($util->getNoAcentoNoComilla(trim($request->input('n_documento_1'))));
+                    $nombre                  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                    $ap_paterno              = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_paterno'))));
+                    $ap_materno              = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_materno'))));
+                    $ap_esposo               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_esposo'))));
+                    $f_nacimiento            = trim($request->input('f_nacimiento'));
+                    $estado_civil            = trim($request->input('estado_civil'));
+                    $sexo                    = trim($request->input('sexo'));
+                    $domicilio               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('domicilio'))));
+                    $telefono                = trim($request->input('telefono'));
+                    $celular                 = trim($request->input('celular'));
+                    $municipio_id_nacimiento = trim($request->input('municipio_id_nacimiento'));
+                    $municipio_id_residencia = trim($request->input('municipio_id_residencia'));
+
+                    if($n_documento_1 != '')
+                    {
+                        $n_documento .= '-' . $n_documento_1;
+                    }
+
                     if($opcion == 'n')
                     {
                         $c_nombre = InstUnidadDesconcentrada::where('nombre', '=', $nombre)->where('lugar_dependencia_id', '=', $lugar_dependencia_id)->count();
@@ -359,14 +375,12 @@ class PersonaController extends Controller
                 if($request->has('q'))
                 {
                     $nombre     = $request->input('q');
-                    // $nombre     = $q['term'];
                     $estado     = trim($request->input('estado'));
                     $page_limit = trim($request->input('page_limit'));
 
                     $query = UbgeMunicipio::leftJoin("ubge_provincias", "ubge_provincias.id", "=", "ubge_municipios.provincia_id")
                                 ->leftJoin("ubge_departamentos", "ubge_departamentos.id", "=", "ubge_provincias.departamento_id")
                                 ->whereRaw("CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) ilike '%$nombre%'")
-                                //->where(DB::raw("CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombres, ubge_municipios.nombre)"), "ilike", "'%$nombre%'")
                                 ->where("ubge_municipios.estado", "=", $estado)
                                 ->select(DB::raw("ubge_municipios.id, CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) AS text"))
                                 ->orderByRaw("CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) ASC")
