@@ -169,6 +169,8 @@ return [
         Laravel\Tinker\TinkerServiceProvider::class,
         Laraveles\Spanish\SpanishServiceProvider::class,
         Laravelista\Ekko\EkkoServiceProvider::class,
+        Elibyy\TCPDF\ServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -228,6 +230,8 @@ return [
         'Validator'    => Illuminate\Support\Facades\Validator::class,
         'View'         => Illuminate\Support\Facades\View::class,
         'Ekko'         => Laravelista\Ekko\Facades\Ekko::class,
+        'PDF'          => Elibyy\TCPDF\Facades\TCPDF::class,
+        'Excel'        => Maatwebsite\Excel\Facades\Excel::class,
 
     ],
 
