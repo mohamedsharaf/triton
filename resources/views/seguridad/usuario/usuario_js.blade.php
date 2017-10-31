@@ -19,7 +19,7 @@
         };
     // === VARIABLES GLOBALES ===
         var base_url       = "{!! url('') !!}";
-        var url_controller = "{!! url('/persona') !!}";
+        var url_controller = "{!! url('/usuario') !!}";
         var csrf_token     = "{!! csrf_token() !!}";
 
     // === JQGRID1 ===
@@ -28,26 +28,16 @@
         var pjqgrid1      = "#pjqgrid1";
         var col_name_1    = new Array(
             "",
+            "IMAGEN",
             "ESTADO",
             "C.I.",
             "NOMBRE(S)",
             "AP. PATERNO",
             "AP. MATERNO",
             "AP. ESPOSO",
-            "SEXO",
-            "FECHA NACIMIENTO",
-            "ESTADO CIVIL",
-            "DOMICILIO",
-            "TELEFONO",
-            "CELULAR",
-
-            "MUNICIPIO",
-            "PROVINCIA",
-            "DEPARTAMENTO",
-
-            "MUNICIPIO",
-            "PROVINCIA",
-            "DEPARTAMENTO",
+            "ROL",
+            "CORREO ELECTRONICO",
+            "",
 
             ""
         );

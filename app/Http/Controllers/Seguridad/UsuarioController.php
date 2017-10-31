@@ -12,16 +12,15 @@ use App\Libraries\JqgridClass;
 use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegPermisoRol;
+use App\Models\Seguridad\SegRol;
 use App\Models\UbicacionGeografica\UbgeDepartamento;
 use App\Models\UbicacionGeografica\UbgeMunicipio;
 use App\Models\Rrhh\RrhhPersona;
 use App\User;
 
-class PersonaController extends Controller
+class UsuarioController extends Controller
 {
     private $estado;
-    private $estado_civil;
-    private $sexo;
 
     private $rol_id;
     private $permisos;
@@ -39,19 +38,6 @@ class PersonaController extends Controller
             '1' => 'HABILITADO',
             '2' => 'INHABILITADO'
         ];
-
-        $this->estado_civil = [
-            '1' => 'CASADO(A)',
-            '2' => 'DIVORCIADO(A)',
-            '3' => 'SOLTERO(A)',
-            '4' => 'UNION LIBRE',
-            '5' => 'VIUDO(A)'
-        ];
-
-        $this->sexo = [
-            'F' => 'FEMENINO',
-            'M' => 'MASCULINO'
-        ];
     }
 
     /**
@@ -67,7 +53,7 @@ class PersonaController extends Controller
                             ->select("seg_permisos.codigo")
                             ->get()
                             ->toArray();
-        if(in_array(['codigo' => '0501'], $this->permisos))
+        if(in_array(['codigo' => '0101'], $this->permisos))
         {
             $data = [
                 'rol_id'             => $this->rol_id,
@@ -78,15 +64,19 @@ class PersonaController extends Controller
                 'modulo'             => 'Personas',
                 'title_table'        => 'Personas',
                 'estado_array'       => $this->estado,
-                'estado_civil_array' => $this->estado_civil,
-                'sexo_array'         => $this->sexo,
                 'departamento_array' => UbgeDepartamento::where('estado', '=', 1)
+                                            ->select("id", "nombre")
+                                            ->orderBy("nombre")
+                                            ->get()
+                                            ->toArray(),
+                'rol_array'          => SegRol::where('estado', '=', 1)
+                                            ->where('id', '<>', 1)
                                             ->select("id", "nombre")
                                             ->orderBy("nombre")
                                             ->get()
                                             ->toArray()
             ];
-            return view('rrhh.persona.persona')->with($data);
+            return view('seguridad.usuario.usuario')->with($data);
         }
         else
         {
@@ -287,7 +277,7 @@ class PersonaController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '0503'], $this->permisos))
+                        if(!in_array(['codigo' => '0103'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
@@ -295,7 +285,7 @@ class PersonaController extends Controller
                     }
                     else
                     {
-                        if(!in_array(['codigo' => '0502'], $this->permisos))
+                        if(!in_array(['codigo' => '0102'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
                             return json_encode($respuesta);

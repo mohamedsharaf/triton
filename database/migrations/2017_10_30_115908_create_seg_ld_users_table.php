@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSegUdUsersTable extends Migration
+class CreateSegLdUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,22 +13,22 @@ class CreateSegUdUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('seg_ud_users', function (Blueprint $table) {
+        Schema::create('seg_ld_users', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('unidad_desconcentrada_id')->unsigned()->nullable();
+            $table->integer('lugar_dependencia_id')->unsigned()->nullable();
             $table->integer('user_id')->unsigned()->nullable();
 
             $table->timestamps();
 
-            $table->foreign('unidad_desconcentrada_id')
-              ->references('id')
-              ->on('inst_unidades_desconcentradas')
-              ->onDelete('cascade');
+            $table->foreign('lugar_dependencia_id')
+                ->references('id')
+                ->on('inst_lugares_dependencia')
+                ->onDelete('cascade');
 
             $table->foreign('user_id')
-              ->references('id')
-              ->on('users')
-              ->onDelete('cascade');
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 
@@ -39,6 +39,6 @@ class CreateSegUdUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('seg_ud_users');
+        Schema::dropIfExists('seg_ld_users');
     }
 }

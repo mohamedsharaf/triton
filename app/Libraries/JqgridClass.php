@@ -89,14 +89,14 @@ class JqgridClass
     }
     else
     {
-      $array_where = [];
+      $array_where = "";
     }
     return $array_where;
   }
 
   private function arrayWhere()
   {
-    $array_where = [];
+    $array_where = "";
     if($this->request->has('filters'))
     {
       $filters = json_decode($this->request->input('filters'), TRUE);
@@ -109,26 +109,12 @@ class JqgridClass
           {
             if($valor1['op'] == 'cn')
             {
-              $array_where_a = [
-                [
-                  $valor1['field'],
-                  $this->ops[$valor1['op']],
-                  '%' . $valor1['data'] . '%'
-                ]
-              ];
+              $array_where .= " AND " . $valor1['field'] . " " . $this->ops[$valor1['op']] . " " . "'%" . $valor1['data'] . "%'";
             }
             else
             {
-              $array_where_a = [
-                [
-                  $valor1['field'],
-                  $this->ops[$valor1['op']],
-                  $valor1['data']
-                ]
-              ];
+              $array_where .= " AND " . $valor1['field'] . " " . $this->ops[$valor1['op']] . " '" . $valor1['data'] . "'";
             }
-
-            $array_where = array_merge($array_where, $array_where_a);
           }
         }
       }

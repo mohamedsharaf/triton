@@ -99,19 +99,17 @@ class PermisoController extends Controller
           seg_modulos.nombre AS modulo
         ";
 
-        $array_where = [
-        ];
-
-        $array_where = array_merge($array_where, $jqgrid->getWhere());
+        $array_where = "TRUE";
+        $array_where .= $jqgrid->getWhere();
 
         $count = SegPermiso::leftJoin("seg_modulos", "seg_modulos.id", "=", "seg_permisos.modulo_id")
-          ->where($array_where)
+          ->whereRaw($array_where)
           ->count();
 
         $limit_offset = $jqgrid->getLimitOffset($count);
 
         $query = SegPermiso::leftJoin("seg_modulos", "seg_modulos.id", "=", "seg_permisos.modulo_id")
-          ->where($array_where)
+          ->whereRaw($array_where)
           ->select(DB::raw($select))
           ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
           ->offset($limit_offset['start'])
@@ -229,7 +227,7 @@ class PermisoController extends Controller
               }
               else
               {
-                $respuesta['respuesta'] .= "El NOMBRE del PERMISO ya fue registro.";
+                $respuesta['respuesta'] .= "El NOMBRE del PERMISO ya fue registrado.";
               }
             }
             else
@@ -249,7 +247,7 @@ class PermisoController extends Controller
               }
               else
               {
-                $respuesta['respuesta'] .= "El NOMBRE del PERMISO ya fue registro.";
+                $respuesta['respuesta'] .= "El NOMBRE del PERMISO ya fue registrado.";
               }
             }
           //=== respuesta ===

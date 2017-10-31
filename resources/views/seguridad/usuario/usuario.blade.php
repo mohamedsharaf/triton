@@ -270,5 +270,5 @@
 @endsection
 
 @section('js')
-    @include('rrhh.persona.persona_js')
+    @include('seguridad.usuario.usuario_js')
 @endsection

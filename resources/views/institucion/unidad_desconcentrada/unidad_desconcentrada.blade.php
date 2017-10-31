@@ -619,6 +619,7 @@
                     $("#unidad_desconcentrada_id").val('');
 
                     $('#municipio_id').select2("val", "");
+                    $('#municipio_id option').remove();
                     $('#lugar_dependencia_id').select2("val", "");
                     $(form_1)[0].reset();
                     break;

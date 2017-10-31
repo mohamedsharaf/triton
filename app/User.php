@@ -20,6 +20,7 @@ class User extends Authenticatable
         'estado',
         'name',
         'imagen',
+        'lugar_dependencia',
 
         'email',
         'password',

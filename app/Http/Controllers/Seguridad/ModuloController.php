@@ -95,16 +95,14 @@ class ModuloController extends Controller
           seg_modulos.nombre
         ";
 
-        $array_where = [
-        ];
+        $array_where = "TRUE";
+        $array_where .= $jqgrid->getWhere();
 
-        $array_where = array_merge($array_where, $jqgrid->getWhere());
-
-        $count = SegModulo::where($array_where)->count();
+        $count = SegModulo::whereRaw($array_where)->count();
 
         $limit_offset = $jqgrid->getLimitOffset($count);
 
-        $query = SegModulo::where($array_where)
+        $query = SegModulo::whereRaw($array_where)
           ->select(DB::raw($select))
           ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
           ->offset($limit_offset['start'])
@@ -218,7 +216,7 @@ class ModuloController extends Controller
               }
               else
               {
-                $respuesta['respuesta'] .= "El NOMBRE del MODULO ya fue registro.";
+                $respuesta['respuesta'] .= "El NOMBRE del MODULO ya fue registrado.";
               }
             }
             else
@@ -237,7 +235,7 @@ class ModuloController extends Controller
               }
               else
               {
-                $respuesta['respuesta'] .= "El NOMBRE del MODULO ya fue registro.";
+                $respuesta['respuesta'] .= "El NOMBRE del MODULO ya fue registrado.";
               }
             }
           //=== respuesta ===

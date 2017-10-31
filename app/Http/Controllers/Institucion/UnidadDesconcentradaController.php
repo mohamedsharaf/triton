@@ -120,16 +120,14 @@ class UnidadDesconcentradaController extends Controller
                     ubge_departamentos.nombre AS departamento
                 ";
 
-                $array_where = [
-                ];
-
-                $array_where = array_merge($array_where, $jqgrid->getWhere());
+                $array_where = "TRUE";
+                $array_where .= $jqgrid->getWhere();
 
                 $count = InstUnidadDesconcentrada::leftJoin("inst_lugares_dependencia", "inst_lugares_dependencia.id", "=", "inst_unidades_desconcentradas.lugar_dependencia_id")
                             ->leftJoin("ubge_municipios", "ubge_municipios.id", "=", "inst_unidades_desconcentradas.municipio_id")
                             ->leftJoin("ubge_provincias", "ubge_provincias.id", "=", "ubge_municipios.provincia_id")
                             ->leftJoin("ubge_departamentos", "ubge_departamentos.id", "=", "ubge_provincias.departamento_id")
-                            ->where($array_where)
+                            ->whereRaw($array_where)
                             ->count();
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
@@ -138,7 +136,7 @@ class UnidadDesconcentradaController extends Controller
                             ->leftJoin("ubge_municipios", "ubge_municipios.id", "=", "inst_unidades_desconcentradas.municipio_id")
                             ->leftJoin("ubge_provincias", "ubge_provincias.id", "=", "ubge_municipios.provincia_id")
                             ->leftJoin("ubge_departamentos", "ubge_departamentos.id", "=", "ubge_provincias.departamento_id")
-                            ->where($array_where)
+                            ->whereRaw($array_where)
                             ->select(DB::raw($select))
                             ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
                             ->offset($limit_offset['start'])
@@ -280,7 +278,7 @@ class UnidadDesconcentradaController extends Controller
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "El NOMBRE de la UNIDAD DESCONCENTRADA ya fue registra.";
+                            $respuesta['respuesta'] .= "El NOMBRE de la UNIDAD DESCONCENTRADA ya fue registrada.";
                         }
                     }
                     else
@@ -302,7 +300,7 @@ class UnidadDesconcentradaController extends Controller
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "El NOMBRE de la UNIDAD DESCONCENTRADA ya fue registra.";
+                            $respuesta['respuesta'] .= "El NOMBRE de la UNIDAD DESCONCENTRADA ya fue registrada.";
                         }
                     }
                 //=== respuesta ===
