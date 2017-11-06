@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Rrhh;
+namespace App\Http\Controllers\Seguridad;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +13,7 @@ use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegRol;
-use App\Models\UbicacionGeografica\UbgeDepartamento;
-use App\Models\UbicacionGeografica\UbgeMunicipio;
+use App\Models\Institucion\InstLugarDependencia;
 use App\Models\Rrhh\RrhhPersona;
 use App\User;
 
@@ -56,20 +55,20 @@ class UsuarioController extends Controller
         if(in_array(['codigo' => '0101'], $this->permisos))
         {
             $data = [
-                'rol_id'             => $this->rol_id,
-                'permisos'           => $this->permisos,
-                'title'              => 'Personas',
-                'home'               => 'Inicio',
-                'sistema'            => 'Recursos Humanos',
-                'modulo'             => 'Personas',
-                'title_table'        => 'Personas',
-                'estado_array'       => $this->estado,
-                'departamento_array' => UbgeDepartamento::where('estado', '=', 1)
-                                            ->select("id", "nombre")
-                                            ->orderBy("nombre")
-                                            ->get()
-                                            ->toArray(),
-                'rol_array'          => SegRol::where('estado', '=', 1)
+                'rol_id'                  => $this->rol_id,
+                'permisos'                => $this->permisos,
+                'title'                   => 'Usuarios',
+                'home'                    => 'Inicio',
+                'sistema'                 => 'Seguridad',
+                'modulo'                  => 'Usuarios',
+                'title_table'             => 'Usuarios',
+                'estado_array'            => $this->estado,
+                'lugar_dependencia_array' => InstLugarDependencia::where('estado', '=', 1)
+                                                ->select("id", "nombre")
+                                                ->orderBy("nombre")
+                                                ->get()
+                                                ->toArray(),
+                'rol_array'               => SegRol::where('estado', '=', 1)
                                             ->where('id', '<>', 1)
                                             ->select("id", "nombre")
                                             ->orderBy("nombre")
@@ -103,65 +102,41 @@ class UsuarioController extends Controller
             case '1':
                 $jqgrid = new JqgridClass($request);
 
-                $tabla1 = "rrhh_personas";
-                $tabla2 = "ubge_municipios";
-                $tabla3 = "ubge_provincias";
-                $tabla4 = "ubge_departamentos";
+                $tabla1 = "users";
+                $tabla2 = "rrhh_personas";
+                $tabla3 = "seg_roles";
 
                 $select = "
                     $tabla1.id,
-                    $tabla1.municipio_id_nacimiento,
-                    $tabla1.municipio_id_residencia,
+                    $tabla1.rol_id,
+                    $tabla1.persona_id,
                     $tabla1.estado,
-                    $tabla1.n_documento,
-                    $tabla1.nombre,
-                    $tabla1.ap_paterno,
-                    $tabla1.ap_materno,
-                    $tabla1.ap_esposo,
-                    $tabla1.sexo,
-                    $tabla1.f_nacimiento,
-                    $tabla1.estado_civil,
-                    $tabla1.domicilio,
-                    $tabla1.telefono,
-                    $tabla1.celular,
+                    $tabla1.name,
+                    $tabla1.imagen,
+                    $tabla1.email,
+                    $tabla1.lugar_dependencia,
 
-                    a2.nombre AS municipio_nacimiento,
-                    a2.provincia_id AS provincia_id_nacimiento,
+                    a2.n_documento,
+                    a2.nombre,
+                    a2.ap_paterno,
+                    a2.ap_materno,
+                    a2.ap_esposo,
 
-                    a3.nombre AS provincia_nacimiento,
-                    a3.departamento_id AS departamento_id_nacimiento,
-
-                    a4.nombre AS departamento_nacimiento,
-
-                    a5.nombre AS municipio_residencia,
-                    a5.provincia_id AS provincia_id_residencia,
-
-                    a6.nombre AS provincia_residencia,
-                    a6.departamento_id AS departamento_id_residencia,
-
-                    a7.nombre AS departamento_residencia
+                    a3.nombre AS rol
                 ";
 
-                $array_where = "TRUE";
+                $array_where = "$tabla1.id <> 1";
                 $array_where .= $jqgrid->getWhere();
 
-                $count = RrhhPersona::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.municipio_id_nacimiento")
-                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.provincia_id")
-                            ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.departamento_id")
-                            ->leftJoin("$tabla2 AS a5", "a5.id", "=", "$tabla1.municipio_id_residencia")
-                            ->leftJoin("$tabla3 AS a6", "a6.id", "=", "a5.provincia_id")
-                            ->leftJoin("$tabla4 AS a7", "a7.id", "=", "a6.departamento_id")
+                $count = User::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.rol_id")
                             ->whereRaw($array_where)
                             ->count();
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
-                $query = RrhhPersona::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.municipio_id_nacimiento")
-                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.provincia_id")
-                            ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.departamento_id")
-                            ->leftJoin("$tabla2 AS a5", "a5.id", "=", "$tabla1.municipio_id_residencia")
-                            ->leftJoin("$tabla3 AS a6", "a6.id", "=", "a5.provincia_id")
-                            ->leftJoin("$tabla4 AS a7", "a7.id", "=", "a6.departamento_id")
+                $query = User::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.rol_id")
                             ->whereRaw($array_where)
                             ->select(DB::raw($select))
                             ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -180,40 +155,25 @@ class UsuarioController extends Controller
                 foreach ($query as $row)
                 {
                     $val_array = array(
-                        'estado'                     => $row["estado"],
-                        'estado_civil'               => $row["estado_civil"],
-                        'sexo'                       => $row["sexo"],
-                        'municipio_id_nacimiento'    => $row["municipio_id_nacimiento"],
-                        'provincia_id_nacimiento'    => $row["provincia_id_nacimiento"],
-                        'departamento_id_nacimiento' => $row["departamento_id_nacimiento"],
-                        'municipio_id_residencia'    => $row["municipio_id_residencia"],
-                        'provincia_id_residencia'    => $row["provincia_id_residencia"],
-                        'departamento_id_residencia' => $row["departamento_id_residencia"]
+                        'estado'     => $row["estado"],
+                        'rol_id'     => $row["rol_id"],
+                        'persona_id' => $row["persona_id"],
+                        'persona_id' => $row["persona_id"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
+                        $row["imagen"],
                         $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
                         $row["n_documento"],
                         $row["nombre"],
                         $row["ap_paterno"],
                         $row["ap_materno"],
                         $row["ap_esposo"],
-                        $this->sexo[$row["sexo"]],
-                        $row["f_nacimiento"],
-                        ($row["estado_civil"] =="") ? "" : $this->estado_civil[$row["estado_civil"]],
-                        $row["domicilio"],
-                        $row["telefono"],
-                        $row["celular"],
-
-                        $row["municipio_nacimiento"],
-                        $row["provincia_nacimiento"],
-                        $row["departamento_nacimiento"],
-
-                        $row["municipio_residencia"],
-                        $row["provincia_residencia"],
-                        $row["departamento_residencia"],
+                        $row["email"],
+                        $row["rol"],
+                        $row["lugar_dependencia"],
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
                     );
@@ -401,6 +361,39 @@ class UsuarioController extends Controller
                                 ->where("ubge_municipios.estado", "=", $estado)
                                 ->select(DB::raw("ubge_municipios.id, CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) AS text"))
                                 ->orderByRaw("CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) ASC")
+                                ->limit($page_limit)
+                                ->get()
+                                ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                    // else
+                    // {
+                    //     return json_encode(array("id"=>"0","text"=>"No se encontraron resultados"));
+                    // }
+                }
+                break;
+            // === SELECT2 PERSONA ===
+            case '101':
+
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = RrhhPersona::whereRaw("CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) ilike '%$nombre%'")
+                                ->where("estado", "=", $estado)
+                                ->select(DB::raw("id, CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) AS text"))
+                                ->orderByRaw("CONCAT_WS(' ', ap_paterno, ap_materno, nombre) ASC")
                                 ->limit($page_limit)
                                 ->get()
                                 ->toArray();

@@ -35,59 +35,39 @@
             "AP. PATERNO",
             "AP. MATERNO",
             "AP. ESPOSO",
-            "ROL",
             "CORREO ELECTRONICO",
-            "",
+            "ROL",
+            "LUGAR DE DEPENDENCIA",
 
             ""
         );
         var col_m_name_1  = new Array(
             "act",
+            "imagen",
             "estado",
             "n_documento",
             "nombre",
             "ap_paterno",
             "ap_materno",
             "ap_esposo",
-            "sexo",
-            "f_nacimiento",
-            "estado_civil",
-            "domicilio",
-            "telefono",
-            "celular",
-
-            "municipio_nacimiento",
-            "provincia_nacimiento",
-            "departamento_nacimiento",
-
-            "municipio_residencia",
-            "provincia_residencia",
-            "departamento_residencia",
+            "email",
+            "rol",
+            "lugar_dependencia",
 
             "val_json"
         );
         var col_m_index_1 = new Array(
             "",
-            "rrhh_personas.estado",
-            "rrhh_personas.n_documento",
-            "rrhh_personas.nombre",
-            "rrhh_personas.ap_paterno",
-            "rrhh_personas.ap_materno",
-            "rrhh_personas.ap_esposo",
-            "rrhh_personas.sexo",
-            "rrhh_personas.f_nacimiento::text",
-            "rrhh_personas.estado_civil",
-            "rrhh_personas.domicilio",
-            "rrhh_personas.telefono",
-            "rrhh_personas.celular",
-
+            "users.imagen",
+            "users.estado",
+            "a2.n_documento",
             "a2.nombre",
+            "a2.ap_paterno",
+            "a2.ap_materno",
+            "a2.ap_esposo",
+            "users.email",
             "a3.nombre",
-            "a4.nombre",
-
-            "a5.nombre",
-            "a6.nombre",
-            "a7.nombre",
+            "users.lugar_dependencia",
 
             ""
         );
@@ -100,23 +80,14 @@
             100,
             100,
             100,
-            140,
-            100,
+            300,
+            300,
             400,
-            100,
-            100,
-
-            150,
-            150,
-            150,
-
-            150,
-            150,
-            150,
 
             10
         );
         var col_m_align_1 = new Array(
+            "center",
             "center",
             "center",
             "right",
@@ -126,18 +97,7 @@
             "left",
             "center",
             "center",
-            "center",
-            "center",
-            "center",
-            "center",
-
-            "center",
-            "center",
-            "center",
-
-            "center",
-            "center",
-            "center",
+            "left",
 
             "center"
         );
@@ -155,45 +115,32 @@
             estado_jqgrid += ';' + index + ':' + value;
         });
 
-    // === ESTADO CIVIL ===
-        var estado_civil_json   = $.parseJSON('{!! json_encode($estado_civil_array) !!}');
-        var estado_civil_select = '';
-        var estado_civil_jqgrid = ':Todos';
+    // === ROL ===
+        var rol_json   = $.parseJSON('{!! json_encode($rol_array) !!}');
+        var rol_select = '';
+        var rol_jqgrid = ':Todos';
 
-        $.each(estado_civil_json, function(index, value) {
-            estado_civil_select += '<option value="' + index + '">' + value + '</option>';
-            estado_civil_jqgrid += ';' + index + ':' + value;
+        $.each(rol_json, function(index, value) {
+            rol_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            rol_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
-    // === SEXO ===
-        var sexo_json   = $.parseJSON('{!! json_encode($sexo_array) !!}');
-        var sexo_select = '';
-        var sexo_jqgrid = ':Todos';
+    // === LUGAR DE DEPENDENCIA ===
+        var lugar_dependencia_json   = $.parseJSON('{!! json_encode($lugar_dependencia_array) !!}');
+        var lugar_dependencia_select = '';
+        var lugar_dependencia_jqgrid = ':Todos';
 
-        $.each(sexo_json, function(index, value) {
-            sexo_select += '<option value="' + index + '">' + value + '</option>';
-            sexo_jqgrid += ';' + index + ':' + value;
+        $.each(lugar_dependencia_json, function(index, value) {
+            lugar_dependencia_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            lugar_dependencia_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
-    // === DEPARTAMENTO ===
-        var departamento_json   = $.parseJSON('{!! json_encode($departamento_array) !!}');
-        var departamento_select = '';
-        var departamento_jqgrid = ':Todos';
-
-        $.each(departamento_json, function(index, value) {
-            departamento_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-            departamento_jqgrid += ';' + value.nombre + ':' + value.nombre;
-        });
+    // === DROPZONE ===
+        Dropzone.autoDiscover = false;
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#estado_civil').append(estado_civil_select);
-            $("#estado_civil").select2({
-                maximumSelectionLength: 1
-            });
-            $("#estado_civil").appendTo("#estado_civil_div");
-
-            $('#municipio_id_nacimiento, #municipio_id_residencia').select2({
+            $('#persona_id').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -205,7 +152,7 @@
                             q         : params.term,
                             page_limit: 10,
                             estado    : 1,
-                            tipo      : 100,
+                            tipo      : 101,
                             _token    : csrf_token
                         };
                     },
@@ -216,20 +163,20 @@
                     }
                 }
             });
-            $("#municipio_id_nacimiento").appendTo("#municipio_id_nacimiento_div");
-            $("#municipio_id_residencia").appendTo("#municipio_id_residencia_div");
+            $("#persona_id").appendTo("#persona_id_div");
 
-            $('#f_nacimiento').datepicker({
-                startView            : 2,
-                // todayBtn          : "linked",
-                // keyboardNavigation: false,
-                // forceParse        : false,
-                autoclose            : true,
-                format               : "yyyy-mm-dd",
-                startDate            : '-100y',
-                endDate              : '+0d',
-                language             : "es"
-            });
+            $('#rol_id').append(rol_select);
+            $("#rol_id").select2();
+            $("#rol_id").appendTo("#rol_id_div");
+
+            $('#lugar_dependencia').append(lugar_dependencia_select);
+            $("#lugar_dependencia").select2();
+            $("#lugar_dependencia").appendTo("#lugar_dependencia_div");
+
+        // === DROPZONE ===
+            var valor1 = new Array();
+            valor1[0]  = 17;
+            utilitarios(valor1);
 
         // === JQGRID 1 ===
             var valor1 = new Array();
@@ -279,7 +226,7 @@
             // === JQGRID 1 ===
             case 10:
                 var edit1 = true;
-                @if(in_array(['codigo' => '0503'], $permisos))
+                @if(in_array(['codigo' => '0103'], $permisos))
                     edit1 = false;
                 @endif
                 $(jqgrid1).jqGrid({
@@ -291,7 +238,7 @@
                     pager        : pjqgrid1,
                     rowNum       : 10,
                     rowList      : [10, 20, 30],
-                    sortname     : 'rrhh_personas.id',
+                    sortname     : 'users.id',
                     sortorder    : "desc",
                     viewrecords  : true,
                     shrinkToFit  : false,
@@ -316,15 +263,7 @@
                         col_name_1[8],
                         col_name_1[9],
                         col_name_1[10],
-                        col_name_1[11],
-                        col_name_1[12],
-                        col_name_1[13],
-                        col_name_1[14],
-                        col_name_1[15],
-                        col_name_1[16],
-                        col_name_1[17],
-                        col_name_1[18],
-                        col_name_1[19]
+                        col_name_1[11]
                     ],
                     colModel : [
                         {
@@ -339,18 +278,19 @@
                             hidden  : edit1
                         },
                         {
-                            name       : col_m_name_1[1],
-                            index      : col_m_index_1[1],
-                            width      : col_m_width_1[1],
-                            align      : col_m_align_1[1],
-                            stype      :'select',
-                            editoptions: {value:estado_jqgrid}
+                            name  : col_m_name_1[1],
+                            index : col_m_index_1[1],
+                            width : col_m_width_1[1],
+                            align : col_m_align_1[1],
+                            search: false
                         },
                         {
-                            name  : col_m_name_1[2],
-                            index : col_m_index_1[2],
-                            width : col_m_width_1[2],
-                            align : col_m_align_1[2]
+                            name       : col_m_name_1[2],
+                            index      : col_m_index_1[2],
+                            width      : col_m_width_1[2],
+                            align      : col_m_align_1[2],
+                            stype      :'select',
+                            editoptions: {value:estado_jqgrid}
                         },
                         {
                             name  : col_m_name_1[3],
@@ -377,12 +317,10 @@
                             align : col_m_align_1[6]
                         },
                         {
-                            name       : col_m_name_1[7],
-                            index      : col_m_index_1[7],
-                            width      : col_m_width_1[7],
-                            align      : col_m_align_1[7],
-                            stype      :'select',
-                            editoptions: {value:sexo_jqgrid}
+                            name  : col_m_name_1[7],
+                            index : col_m_index_1[7],
+                            width : col_m_width_1[7],
+                            align : col_m_align_1[7]
                         },
                         {
                             name  : col_m_name_1[8],
@@ -396,7 +334,7 @@
                             width      : col_m_width_1[9],
                             align      : col_m_align_1[9],
                             stype      :'select',
-                            editoptions: {value:estado_civil_jqgrid}
+                            editoptions: {value:rol_jqgrid}
                         },
                         {
                             name  : col_m_name_1[10],
@@ -404,68 +342,13 @@
                             width : col_m_width_1[10],
                             align : col_m_align_1[10]
                         },
-                        {
-                            name  : col_m_name_1[11],
-                            index : col_m_index_1[11],
-                            width : col_m_width_1[11],
-                            align : col_m_align_1[11]
-                        },
-                        {
-                            name  : col_m_name_1[12],
-                            index : col_m_index_1[12],
-                            width : col_m_width_1[12],
-                            align : col_m_align_1[12]
-                        },
-
-
-                        {
-                            name  : col_m_name_1[13],
-                            index : col_m_index_1[13],
-                            width : col_m_width_1[13],
-                            align : col_m_align_1[13]
-                        },
-                        {
-                            name  : col_m_name_1[14],
-                            index : col_m_index_1[14],
-                            width : col_m_width_1[14],
-                            align : col_m_align_1[14]
-                        },
-                        {
-                            name       : col_m_name_1[15],
-                            index      : col_m_index_1[15],
-                            width      : col_m_width_1[15],
-                            align      : col_m_align_1[15],
-                            stype      :'select',
-                            editoptions: {value:departamento_jqgrid}
-                        },
-
-                        {
-                            name  : col_m_name_1[16],
-                            index : col_m_index_1[16],
-                            width : col_m_width_1[16],
-                            align : col_m_align_1[16]
-                        },
-                        {
-                            name  : col_m_name_1[17],
-                            index : col_m_index_1[17],
-                            width : col_m_width_1[17],
-                            align : col_m_align_1[17]
-                        },
-                        {
-                            name       : col_m_name_1[18],
-                            index      : col_m_index_1[18],
-                            width      : col_m_width_1[18],
-                            align      : col_m_align_1[18],
-                            stype      :'select',
-                            editoptions: {value:departamento_jqgrid}
-                        },
 
                         // === OCULTO ===
                             {
-                                name  : col_m_name_1[19],
-                                index : col_m_index_1[19],
-                                width : col_m_width_1[19],
-                                align : col_m_align_1[19],
+                                name  : col_m_name_1[11],
+                                index : col_m_index_1[11],
+                                width : col_m_width_1[11],
+                                align : col_m_align_1[11],
                                 search: false,
                                 hidden: true
                             }
@@ -485,22 +368,6 @@
                     }
                 });
 
-                $(jqgrid1).jqGrid('setGroupHeaders', {
-                    useColSpanStyle: true,
-                    groupHeaders   :[
-                        {
-                            startColumnName: 'municipio_nacimiento',
-                            numberOfColumns: 3,
-                            titleText      : 'LUGAR DE NACIMIENTO'
-                        },
-                        {
-                            startColumnName: 'municipio_residencia',
-                            numberOfColumns: 3,
-                            titleText      : 'RESIDENCIA ACTUAL'
-                        }
-                    ]
-                });
-
                 $(jqgrid1).jqGrid('filterToolbar',{
                     searchOnEnter : true,
                     stringResult  : true,
@@ -516,7 +383,7 @@
                 .navSeparatorAdd(pjqgrid1,{
                     sepclass : "ui-separator"
                 })
-                @if(in_array(['codigo' => '0502'], $permisos))
+                @if(in_array(['codigo' => '0102'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "add1",
                     caption       : "",
@@ -533,7 +400,7 @@
                     }
                 })
                 @endif
-                @if(in_array(['codigo' => '0503'], $permisos))
+                @if(in_array(['codigo' => '0103'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "edit1",
                     caption       : "",
@@ -626,15 +493,14 @@
             // === RESETEAR FORMULARIO ===
             case 14:
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Agregar nueva persona');
+                $('#modal_1_title').append('Agregar nuevo usuario');
 
-                $("#persona_id").val('');
+                $("#usuario_id").val('');
 
-                $('#estado_civil').select2("val", "");
-                $('#municipio_id_nacimiento').select2("val", "");
-                $('#municipio_id_residencia').select2("val", "");
-                $('#municipio_id_nacimiento option').remove();
-                $('#municipio_id_residencia option').remove();
+                $('#persona_id').select2("val", "");
+                $('#rol_id').select2("val", "");
+                $('#lugar_dependencia').select2("val", "");
+                $('#persona_id option').remove();
                 $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
@@ -681,43 +547,86 @@
             case 16:
                 $(form_1).validate({
                     rules: {
-                        n_documento:{
+                        email:{
+                            required : true,
+                            email: true
+                        },
+                        password:{
                             required : true,
                             minlength: 6,
-                            maxlength: 8,
-                            digits   : true
+                            maxlength: 30
                         },
-                        n_documento_1:{
-                            minlength: 2,
-                            maxlength: 2
+                        password_c:{
+                            equalTo: "#password"
                         },
-                        nombre:{
-                            required : true,
-                            maxlength: 50
-                        },
-                        ap_paterno:{
-                            maxlength: 50
-                        },
-                        ap_materno:{
-                            maxlength: 50
-                        },
-                        ap_esposo:{
-                            maxlength: 50
-                        },
-                        f_nacimiento:{
-                            date:true
-                        },
-                        domicilio:{
-                            maxlength: 500
-                        },
-                        telefono:{
-                            maxlength: 50,
-                            digits   : true
-                        },
-                        celular:{
-                            maxlength: 50,
-                            digits   : true
+                        rol_id:{
+                            required: true
                         }
+                    }
+                });
+                break;
+            // === DROPZONE 1 ===
+            case 17:
+                $("#dropzoneForm_1").dropzone({
+                    url: url_controller + "/send_ajax",
+                    method:'post',
+                    addRemoveLinks: true,
+                    maxFilesize: 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles:'image/*',
+                    paramName: "file", // The name that will be used to transfer the file
+                    maxFiles:1,
+                    clickable:true,
+                    parallelUploads:1,
+                    params: {
+                        tipo: 2
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize: 1,
+                    autoProcessQueue:true,
+
+                    dictRemoveFile:'Eliminar',
+                    dictCancelUpload:'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage: "<strong>Arrastra la imagen aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig:'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
+                    init: function(){
+                        // this.on("sending", function(file, xhr, formData){
+                        //     formData.append("flujo_correspondencia_id", $("#flujo_correspondencia_id_f3").val());
+
+                        //     formData.append("remitente", $("#remitente").val());
+                        //     formData.append("f_respuesta", $("#f_respuesta").val());
+                        //     formData.append("n_respuesta", $("#n_respuesta").val());
+                        //     formData.append("referencia_respuesta", $("#referencia_respuesta").val());
+                        // });
+                    },
+                    success: function(file, response){
+                        // var data = $.parseJSON(response);
+                        // if (data.sw === 1){
+                        //     var valor = new Array();
+                        //     valor[0]  = data.titulo;
+                        //     valor[1]  = data.respuesta;
+                        //     mensaje(5, valor);
+
+                        //     modal_refresh(1);
+
+                        //     $(jqgrid2).trigger("reloadGrid");
+                        // }
+                        // else if(data.sw === 0){
+                        //     var valor = new Array();
+                        //     valor[0]  = data.titulo;
+                        //     valor[1]  = data.respuesta;
+                        //     mensaje(4, valor);
+                        // }
+                        // else if(data.sw === 2){
+                        //     window.location.reload();
+                        // }
+                        this.removeAllFiles(true);
                     }
                 });
                 break;
