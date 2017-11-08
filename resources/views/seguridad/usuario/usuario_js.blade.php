@@ -579,7 +579,8 @@
                     clickable:true,
                     parallelUploads:1,
                     params: {
-                        tipo: 2
+                        tipo: 2,
+                        _token: csrf_token
                     },
                     // forceFallback:true,
                     createImageThumbnails: true,
@@ -596,36 +597,45 @@
                     dictFileTooBig:'El archivo es demasiado grande.',
                     dictMaxFilesExceeded:'Número máximo de archivos superado.',
                     init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("flujo_correspondencia_id", $("#flujo_correspondencia_id_f3").val());
-
-                        //     formData.append("remitente", $("#remitente").val());
-                        //     formData.append("f_respuesta", $("#f_respuesta").val());
-                        //     formData.append("n_respuesta", $("#n_respuesta").val());
-                        //     formData.append("referencia_respuesta", $("#referencia_respuesta").val());
-                        // });
+                        this.on("sending", function(file, xhr, formData){
+                            formData.append("usuario_id", $("#usuario_id").val());
+                            formData.append("estado", $(".estado_class:checked").val());
+                            formData.append("persona_id", $("#persona_id").val());
+                            formData.append("email", $("#email").val());
+                            formData.append("password", $("#password").val());
+                            formData.append("rol_id", $("#rol_id").val());
+                            formData.append("lugar_dependencia", $("#lugar_dependencia").val());
+                        });
                     },
                     success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if (data.sw === 1){
-                        //     var valor = new Array();
-                        //     valor[0]  = data.titulo;
-                        //     valor[1]  = data.respuesta;
-                        //     mensaje(5, valor);
+                        var data = $.parseJSON(response);
+                        if(data.sw === 1){
+                            var valor1 = new Array();
+                            valor1[0]  = 100;
+                            valor1[1]  = data.titulo;
+                            valor1[2]  = data.respuesta;
+                            utilitarios(valor1);
 
-                        //     modal_refresh(1);
-
-                        //     $(jqgrid2).trigger("reloadGrid");
-                        // }
-                        // else if(data.sw === 0){
-                        //     var valor = new Array();
-                        //     valor[0]  = data.titulo;
-                        //     valor[1]  = data.respuesta;
-                        //     mensaje(4, valor);
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
+                            $(jqgrid1).trigger("reloadGrid");
+                            if(data.iu === 1){
+                                var valor1 = new Array();
+                                valor1[0]  = 14;
+                                utilitarios(valor1);
+                            }
+                            else if(data.iu === 2){
+                                $('#modal_1').modal('hide');
+                            }
+                        }
+                        else if(data.sw === 0){
+                            var valor1 = new Array();
+                            valor1[0]  = 101;
+                            valor1[1]  = data.titulo;
+                            valor1[2]  = data.respuesta;
+                            utilitarios(valor1);
+                        }
+                        else if(data.sw === 2){
+                            window.location.reload();
+                        }
                         this.removeAllFiles(true);
                     }
                 });

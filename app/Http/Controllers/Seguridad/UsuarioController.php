@@ -13,6 +13,7 @@ use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegRol;
+use App\Models\Seguridad\SegLdUser;
 use App\Models\Institucion\InstLugarDependencia;
 use App\Models\Rrhh\RrhhPersona;
 use App\User;
@@ -208,7 +209,7 @@ class UsuarioController extends Controller
 
         switch($tipo)
         {
-            // === INSERT UPDATE GESTOR DE MODULOS ===
+            // === INSERT UPDATE ===
             case '1':
                 // === SEGURIDAD ===
                     $this->rol_id   = Auth::user()->rol_id;
@@ -224,7 +225,7 @@ class UsuarioController extends Controller
                     $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>PERSONAS</strong></div>',
+                        'titulo'     => '<div class="text-center"><strong>GESTOR DE USUARIO</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
                         'iu'         => 1
@@ -343,7 +344,241 @@ class UsuarioController extends Controller
                             $respuesta['respuesta'] .= "La CEDULA DE IDENTIDAD ya fue registrada.";
                         }
                     }
-                //=== respuesta ===
+
+                //=== RESPUESTA ===
+                return json_encode($respuesta);
+                break;
+            // === UPLOAD IMAGE ===
+            case '2':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>GESTOR DE USUARIO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1
+                    );
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('usuario_id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '0103'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '0102'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                //=== OPERACION ===
+                    $estado = trim($request->input('estado'));
+
+                    if($request->has('persona_id'))
+                    {
+                        $persona_id = trim($request->input('persona_id'));
+                        $persona_array = RrhhPersona::where('id', '=', $persona_id)
+                            ->select("nombre")
+                            ->first()
+                            ->toArray();
+                        $name = $persona_array['nombre'];
+                    }
+                    else
+                    {
+                        $persona_id = NULL;
+                        $name       = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
+                    }
+
+                    if($request->has('email'))
+                    {
+                        $email = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
+                        if(!preg_match('/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/', $email))
+                        {
+                            $respuesta['respuesta'] .= "Escriba un CORREO ELECTRONICO válido.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "El CORREO ELECTRONICO es obligatorio.";
+                        return json_encode($respuesta);
+                    }
+
+                    if($request->has('password'))
+                    {
+                        $password = trim($request->input('password'));
+                        if(strlen($password) < 6)
+                        {
+                            $respuesta['respuesta'] .= "La CONTRASEÑA debe tener al menos  6 caracteres.";
+                            return json_encode($respuesta);
+                        }
+
+                        if(strlen($password) > 16)
+                        {
+                            $respuesta['respuesta'] .= "La CONTRASEÑA no puede tener más de 16 caracteres.";
+                            return json_encode($respuesta);
+                        }
+
+                        if(!preg_match('/(?=[a-z])/', $password))
+                        {
+                            $respuesta['respuesta'] .= "La CONTRASEÑA debe contener al menos una minuscula.";
+                            return json_encode($respuesta);
+                        }
+
+                        if(!preg_match('/(?=[A-Z])/', $password))
+                        {
+                            $respuesta['respuesta'] .= "La CONTRASEÑA debe contener al menos una mayuscula.";
+                            return json_encode($respuesta);
+                        }
+
+                        if(!preg_match('/(?=\d)/', $password))
+                        {
+                            $respuesta['respuesta'] .= "La CONTRASEÑA debe contener al menos un digito.";
+                            return json_encode($respuesta);
+                        }
+
+                        $password = bcrypt($password);
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "La CONTRASEÑA es obligatorio.";
+                        return json_encode($respuesta);
+                    }
+
+                    if($request->has('rol_id'))
+                    {
+                        $rol_id = trim($request->input('rol_id'));
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "El ROL es obligatorio.";
+                        return json_encode($respuesta);
+                    }
+
+                    if($request->has('lugar_dependencia'))
+                    {
+                        $lugar_dependencia       = trim($request->input('lugar_dependencia'));
+                        $lugar_dependencia_array = explode(",", $lugar_dependencia);
+
+                        $i = 0;
+                        foreach($lugar_dependencia_array as $lugar_dependencia_id)
+                        {
+                            $ld_query = InstLugarDependencia::where('id', '=', $lugar_dependencia_id)
+                                ->select("id", "nombre")
+                                ->first()
+                                ->toArray();
+
+                            $ld_nombre_array[$i] = $ld_query['nombre'];
+                            $i++;
+                        }
+                        $ld_json = json_encode($ld_nombre_array);
+                    }
+                    else
+                    {
+                        $lugar_dependencia = NULL;
+                    }
+
+                    if($opcion == 'n')
+                    {
+                        $c_email = User::where('email', '=', $email)->count();
+                        if($c_email < 1)
+                        {
+                            $iu                    = new User;
+                            $iu->estado            = $estado;
+                            $iu->persona_id        = $persona_id;
+                            $iu->name              = $name;
+                            $iu->email             = $email;
+                            $iu->password          = $password;
+                            $iu->rol_id            = $rol_id;
+                            $iu->lugar_dependencia = $ld_json;
+                            $iu->save();
+
+                            $id = $iu->id;
+
+                            $respuesta['respuesta'] .= "El USUARIO fue registrado con éxito.";
+                            $respuesta['sw']         = 1;
+
+                            foreach($lugar_dependencia_array as $lugar_dependencia_id)
+                            {
+                                $iu1                       = new SegLdUser;
+                                $iu1->lugar_dependencia_id = $lugar_dependencia_id;
+                                $iu1->user_id              = $id;
+                                $iu1->save();
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El CORREO ELECTRONICO ya fue registrada.";
+                        }
+                    }
+                    else
+                    {
+                        $c_email = User::where('email', '=', $email)->where('id', '<>', $id)->count();
+                        if($c_email < 1)
+                        {
+                            $iu                    = User::find($id);
+                            $iu->estado            = $estado;
+                            $iu->persona_id        = $persona_id;
+                            $iu->name              = $name;
+                            $iu->email             = $email;
+                            $iu->password          = $password;
+                            $iu->rol_id            = $rol_id;
+                            $iu->lugar_dependencia = $ld_json;
+                            $iu->save();
+
+                            $respuesta['respuesta'] .= "El USUARIO se edito con éxito.";
+                            $respuesta['sw']         = 1;
+                            $respuesta['iu']         = 2;
+
+                            $del1 = SegLdUser::where('user_id', '=', $id);
+                            $del1->delete();
+
+                            foreach($lugar_dependencia_array as $lugar_dependencia_id)
+                            {
+                                $iu1                       = new SegLdUser;
+                                $iu1->lugar_dependencia_id = $lugar_dependencia_id;
+                                $iu1->user_id              = $user_id;
+                                $iu1->save();
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El CORREO ELECTRONICO ya fue registrada.";
+                        }
+                    }
+
+                //=== IMAGEN UPLOAD ===
+                    $this->validate($request,[
+                        'file' => 'image|mimes:jpeg,png,jpg|max:5120'
+                    ]);
+
+                    if($request->hasFile('file'))
+                    {
+                        $archivo = $request->file('file');
+                        $nombre_archivo = uniqid('user_', true) . '.' . $archivo->getClientOriginalExtension();
+                        $direccion_archivo = public_path('/storage/seguridad/user/image');
+                    }
+
                 return json_encode($respuesta);
                 break;
             // === SELECT2 DEPARTAMENTO, PROVINCIA Y MUNICIPIO ===

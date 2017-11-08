@@ -376,7 +376,7 @@ class PersonaController extends Controller
                             $iu->celular                 = $celular;
                             $iu->save();
 
-                            $respuesta['respuesta'] .= "La CEDULA DE IDENTIDAD se edito con éxito.";
+                            $respuesta['respuesta'] .= "La PERSONA se edito con éxito.";
                             $respuesta['sw']         = 1;
                             $respuesta['iu']         = 2;
 

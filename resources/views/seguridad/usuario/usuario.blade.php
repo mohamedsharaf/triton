@@ -94,7 +94,13 @@
 
             <div class="modal-body">
               <div class="row">
-                <div class="col-sm-12">
+                <div class="col-sm-6">
+                  <p class="text-center">
+                    <img id="image_user" src="{!! asset('image/logo/user_default_1.png') !!}" class="img-thumbnail" alt="image" style="max-height: 150px;">
+                  </p>
+                </div>
+
+                <div class="col-sm-6">
                   <form action="#" class="dropzone" id="dropzoneForm_1">
                     <div class="fallback">
                       <input name="file" type="file"/>
