@@ -495,6 +495,9 @@
                 $('#modal_1_title').empty();
                 $('#modal_1_title').append('Agregar nuevo usuario');
 
+                $('#image_user').removeAttr('scr');
+                $('#image_user').attr('src', "{!! asset('image/logo/user_default_1.png') !!}" + '?' + Math.random());
+
                 $("#usuario_id").val('');
 
                 $('#persona_id').select2("val", "");
@@ -552,9 +555,8 @@
                             email: true
                         },
                         password:{
-                            required : true,
                             minlength: 6,
-                            maxlength: 30
+                            maxlength: 16
                         },
                         password_c:{
                             equalTo: "#password"
@@ -627,11 +629,25 @@
                             }
                         }
                         else if(data.sw === 0){
-                            var valor1 = new Array();
-                            valor1[0]  = 101;
-                            valor1[1]  = data.titulo;
-                            valor1[2]  = data.respuesta;
-                            utilitarios(valor1);
+                            if(data.error_sw === 1){
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = data.respuesta;
+                                utilitarios(valor1);
+                            }
+                            else
+                            {
+                                var respuesta_server = '';
+                                $.each(data.error.response.original, function(index, value) {
+                                    respuesta_server += value + '<br>';
+                                });
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = respuesta_server;
+                                utilitarios(valor1);
+                            }
                         }
                         else if(data.sw === 2){
                             window.location.reload();

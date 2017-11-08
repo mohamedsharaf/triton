@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Seguridad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 use App\Http\Controllers\Controller;
 
@@ -18,12 +19,16 @@ use App\Models\Institucion\InstLugarDependencia;
 use App\Models\Rrhh\RrhhPersona;
 use App\User;
 
+use Exception;
+
 class UsuarioController extends Controller
 {
     private $estado;
 
     private $rol_id;
     private $permisos;
+
+    private $public_dir;
 
     /**
     * Create a new controller instance.
@@ -38,6 +43,8 @@ class UsuarioController extends Controller
             '1' => 'HABILITADO',
             '2' => 'INHABILITADO'
         ];
+
+        $this->public_dir = '/storage/seguridad/user/image';
     }
 
     /**
@@ -367,7 +374,8 @@ class UsuarioController extends Controller
                         'titulo'     => '<div class="text-center"><strong>GESTOR DE USUARIO</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
-                        'iu'         => 1
+                        'iu'         => 1,
+                        'error_sw'   => 1
                     );
                     $opcion = 'n';
 
@@ -391,6 +399,57 @@ class UsuarioController extends Controller
                         }
                     }
 
+                // === VALIDATE ===
+                    try
+                    {
+                        if($request->has('password'))
+                        {
+                            $validator = $this->validate($request,[
+                                'file'     => 'image|mimes:jpeg,png,jpg|max:5120',
+                                'email'    => 'required|email',
+                                'password' => 'min:6|max:16',
+                                'rol_id'   => 'required'
+                            ],
+                            [
+                                'file.image' => 'El archivo subido debe de ser imagen.',
+                                'file.image' => 'El archivo subido debe de ser de tipo jpeg,png,jpg.',
+                                'file.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.',
+
+                                'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
+                                'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
+
+                                'password.min' => 'El campo CONTRASEÑA debe tener al menos :min caracteres.',
+                                'password.max' => 'El campo CONTRASEÑA debe ser :max caracteres como máximo.',
+
+                                'rol_id.required' => 'El campo ROL es obligatorio.'
+                            ]);
+                        }
+                        else
+                        {
+                            $validator = $this->validate($request,[
+                                'file'     => 'image|mimes:jpeg,png,jpg|max:5120',
+                                'email'    => 'required|email',
+                                'rol_id'   => 'required'
+                            ],
+                            [
+                                'file.image' => 'El archivo subido debe de ser imagen.',
+                                'file.image' => 'El archivo subido debe de ser de tipo jpeg,png,jpg.',
+                                'file.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.',
+
+                                'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
+                                'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
+
+                                'rol_id.required' => 'El campo ROL es obligatorio.'
+                            ]);
+                        }
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
                 //=== OPERACION ===
                     $estado = trim($request->input('estado'));
 
@@ -409,35 +468,11 @@ class UsuarioController extends Controller
                         $name       = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
                     }
 
-                    if($request->has('email'))
-                    {
-                        $email = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
-                        if(!preg_match('/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/', $email))
-                        {
-                            $respuesta['respuesta'] .= "Escriba un CORREO ELECTRONICO válido.";
-                            return json_encode($respuesta);
-                        }
-                    }
-                    else
-                    {
-                        $respuesta['respuesta'] .= "El CORREO ELECTRONICO es obligatorio.";
-                        return json_encode($respuesta);
-                    }
+                    $email = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
 
                     if($request->has('password'))
                     {
                         $password = trim($request->input('password'));
-                        if(strlen($password) < 6)
-                        {
-                            $respuesta['respuesta'] .= "La CONTRASEÑA debe tener al menos  6 caracteres.";
-                            return json_encode($respuesta);
-                        }
-
-                        if(strlen($password) > 16)
-                        {
-                            $respuesta['respuesta'] .= "La CONTRASEÑA no puede tener más de 16 caracteres.";
-                            return json_encode($respuesta);
-                        }
 
                         if(!preg_match('/(?=[a-z])/', $password))
                         {
@@ -459,21 +494,8 @@ class UsuarioController extends Controller
 
                         $password = bcrypt($password);
                     }
-                    else
-                    {
-                        $respuesta['respuesta'] .= "La CONTRASEÑA es obligatorio.";
-                        return json_encode($respuesta);
-                    }
 
-                    if($request->has('rol_id'))
-                    {
-                        $rol_id = trim($request->input('rol_id'));
-                    }
-                    else
-                    {
-                        $respuesta['respuesta'] .= "El ROL es obligatorio.";
-                        return json_encode($respuesta);
-                    }
+                    $rol_id = trim($request->input('rol_id'));
 
                     if($request->has('lugar_dependencia'))
                     {
@@ -496,21 +518,42 @@ class UsuarioController extends Controller
                     else
                     {
                         $lugar_dependencia = NULL;
+                        $ld_json           = NULL;
                     }
 
+                    $nombre_archivo = NULL;
                     if($opcion == 'n')
                     {
                         $c_email = User::where('email', '=', $email)->count();
                         if($c_email < 1)
                         {
+                            //=== IMAGEN UPLOAD ===
+                                if($request->hasFile('file'))
+                                {
+                                    $archivo = $request->file('file');
+                                    $nombre_archivo = uniqid('user_', true) . '.' . $archivo->getClientOriginalExtension();
+                                    $direccion_archivo = public_path($this->public_dir);
+
+                                    $archivo->move($direccion_archivo, $nombre_archivo);
+                                }
+
                             $iu                    = new User;
                             $iu->estado            = $estado;
                             $iu->persona_id        = $persona_id;
                             $iu->name              = $name;
                             $iu->email             = $email;
-                            $iu->password          = $password;
+                            if($request->has('password'))
+                            {
+                                $iu->password = $password;
+                            }
+                            else
+                            {
+                                $email_array = explode('@', $email);
+                                $iu->password = bcrypt($email_array[0] . date('Y'));
+                            }
                             $iu->rol_id            = $rol_id;
                             $iu->lugar_dependencia = $ld_json;
+                            $iu->imagen            = $nombre_archivo;
                             $iu->save();
 
                             $id = $iu->id;
@@ -518,12 +561,15 @@ class UsuarioController extends Controller
                             $respuesta['respuesta'] .= "El USUARIO fue registrado con éxito.";
                             $respuesta['sw']         = 1;
 
-                            foreach($lugar_dependencia_array as $lugar_dependencia_id)
+                            if($request->has('lugar_dependencia'))
                             {
-                                $iu1                       = new SegLdUser;
-                                $iu1->lugar_dependencia_id = $lugar_dependencia_id;
-                                $iu1->user_id              = $id;
-                                $iu1->save();
+                                foreach($lugar_dependencia_array as $lugar_dependencia_id)
+                                {
+                                    $iu1                       = new SegLdUser;
+                                    $iu1->lugar_dependencia_id = $lugar_dependencia_id;
+                                    $iu1->user_id              = $id;
+                                    $iu1->save();
+                                }
                             }
                         }
                         else
@@ -536,14 +582,28 @@ class UsuarioController extends Controller
                         $c_email = User::where('email', '=', $email)->where('id', '<>', $id)->count();
                         if($c_email < 1)
                         {
+                            //=== IMAGEN UPLOAD ===
+                                if($request->hasFile('file'))
+                                {
+                                    $archivo = $request->file('file');
+                                    $nombre_archivo = uniqid('user_', true) . '.' . $archivo->getClientOriginalExtension();
+                                    $direccion_archivo = public_path($this->public_dir);
+
+                                    $archivo->move($direccion_archivo, $nombre_archivo);
+                                }
+
                             $iu                    = User::find($id);
                             $iu->estado            = $estado;
                             $iu->persona_id        = $persona_id;
                             $iu->name              = $name;
                             $iu->email             = $email;
-                            $iu->password          = $password;
+                            if($request->has('password'))
+                            {
+                                $iu->password = $password;
+                            }
                             $iu->rol_id            = $rol_id;
                             $iu->lugar_dependencia = $ld_json;
+                            $iu->imagen            = $nombre_archivo;
                             $iu->save();
 
                             $respuesta['respuesta'] .= "El USUARIO se edito con éxito.";
@@ -553,30 +613,21 @@ class UsuarioController extends Controller
                             $del1 = SegLdUser::where('user_id', '=', $id);
                             $del1->delete();
 
-                            foreach($lugar_dependencia_array as $lugar_dependencia_id)
+                            if($request->has('lugar_dependencia'))
                             {
-                                $iu1                       = new SegLdUser;
-                                $iu1->lugar_dependencia_id = $lugar_dependencia_id;
-                                $iu1->user_id              = $user_id;
-                                $iu1->save();
+                                foreach($lugar_dependencia_array as $lugar_dependencia_id)
+                                {
+                                    $iu1                       = new SegLdUser;
+                                    $iu1->lugar_dependencia_id = $lugar_dependencia_id;
+                                    $iu1->user_id              = $user_id;
+                                    $iu1->save();
+                                }
                             }
                         }
                         else
                         {
                             $respuesta['respuesta'] .= "El CORREO ELECTRONICO ya fue registrada.";
                         }
-                    }
-
-                //=== IMAGEN UPLOAD ===
-                    $this->validate($request,[
-                        'file' => 'image|mimes:jpeg,png,jpg|max:5120'
-                    ]);
-
-                    if($request->hasFile('file'))
-                    {
-                        $archivo = $request->file('file');
-                        $nombre_archivo = uniqid('user_', true) . '.' . $archivo->getClientOriginalExtension();
-                        $direccion_archivo = public_path('/storage/seguridad/user/image');
                     }
 
                 return json_encode($respuesta);
