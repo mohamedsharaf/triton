@@ -75,4 +75,9 @@ Route::get('/', 'HomeController@index')->name('home');
         Route::match(["get", "post"], '/persona/view_jqgrid', 'Rrhh\PersonaController@view_jqgrid');
         Route::post('/persona/send_ajax', 'Rrhh\PersonaController@send_ajax');
 
+//=== BIOMETRICOS ===
+    Route::get('/biometrico', 'Rrhh\BiometricoController@index')->name('biometrico');
+        Route::match(["get", "post"], '/biometrico/view_jqgrid', 'Rrhh\BiometricoController@view_jqgrid');
+        Route::post('/biometrico/send_ajax', 'Rrhh\BiometricoController@send_ajax');
+
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');

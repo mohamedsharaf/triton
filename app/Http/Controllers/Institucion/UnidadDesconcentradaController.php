@@ -12,6 +12,7 @@ use App\Libraries\JqgridClass;
 use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegPermisoRol;
+use App\Models\Seguridad\SegLdUser;
 use App\Models\UbicacionGeografica\UbgeDepartamento;
 use App\Models\UbicacionGeografica\UbgeMunicipio;
 use App\Models\Institucion\InstUnidadDesconcentrada;
@@ -54,6 +55,49 @@ class UnidadDesconcentradaController extends Controller
                             ->toArray();
         if(in_array(['codigo' => '0201'], $this->permisos))
         {
+            $user_id = Auth::user()->id;
+
+            $consulta1 = SegLdUser::where("seg_ld_users.user_id", "=", $user_id)
+                    ->select('lugar_dependencia_id')
+                    ->get()
+                    ->toArray();
+
+            $array_where = 'estado=1';
+            if(count($consulta1) > 0)
+            {
+                $c_1_sw        = TRUE;
+                $c_2_sw        = TRUE;
+                $array_where_1 = '';
+                foreach ($consulta1 as $valor)
+                {
+                    if($valor['lugar_dependencia_id'] == '1')
+                    {
+                        $c_2_sw = FALSE;
+                        break;
+                    }
+
+                    if($c_1_sw)
+                    {
+                        $array_where_1 .= " AND (id=" . $valor['lugar_dependencia_id'];
+                        $c_1_sw      = FALSE;
+                    }
+                    else
+                    {
+                        $array_where_1 .= " OR id=" . $valor['lugar_dependencia_id'];
+                    }
+                }
+                $array_where_1 .= ")";
+
+                if($c_2_sw)
+                {
+                    $array_where .= $array_where_1;
+                }
+            }
+            else
+            {
+                $array_where .= " AND id=0";
+            }
+
             $data = [
                 'rol_id'                  => $this->rol_id,
                 'permisos'                => $this->permisos,
@@ -63,7 +107,7 @@ class UnidadDesconcentradaController extends Controller
                 'modulo'                  => 'Unidades Desconcentradas',
                 'title_table'             => 'Unidades Desconcentradas',
                 'estado_array'            => $this->estado,
-                'lugar_dependencia_array' => InstLugarDependencia::where('estado', '=', 1)
+                'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
                                                 ->get()
@@ -120,7 +164,49 @@ class UnidadDesconcentradaController extends Controller
                     ubge_departamentos.nombre AS departamento
                 ";
 
-                $array_where = "TRUE";
+                $array_where = 'TRUE';
+
+                $user_id = Auth::user()->id;
+
+                $consulta1 = SegLdUser::where("user_id", "=", $user_id)
+                    ->select('lugar_dependencia_id')
+                    ->get()
+                    ->toArray();
+                if(count($consulta1) > 0)
+                {
+                    $c_1_sw        = TRUE;
+                    $c_2_sw        = TRUE;
+                    $array_where_1 = '';
+                    foreach ($consulta1 as $valor)
+                    {
+                        if($valor['lugar_dependencia_id'] == '1')
+                        {
+                            $c_2_sw = FALSE;
+                            break;
+                        }
+
+                        if($c_1_sw)
+                        {
+                            $array_where_1 .= " AND (lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            $c_1_sw        = FALSE;
+                        }
+                        else
+                        {
+                            $array_where_1 .= " OR lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                        }
+                    }
+                    $array_where_1 .= ")";
+
+                    if($c_2_sw)
+                    {
+                        $array_where .= $array_where_1;
+                    }
+                }
+                else
+                {
+                    $array_where .= " AND lugar_dependencia_id=0 AND ";
+                }
+
                 $array_where .= $jqgrid->getWhere();
 
                 $count = InstUnidadDesconcentrada::leftJoin("inst_lugares_dependencia", "inst_lugares_dependencia.id", "=", "inst_unidades_desconcentradas.lugar_dependencia_id")

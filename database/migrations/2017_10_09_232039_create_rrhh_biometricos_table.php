@@ -18,6 +18,10 @@ class CreateRrhhBiometricosTable extends Migration
           $table->integer('unidad_desconcentrada_id')->unsigned();
 
           $table->smallInteger('estado')->default('1')->unsigned();
+          $table->smallInteger('e_conexion')->default('1')->unsigned();
+          $table->dateTime('fs_conexion')->nullable();
+          $table->dateTime('fb_conexion')->nullable();
+          $table->string('codigo_af', 10)->nullable();
           $table->string('ip', 20)->nullable();
           $table->integer('internal_id')->unsigned()->nullable();
           $table->integer('com_key')->unsigned()->nullable();
