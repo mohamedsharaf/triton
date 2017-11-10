@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Mail\Message;
+
+use Intervention\Image\Facades\Image;
 
 use App\Http\Controllers\Controller;
 
@@ -18,6 +21,7 @@ use App\Models\Seguridad\SegLdUser;
 use App\Models\Institucion\InstLugarDependencia;
 use App\Models\Rrhh\RrhhPersona;
 use App\User;
+use App\Mail\DatoUsuarioMail;
 
 use Exception;
 
@@ -29,6 +33,7 @@ class UsuarioController extends Controller
     private $permisos;
 
     private $public_dir;
+    private $public_url;
 
     /**
     * Create a new controller instance.
@@ -45,6 +50,7 @@ class UsuarioController extends Controller
         ];
 
         $this->public_dir = '/storage/seguridad/user/image';
+        $this->public_url = 'storage/seguridad/user/image/';
     }
 
     /**
@@ -62,6 +68,49 @@ class UsuarioController extends Controller
                             ->toArray();
         if(in_array(['codigo' => '0101'], $this->permisos))
         {
+            $user_id = Auth::user()->id;
+
+            $consulta1 = SegLdUser::where("seg_ld_users.user_id", "=", $user_id)
+                    ->select('lugar_dependencia_id')
+                    ->get()
+                    ->toArray();
+
+            $array_where = 'estado=1';
+            if(count($consulta1) > 0)
+            {
+                $c_1_sw        = TRUE;
+                $c_2_sw        = TRUE;
+                $array_where_1 = '';
+                foreach ($consulta1 as $valor)
+                {
+                    if($valor['lugar_dependencia_id'] == '1')
+                    {
+                        $c_2_sw = FALSE;
+                        break;
+                    }
+
+                    if($c_1_sw)
+                    {
+                        $array_where_1 .= " AND (id=" . $valor['lugar_dependencia_id'];
+                        $c_1_sw      = FALSE;
+                    }
+                    else
+                    {
+                        $array_where_1 .= " OR id=" . $valor['lugar_dependencia_id'];
+                    }
+                }
+                $array_where_1 .= ")";
+
+                if($c_2_sw)
+                {
+                    $array_where .= $array_where_1;
+                }
+            }
+            else
+            {
+                $array_where .= " AND id=0";
+            }
+
             $data = [
                 'rol_id'                  => $this->rol_id,
                 'permisos'                => $this->permisos,
@@ -70,8 +119,9 @@ class UsuarioController extends Controller
                 'sistema'                 => 'Seguridad',
                 'modulo'                  => 'Usuarios',
                 'title_table'             => 'Usuarios',
+                'public_url'              => $this->public_url,
                 'estado_array'            => $this->estado,
-                'lugar_dependencia_array' => InstLugarDependencia::where('estado', '=', 1)
+                'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
                                                 ->get()
@@ -133,7 +183,51 @@ class UsuarioController extends Controller
                     a3.nombre AS rol
                 ";
 
-                $array_where = "$tabla1.id <> 1";
+                $array_where = '';
+
+                $user_id = Auth::user()->id;
+
+                $consulta1 = SegLdUser::leftJoin("inst_lugares_dependencia AS a2", "a2.id", "=", "seg_ld_users.lugar_dependencia_id")
+                    ->where("seg_ld_users.user_id", "=", $user_id)
+                    ->select('a2.id', 'a2.nombre')
+                    ->get()
+                    ->toArray();
+                if(count($consulta1) > 0)
+                {
+                    $c_1_sw        = TRUE;
+                    $c_2_sw        = TRUE;
+                    $array_where_1 = '';
+                    foreach ($consulta1 as $valor)
+                    {
+                        if($valor['id'] == '1')
+                        {
+                            $c_2_sw = FALSE;
+                            break;
+                        }
+
+                        if($c_1_sw)
+                        {
+                            $array_where_1 .= "($tabla1.lugar_dependencia ILIKE '%" . $valor['nombre'] . "%'";
+                            $c_1_sw      = FALSE;
+                        }
+                        else
+                        {
+                            $array_where_1 .= " OR $tabla1.lugar_dependencia ILIKE '%" . $valor['nombre'] . "%'";
+                        }
+                    }
+                    $array_where_1 .= ") AND ";
+
+                    if($c_2_sw)
+                    {
+                        $array_where .= $array_where_1;
+                    }
+                }
+                else
+                {
+                    $array_where .= "$tabla1.lugar_dependencia = 'SIN VALOR' AND ";
+                }
+
+                $array_where .= "$tabla1.id <> 1";
                 $array_where .= $jqgrid->getWhere();
 
                 $count = User::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
@@ -166,13 +260,13 @@ class UsuarioController extends Controller
                         'estado'     => $row["estado"],
                         'rol_id'     => $row["rol_id"],
                         'persona_id' => $row["persona_id"],
-                        'persona_id' => $row["persona_id"]
+                        'imagen'     => $row["imagen"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
-                        $row["imagen"],
+                        $this->utilitarios(array('tipo' => '2', 'imagen' => $row["imagen"])),
                         $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
                         $row["n_documento"],
                         $row["nombre"],
@@ -181,7 +275,7 @@ class UsuarioController extends Controller
                         $row["ap_esposo"],
                         $row["email"],
                         $row["rol"],
-                        $row["lugar_dependencia"],
+                        $this->utilitarios(array('tipo' => '3', 'd_json' => $row["lugar_dependencia"])),
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
                     );
@@ -206,7 +300,7 @@ class UsuarioController extends Controller
         {
             $respuesta = [
                 'sw'        => 0,
-                'titulo'    => 'GESTOR DE PERMISOS',
+                'titulo'    => 'GESTOR DE USUARIO',
                 'respuesta' => 'No es solicitud AJAX.'
             ];
             return json_encode($respuesta);
@@ -235,10 +329,10 @@ class UsuarioController extends Controller
                         'titulo'     => '<div class="text-center"><strong>GESTOR DE USUARIO</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
-                        'iu'         => 1
+                        'iu'         => 1,
+                        'error_sw'   => 1
                     );
                     $opcion = 'n';
-                    $error  = FALSE;
 
                 // === PERMISOS ===
                     $id = trim($request->input('id'));
@@ -260,99 +354,236 @@ class UsuarioController extends Controller
                         }
                     }
 
-                //=== OPERACION ===
-                    $estado                  = trim($request->input('estado'));
-                    $n_documento             = trim($request->input('n_documento'));
-                    $n_documento_1           = strtoupper($util->getNoAcentoNoComilla(trim($request->input('n_documento_1'))));
-                    $nombre                  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
-                    $ap_paterno              = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_paterno'))));
-                    $ap_materno              = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_materno'))));
-                    $ap_esposo               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_esposo'))));
-                    $f_nacimiento            = trim($request->input('f_nacimiento'));
-                    $estado_civil            = trim($request->input('estado_civil'));
-                    $sexo                    = trim($request->input('sexo'));
-                    $domicilio               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('domicilio'))));
-                    $telefono                = trim($request->input('telefono'));
-                    $celular                 = trim($request->input('celular'));
-                    $municipio_id_nacimiento = trim($request->input('municipio_id_nacimiento'));
-                    $municipio_id_residencia = trim($request->input('municipio_id_residencia'));
-
-                    if($n_documento_1 != '')
+                // === VALIDATE ===
+                    try
                     {
-                        $n_documento .= '-' . $n_documento_1;
-                    }
-
-                    if($opcion == 'n')
-                    {
-                        $c_n_documento = RrhhPersona::where('n_documento', '=', $n_documento)->count();
-                        if($c_n_documento < 1)
+                        if($request->has('password'))
                         {
-                            $iu                          = new RrhhPersona;
-                            $iu->municipio_id_nacimiento = $municipio_id_nacimiento;
-                            $iu->municipio_id_residencia = $municipio_id_residencia;
-                            $iu->estado                  = $estado;
-                            $iu->n_documento             = $n_documento;
-                            $iu->nombre                  = $nombre;
-                            $iu->ap_paterno              = $ap_paterno;
-                            $iu->ap_materno              = $ap_materno;
-                            $iu->ap_esposo               = $ap_esposo;
-                            $iu->f_nacimiento            = $f_nacimiento;
-                            $iu->estado_civil            = $estado_civil;
-                            $iu->sexo                    = $sexo;
-                            $iu->domicilio               = $domicilio;
-                            $iu->telefono                = $telefono;
-                            $iu->celular                 = $celular;
-                            $iu->save();
+                            $validator = $this->validate($request,[
+                                'email'             => 'required|email',
+                                'password'          => 'min:6|max:16',
+                                'rol_id'            => 'required',
+                                'lugar_dependencia' => 'required'
+                            ],
+                            [
+                                'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
+                                'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
 
-                            $respuesta['respuesta'] .= "La PERSONA fue registrado con éxito.";
-                            $respuesta['sw']         = 1;
+                                'password.min' => 'El campo CONTRASEÑA debe tener al menos :min caracteres.',
+                                'password.max' => 'El campo CONTRASEÑA debe ser :max caracteres como máximo.',
+
+                                'rol_id.required' => 'El campo ROL es obligatorio.',
+
+                                'lugar_dependencia.required' => 'El campo LUGARES DE DEPENDENCIA es obligatorio.'
+                            ]);
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "La CEDULA DE IDENTIDAD ya fue registrada.";
+                            $validator = $this->validate($request,[
+                                'email'             => 'required|email',
+                                'rol_id'            => 'required',
+                                'lugar_dependencia' => 'required'
+                            ],
+                            [
+                                'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
+                                'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
+
+                                'rol_id.required' => 'El campo ROL es obligatorio.',
+
+                                'lugar_dependencia.required' => 'El campo LUGARES DE DEPENDENCIA es obligatorio.'
+                            ]);
                         }
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $estado = trim($request->input('estado'));
+
+                    if($request->has('persona_id'))
+                    {
+                        $persona_id    = trim($request->input('persona_id'));
+                        $persona_array = RrhhPersona::where('id', '=', $persona_id)
+                            ->select("nombre")
+                            ->first()
+                            ->toArray();
+                        $name = $persona_array['nombre'];
                     }
                     else
                     {
-                        $c_n_documento = RrhhPersona::where('n_documento', '=', $n_documento)->where('id', '<>', $id)->count();
-                        if($c_n_documento < 1)
+                        $persona_id = NULL;
+                        $name       = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
+                    }
+
+                    $email = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
+
+                    $password_email = '';
+                    if($request->has('password'))
+                    {
+                        $password = trim($request->input('password'));
+
+                        if(!preg_match('/(?=[a-z])/', $password))
                         {
-                            $iu                          = RrhhPersona::find($id);
-                            $iu->municipio_id_nacimiento = $municipio_id_nacimiento;
-                            $iu->municipio_id_residencia = $municipio_id_residencia;
-                            $iu->estado                  = $estado;
-                            $iu->n_documento             = $n_documento;
-                            $iu->nombre                  = $nombre;
-                            $iu->ap_paterno              = $ap_paterno;
-                            $iu->ap_materno              = $ap_materno;
-                            $iu->ap_esposo               = $ap_esposo;
-                            $iu->f_nacimiento            = $f_nacimiento;
-                            $iu->estado_civil            = $estado_civil;
-                            $iu->sexo                    = $sexo;
-                            $iu->domicilio               = $domicilio;
-                            $iu->telefono                = $telefono;
-                            $iu->celular                 = $celular;
+                            $respuesta['respuesta'] .= "La CONTRASEÑA debe contener al menos una minuscula.";
+                            return json_encode($respuesta);
+                        }
+
+                        if(!preg_match('/(?=[A-Z])/', $password))
+                        {
+                            $respuesta['respuesta'] .= "La CONTRASEÑA debe contener al menos una mayuscula.";
+                            return json_encode($respuesta);
+                        }
+
+                        if(!preg_match('/(?=\d)/', $password))
+                        {
+                            $respuesta['respuesta'] .= "La CONTRASEÑA debe contener al menos un digito.";
+                            return json_encode($respuesta);
+                        }
+
+                        $password_email = $password;
+                        $password       = bcrypt($password);
+                    }
+
+                    $rol_id = trim($request->input('rol_id'));
+
+                    if($request->has('lugar_dependencia'))
+                    {
+                        $lugar_dependencia = $request->input('lugar_dependencia');
+
+                        $i = 0;
+                        foreach($lugar_dependencia as $lugar_dependencia_id)
+                        {
+                            $ld_query = InstLugarDependencia::where('id', '=', $lugar_dependencia_id)
+                                ->select("id", "nombre")
+                                ->first()
+                                ->toArray();
+
+                            $ld_nombre_array[$i] = $ld_query['nombre'];
+                            $i++;
+                        }
+                        $ld_json = json_encode($ld_nombre_array);
+                    }
+                    else
+                    {
+                        $lugar_dependencia = NULL;
+                        $ld_json           = NULL;
+                    }
+
+                    $nombre_archivo = NULL;
+                    if($opcion == 'n')
+                    {
+                        $c_email = User::where('email', '=', $email)->count();
+                        if($c_email < 1)
+                        {
+                            $iu             = new User;
+                            $iu->estado     = $estado;
+                            $iu->persona_id = $persona_id;
+                            $iu->name       = $name;
+                            $iu->email      = $email;
+                            if($request->has('password'))
+                            {
+                                $iu->password = $password;
+                            }
+                            else
+                            {
+                                $email_array    = explode('@', $email);
+                                $password_email = $email_array[0] . date('Y');
+                                $iu->password   = bcrypt($password_email);
+                            }
+                            $iu->rol_id            = $rol_id;
+                            $iu->lugar_dependencia = $ld_json;
                             $iu->save();
 
-                            $respuesta['respuesta'] .= "La CEDULA DE IDENTIDAD se edito con éxito.";
-                            $respuesta['sw']         = 1;
-                            $respuesta['iu']         = 2;
+                            $id = $iu->id;
 
-                            $c_usuario = User::where('persona_id', '=', $id)->select("id")->first();
-                            if(count($c_usuario) > 0)
+                            $respuesta['respuesta'] .= "El USUARIO fue registrado con éxito.";
+                            $respuesta['sw']         = 1;
+
+                            if($request->has('lugar_dependencia'))
                             {
-                                $iu1       = User::find($c_usuario['id']);
-                                $iu1->name = $nombre;
-                                $iu1->save();
+                                foreach($lugar_dependencia as $lugar_dependencia_id)
+                                {
+                                    $iu1                       = new SegLdUser;
+                                    $iu1->lugar_dependencia_id = $lugar_dependencia_id;
+                                    $iu1->user_id              = $id;
+                                    $iu1->save();
+                                }
                             }
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "La CEDULA DE IDENTIDAD ya fue registrada.";
+                            $respuesta['respuesta'] .= "El CORREO ELECTRONICO ya fue registrada.";
+                        }
+                    }
+                    else
+                    {
+                        $c_email = User::where('email', '=', $email)->where('id', '<>', $id)->count();
+                        if($c_email < 1)
+                        {
+                            $iu                    = User::find($id);
+                            $iu->estado            = $estado;
+                            $iu->persona_id        = $persona_id;
+                            $iu->name              = $name;
+                            $iu->email             = $email;
+                            if($request->has('password'))
+                            {
+                                $iu->password = $password;
+                            }
+                            $iu->rol_id            = $rol_id;
+                            $iu->lugar_dependencia = $ld_json;
+                            $iu->save();
+
+                            $respuesta['respuesta'] .= "El USUARIO se edito con éxito.";
+                            $respuesta['sw']         = 1;
+                            $respuesta['iu']         = 2;
+
+                            $del1 = SegLdUser::where('user_id', '=', $id);
+                            $del1->delete();
+
+                            if($request->has('lugar_dependencia'))
+                            {
+                                foreach($lugar_dependencia as $lugar_dependencia_id)
+                                {
+                                    $iu1                       = new SegLdUser;
+                                    $iu1->lugar_dependencia_id = $lugar_dependencia_id;
+                                    $iu1->user_id              = $id;
+                                    $iu1->save();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El CORREO ELECTRONICO ya fue registrada.";
                         }
                     }
 
-                //=== RESPUESTA ===
+                //=== CORREO ELECTRONICO ===
+                    if($request->has('enviar_mail'))
+                    {
+                        if($request->input('enviar_mail') == '1')
+                        {
+                            if($password_email != '')
+                            {
+                                $data1 = [
+                                    'title'    => 'MINISTERIO PÚBLICO',
+                                    'name'     => $name,
+                                    'email'    => $email,
+                                    'password' => $password_email,
+                                    'url'      => env('APP_URL'),
+                                    'i4'       => 'http://i4.fiscalia.gob.bo/i4',
+                                    'titan'    => 'http://virtual.fiscalia.gob.bo/titan'
+                                ];
+
+                                Mail::to($email, $name)
+                                    ->send(new DatoUsuarioMail($data1));
+                            }
+                        }
+                    }
+
                 return json_encode($respuesta);
                 break;
             // === UPLOAD IMAGE ===
@@ -405,10 +636,11 @@ class UsuarioController extends Controller
                         if($request->has('password'))
                         {
                             $validator = $this->validate($request,[
-                                'file'     => 'image|mimes:jpeg,png,jpg|max:5120',
-                                'email'    => 'required|email',
-                                'password' => 'min:6|max:16',
-                                'rol_id'   => 'required'
+                                'file'              => 'image|mimes:jpeg,png,jpg|max:5120',
+                                'email'             => 'required|email',
+                                'password'          => 'min:6|max:16',
+                                'rol_id'            => 'required',
+                                'lugar_dependencia' => 'required'
                             ],
                             [
                                 'file.image' => 'El archivo subido debe de ser imagen.',
@@ -421,15 +653,18 @@ class UsuarioController extends Controller
                                 'password.min' => 'El campo CONTRASEÑA debe tener al menos :min caracteres.',
                                 'password.max' => 'El campo CONTRASEÑA debe ser :max caracteres como máximo.',
 
-                                'rol_id.required' => 'El campo ROL es obligatorio.'
+                                'rol_id.required' => 'El campo ROL es obligatorio.',
+
+                                'lugar_dependencia.required' => 'El campo LUGARES DE DEPENDENCIA es obligatorio.'
                             ]);
                         }
                         else
                         {
                             $validator = $this->validate($request,[
-                                'file'     => 'image|mimes:jpeg,png,jpg|max:5120',
-                                'email'    => 'required|email',
-                                'rol_id'   => 'required'
+                                'file'              => 'image|mimes:jpeg,png,jpg|max:5120',
+                                'email'             => 'required|email',
+                                'rol_id'            => 'required',
+                                'lugar_dependencia' => 'required'
                             ],
                             [
                                 'file.image' => 'El archivo subido debe de ser imagen.',
@@ -439,7 +674,9 @@ class UsuarioController extends Controller
                                 'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
                                 'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
 
-                                'rol_id.required' => 'El campo ROL es obligatorio.'
+                                'rol_id.required' => 'El campo ROL es obligatorio.',
+
+                                'lugar_dependencia.required' => 'El campo LUGARES DE DEPENDENCIA es obligatorio.'
                             ]);
                         }
                     }
@@ -470,6 +707,7 @@ class UsuarioController extends Controller
 
                     $email = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
 
+                    $password_email = '';
                     if($request->has('password'))
                     {
                         $password = trim($request->input('password'));
@@ -492,7 +730,8 @@ class UsuarioController extends Controller
                             return json_encode($respuesta);
                         }
 
-                        $password = bcrypt($password);
+                        $password_email = $password;
+                        $password       = bcrypt($password);
                     }
 
                     $rol_id = trim($request->input('rol_id'));
@@ -535,21 +774,39 @@ class UsuarioController extends Controller
                                     $direccion_archivo = public_path($this->public_dir);
 
                                     $archivo->move($direccion_archivo, $nombre_archivo);
+
+                                    $image_user   = Image::make($direccion_archivo . '/' . $nombre_archivo);
+
+                                    // $image_width  = $image_user->width();
+                                    // $image_height = $image_user->height();
+
+                                    $image_user->resize(512, null, function ($constraint) {
+                                        $constraint->aspectRatio();
+                                        $constraint->upsize();
+                                    });
+
+                                    $image_user->resize(null, 512, function ($constraint) {
+                                        $constraint->aspectRatio();
+                                        $constraint->upsize();
+                                    });
+
+                                    $image_user->save($direccion_archivo . '/' . $nombre_archivo);
                                 }
 
-                            $iu                    = new User;
-                            $iu->estado            = $estado;
-                            $iu->persona_id        = $persona_id;
-                            $iu->name              = $name;
-                            $iu->email             = $email;
+                            $iu             = new User;
+                            $iu->estado     = $estado;
+                            $iu->persona_id = $persona_id;
+                            $iu->name       = $name;
+                            $iu->email      = $email;
                             if($request->has('password'))
                             {
                                 $iu->password = $password;
                             }
                             else
                             {
-                                $email_array = explode('@', $email);
-                                $iu->password = bcrypt($email_array[0] . date('Y'));
+                                $email_array    = explode('@', $email);
+                                $password_email = $email_array[0] . date('Y');
+                                $iu->password   = bcrypt($password_email);
                             }
                             $iu->rol_id            = $rol_id;
                             $iu->lugar_dependencia = $ld_json;
@@ -583,13 +840,39 @@ class UsuarioController extends Controller
                         if($c_email < 1)
                         {
                             //=== IMAGEN UPLOAD ===
+                                $user_imagen = User::where('id', '=', $id)
+                                    ->select('imagen')
+                                    ->first()
+                                    ->toArray();
+                                if($user_imagen['imagen'] != '')
+                                {
+                                    unlink(public_path($this->public_dir) . '/' . $user_imagen['imagen']);
+                                }
+
                                 if($request->hasFile('file'))
                                 {
-                                    $archivo = $request->file('file');
-                                    $nombre_archivo = uniqid('user_', true) . '.' . $archivo->getClientOriginalExtension();
+                                    $archivo           = $request->file('file');
+                                    $nombre_archivo    = uniqid('user_', true) . '.' . $archivo->getClientOriginalExtension();
                                     $direccion_archivo = public_path($this->public_dir);
 
                                     $archivo->move($direccion_archivo, $nombre_archivo);
+
+                                    $image_user   = Image::make($direccion_archivo . '/' . $nombre_archivo);
+
+                                    // $image_width  = $image_user->width();
+                                    // $image_height = $image_user->height();
+
+                                    $image_user->resize(512, null, function ($constraint) {
+                                        $constraint->aspectRatio();
+                                        $constraint->upsize();
+                                    });
+
+                                    $image_user->resize(null, 512, function ($constraint) {
+                                        $constraint->aspectRatio();
+                                        $constraint->upsize();
+                                    });
+
+                                    $image_user->save($direccion_archivo . '/' . $nombre_archivo);
                                 }
 
                             $iu                    = User::find($id);
@@ -619,7 +902,7 @@ class UsuarioController extends Controller
                                 {
                                     $iu1                       = new SegLdUser;
                                     $iu1->lugar_dependencia_id = $lugar_dependencia_id;
-                                    $iu1->user_id              = $user_id;
+                                    $iu1->user_id              = $id;
                                     $iu1->save();
                                 }
                             }
@@ -627,6 +910,35 @@ class UsuarioController extends Controller
                         else
                         {
                             $respuesta['respuesta'] .= "El CORREO ELECTRONICO ya fue registrada.";
+                        }
+                    }
+
+                //=== CORREO ELECTRONICO ===
+                    if($request->has('enviar_mail'))
+                    {
+                        if($request->input('enviar_mail') == '1')
+                        {
+                            if($password_email != '')
+                            {
+                                $data1 = [
+                                    'title'    => 'MINISTERIO PÚBLICO',
+                                    'name'     => $name,
+                                    'email'    => $email,
+                                    'password' => $password_email,
+                                    'url'      => env('APP_URL'),
+                                    'i4'       => 'http://i4.fiscalia.gob.bo/i4',
+                                    'titan'    => 'http://virtual.fiscalia.gob.bo/titan'
+                                ];
+
+                                Mail::to($email, $name)
+                                    ->send(new DatoUsuarioMail($data1));
+
+                                // Mail::send('mail.dato_cuenta', $data1, function(Message $message){
+                                //     $message->to($email, $name)
+                                //             ->from('informatica@fiscalia.gob.bo', 'MINISTERIO PUBLICO - DATOS DE TU CUENTA')
+                                //             ->subject('DATOS DE TU CUENTA');
+                                // });
+                            }
                         }
                     }
 
@@ -700,6 +1012,30 @@ class UsuarioController extends Controller
                     // }
                 }
                 break;
+            // === SELECT2 RELLENAR LUGAR DE DEPENDENCIA ===
+            case '102':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+
+                if($request->has('usuario_id'))
+                {
+                    $user_id  = $request->input('usuario_id');
+
+                    $query = SegLdUser::where("user_id", "=", $user_id)
+                                ->select('lugar_dependencia_id')
+                                ->get()
+                                ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
             default:
                 break;
         }
@@ -725,6 +1061,36 @@ class UsuarioController extends Controller
                         return($respuesta);
                         break;
                 }
+                break;
+            case '2':
+                if($valor['imagen'] == '')
+                {
+                    return '';
+                }
+                else
+                {
+                    return "<img  width='100%' class='img-thumbnail' alt='Imagen Personal' src='" . asset($this->public_url . $valor['imagen']) . "' />";
+                }
+                break;
+            case '3':
+                $respuesta = '';
+                if($valor['d_json'] != '')
+                {
+                    $sw = TRUE;
+                    foreach(json_decode($valor['d_json']) as $valor)
+                    {
+                        if($sw)
+                        {
+                            $respuesta .= $valor;
+                            $sw = FALSE;
+                        }
+                        else
+                        {
+                            $respuesta .= "<br>" . $valor;
+                        }
+                    }
+                }
+                return($respuesta);
                 break;
             default:
                 break;

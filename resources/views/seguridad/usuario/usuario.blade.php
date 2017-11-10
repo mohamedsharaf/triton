@@ -165,8 +165,17 @@
 
                     <div id="lugar_dependencia_div" class="form-group">
                       <label for="lugar_dependencia">Lugares de dependencia</label>
-                      <select name="lugar_dependencia" id="lugar_dependencia" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                      <select name="lugar_dependencia[]" id="lugar_dependencia" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
                       </select>
+                    </div>
+
+                    <div class="form-group">
+                      <div>
+                          <div class="checkbox checkbox-warning">
+                            <input type="checkbox" id="enviar_mail" name="enviar_mail" value="1">
+                            <label class="text-warning" for="enviar_mail"> Enviar correo electrónico</label>
+                          </div>
+                      </div>
                     </div>
                   </div>
                 </form>

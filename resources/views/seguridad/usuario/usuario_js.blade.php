@@ -21,6 +21,7 @@
         var base_url       = "{!! url('') !!}";
         var url_controller = "{!! url('/usuario') !!}";
         var csrf_token     = "{!! csrf_token() !!}";
+        var public_url     = "{!! asset($public_url) !!}";
 
     // === JQGRID1 ===
         var title_table   = "{!! $title_table !!}";
@@ -73,16 +74,16 @@
         );
         var col_m_width_1 = new Array(
             33,
+            150,
+            100,
+            90,
             100,
             100,
             100,
             100,
-            100,
-            100,
-            100,
-            300,
-            300,
-            400,
+            250,
+            250,
+            350,
 
             10
         );
@@ -320,7 +321,8 @@
                             name  : col_m_name_1[7],
                             index : col_m_index_1[7],
                             width : col_m_width_1[7],
-                            align : col_m_align_1[7]
+                            align : col_m_align_1[7],
+                            hidden: true
                         },
                         {
                             name  : col_m_name_1[8],
@@ -450,39 +452,39 @@
                 utilitarios(valor1);
 
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Modificar persona');
-                $("#persona_id").val(valor[1]);
+                $('#modal_1_title').append('Modificar usuario');
+                $("#usuario_id").val(valor[1]);
 
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
 
-                $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
-                var n_documento       = ret.n_documento;
-                var n_documento_array = n_documento.split('-');
-                $("#n_documento").val(n_documento_array[0]);
-                $("#n_documento_1").val(n_documento_array[1]);
-                $("#nombre").val(ret.nombre);
-                $("#ap_paterno").val(ret.ap_paterno);
-                $("#ap_materno").val(ret.ap_materno);
-                $("#ap_esposo").val(ret.ap_esposo);
-                $("#f_nacimiento").val(ret.f_nacimiento);
-                $("#estado_civil").select2("val", val_json.estado_civil);
-
-                $(".sexo_class[value=" + val_json.sexo + "]").prop('checked', true);
-                $("#domicilio").val(ret.domicilio);
-                $("#telefono").val(ret.telefono);
-                $("#celular").val(ret.celular);
-
-                if(ret.municipio_nacimiento != ""){
-                    var dpm = ret.departamento_nacimiento + ', ' + ret.provincia_nacimiento + ', ' + ret.municipio_nacimiento;
-                    $('#municipio_id_nacimiento').append('<option value="' + val_json.municipio_id_nacimiento + '">' + dpm + '</option>');
-                    $("#municipio_id_nacimiento").select2("val", val_json.municipio_id_nacimiento);
+                if(val_json.imagen != null){
+                    $('#image_user').removeAttr('scr');
+                    $('#image_user').attr('src', public_url + '/' + val_json.imagen + '?' + Math.random());
                 }
 
-                if(ret.municipio_residencia != ""){
-                    var dpm = ret.departamento_residencia + ', ' + ret.provincia_residencia + ', ' + ret.municipio_residencia;
-                    $('#municipio_id_residencia').append('<option value="' + val_json.municipio_id_nacimiento + '">' + dpm + '</option>');
-                    $("#municipio_id_residencia").select2("val", val_json.municipio_id_residencia);
+                $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
+
+                if(ret.n_documento != ""){
+                    var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ret.nombre;
+
+                    $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
+                    $("#persona_id").select2("val", val_json.persona_id);
+                }
+
+                $("#email").val(ret.email);
+                $("#rol_id").select2("val", val_json.rol_id);
+
+
+                if(ret.lugar_dependencia != ""){
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = 'tipo=102&_token=' + csrf_token + '&usuario_id=' + valor[1];
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
                 }
                 $('#modal_1').modal();
                 break;
@@ -509,34 +511,23 @@
             // === GUARDAR REGISTRO ===
             case 15:
                 if($(form_1).valid()){
-                    var ap_paterno = $.trim($("#ap_paterno").val());
-                    var ap_materno = $.trim($("#ap_materno").val());
-                    if(ap_paterno != '' || ap_materno != ''){
-                        swal({
-                            title             : "ENVIANDO INFORMACIÓN",
-                            text              : "Espere a que guarde la información.",
-                            allowEscapeKey    : false,
-                            showConfirmButton : false,
-                            type              : "info"
-                        });
-                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
 
-                        var valor1 = new Array();
-                        valor1[0]  = 150;
-                        valor1[1]  = url_controller + '/send_ajax';
-                        valor1[2]  = 'POST';
-                        valor1[3]  = true;
-                        valor1[4]  = $(form_1).serialize();
-                        valor1[5]  = 'json';
-                        utilitarios(valor1);
-                    }
-                    else{
-                        var valor1 = new Array();
-                        valor1[0]  = 101;
-                        valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                        valor1[2]  = "¡APELLIDO PATERNO o MATERNO debe de existir!";
-                        utilitarios(valor1);
-                    }
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = $(form_1).serialize();
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
                 }
                 else{
                     var valor1 = new Array();
@@ -562,6 +553,9 @@
                             equalTo: "#password"
                         },
                         rol_id:{
+                            required: true
+                        },
+                        "lugar_dependencia[]":{
                             required: true
                         }
                     }
@@ -607,6 +601,7 @@
                             formData.append("password", $("#password").val());
                             formData.append("rol_id", $("#rol_id").val());
                             formData.append("lugar_dependencia", $("#lugar_dependencia").val());
+                            formData.append("enviar_mail", $("#enviar_mail:checked").val());
                         });
                     },
                     success: function(file, response){
@@ -694,17 +689,43 @@
                                     }
                                 }
                                 else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else
+                                    {
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
                                 }
                                 else if(data.sw === 2){
                                     window.location.reload();
                                 }
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === INSERT UPDATE ===
+                            case '102':
+                                if(data.sw === 2){
+                                    var ld_array = new Array();
+                                    var i        = 0;
+                                    $.each(data.consulta, function(index, value){
+                                        ld_array[i] = value.lugar_dependencia_id;
+                                        i++;
+                                    });
+                                    $("#lugar_dependencia").select2("val", ld_array);
+                                }
                                 break;
                             default:
                                 break;

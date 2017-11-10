@@ -171,6 +171,7 @@ return [
         Laravelista\Ekko\EkkoServiceProvider::class,
         Elibyy\TCPDF\ServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -232,6 +233,7 @@ return [
         'Ekko'         => Laravelista\Ekko\Facades\Ekko::class,
         'PDF'          => Elibyy\TCPDF\Facades\TCPDF::class,
         'Excel'        => Maatwebsite\Excel\Facades\Excel::class,
+        'Image'        => Intervention\Image\Facades\Image::class,
 
     ],
 

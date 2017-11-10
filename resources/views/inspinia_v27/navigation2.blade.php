@@ -4,7 +4,11 @@
             <li class="nav-header">
                 <div class="dropdown profile-element">
                     <span>
-                        <img alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
+                        @if(Auth::user()->imagen == '')
+                            <img alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
+                        @else
+                            <img alt="image" class="img-circle" width="50" src="{!! asset('storage/seguridad/user/image/' . Auth::user()->imagen) !!}" />
+                        @endif
                     </span>
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <span class="clear">
@@ -15,14 +19,18 @@
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
                         <li><a href="profile.html">Mi perfil</a></li>
-                        <li><a href="contacts.html">Mi declaración</a></li>
-                        <li><a href="mailbox.html">Mi hoja de vida</a></li>
+                        {{-- <li><a href="contacts.html">Mi declaración</a></li>
+                        <li><a href="mailbox.html">Mi hoja de vida</a></li> --}}
                         <li class="divider"></li>
                         <li><a href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">Cerrar sesión</a></li>
                     </ul>
                 </div>
                 <div class="logo-element">
-                    <img alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
+                    @if(Auth::user()->imagen == '')
+                        <img alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
+                    @else
+                        <img alt="image" class="img-circle" width="50" src="{!! asset('storage/seguridad/user/image/' . Auth::user()->imagen) !!}" />
+                    @endif
                 </div>
             </li>
 

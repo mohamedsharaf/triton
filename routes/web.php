@@ -11,9 +11,9 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 // Auth::routes();
 
@@ -36,6 +36,8 @@ Route::get('/', function () {
         Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/', 'HomeController@index')->name('home');
 
 //=== GESTOR DE MODULOS ===
     Route::get('/modulo', 'Seguridad\ModuloController@index')->name('modulo');
