@@ -16,6 +16,7 @@ use App\Models\Seguridad\SegLdUser;
 use App\Models\Institucion\InstLugarDependencia;
 use App\Models\Institucion\InstUnidadDesconcentrada;
 use App\Models\Rrhh\RrhhBiometrico;
+use App\Models\Rrhh\RrhhLogAlerta;
 use App\User;
 use App\Mail\DatoUsuarioMail;
 
@@ -32,12 +33,9 @@ class BiometricoController extends Controller
 
     private $rol_id;
     private $permisos;
+    private $tipo_emisor;
+    private $tipo_alerta;
 
-    /**
-    * Create a new controller instance.
-    *
-    * @return void
-    */
     public function __construct()
     {
         $this->middleware('auth');
@@ -55,16 +53,22 @@ class BiometricoController extends Controller
         ];
 
         $this->encoding = [
-            'utf-8'     => 'utf-8',
-            'iso8859-1' => 'iso8859-1'
+            '1' => 'utf-8',
+            '2' => 'iso8859-1'
+        ];
+
+        $this->tipo_emisor = [
+            '1' => 'CRON',
+            '2' => 'MANUAL',
+            '3' => 'EDITAR'
+        ];
+
+        $this->tipo_alerta = [
+            '1' => 'ERROR DE CONEXION',
+            '2' => 'ARRAY SIN DATOS'
         ];
     }
 
-    /**
-    * Show the application dashboard.
-    *
-    * @return \Illuminate\Http\Response
-    */
     public function index()
     {
         $this->rol_id   = Auth::user()->rol_id;
@@ -129,6 +133,8 @@ class BiometricoController extends Controller
                 'estado_array'            => $this->estado,
                 'e_conexion_array'        => $this->e_conexion,
                 'encoding_array'          => $this->encoding,
+                'tipo_emisor_array'       => $this->tipo_emisor,
+                'tipo_alerta_array'       => $this->tipo_alerta,
                 'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
@@ -289,6 +295,67 @@ class BiometricoController extends Controller
                 }
                 return json_encode($respuesta);
                 break;
+            case '2':
+                $jqgrid = new JqgridClass($request);
+
+                $tabla1 = "rrhh_log_alertas";
+
+                $select = "
+                    id,
+                    biometrico_id,
+                    tipo_emisor,
+                    tipo_alerta,
+                    f_alerta,
+                    mensaje
+                ";
+
+                $array_where = 'TRUE';
+
+                $array_where .= " AND biometrico_id=" . $request->input('biometrico_id');
+
+                $array_where .= $jqgrid->getWhere();
+
+                $count = RrhhLogAlerta::whereRaw($array_where)
+                    ->count();
+
+                $limit_offset = $jqgrid->getLimitOffset($count);
+
+                $query = RrhhLogAlerta::whereRaw($array_where)
+                    ->select(DB::raw($select))
+                    ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                    ->offset($limit_offset['start'])
+                    ->limit($limit_offset['limit'])
+                    ->get()
+                    ->toArray();
+
+                $respuesta = [
+                    'page'    => $limit_offset['page'],
+                    'total'   => $limit_offset['total_pages'],
+                    'records' => $count
+                ];
+
+                $i = 0;
+                foreach ($query as $row)
+                {
+                    $val_array = array(
+                        'biometrico_id' => $row["biometrico_id"],
+                        'tipo_emisor'   => $row["tipo_emisor"],
+                        'tipo_alerta'   => $row["tipo_alerta"]
+                    );
+
+                    $respuesta['rows'][$i]['id'] = $row["id"];
+                    $respuesta['rows'][$i]['cell'] = array(
+                        $row["f_alerta"],
+                        $this->tipo_emisor[$row["tipo_emisor"]],
+                        $this->utilitarios(array('tipo' => '3', 'tipo_alerta' => $row["tipo_alerta"])),
+                        $row["mensaje"],
+                        //=== VARIABLES OCULTOS ===
+                            json_encode($val_array)
+                    );
+                    $i++;
+                }
+                return json_encode($respuesta);
+                break;
             default:
                 $respuesta = [
                     'page'    => 0,
@@ -325,6 +392,7 @@ class BiometricoController extends Controller
                                         ->select("seg_permisos.codigo")
                                         ->get()
                                         ->toArray();
+
                 // === LIBRERIAS ===
                     $util = new UtilClass();
 
@@ -340,12 +408,14 @@ class BiometricoController extends Controller
                     );
                     $opcion = 'n';
 
+                    $fs_conexion = date("Y-m-d H:i:s");
+
                 // === PERMISOS ===
                     $id = trim($request->input('id'));
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '0103'], $this->permisos))
+                        if(!in_array(['codigo' => '0603'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
@@ -353,7 +423,7 @@ class BiometricoController extends Controller
                     }
                     else
                     {
-                        if(!in_array(['codigo' => '0102'], $this->permisos))
+                        if(!in_array(['codigo' => '0602'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
                             return json_encode($respuesta);
@@ -424,203 +494,351 @@ class BiometricoController extends Controller
                 // === VARIABLES ===
                     $lugar_dependencia_id     = trim($request->input('lugar_dependencia_id'));
                     $unidad_desconcentrada_id = trim($request->input('unidad_desconcentrada_id'));
-                    $codigo_af                = trim($request->input('codigo_af'));
-                    $ip                       = trim($request->input('ip'));
-                    $internal_id              = trim($request->input('internal_id'));
-                    $com_key                  = trim($request->input('com_key'));
-                    $soap_port                = trim($request->input('soap_port'));
-                    $udp_port                 = trim($request->input('udp_port'));
+                    $codigo_af_mp             = trim($request->input('codigo_af'));
+                    $ip                       = $request->input('ip', null);
+                    $internal_id              = $request->input('internal_id', null);
+                    $com_key                  = $request->input('com_key', null);
+                    $soap_port                = $request->input('soap_port', null);
+                    $udp_port                 = $request->input('udp_port', null);
+                    $encoding                 = null;
+                    $e_conexion               = 3;
+                    $fb_conexion              = null;
+
+                    $codigo_af_array = explode("-", $codigo_af_mp);
+                    $codigo_af       = $codigo_af_array[1];
 
                 // === VERIFICANDO CONEXION ===
-                    $data_conexion = [
-                        'ip'            => $ip,         // '192.168.30.30' '200.107.241.111' by default (totally useless!!!).
-                        'internal_id'   => $internal_id,// 1 by default.
-                        'com_key'       => $com_key,    // 0 by default.
-                        //'description' => '',          // 'N/A' by default.
-                        'soap_port'     => $soap_port,  // 80 by default,
-                        'udp_port'      => $udp_port,   // 4370 by default.
-                        'encoding'      => 'utf-8'      // iso8859-1 by default.
-                    ];
-
-                    $tad_factory = new TADFactory($data_conexion);
-                    $tad         = $tad_factory->get_instance();
-
-
-                    try
+                    if($estado == '1')
                     {
-                        $fh_biometrico = $tad->get_date()->to_array();
+                        $encoding = $this->encoding['1'];
+                        $data_conexion = [
+                            'ip'            => $ip,                 // '192.168.30.30' '200.107.241.111' by default (totally useless!!!).
+                            'internal_id'   => $internal_id,        // 1 by default.
+                            'com_key'       => $com_key,            // 0 by default.
+                            //'description' => '',                  // 'N/A' by default.
+                            'soap_port'     => $soap_port,          // 80 by default,
+                            'udp_port'      => $udp_port,           // 4370 by default.
+                            'encoding'      => $encoding            // iso8859-1 by default.
+                        ];
 
-                        $f_biometrico           = date("d/m/Y H:i:s", strtotime($fh_biometrico['Row']['Date'] . ' ' . $fh_biometrico['Row']['Time']));
-                        $respuesta['respuesta'] .= $f_biometrico;
+                        $tad_factory = new TADFactory($data_conexion);
+                        $tad         = $tad_factory->get_instance();
 
-                        return json_encode($respuesta);
-                    }
-                    catch (Exception $e)
-                    {
-                        $respuesta['error_sw'] = 3;
-                        $respuesta['error']    = $e;
-                        return json_encode($respuesta);
+                        if($opcion == 'n')
+                        {
+                            try
+                            {
+                                $fb_conexion_array = $tad->get_date()->to_array();
+                                $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
+                                $e_conexion        = 1;
+
+                                // $f_biometrico           = date("d/m/Y H:i:s", strtotime($fh_biometrico_array['Row']['Date'] . ' ' . $fh_biometrico_array['Row']['Time']));
+                            }
+                            catch (Exception $e)
+                            {
+                                // $respuesta['error_sw'] = 3;
+                                // $respuesta['error']    = $e . '';
+                                $respuesta['respuesta'] .= "No se pudo conectar a " . $ip . "<br>Verifique la IP.";
+                                return json_encode($respuesta);
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                $fb_conexion_array = $tad->get_date()->to_array();
+                                $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
+                                $e_conexion        = 1;
+                            }
+                            catch (Exception $e)
+                            {
+                                $respuesta['respuesta'] .= "No se pudo conectar a " . $ip . "<br>Verifique la conexión.<br>";
+                                $e_conexion             = 2;
+
+                                $error = '' . $e;
+                                $error_array = explode("Stack trace:", $error);
+
+                                $iu                = new RrhhLogAlerta;
+                                $iu->biometrico_id = $id;
+                                $iu->tipo_emisor   = 3;
+                                $iu->tipo_alerta   = 1;
+                                $iu->f_alerta      = $fs_conexion;
+                                $iu->mensaje       = $error_array[0];
+                                $iu->save();
+                            }
+                        }
                     }
 
                 //=== OPERACION ===
-                    // $estado = trim($request->input('estado'));
+                    if($opcion == 'n')
+                    {
+                        $c_codigo_af = RrhhBiometrico::where('codigo_af', '=', $codigo_af)->count();
+                        if($c_codigo_af < 1)
+                        {
+                            $sw_ip = TRUE;
+                            if($estado == '1')
+                            {
+                                $c_ip = RrhhBiometrico::where('ip', '=', $ip)->count();
+                                if($c_ip > 0)
+                                {
+                                    $sw_ip = FALSE;
+                                }
+                            }
 
-                    // if($request->has('persona_id'))
-                    // {
-                    //     $persona_id    = trim($request->input('persona_id'));
-                    //     $persona_array = RrhhPersona::where('id', '=', $persona_id)
-                    //         ->select("nombre")
-                    //         ->first()
-                    //         ->toArray();
-                    //     $name = $persona_array['nombre'];
-                    // }
-                    // else
-                    // {
-                    //     $persona_id = NULL;
-                    //     $name       = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
-                    // }
+                            if($sw_ip)
+                            {
+                                $iu                           = new RrhhBiometrico;
+                                $iu->unidad_desconcentrada_id = $unidad_desconcentrada_id;
+                                $iu->estado                   = $estado;
+                                $iu->e_conexion               = $e_conexion;
+                                $iu->fs_conexion              = $fs_conexion;
+                                $iu->fb_conexion              = $fb_conexion;
+                                $iu->codigo_af                = $codigo_af;
+                                $iu->ip                       = $ip;
+                                $iu->internal_id              = $internal_id;
+                                $iu->com_key                  = $com_key;
+                                $iu->soap_port                = $soap_port;
+                                $iu->udp_port                 = $udp_port;
+                                $iu->encoding                 = $encoding;
+                                $iu->save();
 
-                    // $email = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
+                                $respuesta['respuesta'] .= "El BIOMETRICO fue registrado con éxito.";
+                                $respuesta['sw']         = 1;
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "La IP ya fue registrada.";
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El CODIGO DEL ACTIVO FIJO ya fue registrado.";
+                        }
+                    }
+                    else
+                    {
+                        $c_codigo_af = RrhhBiometrico::where('codigo_af', '=', $codigo_af)->where('id', '<>', $id)->count();
+                        if($c_codigo_af < 1)
+                        {
+                            $sw_ip = TRUE;
+                            if($estado == '1')
+                            {
+                                $c_ip = RrhhBiometrico::where('ip', '=', $ip)->where('id', '<>', $id)->count();
+                                if($c_ip > 0)
+                                {
+                                    $sw_ip = FALSE;
+                                }
+                            }
 
-                    // $password_email = '';
-                    // if($request->has('password'))
-                    // {
-                    //     $password = trim($request->input('password'));
+                            if($sw_ip)
+                            {
+                                $iu                           = RrhhBiometrico::find($id);
+                                $iu->unidad_desconcentrada_id = $unidad_desconcentrada_id;
+                                $iu->estado                   = $estado;
+                                $iu->e_conexion               = $e_conexion;
+                                $iu->fs_conexion              = $fs_conexion;
+                                $iu->fb_conexion              = $fb_conexion;
+                                $iu->codigo_af                = $codigo_af;
+                                $iu->ip                       = $ip;
+                                $iu->internal_id              = $internal_id;
+                                $iu->com_key                  = $com_key;
+                                $iu->soap_port                = $soap_port;
+                                $iu->udp_port                 = $udp_port;
+                                $iu->encoding                 = $encoding;
+                                $iu->save();
 
-                    //     if(!preg_match('/(?=[a-z])/', $password))
-                    //     {
-                    //         $respuesta['respuesta'] .= "La CONTRASEÑA debe contener al menos una minuscula.";
-                    //         return json_encode($respuesta);
-                    //     }
+                                $respuesta['respuesta'] .= "El BIOMETRICO se edito con éxito.";
+                                $respuesta['sw']         = 1;
+                                $respuesta['iu']         = 2;
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "La IP ya fue registrada.";
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El CODIGO DEL ACTIVO FIJO ya fue registrado.";
+                        }
+                    }
 
-                    //     if(!preg_match('/(?=[A-Z])/', $password))
-                    //     {
-                    //         $respuesta['respuesta'] .= "La CONTRASEÑA debe contener al menos una mayuscula.";
-                    //         return json_encode($respuesta);
-                    //     }
+                return json_encode($respuesta);
+                break;
+            // === REVISAR CONEXION ===
+            case '2':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
 
-                    //     if(!preg_match('/(?=\d)/', $password))
-                    //     {
-                    //         $respuesta['respuesta'] .= "La CONTRASEÑA debe contener al menos un digito.";
-                    //         return json_encode($respuesta);
-                    //     }
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ALERTA</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo
+                    );
 
-                    //     $password_email = $password;
-                    //     $password       = bcrypt($password);
-                    // }
+                    $fs_conexion = date("Y-m-d H:i:s");
 
-                    // $rol_id = trim($request->input('rol_id'));
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if(!in_array(['codigo' => '0604'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para REVISAR CONEXION.";
+                        return json_encode($respuesta);
+                    }
 
-                    // if($request->has('lugar_dependencia'))
-                    // {
-                    //     $lugar_dependencia = $request->input('lugar_dependencia');
+                // === CONSULTA ===
+                    $biometrico = RrhhBiometrico::where('id', '=', $id)
+                        ->first()
+                        ->toArray();
 
-                    //     $i = 0;
-                    //     foreach($lugar_dependencia as $lugar_dependencia_id)
-                    //     {
-                    //         $ld_query = InstLugarDependencia::where('id', '=', $lugar_dependencia_id)
-                    //             ->select("id", "nombre")
-                    //             ->first()
-                    //             ->toArray();
+                // === VERIFICANDO CONEXION ===
+                    if($biometrico['estado'] == '1')
+                    {
+                        $encoding = $this->encoding['1'];
+                        $data_conexion = [
+                            'ip'            => $biometrico['ip'],
+                            'internal_id'   => $biometrico['internal_id'],
+                            'com_key'       => $biometrico['com_key'],
+                            'soap_port'     => $biometrico['soap_port'],
+                            'udp_port'      => $biometrico['udp_port'],
+                            'encoding'      => $this->encoding['1']
+                        ];
 
-                    //         $ld_nombre_array[$i] = $ld_query['nombre'];
-                    //         $i++;
-                    //     }
-                    //     $ld_json = json_encode($ld_nombre_array);
-                    // }
-                    // else
-                    // {
-                    //     $lugar_dependencia = NULL;
-                    //     $ld_json           = NULL;
-                    // }
+                        $tad_factory = new TADFactory($data_conexion);
+                        $tad         = $tad_factory->get_instance();
 
-                    // $nombre_archivo = NULL;
-                    // if($opcion == 'n')
-                    // {
-                    //     $c_email = User::where('email', '=', $email)->count();
-                    //     if($c_email < 1)
-                    //     {
-                    //         $iu             = new User;
-                    //         $iu->estado     = $estado;
-                    //         $iu->persona_id = $persona_id;
-                    //         $iu->name       = $name;
-                    //         $iu->email      = $email;
-                    //         if($request->has('password'))
-                    //         {
-                    //             $iu->password = $password;
-                    //         }
-                    //         else
-                    //         {
-                    //             $email_array    = explode('@', $email);
-                    //             $password_email = $email_array[0] . date('Y');
-                    //             $iu->password   = bcrypt($password_email);
-                    //         }
-                    //         $iu->rol_id            = $rol_id;
-                    //         $iu->lugar_dependencia = $ld_json;
-                    //         $iu->save();
+                        try
+                        {
+                            $fb_conexion_array = $tad->get_date()->to_array();
+                            $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
+                            $e_conexion        = 1;
 
-                    //         $id = $iu->id;
+                            $respuesta['respuesta'] .= "Se conecto a " . $biometrico['ip'] . ".";
+                            $respuesta['sw'] = 1;
+                        }
+                        catch (Exception $e)
+                        {
+                            $respuesta['respuesta'] .= "No se logro conectar a " . $biometrico['ip'] . "<br>Verifique la conexión.<br>";
+                            $e_conexion             = 2;
+                            $fb_conexion            = null;
 
-                    //         $respuesta['respuesta'] .= "El USUARIO fue registrado con éxito.";
-                    //         $respuesta['sw']         = 1;
+                            $error = '' . $e;
+                            $error_array = explode("Stack trace:", $error);
 
-                    //         if($request->has('lugar_dependencia'))
-                    //         {
-                    //             foreach($lugar_dependencia as $lugar_dependencia_id)
-                    //             {
-                    //                 $iu1                       = new SegLdUser;
-                    //                 $iu1->lugar_dependencia_id = $lugar_dependencia_id;
-                    //                 $iu1->user_id              = $id;
-                    //                 $iu1->save();
-                    //             }
-                    //         }
-                    //     }
-                    //     else
-                    //     {
-                    //         $respuesta['respuesta'] .= "El CORREO ELECTRONICO ya fue registrada.";
-                    //     }
-                    // }
-                    // else
-                    // {
-                    //     $c_email = User::where('email', '=', $email)->where('id', '<>', $id)->count();
-                    //     if($c_email < 1)
-                    //     {
-                    //         $iu                    = User::find($id);
-                    //         $iu->estado            = $estado;
-                    //         $iu->persona_id        = $persona_id;
-                    //         $iu->name              = $name;
-                    //         $iu->email             = $email;
-                    //         if($request->has('password'))
-                    //         {
-                    //             $iu->password = $password;
-                    //         }
-                    //         $iu->rol_id            = $rol_id;
-                    //         $iu->lugar_dependencia = $ld_json;
-                    //         $iu->save();
+                            $iu                = new RrhhLogAlerta;
+                            $iu->biometrico_id = $id;
+                            $iu->tipo_emisor   = 2;
+                            $iu->tipo_alerta   = 1;
+                            $iu->f_alerta      = $fs_conexion;
+                            $iu->mensaje       = $error_array[0];
+                            $iu->save();
+                        }
+                    }
 
-                    //         $respuesta['respuesta'] .= "El USUARIO se edito con éxito.";
-                    //         $respuesta['sw']         = 1;
-                    //         $respuesta['iu']         = 2;
+                //=== OPERACION ===
+                    $iu              = RrhhBiometrico::find($id);
+                    $iu->e_conexion  = $e_conexion;
+                    $iu->fs_conexion = $fs_conexion;
+                    $iu->fb_conexion = $fb_conexion;
+                    $iu->save();
 
-                    //         $del1 = SegLdUser::where('user_id', '=', $id);
-                    //         $del1->delete();
+                return json_encode($respuesta);
+                break;
+            // === SINCRONIZAR FECHA Y HORA ===
+            case '3':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
 
-                    //         if($request->has('lugar_dependencia'))
-                    //         {
-                    //             foreach($lugar_dependencia as $lugar_dependencia_id)
-                    //             {
-                    //                 $iu1                       = new SegLdUser;
-                    //                 $iu1->lugar_dependencia_id = $lugar_dependencia_id;
-                    //                 $iu1->user_id              = $id;
-                    //                 $iu1->save();
-                    //             }
-                    //         }
-                    //     }
-                    //     else
-                    //     {
-                    //         $respuesta['respuesta'] .= "El CORREO ELECTRONICO ya fue registrada.";
-                    //     }
-                    // }
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ALERTA</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo
+                    );
+
+                    $fs_conexion = date("Y-m-d H:i:s");
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if(!in_array(['codigo' => '0605'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para SINCRONIZAR FECHA Y HORA.";
+                        return json_encode($respuesta);
+                    }
+
+                // === CONSULTA ===
+                    $biometrico = RrhhBiometrico::where('id', '=', $id)
+                        ->first()
+                        ->toArray();
+
+                // === VERIFICANDO CONEXION ===
+                    if($biometrico['estado'] == '1')
+                    {
+                        $encoding = $this->encoding['1'];
+                        $data_conexion = [
+                            'ip'            => $biometrico['ip'],
+                            'internal_id'   => $biometrico['internal_id'],
+                            'com_key'       => $biometrico['com_key'],
+                            'soap_port'     => $biometrico['soap_port'],
+                            'udp_port'      => $biometrico['udp_port'],
+                            'encoding'      => $this->encoding['1']
+                        ];
+
+                        $tad_factory = new TADFactory($data_conexion);
+                        $tad         = $tad_factory->get_instance();
+
+                        try
+                        {
+
+                            $tad->set_date(['date' => date("Y-m-d", strtotime($fs_conexion)), 'time' => date("H:i:s", strtotime($fs_conexion))]);
+
+                            $fb_conexion_array = $tad->get_date()->to_array();
+
+                            $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
+                            $e_conexion        = 1;
+
+                            $respuesta['respuesta'] .= $mensaje . "Se sincronizo la fecha y la hora del biometrico en la dirección IP " . $biometrico['ip'] . ".";
+                            $respuesta['sw']        = 1;
+                        }
+                        catch (Exception $e)
+                        {
+                            $respuesta['respuesta'] .= "No se logro sincronizar la fecha y la hora del biometrico en la dirección IP " . $biometrico['ip'] . "<br>Verifique la conexión.<br>";
+                            $e_conexion             = 2;
+                            $fb_conexion            = null;
+
+                            $error = '' . $e;
+                            $error_array = explode("Stack trace:", $error);
+
+                            $iu                = new RrhhLogAlerta;
+                            $iu->biometrico_id = $id;
+                            $iu->tipo_emisor   = 2;
+                            $iu->tipo_alerta   = 1;
+                            $iu->f_alerta      = $fs_conexion;
+                            $iu->mensaje       = $error_array[0];
+                            $iu->save();
+                        }
+                    }
+
+                //=== OPERACION ===
+                    $iu              = RrhhBiometrico::find($id);
+                    $iu->e_conexion  = $e_conexion;
+                    $iu->fs_conexion = $fs_conexion;
+                    $iu->fb_conexion = $fb_conexion;
+                    $iu->save();
 
                 return json_encode($respuesta);
                 break;
@@ -630,16 +848,13 @@ class BiometricoController extends Controller
                     'tipo' => $tipo,
                     'sw'   => 1
                 ];
-
                 if($request->has('lugar_dependencia_id'))
                 {
                     $lugar_dependencia_id  = $request->input('lugar_dependencia_id');
-
                     $query = InstUnidadDesconcentrada::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
                                 ->select('id', 'nombre')
                                 ->get()
                                 ->toArray();
-
                     if(count($query) > 0)
                     {
                         $respuesta['consulta'] = $query;
@@ -691,6 +906,27 @@ class BiometricoController extends Controller
                         break;
                     case '3':
                         $respuesta = '<span class="label label-danger font-sm">' . $this->e_conexion[$valor['e_conexion']] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '3':
+                switch($valor['tipo_alerta'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->tipo_alerta[$valor['tipo_alerta']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<span class="label label-warning font-sm">' . $this->tipo_alerta[$valor['tipo_alerta']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '3':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->tipo_alerta[$valor['tipo_alerta']] . '</span>';
                         return($respuesta);
                         break;
                     default:

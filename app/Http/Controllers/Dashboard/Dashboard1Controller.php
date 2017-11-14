@@ -7,6 +7,13 @@ use App\Http\Controllers\Controller;
 
 use TADPHP\TADFactory;
 use TADPHP\TAD;
+use TADPHP\TADResponse;
+use TADPHP\Providers\TADSoap;
+use TADPHP\Providers\TADZKLib;
+use TADPHP\Exceptions\ConnectionError;
+use TADPHP\Exceptions\FilterArgumentError;
+use TADPHP\Exceptions\UnrecognizedArgument;
+use TADPHP\Exceptions\UnrecognizedCommand;
 
 use Exception;
 
@@ -39,16 +46,38 @@ class Dashboard1Controller extends Controller
               'encoding'      => 'utf-8'          // iso8859-1 by default.
           );
 
-          $tad_factory = new TADFactory($opciones);
-          $tad         = $tad_factory->get_instance();
+          $tad  = (new TADFactory($opciones))->get_instance();
+          // $tad_factory = new TADFactory($opciones);
+          // $tad         = $tad_factory->get_instance();
           //
           // // $dt = $tad->get_date();
           //
 
           try
           {
-              $logs1 = $tad->get_att_log()->to_json();
-              // $logs1 = $tad->get_user_info(['pin' => '1146351'])->to_json();
+            $fs_conexion = date("Y-m-d H:i:s");
+
+            echo $fs_conexion;
+            $logs1 = $tad->set_date(['time' => '05:50:49']);
+            echo("<br>");echo("<br>");
+            echo $tad->get_date();
+            echo("<br>");echo("<br>");
+              // $logs1 = $tad->get_att_log()->to_array();
+              // // $logs1 = $tad->get_user_info(['pin' => '1146351'])->to_json();
+              // if(count($logs1) > 0)
+              // {
+              //   echo("El Array tiene " . count($logs1) . " filas.<br>");
+              // }
+              // else
+              // {
+              //   echo("Array vacio<br>");
+              // }
+              // echo("<br>");
+              // print_r($logs1);
+
+              // echo("<br>");
+              // echo("<br>");
+              // $logs1 = json_encode($logs1);
           }
           catch (Exception $e)
           {

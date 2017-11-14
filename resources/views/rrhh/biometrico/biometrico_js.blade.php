@@ -89,8 +89,8 @@
             130,
             150,
             150,
-            250,
-            250,
+            300,
+            300,
             145,
             100,
             100,
@@ -109,8 +109,8 @@
             "center",
             "center",
             "center",
-            "left",
-            "left",
+            "center",
+            "center",
             "center",
             "center",
             "center",
@@ -155,6 +155,26 @@
             encoding_jqgrid += ';' + index + ':' + value;
         });
 
+    // === TIPO DE EMISOR ===
+        var tipo_emisor_json   = $.parseJSON('{!! json_encode($tipo_emisor_array) !!}');
+        var tipo_emisor_select = '';
+        var tipo_emisor_jqgrid = ':Todos';
+
+        $.each(tipo_emisor_json, function(index, value) {
+            tipo_emisor_select += '<option value="' + index + '">' + value + '</option>';
+            tipo_emisor_jqgrid += ';' + index + ':' + value;
+        });
+
+    // === TIPO DE ALERTA ===
+        var tipo_alerta_json   = $.parseJSON('{!! json_encode($tipo_alerta_array) !!}');
+        var tipo_alerta_select = '';
+        var tipo_alerta_jqgrid = ':Todos';
+
+        $.each(tipo_alerta_json, function(index, value) {
+            tipo_alerta_select += '<option value="' + index + '">' + value + '</option>';
+            tipo_alerta_jqgrid += ';' + index + ':' + value;
+        });
+
     // === LUGAR DE DEPENDENCIA ===
         var lugar_dependencia_json   = $.parseJSON('{!! json_encode($lugar_dependencia_array) !!}');
         var lugar_dependencia_select = '';
@@ -193,7 +213,7 @@
                         valor1[0]  = 150;
                         valor1[1]  = url_controller + '/send_ajax';
                         valor1[2]  = 'POST';
-                        valor1[3]  = true;
+                        valor1[3]  = false;
                         valor1[4]  = "tipo=103&lugar_dependencia_id=" + this.value + "&_token=" + csrf_token;
                         valor1[5]  = 'json';
                         utilitarios(valor1);
@@ -267,11 +287,22 @@
                 break;
             // === JQGRID 1 ===
             case 10:
-                var edit1   = true;
-                var hidden1 = true;
+                var edit1  = true;
+                var ancho1 = 0;
                 @if(in_array(['codigo' => '0603'], $permisos))
-                    edit1 = false;
+                    edit1  = false;
+                    ancho1 += 33;
                 @endif
+                @if(in_array(['codigo' => '0604'], $permisos))
+                    edit1  = false;
+                    ancho1 += 33;
+                @endif
+                @if(in_array(['codigo' => '0605'], $permisos))
+                    edit1  = false;
+                    ancho1 += 33;
+                @endif
+
+                var hidden1 = true;
                 @if(in_array(['codigo' => '0602'], $permisos) || in_array(['codigo' => '0603'], $permisos))
                     hidden1 = false;
                 @endif
@@ -293,6 +324,7 @@
                     multiboxonly : true,
                     altRows      : true,
                     rownumbers   : true,
+                    subGrid      : true,
                     // multiselect  : true,
                     //autowidth     : true,
                     //gridview      :true,
@@ -320,7 +352,7 @@
                         {
                             name    : col_m_name_1[0],
                             index   : col_m_index_1[0],
-                            width   : col_m_width_1[0],
+                            width   : ancho1,
                             align   : col_m_align_1[0],
                             fixed   : true,
                             sortable: false,
@@ -445,11 +477,121 @@
                         var ids = $(jqgrid1).jqGrid('getDataIDs');
                         for(var i = 0; i < ids.length; i++){
                             var cl = ids[i];
-                            ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                            @if(in_array(['codigo' => '0603'], $permisos))
+                                ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                            @else
+                                ed = '';
+                            @endif
+
+                            @if(in_array(['codigo' => '0604'], $permisos))
+                                rc = " <button type='button' class='btn btn-xs btn-danger' title='Revisar conexión' onclick=\"utilitarios([18, " + cl + "]);\"><i class='fa fa-plug'></i></button>";
+                            @else
+                                rc = '';
+                            @endif
+
+                            @if(in_array(['codigo' => '0605'], $permisos))
+                                sf = " <button type='button' class='btn btn-xs btn-warning' title='Sincronizar fecha y hora' onclick=\"utilitarios([19, " + cl + "]);\"><i class='fa fa-clock-o'></i></button>";
+                            @else
+                                sf = '';
+                            @endif
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : ed
+                                act : $.trim(ed + rc + sf)
                             });
                         }
+                    },
+                    subGridRowExpanded: function(subgrid_id, row_id) {
+                        var subgrid_table_id, pager_id;
+                        subgrid_table_id = subgrid_id+"_t";
+                        pager_id = "p_"+subgrid_table_id;
+                        $("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table><div id='"+pager_id+"' class='scroll'></div>");
+                        $("#"+subgrid_table_id).jqGrid({
+                            url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&biometrico_id=' + row_id,
+                            datatype: 'json',
+                            mtype: 'post',
+                            colNames: [
+                                '<small>FECHA Y HORA</small>',
+                                '<small>EMISOR</small>',
+                                '<small>TIPO DE ALERTA</small>',
+                                '<small>MENSAJE</small>',
+                                /*OTROS*/
+                                '<span class="font-xs">JSON</span>'
+                            ],
+                            colModel: [
+                                {
+                                    name : 'f_alerta',
+                                    index: 'f_alerta::text',
+                                    width: 150,
+                                    align: 'center'
+                                },
+                                {
+                                    name       : 'tipo_emisor',
+                                    index      : 'tipo_emisor',
+                                    width      : 100,
+                                    align      : 'center',
+                                    stype      : 'select',
+                                    editoptions: {value:tipo_emisor_jqgrid}
+                                },
+                                {
+                                    name       : 'tipo_alerta',
+                                    index      : 'tipo_alerta',
+                                    width      : 200,
+                                    align      : 'center',
+                                    stype      : 'select',
+                                    editoptions: {value:tipo_alerta_jqgrid}
+                                },
+                                {
+                                    name : 'mensaje',
+                                    index: 'mensaje',
+                                    width: 800
+                                },
+                                /*OTROS*/
+                                {
+                                    name: 'val_json',
+                                    index: '',
+                                    width: 10,
+                                    search: false,
+                                    hidden: true
+                                }
+                            ],
+                            pager: pager_id,
+                            rowNum: 10,
+                            rowList: [10, 20, 30],
+
+                            sortname: 'f_alerta',
+                            sortorder: "desc",
+
+                            shrinkToFit: false,
+                            altRows: true,
+                            autowidth: true,
+
+                            viewrecords: true,
+                            gridview:true,
+                            // rownumbers:true,
+                            multiboxonly: true,
+
+                            height: '100%'//,
+
+                            // ondblClickRow: function(id_row){
+                            //     var ret1      = $("#"+subgrid_table_id).jqGrid('getRowData', id_row);
+                            //     var val_json1 = $.parseJSON(ret1.val_json);
+
+                            //     var win = window.open(base_url + c_upload_dir + 'pdf/' + val_json1.upload_pdf,  '_blank');
+                            //     win.focus();
+                            // }
+                        });
+
+                        $("#"+subgrid_table_id).jqGrid('navGrid',"#"+pager_id,{
+                            edit: false,
+                            add: false,
+                            del: false,
+                            search: false
+                        });
+
+                        $("#"+subgrid_table_id).jqGrid('filterToolbar',{
+                            searchOnEnter : true,
+                            stringResult  : true,
+                            defaultSearch : 'cn'
+                        });
                     }
                 });
 
@@ -552,39 +694,30 @@
 
                 $('#modal_1_title').empty();
                 $('#modal_1_title').append('Modificar datos del biometrico');
-                $("#usuario_id").val(valor[1]);
+                $("#biometrico_id").val(valor[1]);
 
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
 
-                if(val_json.imagen != null){
-                    $('#image_user').removeAttr('scr');
-                    $('#image_user').attr('src', public_url + '/' + val_json.imagen + '?' + Math.random());
-                }
-
                 $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
 
-                if(ret.n_documento != ""){
-                    var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ret.nombre;
-
-                    $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
-                    $("#persona_id").select2("val", val_json.persona_id);
+                if(val_json.estado != 1){
+                    $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
                 }
 
-                $("#email").val(ret.email);
-                $("#rol_id").select2("val", val_json.rol_id);
+                $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
 
+                // unidad_desconcentrada_select_1 = '<option value="' + val_json.unidad_desconcentrada_id + '">' + ret.unidad_desconcentrada + '</option>';
+                // $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select_1);
+                $("#unidad_desconcentrada_id").select2("val", val_json.unidad_desconcentrada_id);
 
-                if(ret.lugar_dependencia != ""){
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = 'tipo=102&_token=' + csrf_token + '&usuario_id=' + valor[1];
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
-                }
+                $("#codigo_af").val(ret.codigo_af);
+                $("#ip").val(ret.ip);
+                $("#internal_id").val(ret.internal_id);
+                $("#com_key").val(ret.com_key);
+                $("#soap_port").val(ret.soap_port);
+                $("#udp_port").val(ret.udp_port);
+
                 $('#modal_1').modal();
                 break;
             // === REPORTES MODAL ===
@@ -601,6 +734,7 @@
                 $('#lugar_dependencia_id').select2("val", "");
                 $('#unidad_desconcentrada_id').select2("val", "");
                 $('#unidad_desconcentrada_id option').remove();
+                $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", false);
                 $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
@@ -757,6 +891,70 @@
                     }
                 });
                 break;
+            // === RIVISAR CONEXION ===
+            case 18:
+                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                if(val_json.estado == 1){
+                    swal({
+                        title             : "REVISANDO CONEXION",
+                        text              : "Espere a que se verifique la conexión.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = "tipo=2&id=" + valor[1] + "&_token=" + csrf_token;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 102;
+                    valor1[1]  = "ALERTA";
+                    valor1[2]  = "BIOMETRICO SIN RED.";
+                    utilitarios(valor1);
+                }
+                break;
+            // === SINCRONIZAR FECHA Y HORA ===
+            case 19:
+                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                if(val_json.estado == 1){
+                    swal({
+                        title             : "SINCRONIZANDO FECHA Y HORA",
+                        text              : "Espere a que se sincronice la fecha y la hora.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = "tipo=3&id=" + valor[1] + "&_token=" + csrf_token;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 102;
+                    valor1[1]  = "ALERTA";
+                    valor1[2]  = "BIOMETRICO SIN RED.";
+                    utilitarios(valor1);
+                }
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -764,6 +962,10 @@
             // === MENSAJE ERROR ===
             case 101:
                 toastr.error(valor[2], valor[1], options1);
+                break;
+            // === MENSAJE ALERTA ===
+            case 102:
+                toastr.warning(valor[2], valor[1], options1);
                 break;
             // === AJAX ===
             case 150:
@@ -785,14 +987,6 @@
                                     utilitarios(valor1);
 
                                     $(jqgrid1).trigger("reloadGrid");
-                                    if(data.iu === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 14;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.iu === 2){
-                                        $('#modal_1').modal('hide');
-                                    }
                                 }
                                 else if(data.sw === 0){
                                     if(data.error_sw === 1){
@@ -820,15 +1014,65 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
+                            // === REVISAR CONEXION ===
+                            case '2':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === SINCRONIZAR FECHA Y HORA ===
+                            case '3':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
                             // === SELECT2 UNIDAD DESCONCENTRADA ===
                             case '103':
                                 if(data.sw === 2){
                                     var unidad_desconcentrada_select = '';
-
                                     $.each(data.consulta, function(index, value) {
                                         unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
                                     });
-
                                     $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
                                 }
                                 break;

@@ -40,6 +40,10 @@
             background-color: #b9cde5 !important;
         }
 
+        .ui-search-clear{
+          width: 15px;
+        }
+
         /*.modal-xlg {
             width: 90%;
         }*/
@@ -88,8 +92,6 @@
               <h4 class="modal-title">
                 <span id="modal_1_title"></span>
               </h4>
-
-              <!-- <small class="font-bold">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</small> -->
             </div>
 
             <div class="modal-body">

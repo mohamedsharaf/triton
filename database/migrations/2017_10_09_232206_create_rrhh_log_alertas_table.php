@@ -18,6 +18,7 @@ class CreateRrhhLogAlertasTable extends Migration
           $table->integer('biometrico_id')->unsigned();
 
           $table->smallInteger('tipo_emisor')->unsigned()->nullable();
+          $table->smallInteger('tipo_alerta')->unsigned()->nullable();
           $table->dateTime('f_alerta')->nullable();
           $table->text('mensaje')->nullable();
 
