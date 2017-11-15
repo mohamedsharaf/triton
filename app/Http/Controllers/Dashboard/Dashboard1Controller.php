@@ -7,13 +7,6 @@ use App\Http\Controllers\Controller;
 
 use TADPHP\TADFactory;
 use TADPHP\TAD;
-use TADPHP\TADResponse;
-use TADPHP\Providers\TADSoap;
-use TADPHP\Providers\TADZKLib;
-use TADPHP\Exceptions\ConnectionError;
-use TADPHP\Exceptions\FilterArgumentError;
-use TADPHP\Exceptions\UnrecognizedArgument;
-use TADPHP\Exceptions\UnrecognizedCommand;
 
 use Exception;
 
@@ -39,7 +32,7 @@ class Dashboard1Controller extends Controller
           $opciones = array(
               'ip'            => '192.168.30.30', // '192.168.30.30' '200.107.241.111' by default (totally useless!!!).
               'internal_id'   => 1,         // 1 by default.
-              'com_key'       => 5587,            // 0 by default.
+              'com_key'       => 0,            // 0 by default.
               //'description' => '',              // 'N/A' by default.
               'soap_port'     => 80,              // 80 by default,
               'udp_port'      => 4370,            // 4370 by default.
@@ -52,16 +45,19 @@ class Dashboard1Controller extends Controller
           //
           // // $dt = $tad->get_date();
           //
-
+          $logs1 = '';
           try
           {
-            $fs_conexion = date("Y-m-d H:i:s");
+            // $fs_conexion = date("Y-m-d H:i:s");
 
-            echo $fs_conexion;
-            $logs1 = $tad->set_date(['time' => '05:50:49']);
-            echo("<br>");echo("<br>");
-            echo $tad->get_date();
-            echo("<br>");echo("<br>");
+            // echo $fs_conexion;
+            // // $logs1 = $tad->set_date(['date' => '2016-11-01','time' => '05:50:49']);
+            // echo("<br>");echo("<br>");
+            $logs1 = $tad->get_date();
+            // echo("<br>");echo("<br>");
+
+            // $tad->disable();
+            $tad->enable();
               // $logs1 = $tad->get_att_log()->to_array();
               // // $logs1 = $tad->get_user_info(['pin' => '1146351'])->to_json();
               // if(count($logs1) > 0)

@@ -17,6 +17,7 @@ use App\Models\Institucion\InstLugarDependencia;
 use App\Models\Institucion\InstUnidadDesconcentrada;
 use App\Models\Rrhh\RrhhBiometrico;
 use App\Models\Rrhh\RrhhLogAlerta;
+use App\Models\Rrhh\RrhhPersonaBiometrico;
 use App\User;
 use App\Mail\DatoUsuarioMail;
 
@@ -25,7 +26,7 @@ use TADPHP\TAD;
 
 use Exception;
 
-class BiometricoController extends Controller
+class PersonaBiometricoController extends Controller
 {
     private $estado;
     private $e_conexion;
@@ -33,39 +34,19 @@ class BiometricoController extends Controller
 
     private $rol_id;
     private $permisos;
-    private $tipo_emisor;
-    private $tipo_alerta;
 
     public function __construct()
     {
         $this->middleware('auth');
 
         $this->estado = [
-            '1' => 'HABILITADO CON RED',
-            '2' => 'INHABILITADO',
-            '3' => 'HABILITADO SIN RED'
-        ];
-
-        $this->e_conexion = [
-            '1' => 'CON CONEXION',
-            '2' => 'SIN CONEXION',
-            '3' => 'SIN RED'
+            '1' => 'HABILITADO',
+            '2' => 'INHABILITADO'
         ];
 
         $this->encoding = [
             '1' => 'utf-8',
             '2' => 'iso8859-1'
-        ];
-
-        $this->tipo_emisor = [
-            '1' => 'CRON',
-            '2' => 'MANUAL',
-            '3' => 'EDITAR'
-        ];
-
-        $this->tipo_alerta = [
-            '1' => 'ERROR DE CONEXION',
-            '2' => 'ARRAY SIN DATOS'
         ];
     }
 
@@ -77,7 +58,7 @@ class BiometricoController extends Controller
                             ->select("seg_permisos.codigo")
                             ->get()
                             ->toArray();
-        if(in_array(['codigo' => '0601'], $this->permisos))
+        if(in_array(['codigo' => '0701'], $this->permisos))
         {
             $user_id = Auth::user()->id;
 
@@ -131,10 +112,6 @@ class BiometricoController extends Controller
                 'modulo'                  => 'Gestor de Biometricos',
                 'title_table'             => 'Biometricos',
                 'estado_array'            => $this->estado,
-                'e_conexion_array'        => $this->e_conexion,
-                'encoding_array'          => $this->encoding,
-                'tipo_emisor_array'       => $this->tipo_emisor,
-                'tipo_alerta_array'       => $this->tipo_alerta,
                 'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
@@ -168,30 +145,36 @@ class BiometricoController extends Controller
             case '1':
                 $jqgrid = new JqgridClass($request);
 
-                $tabla1 = "rrhh_biometricos";
-                $tabla2 = "inst_unidades_desconcentradas";
-                $tabla3 = "inst_lugares_dependencia";
+                $tabla1 = "rrhh_personas_biometricos";
+                $tabla2 = "rrhh_personas";
+                $tabla3 = "rrhh_biometricos";
+                $tabla4 = "inst_unidades_desconcentradas";
+                $tabla5 = "inst_lugares_dependencia";
 
                 $select = "
                     $tabla1.id,
-                    $tabla1.unidad_desconcentrada_id,
+                    $tabla1.persona_id,
+                    $tabla1.biometrico_id,
                     $tabla1.estado,
-                    $tabla1.e_conexion,
-                    $tabla1.fs_conexion,
-                    $tabla1.fb_conexion,
-                    $tabla1.codigo_af,
-                    $tabla1.ip,
-                    $tabla1.internal_id,
-                    $tabla1.com_key,
-                    $tabla1.soap_port,
-                    $tabla1.udp_port,
-                    $tabla1.encoding,
-                    $tabla1.description,
+                    $tabla1.f_registro_biometrico,
+                    $tabla1.n_documento_biometrico,
+                    $tabla1.nombre,
+                    $tabla1.privilegio,
+                    $tabla1.password,
 
-                    a2.lugar_dependencia_id,
-                    a2.nombre AS unidad_desconcentrada,
+                    a2.n_documento,
+                    a2.nombre AS nombre_persona,
+                    a2.ap_paterno,
+                    a2.ap_materno,
 
-                    a3.nombre AS lugar_dependencia
+                    a3.unidad_desconcentrada_id,
+                    a3.codigo_af,
+                    a3.ip,
+
+                    a4.lugar_dependencia_id,
+                    a4.nombre AS unidad_desconcentrada,
+
+                    a5.nombre AS lugar_dependencia
                 ";
 
                 $array_where = 'TRUE';
@@ -217,12 +200,12 @@ class BiometricoController extends Controller
 
                         if($c_1_sw)
                         {
-                            $array_where_1 .= " AND (a2.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            $array_where_1 .= " AND (a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
                             $c_1_sw        = FALSE;
                         }
                         else
                         {
-                            $array_where_1 .= " OR a2.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            $array_where_1 .= " OR a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
                         }
                     }
                     $array_where_1 .= ")";
@@ -234,20 +217,24 @@ class BiometricoController extends Controller
                 }
                 else
                 {
-                    $array_where .= " AND a2.lugar_dependencia_id=0 AND ";
+                    $array_where .= " AND a4.lugar_dependencia_id=0 AND ";
                 }
 
                 $array_where .= $jqgrid->getWhere();
 
-                $count = RrhhBiometrico::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.unidad_desconcentrada_id")
-                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.lugar_dependencia_id")
+                $count = RrhhPersonaBiometrico::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
                     ->whereRaw($array_where)
                     ->count();
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
-                $query = RrhhBiometrico::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.unidad_desconcentrada_id")
-                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.lugar_dependencia_id")
+                $query = RrhhPersonaBiometrico::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
                     ->whereRaw($array_where)
                     ->select(DB::raw($select))
                     ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -267,6 +254,8 @@ class BiometricoController extends Controller
                 {
                     $val_array = array(
                         'estado'                   => $row["estado"],
+                        'persona_id'               => $row["persona_id"],
+                        'biometrico_id'            => $row["biometrico_id"],
                         'unidad_desconcentrada_id' => $row["unidad_desconcentrada_id"],
                         'lugar_dependencia_id'     => $row["lugar_dependencia_id"]
                     );
