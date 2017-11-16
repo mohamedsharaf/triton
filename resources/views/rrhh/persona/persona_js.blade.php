@@ -624,7 +624,7 @@
 
                 if(ret.municipio_residencia != ""){
                     var dpm = ret.departamento_residencia + ', ' + ret.provincia_residencia + ', ' + ret.municipio_residencia;
-                    $('#municipio_id_residencia').append('<option value="' + val_json.municipio_id_nacimiento + '">' + dpm + '</option>');
+                    $('#municipio_id_residencia').append('<option value="' + val_json.municipio_id_residencia + '">' + dpm + '</option>');
                     $("#municipio_id_residencia").select2("val", val_json.municipio_id_residencia);
                 }
                 $('#modal_1').modal();

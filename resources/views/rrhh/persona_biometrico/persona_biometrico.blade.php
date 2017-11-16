@@ -97,26 +97,14 @@
             <div class="modal-body">
               <div class="row">
                 <form id="form_1" role="form" action="#">
-                  <input type="hidden" id="biometrico_id" name="id" value=""/>
+                  <input type="hidden" id="persona_biometrico_id" name="id" value=""/>
                   <input type="hidden" id="tipo1" name="tipo" value="1"/>
                   {{ csrf_field() }}
                   <div class="col-sm-12">
-                    <div class="form-group">
-                      <label>Estado</label>
-                      <div>
-                          <div class="radio radio-primary radio-inline">
-                            <input type="radio" id="estado_1_id" class="estado_class" name="estado" value="1" checked="checked">
-                            <label class="text-success" for="estado_1_id"> {{ $estado_array['1'] }} </label>
-                          </div>
-                          <div class="radio radio-danger radio-inline">
-                              <input type="radio" id="estado_2_id" class="estado_class" name="estado" value="2">
-                              <label class="text-danger" for="estado_2_id"> {{ $estado_array['2'] }} </label>
-                          </div>
-                          <div class="radio radio-warning radio-inline">
-                              <input type="radio" id="estado_3_id" class="estado_class" name="estado" value="3">
-                              <label class="text-warning" for="estado_3_id"> {{ $estado_array['3'] }} </label>
-                          </div>
-                      </div>
+                    <div id="persona_id_div" class="form-group">
+                      <label for="persona_id">Persona</label>
+                      <select name="persona_id" id="persona_id" data-placeholder="C.I. - Ap. paterno, Ap. materno, nombres" multiple="multiple" style="width: 100%;">
+                      </select>
                     </div>
 
                     <div id="lugar_dependencia_id_div" class="form-group">
@@ -131,49 +119,16 @@
                       </select>
                     </div>
 
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                              <label for="codigo_af">Código activo fijo</label>
-                              <input type="text" class="form-control" id="codigo_af" name="codigo_af" placeholder="Código activo fijo" data-mask="MP-999999">
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                              <label for="ip">IP</label>
-                              <input type="text" class="form-control" id="ip" name="ip" placeholder="Confirmar contraseña">
-                            </div>
-                        </div>
+                    <div id="biometrico_id_div" class="form-group">
+                      <label for="biometrico_id">Biométrico</label>
+                      <select name="biometrico_id" id="biometrico_id" data-placeholder="Biométrico" multiple="multiple" style="width: 100%;">
+                      </select>
                     </div>
 
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                              <label for="internal_id">ID usuario</label>
-                              <input type="text" class="form-control" id="internal_id" name="internal_id" placeholder="ID usuario" value="1">
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                              <label for="com_key">Llave COM</label>
-                              <input type="text" class="form-control" id="com_key" name="com_key" placeholder="Llave COM" value="0">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                              <label for="soap_port">Puerto SOAP</label>
-                              <input type="text" class="form-control" id="soap_port" name="soap_port" placeholder="Puerto SOAP" value="80">
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                              <label for="udp_port">Puerto UDP</label>
-                              <input type="text" class="form-control" id="udp_port" name="udp_port" placeholder="Puerto UDP" value="4370">
-                            </div>
-                        </div>
+                    <div id="privilegio_div" class="form-group">
+                      <label for="privilegio">Privilegio</label>
+                      <select name="privilegio" id="privilegio" data-placeholder="Privilegio" multiple="multiple" style="width: 100%;">
+                      </select>
                     </div>
                   </div>
                 </form>
@@ -233,5 +188,5 @@
 @endsection
 
 @section('js')
-    @include('rrhh.biometrico.biometrico_js')
+    @include('rrhh.persona_biometrico.persona_biometrico_js')
 @endsection

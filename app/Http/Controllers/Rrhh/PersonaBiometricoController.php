@@ -15,6 +15,7 @@ use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegLdUser;
 use App\Models\Institucion\InstLugarDependencia;
 use App\Models\Institucion\InstUnidadDesconcentrada;
+use App\Models\Rrhh\RrhhPersona;
 use App\Models\Rrhh\RrhhBiometrico;
 use App\Models\Rrhh\RrhhLogAlerta;
 use App\Models\Rrhh\RrhhPersonaBiometrico;
@@ -29,8 +30,7 @@ use Exception;
 class PersonaBiometricoController extends Controller
 {
     private $estado;
-    private $e_conexion;
-    private $encoding;
+    private $privilegio;
 
     private $rol_id;
     private $permisos;
@@ -40,13 +40,13 @@ class PersonaBiometricoController extends Controller
         $this->middleware('auth');
 
         $this->estado = [
-            '1' => 'HABILITADO',
-            '2' => 'INHABILITADO'
+            '1' => 'REGISTRADO EN EL BIOMETRICO',
+            '2' => 'EL BIOMETRICO NO PERMITE REGISTROS'
         ];
 
-        $this->encoding = [
-            '1' => 'utf-8',
-            '2' => 'iso8859-1'
+        $this->privilegio = [
+            '0'  => 'USUARIO NORMAL',
+            '14' => 'ADMINISTRADOR'
         ];
     }
 
@@ -106,19 +106,20 @@ class PersonaBiometricoController extends Controller
             $data = [
                 'rol_id'                  => $this->rol_id,
                 'permisos'                => $this->permisos,
-                'title'                   => 'Gestor de Biometricos',
+                'title'                   => 'Personas - Biometricos',
                 'home'                    => 'Inicio',
                 'sistema'                 => 'Biometricos',
-                'modulo'                  => 'Gestor de Biometricos',
-                'title_table'             => 'Biometricos',
+                'modulo'                  => 'Personas - Biometricos',
+                'title_table'             => 'Personas y Biometricos',
                 'estado_array'            => $this->estado,
+                'privilegio_array'        => $this->privilegio,
                 'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
                                                 ->get()
                                                 ->toArray()
             ];
-            return view('rrhh.biometrico.biometrico')->with($data);
+            return view('rrhh.persona_biometrico.persona_biometrico')->with($data);
         }
         else
         {
@@ -222,8 +223,8 @@ class PersonaBiometricoController extends Controller
 
                 $array_where .= $jqgrid->getWhere();
 
-                $count = RrhhPersonaBiometrico::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
-                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                $count = RrhhPersonaBiometrico::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.biometrico_id")
                     ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.unidad_desconcentrada_id")
                     ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
                     ->whereRaw($array_where)
@@ -231,8 +232,8 @@ class PersonaBiometricoController extends Controller
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
-                $query = RrhhPersonaBiometrico::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
-                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                $query = RrhhPersonaBiometrico::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.biometrico_id")
                     ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.unidad_desconcentrada_id")
                     ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
                     ->whereRaw($array_where)
@@ -257,26 +258,27 @@ class PersonaBiometricoController extends Controller
                         'persona_id'               => $row["persona_id"],
                         'biometrico_id'            => $row["biometrico_id"],
                         'unidad_desconcentrada_id' => $row["unidad_desconcentrada_id"],
-                        'lugar_dependencia_id'     => $row["lugar_dependencia_id"]
+                        'lugar_dependencia_id'     => $row["lugar_dependencia_id"],
+                        'n_documento'              => $row["n_documento"],
+                        'nombre_persona'           => $row["nombre_persona"],
+                        'ap_paterno'               => $row["ap_paterno"],
+                        'ap_materno'               => $row["ap_materno"],
+                        'privilegio'               => $row["privilegio"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
                         $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
-                        $this->utilitarios(array('tipo' => '2', 'e_conexion' => $row["e_conexion"])),
-                        $row["fs_conexion"],
-                        $row["fb_conexion"],
-                        $row["lugar_dependencia"],
-                        $row["unidad_desconcentrada"],
-                        "MP-" . $row["codigo_af"],
+                        $row["f_registro_biometrico"],
+                        $row["n_documento_biometrico"],
+                        $row["nombre"],
+                        $this->privilegio[$row["privilegio"]],
+
+                        'MP-' . $row["codigo_af"],
                         $row["ip"],
-                        $row["internal_id"],
-                        $row["com_key"],
-                        $row["soap_port"],
-                        $row["udp_port"],
-                        $row["encoding"],
-                        $row["description"],
+                        $row["unidad_desconcentrada"],
+                        $row["lugar_dependencia"],
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
                     );
@@ -389,7 +391,7 @@ class PersonaBiometricoController extends Controller
                     $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>GESTOR DE BIOMETRICOS</strong></div>',
+                        'titulo'     => '<div class="text-center"><strong>PERSONAS - BIOMETRICOS</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
                         'iu'         => 1,
@@ -404,7 +406,7 @@ class PersonaBiometricoController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '0603'], $this->permisos))
+                        if(!in_array(['codigo' => '0703'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
@@ -412,7 +414,7 @@ class PersonaBiometricoController extends Controller
                     }
                     else
                     {
-                        if(!in_array(['codigo' => '0602'], $this->permisos))
+                        if(!in_array(['codigo' => '0702'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
                             return json_encode($respuesta);
@@ -420,58 +422,26 @@ class PersonaBiometricoController extends Controller
                     }
 
                 // === VALIDATE ===
-                    $estado = trim($request->input('estado'));
                     try
                     {
-                        if($estado == '1')
-                        {
-                            $this->validate($request,[
-                                'lugar_dependencia_id'     => 'required',
-                                'unidad_desconcentrada_id' => 'required',
-                                'codigo_af'                => 'required',
-                                'ip'                       => 'required|ipv4',
-                                'internal_id'              => 'required|numeric',
-                                'com_key'                  => 'required',
-                                'soap_port'                => 'required|numeric',
-                                'udp_port'                 => 'required|numeric'
-                            ],
-                            [
-                                'lugar_dependencia_id.required'     => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
+                        $this->validate($request,[
+                            'persona_id'               => 'required',
+                            'lugar_dependencia_id'     => 'required',
+                            'unidad_desconcentrada_id' => 'required',
+                            'biometrico_id'            => 'required',
+                            'privilegio'               => 'required'
+                        ],
+                        [
+                            'persona_id.required'               => 'El campo PERSONA es obligatorio.',
 
-                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.',
+                            'lugar_dependencia_id.required'     => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
 
-                                'codigo_af.required'                => 'El campo CODIGO ACTIVO FIJO es obligatorio.',
+                            'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.',
 
-                                'ip.required'                       => 'El campo IP es obligatorio.',
-                                'ip.ipv4'                           => 'El campo IP debe ser una dirección IPv4 válida.',
+                            'biometrico_id.required'            => 'El campo BIOMETRICO es obligatorio.',
 
-                                'internal_id.required'              => 'El campo ID USUARIO es obligatorio.',
-                                'internal_id.numeric'               => 'El campo ID USUARIO debe ser un número.',
-
-                                'com_key.required'                  => 'El campo LLAVE COM es obligatorio.',
-
-                                'soap_port.required'                => 'El campo PUERTO SOAP es obligatorio.',
-                                'soap_port.numeric'                 => 'El campo PUERTO SOAP debe ser un número.',
-
-                                'udp_port.required'                 => 'El campo PUERTO UDP es obligatorio.',
-                                'udp_port.numeric'                  => 'El campo PUERTO UDP debe ser un número.'
-                            ]);
-                        }
-                        else
-                        {
-                            $this->validate($request,[
-                                'lugar_dependencia_id'     => 'required',
-                                'unidad_desconcentrada_id' => 'required',
-                                'codigo_af'                => 'required'
-                            ],
-                            [
-                                'lugar_dependencia_id.required'     => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
-
-                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.',
-
-                                'codigo_af.required'                => 'El campo CODIGO ACTIVO FIJO es obligatorio.'
-                            ]);
-                        }
+                            'privilegio.required'               => 'El campo PRIVILEGIO es obligatorio.'
+                        ]);
                     }
                     catch (Exception $e)
                     {
@@ -481,127 +451,163 @@ class PersonaBiometricoController extends Controller
                     }
 
                 // === VARIABLES ===
+                    $persona_id               = trim($request->input('persona_id'));
                     $lugar_dependencia_id     = trim($request->input('lugar_dependencia_id'));
                     $unidad_desconcentrada_id = trim($request->input('unidad_desconcentrada_id'));
-                    $codigo_af_mp             = trim($request->input('codigo_af'));
-                    $ip                       = $request->input('ip', null);
-                    $internal_id              = $request->input('internal_id', null);
-                    $com_key                  = $request->input('com_key', null);
-                    $soap_port                = $request->input('soap_port', null);
-                    $udp_port                 = $request->input('udp_port', null);
-                    $encoding                 = null;
-                    $e_conexion               = 3;
-                    $fb_conexion              = null;
-
-                    $codigo_af_array = explode("-", $codigo_af_mp);
-                    $codigo_af       = $codigo_af_array[1];
+                    $biometrico_id            = trim($request->input('biometrico_id'));
+                    $privilegio               = trim($request->input('privilegio'));
+                    $password                 = rand(1000, 9999);
+                    $estado                   = 1;
 
                 // === VERIFICANDO CONEXION ===
-                    if($estado == '1')
+                    $consulta1 = RrhhBiometrico::where("id", "=", $biometrico_id)
+                        ->select('estado', 'ip', 'internal_id', 'com_key', 'soap_port', 'udp_port', 'encoding')
+                        ->first()
+                        ->toArray();
+
+                    $consulta2 = RrhhPersona::where("id", "=", $persona_id)
+                        ->select('n_documento', 'nombre', 'ap_paterno', 'ap_materno')
+                        ->first()
+                        ->toArray();
+
+                    $nombre = trim($consulta2['ap_paterno'] . ' ' . $consulta2['ap_materno'] . ' ' . $consulta2['nombre']);
+                    if($opcion == 'n')
                     {
-                        $encoding = $this->encoding['1'];
-                        $data_conexion = [
-                            'ip'            => $ip,                 // '192.168.30.30' '200.107.241.111' by default (totally useless!!!).
-                            'internal_id'   => $internal_id,        // 1 by default.
-                            'com_key'       => $com_key,            // 0 by default.
-                            //'description' => '',                  // 'N/A' by default.
-                            'soap_port'     => $soap_port,          // 80 by default,
-                            'udp_port'      => $udp_port,           // 4370 by default.
-                            'encoding'      => $encoding            // iso8859-1 by default.
-                        ];
-
-                        $tad_factory = new TADFactory($data_conexion);
-                        $tad         = $tad_factory->get_instance();
-
-                        if($opcion == 'n')
+                        $n_documento_array = explode("-", $consulta2['n_documento']);
+                        if(isset($n_documento_array[1]))
                         {
-                            try
-                            {
-                                $fb_conexion_array = $tad->get_date()->to_array();
-                                $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
-                                $e_conexion        = 1;
+                            //=== TAL VES PROVOQUE ERRORES ===
+                                $i = 0;
+                                $e_while = FALSE;
+                                while(TRUE)
+                                {
+                                    $n_documento = $n_documento_array[0] . rand(0, 9);
 
-                                // $f_biometrico           = date("d/m/Y H:i:s", strtotime($fh_biometrico_array['Row']['Date'] . ' ' . $fh_biometrico_array['Row']['Time']));
-                            }
-                            catch (Exception $e)
-                            {
-                                // $respuesta['error_sw'] = 3;
-                                // $respuesta['error']    = $e . '';
-                                $respuesta['respuesta'] .= "No se pudo conectar a " . $ip . "<br>Verifique la IP.";
-                                return json_encode($respuesta);
-                            }
+                                    $consulta3 = RrhhPersonaBiometrico::where('n_documento_biometrico', '=', $n_documento)
+                                        ->where('biometrico_id', '=', $biometrico_id)
+                                        ->count();
+
+                                    if($consulta3 < 1)
+                                    {
+                                        break;
+                                    }
+                                    if($i > 50)
+                                    {
+                                        $e_while = TRUE;
+                                        break;
+                                    }
+                                }
+                                if($e_while)
+                                {
+                                    $respuesta['respuesta'] .= "Fracaso al generar el PIN de enlace al Biométrico.<br>CONSULTE CON EL ADMINISTRADOR DEL SISTEMA URGENTEMENTE.";
+                                    return json_encode($respuesta);
+                                }
                         }
                         else
                         {
+                            $n_documento = $n_documento_array[0];
+                        }
+
+                        $n_documento_biometrico = $n_documento;
+
+                        if($consulta1['estado'] == '1')
+                        {
+                            $data_conexion = [
+                                'ip'          => $consulta1['ip'],
+                                'internal_id' => $consulta1['internal_id'],
+                                'com_key'     => $consulta1['com_key'],
+                                'soap_port'   => $consulta1['soap_port'],
+                                'udp_port'    => $consulta1['udp_port'],
+                                'encoding'    => $consulta1['encoding']
+                            ];
+
+                            $tad_factory = new TADFactory($data_conexion);
+                            $tad         = $tad_factory->get_instance();
+
                             try
                             {
+                                $user_info = $tad->get_user_info(['pin' => $n_documento_biometrico])->to_array();
+
+                                if(count($user_info) == 0)
+                                {
+                                    $res = $tad->set_user_info([
+                                        'pin'       => $n_documento_biometrico,
+                                        'name'      => $nombre,
+                                        'privilege' => $privilegio,
+                                        'password'  => $password
+                                    ]);
+                                    $respuesta['respuesta'] .= "La persona se registro en el biométrico.<br>";
+                                }
+                                else
+                                {
+
+                                    $respuesta['respuesta'] .= "La persona ya estaba registrado en el biométrico.<br>";
+                                }
+
                                 $fb_conexion_array = $tad->get_date()->to_array();
                                 $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
                                 $e_conexion        = 1;
+
+                                $iu              = RrhhBiometrico::find($biometrico_id);
+                                $iu->e_conexion  = $e_conexion;
+                                $iu->fs_conexion = $fs_conexion;
+                                $iu->fb_conexion = $fb_conexion;
+                                $iu->save();
                             }
                             catch (Exception $e)
                             {
-                                $respuesta['respuesta'] .= "No se pudo conectar a " . $ip . "<br>Verifique la conexión.<br>";
+                                $respuesta['respuesta'] .= "No se pudo conectar a " . $consulta1['ip'] . "<br>Verifique la conexión.<br>";
                                 $e_conexion             = 2;
 
                                 $error = '' . $e;
                                 $error_array = explode("Stack trace:", $error);
 
                                 $iu                = new RrhhLogAlerta;
-                                $iu->biometrico_id = $id;
-                                $iu->tipo_emisor   = 3;
+                                $iu->biometrico_id = $biometrico_id;
+                                $iu->tipo_emisor   = 4;
                                 $iu->tipo_alerta   = 1;
                                 $iu->f_alerta      = $fs_conexion;
                                 $iu->mensaje       = $error_array[0];
                                 $iu->save();
-                            }
-                        }
-                    }
 
-                //=== OPERACION ===
-                    if($opcion == 'n')
-                    {
-                        $c_codigo_af = RrhhBiometrico::where('codigo_af', '=', $codigo_af)->count();
-                        if($c_codigo_af < 1)
-                        {
-                            $sw_ip = TRUE;
-                            if($estado == '1')
-                            {
-                                $c_ip = RrhhBiometrico::where('ip', '=', $ip)->count();
-                                if($c_ip > 0)
-                                {
-                                    $sw_ip = FALSE;
-                                }
-                            }
-
-                            if($sw_ip)
-                            {
-                                $iu                           = new RrhhBiometrico;
-                                $iu->unidad_desconcentrada_id = $unidad_desconcentrada_id;
-                                $iu->estado                   = $estado;
-                                $iu->e_conexion               = $e_conexion;
-                                $iu->fs_conexion              = $fs_conexion;
-                                $iu->fb_conexion              = $fb_conexion;
-                                $iu->codigo_af                = $codigo_af;
-                                $iu->ip                       = $ip;
-                                $iu->internal_id              = $internal_id;
-                                $iu->com_key                  = $com_key;
-                                $iu->soap_port                = $soap_port;
-                                $iu->udp_port                 = $udp_port;
-                                $iu->encoding                 = $encoding;
-                                $iu->save();
-
-                                $respuesta['respuesta'] .= "El BIOMETRICO fue registrado con éxito.";
-                                $respuesta['sw']         = 1;
-                            }
-                            else
-                            {
-                                $respuesta['respuesta'] .= "La IP ya fue registrada.";
+                                return json_encode($respuesta);
                             }
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "El CODIGO DEL ACTIVO FIJO ya fue registrado.";
+                            $estado = 2;
+                        }
+                    }
+
+                    // $respuesta['respuesta'] .= $n_documento_biometrico . " - " . $nombre;
+                    // return json_encode($respuesta);
+
+                //=== OPERACION ===
+                    if($opcion == 'n')
+                    {
+                        $consulta4 = RrhhPersonaBiometrico::where('persona_id', '=', $persona_id)
+                            ->where('biometrico_id', '=', $biometrico_id)
+                            ->count();
+
+                        if($consulta4 < 1)
+                        {
+                            $iu                         = new RrhhPersonaBiometrico;
+                            $iu->persona_id             = $persona_id;
+                            $iu->biometrico_id          = $biometrico_id;
+                            $iu->f_registro_biometrico  = $fs_conexion;
+                            $iu->n_documento_biometrico = $n_documento_biometrico;
+                            $iu->nombre                 = $nombre;
+                            $iu->privilegio             = $privilegio;
+                            $iu->password               = $password;
+                            $iu->estado                 = $estado;
+                            $iu->save();
+
+                            $respuesta['respuesta'] .= "La relación entre PERSONA y BIOMETRICO fue registrada con éxito.";
+                            $respuesta['sw']         = 1;
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "La relación entre PERSONA y BIOMETRICO ya se encuentra registrada.";
                         }
                     }
                     else
@@ -1011,6 +1017,36 @@ class PersonaBiometricoController extends Controller
 
                 return json_encode($respuesta);
                 break;
+
+            // === SELECT2 PERSONA ===
+            case '101':
+
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = RrhhPersona::whereRaw("CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) ilike '%$nombre%'")
+                        ->where("estado", "=", $estado)
+                        ->select(DB::raw("id, CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) AS text"))
+                        ->orderByRaw("CONCAT_WS(' ', ap_paterno, ap_materno, nombre) ASC")
+                        ->limit($page_limit)
+                        ->get()
+                        ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
+                break;
             // === SELECT2 UNIDAD DESCONCENTRADA ===
             case '103':
                 $respuesta = [
@@ -1021,9 +1057,32 @@ class PersonaBiometricoController extends Controller
                 {
                     $lugar_dependencia_id  = $request->input('lugar_dependencia_id');
                     $query = InstUnidadDesconcentrada::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
-                                ->select('id', 'nombre')
-                                ->get()
-                                ->toArray();
+                        ->where("estado", "=", 1)
+                        ->select('id', 'nombre')
+                        ->get()
+                        ->toArray();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
+            // === SELECT2 BIOMETRICOS ===
+            case '104':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('unidad_desconcentrada_id'))
+                {
+                    $unidad_desconcentrada_id  = $request->input('unidad_desconcentrada_id');
+                    $query = RrhhBiometrico::where("unidad_desconcentrada_id", "=", $unidad_desconcentrada_id)
+                        ->where("estado", "<>", 2)
+                        ->select(DB::raw("id, CONCAT_WS(' - ', codigo_af, ip) AS nombre"))
+                        ->get()
+                        ->toArray();
                     if(count($query) > 0)
                     {
                         $respuesta['consulta'] = $query;

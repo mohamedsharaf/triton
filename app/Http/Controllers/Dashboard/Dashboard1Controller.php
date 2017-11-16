@@ -48,16 +48,103 @@ class Dashboard1Controller extends Controller
           $logs1 = '';
           try
           {
-            // $fs_conexion = date("Y-m-d H:i:s");
+            $fs_conexion = date("Y-m-d H:i:s");
 
-            // echo $fs_conexion;
+            echo $fs_conexion;
             // // $logs1 = $tad->set_date(['date' => '2016-11-01','time' => '05:50:49']);
             // echo("<br>");echo("<br>");
             $logs1 = $tad->get_date();
-            // echo("<br>");echo("<br>");
+
+            $all_user_info = $tad->get_all_user_info()->to_array();
+
+            echo("<br>");echo("<br>");
+
+            // TODOS LOS USUARIOS
+              // foreach ($all_user_info as $key => $value)
+              // {
+              //   // echo $key . " =>" . $value . "<br><br>";
+              //   echo $key . "<br><br>";
+
+              //   foreach ($value as $key1 => $value1) {
+              //     echo $key1 . "<br><br>";
+
+              //     foreach ($value1 as $key2 => $value2) {
+              //       if ($key2 == 'Password') {
+              //         if(is_array($value2))
+              //         {
+              //           print_r($value2);
+
+              //           echo("<br>");
+              //         }
+              //         else
+              //         {
+              //           echo $key2 . " =>" . $value2 . "<br>";
+              //         }
+              //       }
+              //       else
+              //       {
+              //         echo $key2 . " =>" . $value2 . "<br>";
+              //       }
+              //     }
+
+              //     print_r($value1);
+
+              //     echo("<br>");echo("<br>");
+              //   }
+              //   print_r($value);
+
+              //   echo("<br>");echo("<br>");
+              // }
+
+              // print_r($all_user_info);
+
+            // ALGUNOS USUARIOS
+              $usuer_log = $tad->get_att_log(['pin' => 1119323])->to_array();
+
+              print_r($usuer_log);
+
+              echo("<br>");echo("<br>");
+
+              $user_info = $tad->get_user_info(['pin' => 1119323])->to_array();
+              print_r($user_info);
+
+              echo("<br>");echo("<br>");
+
+              $tad->delete_user(['pin' => 1119323]);
+
+              // echo("<br>");echo("<br>");
+
+              // $res1 = $tad->set_user_info([
+              //     'pin'       => 123456789012,
+              //     'name'      => "YAÑEZ SASAMOTO JAVIER JESUS",
+              //     'privilege' => 0,
+              //     'password'  => rand(1000, 9999)
+              // ]);
+
+              // echo($res1 . "<br>");echo("<br>");
+
+              $usuer_log = $tad->get_att_log(['pin' => 1119323])->to_array();
+
+              print_r($usuer_log);
+
+              echo("<br>");echo("<br>");
+
+              // if(count($user_info) == 0)
+              // {
+              //   echo "SIN VALORES";
+              // }
+              // else
+              // {
+              //   echo count($user_info);
+              // }
+
+              $user_info = $tad->get_user_info(['pin' => 1119323])->to_array();
+              print_r($user_info);
+
+            echo("<br>");echo("<br>");
 
             // $tad->disable();
-            $tad->enable();
+            // $tad->enable();
               // $logs1 = $tad->get_att_log()->to_array();
               // // $logs1 = $tad->get_user_info(['pin' => '1146351'])->to_json();
               // if(count($logs1) > 0)

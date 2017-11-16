@@ -303,47 +303,58 @@ class PersonaController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $estado                  = trim($request->input('estado'));
+                    $data                            = [];
+                    $data['estado']                  = trim($request->input('estado'));
+                    $data['nombre']                  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                    $data['ap_paterno']              = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_paterno'))));
+                    $data['ap_materno']              = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_materno'))));
+                    $data['ap_esposo']               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_esposo'))));
+                    $data['f_nacimiento']            = trim($request->input('f_nacimiento'));
+                    $data['estado_civil']            = trim($request->input('estado_civil'));
+                    $data['sexo']                    = trim($request->input('sexo'));
+                    $data['domicilio']               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('domicilio'))));
+                    $data['telefono']                = trim($request->input('telefono'));
+                    $data['celular']                 = trim($request->input('celular'));
+                    $data['municipio_id_nacimiento'] = trim($request->input('municipio_id_nacimiento'));
+                    $data['municipio_id_residencia'] = trim($request->input('municipio_id_residencia'));
+
                     $n_documento             = trim($request->input('n_documento'));
                     $n_documento_1           = strtoupper($util->getNoAcentoNoComilla(trim($request->input('n_documento_1'))));
-                    $nombre                  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
-                    $ap_paterno              = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_paterno'))));
-                    $ap_materno              = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_materno'))));
-                    $ap_esposo               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ap_esposo'))));
-                    $f_nacimiento            = trim($request->input('f_nacimiento'));
-                    $estado_civil            = trim($request->input('estado_civil'));
-                    $sexo                    = trim($request->input('sexo'));
-                    $domicilio               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('domicilio'))));
-                    $telefono                = trim($request->input('telefono'));
-                    $celular                 = trim($request->input('celular'));
-                    $municipio_id_nacimiento = trim($request->input('municipio_id_nacimiento'));
-                    $municipio_id_residencia = trim($request->input('municipio_id_residencia'));
 
                     if($n_documento_1 != '')
                     {
                         $n_documento .= '-' . $n_documento_1;
                     }
 
+                    $data['n_documento'] = $n_documento;
+
+                    // === CONVERTIR VALORES VACIOS A NULL ===
+                        foreach ($data as $llave => $valor)
+                        {
+                            if ($valor == '')
+                                $data[$llave] = NULL;
+                        }
+
                     if($opcion == 'n')
                     {
-                        $c_n_documento = RrhhPersona::where('n_documento', '=', $n_documento)->count();
+                        $c_n_documento = RrhhPersona::where('n_documento', '=', $data['n_documento'])->count();
                         if($c_n_documento < 1)
                         {
                             $iu                          = new RrhhPersona;
-                            $iu->municipio_id_nacimiento = $municipio_id_nacimiento;
-                            $iu->municipio_id_residencia = $municipio_id_residencia;
-                            $iu->estado                  = $estado;
-                            $iu->n_documento             = $n_documento;
-                            $iu->nombre                  = $nombre;
-                            $iu->ap_paterno              = $ap_paterno;
-                            $iu->ap_materno              = $ap_materno;
-                            $iu->ap_esposo               = $ap_esposo;
-                            $iu->f_nacimiento            = $f_nacimiento;
-                            $iu->estado_civil            = $estado_civil;
-                            $iu->sexo                    = $sexo;
-                            $iu->domicilio               = $domicilio;
-                            $iu->telefono                = $telefono;
-                            $iu->celular                 = $celular;
+                            $iu->municipio_id_nacimiento = $data['municipio_id_nacimiento'];
+                            $iu->municipio_id_residencia = $data['municipio_id_residencia'];
+                            $iu->estado                  = $data['estado'];
+                            $iu->n_documento             = $data['n_documento'];
+                            $iu->nombre                  = $data['nombre'];
+                            $iu->ap_paterno              = $data['ap_paterno'];
+                            $iu->ap_materno              = $data['ap_materno'];
+                            $iu->ap_esposo               = $data['ap_esposo'];
+                            $iu->f_nacimiento            = $data['f_nacimiento'];
+                            $iu->estado_civil            = $data['estado_civil'];
+                            $iu->sexo                    = $data['sexo'];
+                            $iu->domicilio               = $data['domicilio'];
+                            $iu->telefono                = $data['telefono'];
+                            $iu->celular                 = $data['celular'];
                             $iu->save();
 
                             $respuesta['respuesta'] .= "La PERSONA fue registrado con éxito.";
@@ -356,24 +367,24 @@ class PersonaController extends Controller
                     }
                     else
                     {
-                        $c_n_documento = RrhhPersona::where('n_documento', '=', $n_documento)->where('id', '<>', $id)->count();
+                        $c_n_documento = RrhhPersona::where('n_documento', '=', $data['n_documento'])->where('id', '<>', $id)->count();
                         if($c_n_documento < 1)
                         {
                             $iu                          = RrhhPersona::find($id);
-                            $iu->municipio_id_nacimiento = $municipio_id_nacimiento;
-                            $iu->municipio_id_residencia = $municipio_id_residencia;
-                            $iu->estado                  = $estado;
-                            $iu->n_documento             = $n_documento;
-                            $iu->nombre                  = $nombre;
-                            $iu->ap_paterno              = $ap_paterno;
-                            $iu->ap_materno              = $ap_materno;
-                            $iu->ap_esposo               = $ap_esposo;
-                            $iu->f_nacimiento            = $f_nacimiento;
-                            $iu->estado_civil            = $estado_civil;
-                            $iu->sexo                    = $sexo;
-                            $iu->domicilio               = $domicilio;
-                            $iu->telefono                = $telefono;
-                            $iu->celular                 = $celular;
+                            $iu->municipio_id_nacimiento = $data['municipio_id_nacimiento'];
+                            $iu->municipio_id_residencia = $data['municipio_id_residencia'];
+                            $iu->estado                  = $data['estado'];
+                            $iu->n_documento             = $data['n_documento'];
+                            $iu->nombre                  = $data['nombre'];
+                            $iu->ap_paterno              = $data['ap_paterno'];
+                            $iu->ap_materno              = $data['ap_materno'];
+                            $iu->ap_esposo               = $data['ap_esposo'];
+                            $iu->f_nacimiento            = $data['f_nacimiento'];
+                            $iu->estado_civil            = $data['estado_civil'];
+                            $iu->sexo                    = $data['sexo'];
+                            $iu->domicilio               = $data['domicilio'];
+                            $iu->telefono                = $data['telefono'];
+                            $iu->celular                 = $data['celular'];
                             $iu->save();
 
                             $respuesta['respuesta'] .= "La PERSONA se edito con éxito.";
@@ -384,7 +395,7 @@ class PersonaController extends Controller
                             if(count($c_usuario) > 0)
                             {
                                 $iu1       = User::find($c_usuario['id']);
-                                $iu1->name = $nombre;
+                                $iu1->name = $data['nombre'];
                                 $iu1->save();
                             }
                         }

@@ -19,7 +19,7 @@
         };
     // === VARIABLES GLOBALES ===
         var base_url       = "{!! url('') !!}";
-        var url_controller = "{!! url('/biometrico') !!}";
+        var url_controller = "{!! url('/persona_biometrico') !!}";
         var csrf_token     = "{!! csrf_token() !!}";
 
     // === JQGRID1 ===
@@ -29,85 +29,63 @@
         var col_name_1    = new Array(
             "",
             "ESTADO",
-            "ESTADO CONEXION",
-            "SERVIDOR",
-            "BIOMETRICO",
-            "LUGAR DE DEPENDENCIA",
-            "UNIDAD DESCONCENTRADA",
+            "FECHA DE REGISTRO",
+            "NUMERO DE REGISTRO",
+            "PERSONA",
+            "PRIVILEGIO",
+
             "CODIGO ACTIVO FIJO",
             "IP",
-            "ID USUARIO",
-            "LLAVE COM",
-            "PUERTO SOAP",
-            "PUERTO UDP",
-            "CODIFICACION",
-            "DESCRIPCION",
+            "UNIDAD DESCONCENTRADA",
+            "LUGAR DE DEPENDENCIA",
 
             ""
         );
         var col_m_name_1  = new Array(
             "act",
             "estado",
-            "e_conexion",
-            "fs_conexion",
-            "fb_conexion",
-            "lugar_dependencia",
-            "unidad_desconcentrada",
+            "f_registro_biometrico",
+            "n_documento_biometrico",
+            "nombre",
+            "privilegio",
+
             "codigo_af",
             "ip",
-            "internal_id",
-            "com_key",
-            "soap_port",
-            "udp_port",
-            "encoding",
-            "description",
+            "unidad_desconcentrada",
+            "lugar_dependencia",
 
             "val_json"
         );
         var col_m_index_1 = new Array(
             "",
-            "rrhh_biometricos.estado",
-            "rrhh_biometricos.e_conexion",
-            "rrhh_biometricos.fs_conexion",
-            "rrhh_biometricos.fb_conexion",
-            "a3.lugar_dependencia",
-            "a2.unidad_desconcentrada",
-            "rrhh_biometricos.codigo_af",
-            "rrhh_biometricos.ip",
-            "rrhh_biometricos.internal_id",
-            "rrhh_biometricos.com_key",
-            "rrhh_biometricos.soap_port",
-            "rrhh_biometricos.udp_port",
-            "rrhh_biometricos.encoding",
-            "rrhh_biometricos.description",
+            "rrhh_personas_biometricos.estado",
+            "rrhh_personas_biometricos.f_registro_biometrico::text",
+            "rrhh_personas_biometricos.n_documento_biometrico::text",
+            "rrhh_personas_biometricos.nombre",
+            "rrhh_personas_biometricos.privilegio",
+
+            "a3.codigo_af",
+            "a3.ip",
+            "a4.nombre",
+            "a5.nombre",
 
             ""
         );
         var col_m_width_1 = new Array(
             33,
-            150,
-            130,
-            150,
+            225,
+            140,
             150,
             300,
-            300,
+            180,
             145,
             100,
-            100,
-            100,
-            100,
-            100,
-            120,
-            300,
+            500,
+            350,
 
             10
         );
         var col_m_align_1 = new Array(
-            "center",
-            "center",
-            "center",
-            "center",
-            "center",
             "center",
             "center",
             "center",
@@ -135,44 +113,14 @@
             estado_jqgrid += ';' + index + ':' + value;
         });
 
-    // === ESTADO CONEXION ===
-        var e_conexion_json   = $.parseJSON('{!! json_encode($e_conexion_array) !!}');
-        var e_conexion_select = '';
-        var e_conexion_jqgrid = ':Todos';
+    // === PRIVILEGIO ===
+        var privilegio_json   = $.parseJSON('{!! json_encode($privilegio_array) !!}');
+        var privilegio_select = '';
+        var privilegio_jqgrid = ':Todos';
 
-        $.each(e_conexion_json, function(index, value) {
-            e_conexion_select += '<option value="' + index + '">' + value + '</option>';
-            e_conexion_jqgrid += ';' + index + ':' + value;
-        });
-
-    // === ENCODING ===
-        var encoding_json   = $.parseJSON('{!! json_encode($encoding_array) !!}');
-        var encoding_select = '';
-        var encoding_jqgrid = ':Todos';
-
-        $.each(encoding_json, function(index, value) {
-            encoding_select += '<option value="' + index + '">' + value + '</option>';
-            encoding_jqgrid += ';' + index + ':' + value;
-        });
-
-    // === TIPO DE EMISOR ===
-        var tipo_emisor_json   = $.parseJSON('{!! json_encode($tipo_emisor_array) !!}');
-        var tipo_emisor_select = '';
-        var tipo_emisor_jqgrid = ':Todos';
-
-        $.each(tipo_emisor_json, function(index, value) {
-            tipo_emisor_select += '<option value="' + index + '">' + value + '</option>';
-            tipo_emisor_jqgrid += ';' + index + ':' + value;
-        });
-
-    // === TIPO DE ALERTA ===
-        var tipo_alerta_json   = $.parseJSON('{!! json_encode($tipo_alerta_array) !!}');
-        var tipo_alerta_select = '';
-        var tipo_alerta_jqgrid = ':Todos';
-
-        $.each(tipo_alerta_json, function(index, value) {
-            tipo_alerta_select += '<option value="' + index + '">' + value + '</option>';
-            tipo_alerta_jqgrid += ';' + index + ':' + value;
+        $.each(privilegio_json, function(index, value){
+            privilegio_select += '<option value="' + index + '">' + value + '</option>';
+            privilegio_jqgrid += ';' + index + ':' + value;
         });
 
     // === LUGAR DE DEPENDENCIA ===
@@ -190,21 +138,59 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
+            $('#persona_id').select2({
+                maximumSelectionLength: 1,
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 10,
+                            estado    : 1,
+                            tipo      : 101,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#persona_id").appendTo("#persona_id_div");
+
             $('#lugar_dependencia_id').append(lugar_dependencia_select);
             $("#lugar_dependencia_id").select2({
-                    maximumSelectionLength: 1
-                });
+                maximumSelectionLength: 1
+            });
             $("#lugar_dependencia_id").appendTo("#lugar_dependencia_id_div");
 
             $("#unidad_desconcentrada_id").select2({
-                    maximumSelectionLength: 1
-                });
+                maximumSelectionLength: 1
+            });
             $("#unidad_desconcentrada_id").appendTo("#unidad_desconcentrada_id_div");
+
+            $("#biometrico_id").select2({
+                maximumSelectionLength: 1
+            });
+            $("#biometrico_id").appendTo("#biometrico_id_div");
+
+            $('#privilegio').append(privilegio_select);
+            $("#privilegio").select2({
+                maximumSelectionLength: 1
+            });
+            $("#privilegio").appendTo("#privilegio_div");
 
         // === SELECT CHANGE ===
             $("#lugar_dependencia_id").on("change", function(e) {
                 $('#unidad_desconcentrada_id').select2('val','');
                 $('#unidad_desconcentrada_id option').remove();
+                $('#biometrico_id').select2('val','');
+                $('#biometrico_id option').remove();
                 switch ($.trim(this.value)){
                     case '':
                         break;
@@ -215,6 +201,24 @@
                         valor1[2]  = 'POST';
                         valor1[3]  = false;
                         valor1[4]  = "tipo=103&lugar_dependencia_id=" + this.value + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                }
+            });
+
+            $("#unidad_desconcentrada_id").on("change", function(e) {
+                $('#biometrico_id').select2('val','');
+                $('#biometrico_id option').remove();
+                switch ($.trim(this.value)){
+                    case '':
+                        break;
+                    default:
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = false;
+                        valor1[4]  = "tipo=104&unidad_desconcentrada_id=" + this.value + "&_token=" + csrf_token;
                         valor1[5]  = 'json';
                         utilitarios(valor1);
                 }
@@ -290,30 +294,25 @@
                 var edit1   = true;
                 var ancho1  = 5;
                 var ancho_d = 28;
-                @if(in_array(['codigo' => '0603'], $permisos))
+                @if(in_array(['codigo' => '0703'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
-                @if(in_array(['codigo' => '0604'], $permisos))
+                @if(in_array(['codigo' => '0704'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
-                @if(in_array(['codigo' => '0605'], $permisos))
+                @if(in_array(['codigo' => '0705'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
-                @if(in_array(['codigo' => '0606'], $permisos))
+                @if(in_array(['codigo' => '0706'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
-                @if(in_array(['codigo' => '0607'], $permisos))
+                @if(in_array(['codigo' => '0707'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
-                @endif
-
-                var hidden1 = true;
-                @if(in_array(['codigo' => '0602'], $permisos) || in_array(['codigo' => '0603'], $permisos))
-                    hidden1 = false;
                 @endif
 
                 $(jqgrid1).jqGrid({
@@ -325,7 +324,7 @@
                     pager        : pjqgrid1,
                     rowNum       : 10,
                     rowList      : [10, 20, 30],
-                    sortname     : 'rrhh_biometricos.id',
+                    sortname     : 'rrhh_personas_biometricos.id',
                     sortorder    : "desc",
                     viewrecords  : true,
                     shrinkToFit  : false,
@@ -350,12 +349,7 @@
                         col_name_1[7],
                         col_name_1[8],
                         col_name_1[9],
-                        col_name_1[10],
-                        col_name_1[11],
-                        col_name_1[12],
-                        col_name_1[13],
-                        col_name_1[14],
-                        col_name_1[15]
+                        col_name_1[10]
                     ],
                     colModel : [
                         {
@@ -378,12 +372,10 @@
                             editoptions: {value:estado_jqgrid}
                         },
                         {
-                            name       : col_m_name_1[2],
-                            index      : col_m_index_1[2],
-                            width      : col_m_width_1[2],
-                            align      : col_m_align_1[2],
-                            stype      :'select',
-                            editoptions: {value:e_conexion_jqgrid}
+                            name  : col_m_name_1[2],
+                            index : col_m_index_1[2],
+                            width : col_m_width_1[2],
+                            align : col_m_align_1[2]
                         },
                         {
                             name  : col_m_name_1[3],
@@ -403,7 +395,7 @@
                             width      : col_m_width_1[5],
                             align      : col_m_align_1[5],
                             stype      :'select',
-                            editoptions: {value:lugar_dependencia_jqgrid}
+                            editoptions: {value:privilegio_jqgrid}
                         },
                         {
                             name  : col_m_name_1[6],
@@ -421,60 +413,23 @@
                             name  : col_m_name_1[8],
                             index : col_m_index_1[8],
                             width : col_m_width_1[8],
-                            align : col_m_align_1[8],
-                            hidden: hidden1
+                            align : col_m_align_1[8]
                         },
                         {
-                            name  : col_m_name_1[9],
-                            index : col_m_index_1[9],
-                            width : col_m_width_1[9],
-                            align : col_m_align_1[9],
-                            hidden: hidden1
-                        },
-                        {
-                            name  : col_m_name_1[10],
-                            index : col_m_index_1[10],
-                            width : col_m_width_1[10],
-                            align : col_m_align_1[10],
-                            hidden: hidden1
-                        },
-                        {
-                            name  : col_m_name_1[11],
-                            index : col_m_index_1[11],
-                            width : col_m_width_1[11],
-                            align : col_m_align_1[11],
-                            hidden: hidden1
-                        },
-                        {
-                            name  : col_m_name_1[12],
-                            index : col_m_index_1[12],
-                            width : col_m_width_1[12],
-                            align : col_m_align_1[12],
-                            hidden: hidden1
-                        },
-                        {
-                            name  : col_m_name_1[13],
-                            index : col_m_index_1[13],
-                            width : col_m_width_1[13],
-                            align : col_m_align_1[13],
+                            name       : col_m_name_1[9],
+                            index      : col_m_index_1[9],
+                            width      : col_m_width_1[9],
+                            align      : col_m_align_1[9],
                             stype      :'select',
-                            editoptions: {value:encoding_jqgrid},
-                            hidden: true
-                        },
-                        {
-                            name  : col_m_name_1[14],
-                            index : col_m_index_1[14],
-                            width : col_m_width_1[14],
-                            align : col_m_align_1[14],
-                            hidden: true
+                            editoptions: {value:lugar_dependencia_jqgrid}
                         },
 
                         // === OCULTO ===
                             {
-                                name  : col_m_name_1[15],
-                                index : col_m_index_1[15],
-                                width : col_m_width_1[15],
-                                align : col_m_align_1[15],
+                                name  : col_m_name_1[10],
+                                index : col_m_index_1[10],
+                                width : col_m_width_1[10],
+                                align : col_m_align_1[10],
                                 search: false,
                                 hidden: true
                             }
@@ -486,31 +441,31 @@
                         var ids = $(jqgrid1).jqGrid('getDataIDs');
                         for(var i = 0; i < ids.length; i++){
                             var cl = ids[i];
-                            @if(in_array(['codigo' => '0603'], $permisos))
+                            @if(in_array(['codigo' => '0703'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                             @else
                                 ed = '';
                             @endif
 
-                            @if(in_array(['codigo' => '0604'], $permisos))
+                            @if(in_array(['codigo' => '0704'], $permisos))
                                 rc = " <button type='button' class='btn btn-xs btn-danger' title='Revisar conexión' onclick=\"utilitarios([18, " + cl + "]);\"><i class='fa fa-plug'></i></button>";
                             @else
                                 rc = '';
                             @endif
 
-                            @if(in_array(['codigo' => '0605'], $permisos))
+                            @if(in_array(['codigo' => '0705'], $permisos))
                                 sf = " <button type='button' class='btn btn-xs btn-warning' title='Sincronizar fecha y hora' onclick=\"utilitarios([19, " + cl + "]);\"><i class='fa fa-clock-o'></i></button>";
                             @else
                                 sf = '';
                             @endif
 
-                            @if(in_array(['codigo' => '0606'], $permisos))
+                            @if(in_array(['codigo' => '0706'], $permisos))
                                 re = " <button type='button' class='btn btn-xs btn-primary' title='Reiniciar biométrico' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-rotate-right'></i></button>";
                             @else
                                 re = '';
                             @endif
 
-                            @if(in_array(['codigo' => '0607'], $permisos))
+                            @if(in_array(['codigo' => '0707'], $permisos))
                                 ap = " <button type='button' class='btn btn-xs' title='Apagar biométrico' onclick=\"utilitarios([21, " + cl + "]);\"><i class='fa fa-power-off'></i></button>";
                             @else
                                 ap = '';
@@ -620,14 +575,14 @@
                     useColSpanStyle: true,
                     groupHeaders   :[
                         {
-                            startColumnName: 'fs_conexion',
-                            numberOfColumns: 2,
-                            titleText      : 'FECHA Y HORA DE LA ULTIMA CONEXION'
+                            startColumnName: 'n_documento_biometrico',
+                            numberOfColumns: 3,
+                            titleText      : 'BIOMETRICO'
                         },
                         {
-                            startColumnName: 'ip',
-                            numberOfColumns: 7,
-                            titleText      : 'DATOS PARA LA CONEXION'
+                            startColumnName: 'codigo_af',
+                            numberOfColumns: 4,
+                            titleText      : 'UBICACION DEL BIOMETRICO'
                         }
                     ]
                 });
@@ -647,7 +602,7 @@
                 .navSeparatorAdd(pjqgrid1,{
                     sepclass : "ui-separator"
                 })
-                @if(in_array(['codigo' => '0602'], $permisos))
+                @if(in_array(['codigo' => '0702'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "add1",
                     caption       : "",
@@ -664,7 +619,7 @@
                     }
                 })
                 @endif
-                @if(in_array(['codigo' => '0603'], $permisos))
+                @if(in_array(['codigo' => '0703'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "edit1",
                     caption       : "",
@@ -714,30 +669,26 @@
                 utilitarios(valor1);
 
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Modificar datos del biometrico');
-                $("#biometrico_id").val(valor[1]);
+                $('#modal_1_title').append('Editar relación PERSONA - BIOMETRICO');
+                $("#persona_biometrico_id").val(valor[1]);
 
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
 
-                $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
+                var persona = val_json.n_documento + ' - ' + $.trim(val_json.ap_paterno + ' ' +  val_json.ap_materno) + val_json.nombre_persona;
 
-                if(val_json.estado != 1){
-                    $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
-                }
+                $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
+                $("#persona_id").select2("val", val_json.persona_id);
 
                 $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
-
-                // unidad_desconcentrada_select_1 = '<option value="' + val_json.unidad_desconcentrada_id + '">' + ret.unidad_desconcentrada + '</option>';
-                // $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select_1);
                 $("#unidad_desconcentrada_id").select2("val", val_json.unidad_desconcentrada_id);
+                $("#biometrico_id").select2("val", val_json.biometrico_id);
+                $("#privilegio").select2("val", val_json.privilegio);
 
-                $("#codigo_af").val(ret.codigo_af);
-                $("#ip").val(ret.ip);
-                $("#internal_id").val(ret.internal_id);
-                $("#com_key").val(ret.com_key);
-                $("#soap_port").val(ret.soap_port);
-                $("#udp_port").val(ret.udp_port);
+                $("#persona_id").select2("enable", false);
+                $("#lugar_dependencia_id").select2("enable", false);
+                $("#unidad_desconcentrada_id").select2("enable", false);
+                $("#biometrico_id").select2("enable", false);
 
                 $('#modal_1').modal();
                 break;
@@ -748,15 +699,17 @@
             // === RESETEAR FORMULARIO ===
             case 14:
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Agregar biometrico');
+                $('#modal_1_title').append('Agregar relación PERSONA - BIOMETRICO');
 
-                $("#biometrico_id").val('');
+                $("#persona_biometrico_id").val('');
 
-                $('#lugar_dependencia_id').select2("val", "");
-                $('#unidad_desconcentrada_id').select2("val", "");
-                $('#unidad_desconcentrada_id option').remove();
-                $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", false);
-                $(form_1)[0].reset();
+                $('#persona_id').select2("val", "");
+                $('#privilegio').select2("val", "0");
+
+                $("#persona_id").select2("enable", true);
+                $("#lugar_dependencia_id").select2("enable", true);
+                $("#unidad_desconcentrada_id").select2("enable", true);
+                $("#biometrico_id").select2("enable", true);
                 break;
             // === GUARDAR REGISTRO ===
             case 15:
@@ -791,33 +744,20 @@
             case 16:
                 $(form_1).validate({
                     rules: {
-                        lugar_dependencia_id:{
+                        persona_id:{
                             required : true
+                        },
+                        lugar_dependencia_id:{
+                            required: true
                         },
                         unidad_desconcentrada_id:{
                             required: true
                         },
-                        codigo_af:{
+                        biometrico_id:{
                             required: true
                         },
-                        ip:{
+                        privilegio:{
                             required: true
-                        },
-                        internal_id:{
-                            required: true,
-                            digits: true
-                        },
-                        com_key:{
-                            required: true,
-                            digits: true
-                        },
-                        soap_port:{
-                            required: true,
-                            digits: true
-                        },
-                        udp_port:{
-                            required: true,
-                            digits: true
                         }
                     }
                 });
@@ -1259,6 +1199,16 @@
                                         unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
                                     });
                                     $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
+                                }
+                                break;
+                            // === SELECT2 BIOMETRICOS ===
+                            case '104':
+                                if(data.sw === 2){
+                                    var biometrico_select = '';
+                                    $.each(data.consulta, function(index, value) {
+                                        biometrico_select += '<option value="' + value.id + '">' + 'MP-' + value.nombre + '</option>';
+                                    });
+                                    $('#biometrico_id').append(biometrico_select);
                                 }
                                 break;
                             default:

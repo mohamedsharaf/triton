@@ -60,7 +60,8 @@ class BiometricoController extends Controller
         $this->tipo_emisor = [
             '1' => 'CRON',
             '2' => 'MANUAL',
-            '3' => 'EDITAR'
+            '3' => 'EDITAR',
+            '4' => 'REGISTRO DE USUARIO'
         ];
 
         $this->tipo_alerta = [
