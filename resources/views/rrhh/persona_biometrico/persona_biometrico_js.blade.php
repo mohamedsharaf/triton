@@ -677,6 +677,7 @@
 
                 var persona = val_json.n_documento + ' - ' + $.trim(val_json.ap_paterno + ' ' +  val_json.ap_materno) + val_json.nombre_persona;
 
+                $('#persona_id option').remove();
                 $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
                 $("#persona_id").select2("val", val_json.persona_id);
 
@@ -923,15 +924,15 @@
 
                 if(val_json.estado == 1){
                     swal({
-                        title: "REINICIAR BIOMETRICO",
-                        text: "¿Esta seguro de reiniciar el biométrico?",
-                        type: "warning",
-                        showCancelButton: true,
+                        title             : "REINICIAR BIOMETRICO",
+                        text              : "¿Esta seguro de reiniciar el biométrico?",
+                        type              : "warning",
+                        showCancelButton  : true,
                         confirmButtonColor: "#DD6B55",
-                        confirmButtonText: "Reiniciar",
-                        cancelButtonText: "Cancelar",
-                        closeOnConfirm: false,
-                        closeOnCancel: false
+                        confirmButtonText : "Reiniciar",
+                        cancelButtonText  : "Cancelar",
+                        closeOnConfirm    : false,
+                        closeOnCancel     : false
                     },
                     function(isConfirm){
                         if (isConfirm){

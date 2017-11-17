@@ -263,7 +263,8 @@ class PersonaBiometricoController extends Controller
                         'nombre_persona'           => $row["nombre_persona"],
                         'ap_paterno'               => $row["ap_paterno"],
                         'ap_materno'               => $row["ap_materno"],
-                        'privilegio'               => $row["privilegio"]
+                        'privilegio'               => $row["privilegio"],
+                        'password'                 => $row["password"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
