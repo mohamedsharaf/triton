@@ -21,6 +21,7 @@ class CreateRrhhBiometricosTable extends Migration
           $table->smallInteger('e_conexion')->default('1')->unsigned();
           $table->dateTime('fs_conexion')->nullable();
           $table->dateTime('fb_conexion')->nullable();
+          $table->dateTime('f_log_asistencia')->nullable();
           $table->string('codigo_af', 10)->nullable();
           $table->string('ip', 20)->nullable();
           $table->integer('internal_id')->unsigned()->nullable();

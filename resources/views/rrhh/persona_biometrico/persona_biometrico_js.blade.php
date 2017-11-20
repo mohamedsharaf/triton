@@ -306,33 +306,25 @@
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
-                @if(in_array(['codigo' => '0706'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
-                @endif
-                @if(in_array(['codigo' => '0707'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
-                @endif
 
                 $(jqgrid1).jqGrid({
-                    caption      : title_table,
-                    url          : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
-                    datatype     : 'json',
-                    mtype        : 'post',
-                    height       : 'auto',
-                    pager        : pjqgrid1,
-                    rowNum       : 10,
-                    rowList      : [10, 20, 30],
-                    sortname     : 'rrhh_personas_biometricos.id',
-                    sortorder    : "desc",
-                    viewrecords  : true,
-                    shrinkToFit  : false,
-                    hidegrid     : false,
-                    multiboxonly : true,
-                    altRows      : true,
-                    rownumbers   : true,
-                    subGrid      : true,
+                    caption     : title_table,
+                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                    datatype    : 'json',
+                    mtype       : 'post',
+                    height      : 'auto',
+                    pager       : pjqgrid1,
+                    rowNum      : 10,
+                    rowList     : [10, 20, 30],
+                    sortname    : 'rrhh_personas_biometricos.id',
+                    sortorder   : "desc",
+                    viewrecords : true,
+                    shrinkToFit : false,
+                    hidegrid    : false,
+                    multiboxonly: true,
+                    altRows     : true,
+                    rownumbers  : true,
+                    // subGrid      : true,
                     // multiselect  : true,
                     //autowidth     : true,
                     //gridview      :true,
@@ -448,30 +440,19 @@
                             @endif
 
                             @if(in_array(['codigo' => '0704'], $permisos))
-                                rc = " <button type='button' class='btn btn-xs btn-danger' title='Revisar conexión' onclick=\"utilitarios([18, " + cl + "]);\"><i class='fa fa-plug'></i></button>";
+                                hr = " <button type='button' class='btn btn-xs btn-warning' title='Eliminar huellas y rostro' onclick=\"utilitarios([18, " + cl + "]);\"><i class='fa fa-key'></i></button>";
                             @else
-                                rc = '';
+                                hr = '';
                             @endif
 
                             @if(in_array(['codigo' => '0705'], $permisos))
-                                sf = " <button type='button' class='btn btn-xs btn-warning' title='Sincronizar fecha y hora' onclick=\"utilitarios([19, " + cl + "]);\"><i class='fa fa-clock-o'></i></button>";
+                                de = " <button type='button' class='btn btn-xs btn-danger' title='Eliminar relación PERSONA-BIOMETRICO' onclick=\"utilitarios([19, " + cl + "]);\"><i class='fa fa-trash'></i></button>";
                             @else
-                                sf = '';
+                                de = '';
                             @endif
 
-                            @if(in_array(['codigo' => '0706'], $permisos))
-                                re = " <button type='button' class='btn btn-xs btn-primary' title='Reiniciar biométrico' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-rotate-right'></i></button>";
-                            @else
-                                re = '';
-                            @endif
-
-                            @if(in_array(['codigo' => '0707'], $permisos))
-                                ap = " <button type='button' class='btn btn-xs' title='Apagar biométrico' onclick=\"utilitarios([21, " + cl + "]);\"><i class='fa fa-power-off'></i></button>";
-                            @else
-                                ap = '';
-                            @endif
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed + rc + sf + re + ap)
+                                act : $.trim(ed + hr + de)
                             });
                         }
                     },
@@ -529,16 +510,16 @@
                                     hidden: true
                                 }
                             ],
-                            pager: pager_id,
-                            rowNum: 10,
+                            pager  : pager_id,
+                            rowNum : 10,
                             rowList: [10, 20, 30],
 
-                            sortname: 'f_alerta',
+                            sortname : 'f_alerta',
                             sortorder: "desc",
 
                             shrinkToFit: false,
-                            altRows: true,
-                            autowidth: true,
+                            altRows    : true,
+                            autowidth  : true,
 
                             viewrecords: true,
                             gridview:true,
@@ -715,23 +696,65 @@
             // === GUARDAR REGISTRO ===
             case 15:
                 if($(form_1).valid()){
-                    swal({
-                        title             : "ENVIANDO INFORMACIÓN",
-                        text              : "Espere a que guarde la información.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+                    var persona_biometrico_id = $.trim($("#persona_biometrico_id").val());
+                    if(persona_biometrico_id != ""){
+                        swal({
+                            title             : "PERSONA - BIOMETRICO",
+                            text              : "¿Esta seguro de editar la relación PERSONA-BIOMETRICO?\nSi se edita se perderá el registro de las huellas y el rostro.",
+                            type              : "warning",
+                            showCancelButton  : true,
+                            confirmButtonColor: "#DD6B55",
+                            confirmButtonText : "Editar",
+                            cancelButtonText  : "Cancelar",
+                            closeOnConfirm    : false,
+                            closeOnCancel     : false
+                        },
+                        function(isConfirm){
+                            if (isConfirm){
+                                swal.close();
 
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = $(form_1).serialize();
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
+                                swal({
+                                    title             : "ENVIANDO INFORMACIÓN",
+                                    text              : "Espere a que guarde la información.",
+                                    allowEscapeKey    : false,
+                                    showConfirmButton : false,
+                                    type              : "info"
+                                });
+                                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                                var valor1 = new Array();
+                                valor1[0]  = 150;
+                                valor1[1]  = url_controller + '/send_ajax';
+                                valor1[2]  = 'POST';
+                                valor1[3]  = true;
+                                valor1[4]  = $(form_1).serialize();
+                                valor1[5]  = 'json';
+                                utilitarios(valor1);
+                            }
+                            else{
+                                swal.close();
+                            }
+                        });
+                    }
+                    else{
+                        swal({
+                            title             : "ENVIANDO INFORMACIÓN",
+                            text              : "Espere a que guarde la información.",
+                            allowEscapeKey    : false,
+                            showConfirmButton : false,
+                            type              : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = $(form_1).serialize();
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
                 }
                 else{
                     var valor1 = new Array();
@@ -853,83 +876,19 @@
                     }
                 });
                 break;
-            // === RIVISAR CONEXION ===
+            // === ELIMINAR HUELLA Y ROSTRO ===
             case 18:
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
 
                 if(val_json.estado == 1){
                     swal({
-                        title             : "REVISANDO CONEXION",
-                        text              : "Espere a que se verifique la conexión.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = "tipo=2&id=" + valor[1] + "&_token=" + csrf_token;
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 102;
-                    valor1[1]  = "ALERTA";
-                    valor1[2]  = "BIOMETRICO SIN RED.";
-                    utilitarios(valor1);
-                }
-                break;
-            // === SINCRONIZAR FECHA Y HORA ===
-            case 19:
-                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
-                var val_json = $.parseJSON(ret.val_json);
-
-                if(val_json.estado == 1){
-                    swal({
-                        title             : "SINCRONIZANDO FECHA Y HORA",
-                        text              : "Espere a que se sincronice la fecha y la hora.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = "tipo=3&id=" + valor[1] + "&_token=" + csrf_token;
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 102;
-                    valor1[1]  = "ALERTA";
-                    valor1[2]  = "BIOMETRICO SIN RED.";
-                    utilitarios(valor1);
-                }
-                break;
-            // === REINICIAR BIOMETRICO ===
-            case 20:
-                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
-                var val_json = $.parseJSON(ret.val_json);
-
-                if(val_json.estado == 1){
-                    swal({
-                        title             : "REINICIAR BIOMETRICO",
-                        text              : "¿Esta seguro de reiniciar el biométrico?",
+                        title             : "ELIMINAR HUELLAS Y ROSTRO",
+                        text              : "¿Esta seguro de elininar las huelas y el rostro del biométrico?",
                         type              : "warning",
                         showCancelButton  : true,
                         confirmButtonColor: "#DD6B55",
-                        confirmButtonText : "Reiniciar",
+                        confirmButtonText : "Eliminar",
                         cancelButtonText  : "Cancelar",
                         closeOnConfirm    : false,
                         closeOnCancel     : false
@@ -939,11 +898,11 @@
                             swal.close();
 
                             swal({
-                                title             : "REINICIANDO BIOMETRICO",
-                                text              : "Espere a que reinicie el biométrico.",
-                                allowEscapeKey    : false,
-                                showConfirmButton : false,
-                                type              : "info"
+                                title            : "ELIMINANDO HUELLAS Y ROSTRO",
+                                text             : "Espere a que se elimine las huellas y rostro del biométrico.",
+                                allowEscapeKey   : false,
+                                showConfirmButton: false,
+                                type             : "info"
                             });
                             $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
 
@@ -952,7 +911,7 @@
                             valor1[1]  = url_controller + '/send_ajax';
                             valor1[2]  = 'POST';
                             valor1[3]  = true;
-                            valor1[4]  = "tipo=4&id=" + valor[1] + "&_token=" + csrf_token;
+                            valor1[4]  = "tipo=2&id=" + valor[1] + "&_token=" + csrf_token;
                             valor1[5]  = 'json';
                             utilitarios(valor1);
                         }
@@ -965,61 +924,49 @@
                     var valor1 = new Array();
                     valor1[0]  = 102;
                     valor1[1]  = "ALERTA";
-                    valor1[2]  = "BIOMETRICO SIN RED.";
+                    valor1[2]  = "EL BIOMETRICO NO PERMITE REGISTROS.";
                     utilitarios(valor1);
                 }
                 break;
-            // === APAGAR BIOMETRICO ===
-            case 21:
-                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
-                var val_json = $.parseJSON(ret.val_json);
+            // === ELIMINAR RELACION PERSONA - BIOMETRICO ===
+            case 19:
+                swal({
+                    title             : "ELIMINAR RELACION PERSONA - BIOMETRICO",
+                    text              : "¿Esta seguro de eliminar la relación Persona - Biométrico?",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "Eliminar",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        swal.close();
 
-                if(val_json.estado == 1){
-                    swal({
-                        title: "APAGAR BIOMETRICO",
-                        text: "¿Esta seguro de apagar el biométrico?",
-                        type: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#DD6B55",
-                        confirmButtonText: "Apagar",
-                        cancelButtonText: "Cancelar",
-                        closeOnConfirm: false,
-                        closeOnCancel: false
-                    },
-                    function(isConfirm){
-                        if (isConfirm){
-                            swal.close();
+                        swal({
+                            title            : "ELIMINANDO RELACION PERSONA - BIOMETRICO",
+                            text             : "Espere a que se elimine la relación Persona - Biométrico.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
 
-                            swal({
-                                title             : "APAGAR BIOMETRICO",
-                                text              : "Espere a que se apague el biométrico.",
-                                allowEscapeKey    : false,
-                                showConfirmButton : false,
-                                type              : "info"
-                            });
-                            $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                            var valor1 = new Array();
-                            valor1[0]  = 150;
-                            valor1[1]  = url_controller + '/send_ajax';
-                            valor1[2]  = 'POST';
-                            valor1[3]  = true;
-                            valor1[4]  = "tipo=5&id=" + valor[1] + "&_token=" + csrf_token;
-                            valor1[5]  = 'json';
-                            utilitarios(valor1);
-                        }
-                        else{
-                            swal.close();
-                        }
-                    });
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 102;
-                    valor1[1]  = "ALERTA";
-                    valor1[2]  = "BIOMETRICO SIN RED.";
-                    utilitarios(valor1);
-                }
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=3&id=" + valor[1] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
                 break;
             // === MENSAJE ERROR ===
             case 100:
@@ -1088,7 +1035,7 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === REVISAR CONEXION ===
+                            // === ELIMINAR HUELLA Y ROSTRO ===
                             case '2':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
@@ -1097,7 +1044,7 @@
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
 
-                                    $(jqgrid1).trigger("reloadGrid");
+                                    // $(jqgrid1).trigger("reloadGrid");
                                 }
                                 else if(data.sw === 0){
                                     var valor1 = new Array();
@@ -1114,7 +1061,7 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === SINCRONIZAR FECHA Y HORA ===
+                            // === ELIMINAR RELACION PERSONA - BIOMETRICO ===
                             case '3':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
@@ -1140,58 +1087,7 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === REINICIAR BIOMETRICO ===
-                            case '4':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
 
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === APAGAR BIOMETRICO ===
-                            case '5':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
                             // === SELECT2 UNIDAD DESCONCENTRADA ===
                             case '103':
                                 if(data.sw === 2){

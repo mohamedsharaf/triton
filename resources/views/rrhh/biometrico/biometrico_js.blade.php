@@ -32,6 +32,7 @@
             "ESTADO CONEXION",
             "SERVIDOR",
             "BIOMETRICO",
+            "ULTIMO LOG DE ASISTENCIA",
             "LUGAR DE DEPENDENCIA",
             "UNIDAD DESCONCENTRADA",
             "CODIGO ACTIVO FIJO",
@@ -51,6 +52,7 @@
             "e_conexion",
             "fs_conexion",
             "fb_conexion",
+            "f_log_asistencia",
             "lugar_dependencia",
             "unidad_desconcentrada",
             "codigo_af",
@@ -70,6 +72,7 @@
             "rrhh_biometricos.e_conexion",
             "rrhh_biometricos.fs_conexion::text",
             "rrhh_biometricos.fb_conexion::text",
+            "rrhh_biometricos.f_log_asistencia::text",
             "a3.nombre",
             "a2.nombre",
             "rrhh_biometricos.codigo_af",
@@ -89,6 +92,7 @@
             130,
             150,
             150,
+            190,
             300,
             300,
             145,
@@ -103,6 +107,7 @@
             10
         );
         var col_m_align_1 = new Array(
+            "center",
             "center",
             "center",
             "center",
@@ -310,6 +315,10 @@
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
+                @if(in_array(['codigo' => '0608'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
 
                 var hidden1 = true;
                 @if(in_array(['codigo' => '0602'], $permisos) || in_array(['codigo' => '0603'], $permisos))
@@ -355,7 +364,8 @@
                         col_name_1[12],
                         col_name_1[13],
                         col_name_1[14],
-                        col_name_1[15]
+                        col_name_1[15],
+                        col_name_1[16]
                     ],
                     colModel : [
                         {
@@ -398,18 +408,18 @@
                             align : col_m_align_1[4]
                         },
                         {
-                            name       : col_m_name_1[5],
-                            index      : col_m_index_1[5],
-                            width      : col_m_width_1[5],
-                            align      : col_m_align_1[5],
-                            stype      :'select',
-                            editoptions: {value:lugar_dependencia_jqgrid}
+                            name  : col_m_name_1[5],
+                            index : col_m_index_1[5],
+                            width : col_m_width_1[5],
+                            align : col_m_align_1[5]
                         },
                         {
-                            name  : col_m_name_1[6],
-                            index : col_m_index_1[6],
-                            width : col_m_width_1[6],
-                            align : col_m_align_1[6]
+                            name       : col_m_name_1[6],
+                            index      : col_m_index_1[6],
+                            width      : col_m_width_1[6],
+                            align      : col_m_align_1[6],
+                            stype      :'select',
+                            editoptions: {value:lugar_dependencia_jqgrid}
                         },
                         {
                             name  : col_m_name_1[7],
@@ -421,8 +431,7 @@
                             name  : col_m_name_1[8],
                             index : col_m_index_1[8],
                             width : col_m_width_1[8],
-                            align : col_m_align_1[8],
-                            hidden: hidden1
+                            align : col_m_align_1[8]
                         },
                         {
                             name  : col_m_name_1[9],
@@ -457,24 +466,31 @@
                             index : col_m_index_1[13],
                             width : col_m_width_1[13],
                             align : col_m_align_1[13],
-                            stype      :'select',
-                            editoptions: {value:encoding_jqgrid},
-                            hidden: true
+                            hidden: hidden1
                         },
                         {
                             name  : col_m_name_1[14],
                             index : col_m_index_1[14],
                             width : col_m_width_1[14],
                             align : col_m_align_1[14],
+                            stype      :'select',
+                            editoptions: {value:encoding_jqgrid},
+                            hidden: true
+                        },
+                        {
+                            name  : col_m_name_1[15],
+                            index : col_m_index_1[15],
+                            width : col_m_width_1[15],
+                            align : col_m_align_1[15],
                             hidden: true
                         },
 
                         // === OCULTO ===
                             {
-                                name  : col_m_name_1[15],
-                                index : col_m_index_1[15],
-                                width : col_m_width_1[15],
-                                align : col_m_align_1[15],
+                                name  : col_m_name_1[16],
+                                index : col_m_index_1[16],
+                                width : col_m_width_1[16],
+                                align : col_m_align_1[16],
                                 search: false,
                                 hidden: true
                             }
@@ -515,8 +531,14 @@
                             @else
                                 ap = '';
                             @endif
+
+                            @if(in_array(['codigo' => '0608'], $permisos))
+                                lo = " <button type='button' class='btn btn-xs btn-success' title='Obtener registro de asistencia' onclick=\"utilitarios([22, " + cl + "]);\"><i class='fa fa-database'></i></button>";
+                            @else
+                                lo = '';
+                            @endif
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed + rc + sf + re + ap)
+                                act : $.trim(ed + rc + sf + re + ap + lo)
                             });
                         }
                     },
@@ -1080,6 +1102,58 @@
                     utilitarios(valor1);
                 }
                 break;
+            // === OBTENER REGISTRO DE ASISTENCIA ===
+            case 22:
+                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                if(val_json.estado == 1){
+                    swal({
+                        title: "REGISTRO DE ASISTENCIA",
+                        text: "¿Está seguro de obtener registro de asistencia?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Obtener registro",
+                        cancelButtonText: "Cancelar",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                    function(isConfirm){
+                        if (isConfirm){
+                            swal.close();
+
+                            swal({
+                                title             : "OBTENIENDO REGISTROS",
+                                text              : "Espere a que se obtenga el registro de asistencia del biométrico.",
+                                allowEscapeKey    : false,
+                                showConfirmButton : false,
+                                type              : "info"
+                            });
+                            $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                            var valor1 = new Array();
+                            valor1[0]  = 150;
+                            valor1[1]  = url_controller + '/send_ajax';
+                            valor1[2]  = 'POST';
+                            valor1[3]  = true;
+                            valor1[4]  = "tipo=6&id=" + valor[1] + "&_token=" + csrf_token;
+                            valor1[5]  = 'json';
+                            utilitarios(valor1);
+                        }
+                        else{
+                            swal.close();
+                        }
+                    });
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 102;
+                    valor1[1]  = "ALERTA";
+                    valor1[2]  = "BIOMETRICO SIN RED.";
+                    utilitarios(valor1);
+                }
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -1095,12 +1169,12 @@
             // === AJAX ===
             case 150:
                 $.ajax({
-                    url: valor[1],
-                    type: valor[2],
-                    async: valor[3],
-                    data: valor[4],
+                    url     : valor[1],
+                    type    : valor[2],
+                    async   : valor[3],
+                    data    : valor[4],
                     dataType: valor[5],
-                    success: function(data){
+                    success : function(data){
                         switch(data.tipo){
                             // === INSERT UPDATE ===
                             case '1':
@@ -1251,6 +1325,33 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
+                            // === OBTENER REGISTRO DE ASISTENCIA ===
+                            case '6':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
                             // === SELECT2 UNIDAD DESCONCENTRADA ===
                             case '103':
                                 if(data.sw === 2){

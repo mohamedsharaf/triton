@@ -20,7 +20,8 @@ class RrhhBiometrico extends Model
         'description',
         'e_conexion',
         'fs_conexion',
-        'fb_conexion'
+        'fb_conexion',
+        'f_log_asistencia'
     ];
 
     protected $guarded  = [];

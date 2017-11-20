@@ -18,7 +18,6 @@ use App\Models\Institucion\InstUnidadDesconcentrada;
 use App\Models\Rrhh\RrhhBiometrico;
 use App\Models\Rrhh\RrhhLogAlerta;
 use App\User;
-use App\Mail\DatoUsuarioMail;
 
 use TADPHP\TADFactory;
 use TADPHP\TAD;
@@ -180,6 +179,7 @@ class BiometricoController extends Controller
                     $tabla1.e_conexion,
                     $tabla1.fs_conexion,
                     $tabla1.fb_conexion,
+                    $tabla1.f_log_asistencia,
                     $tabla1.codigo_af,
                     $tabla1.ip,
                     $tabla1.internal_id,
@@ -279,6 +279,7 @@ class BiometricoController extends Controller
                         $this->utilitarios(array('tipo' => '2', 'e_conexion' => $row["e_conexion"])),
                         $row["fs_conexion"],
                         $row["fb_conexion"],
+                        $row["f_log_asistencia"],
                         $row["lugar_dependencia"],
                         $row["unidad_desconcentrada"],
                         "MP-" . $row["codigo_af"],
@@ -1023,6 +1024,95 @@ class BiometricoController extends Controller
 
                 return json_encode($respuesta);
                 break;
+            // === OBTENER REGISTRO DE ASISTENCIA ===
+            case '6':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ALERTA</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo
+                    );
+
+                    $fs_conexion = date("Y-m-d H:i:s");
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if(!in_array(['codigo' => '0608'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para OBTENER REGISTRO DE ASISTENCIA.";
+                        return json_encode($respuesta);
+                    }
+
+                // === CONSULTA ===
+                    $biometrico = RrhhBiometrico::where('id', '=', $id)
+                        ->first()
+                        ->toArray();
+
+                // === VERIFICANDO CONEXION ===
+                    if($biometrico['estado'] == '1')
+                    {
+                        $data_conexion = [
+                            'ip'            => $biometrico['ip'],
+                            'internal_id'   => $biometrico['internal_id'],
+                            'com_key'       => $biometrico['com_key'],
+                            'soap_port'     => $biometrico['soap_port'],
+                            'udp_port'      => $biometrico['udp_port'],
+                            'encoding'      => $biometrico['encoding']
+                        ];
+
+                        $tad_factory = new TADFactory($data_conexion);
+                        $tad         = $tad_factory->get_instance();
+
+                        try
+                        {
+                            $fb_conexion_array = $tad->get_date()->to_array();
+                            $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
+
+                            $e_conexion = 1;
+
+                            $respuesta['respuesta'] .= "Se apago el biométrico en la dirección IP " . $biometrico['ip'] . ".";
+                            $respuesta['sw']        = 1;
+                        }
+                        catch (Exception $e)
+                        {
+                            $respuesta['respuesta'] .= "No se logro apagar el biométrico en la dirección IP " . $biometrico['ip'] . "<br>Verifique la conexión.<br>";
+                            $e_conexion             = 2;
+                            $fb_conexion            = null;
+
+                            $error = '' . $e;
+                            $error_array = explode("Stack trace:", $error);
+
+                            $iu                = new RrhhLogAlerta;
+                            $iu->biometrico_id = $id;
+                            $iu->tipo_emisor   = 2;
+                            $iu->tipo_alerta   = 1;
+                            $iu->f_alerta      = $fs_conexion;
+                            $iu->mensaje       = $error_array[0];
+                            $iu->save();
+                        }
+
+                        $iu              = RrhhBiometrico::find($id);
+                        $iu->e_conexion  = $e_conexion;
+                        $iu->fs_conexion = $fs_conexion;
+                        $iu->fb_conexion = $fb_conexion;
+                        $iu->save();
+                    }
+
+                //=== OPERACION ===
+
+                return json_encode($respuesta);
+                break;
+
             // === SELECT2 UNIDAD DESCONCENTRADA ===
             case '103':
                 $respuesta = [
