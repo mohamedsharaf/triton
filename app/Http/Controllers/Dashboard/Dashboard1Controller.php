@@ -48,16 +48,16 @@ class Dashboard1Controller extends Controller
           $logs1 = '';
           try
           {
-            $fs_conexion = date("Y-m-d H:i:s");
+            // $fs_conexion = date("Y-m-d H:i:s");
 
-            echo $fs_conexion;
-            // // $logs1 = $tad->set_date(['date' => '2016-11-01','time' => '05:50:49']);
+            // echo $fs_conexion;
+            // // // $logs1 = $tad->set_date(['date' => '2016-11-01','time' => '05:50:49']);
+            // // echo("<br>");echo("<br>");
+            // $logs1 = $tad->get_date();
+
+            // $all_user_info = $tad->get_all_user_info()->to_array();
+
             // echo("<br>");echo("<br>");
-            $logs1 = $tad->get_date();
-
-            $all_user_info = $tad->get_all_user_info()->to_array();
-
-            echo("<br>");echo("<br>");
 
             // TODOS LOS USUARIOS
               // foreach ($all_user_info as $key => $value)
@@ -99,18 +99,18 @@ class Dashboard1Controller extends Controller
               // print_r($all_user_info);
 
             // ALGUNOS USUARIOS
-              $usuer_log = $tad->get_att_log(['pin' => 1119323])->to_array();
+              // $usuer_log = $tad->get_att_log(['pin' => 1119323])->to_array();
 
-              print_r($usuer_log);
+              // print_r($usuer_log);
 
-              echo("<br>");echo("<br>");
+              // echo("<br>");echo("<br>");
 
-              $user_info = $tad->get_user_info(['pin' => 1119323])->to_array();
-              print_r($user_info);
+              // $user_info = $tad->get_user_info(['pin' => 1119323])->to_array();
+              // print_r($user_info);
 
-              echo("<br>");echo("<br>");
+              // echo("<br>");echo("<br>");
 
-              $tad->delete_user(['pin' => 1119323]);
+              // $tad->delete_user(['pin' => 1119323]);
 
               // echo("<br>");echo("<br>");
 
@@ -123,11 +123,11 @@ class Dashboard1Controller extends Controller
 
               // echo($res1 . "<br>");echo("<br>");
 
-              $usuer_log = $tad->get_att_log(['pin' => 1119323])->to_array();
+              // $usuer_log = $tad->get_att_log(['pin' => 1119323])->to_array();
 
-              print_r($usuer_log);
+              // print_r($usuer_log);
 
-              echo("<br>");echo("<br>");
+              // echo("<br>");echo("<br>");
 
               // if(count($user_info) == 0)
               // {
@@ -138,10 +138,10 @@ class Dashboard1Controller extends Controller
               //   echo count($user_info);
               // }
 
-              $user_info = $tad->get_user_info(['pin' => 1119323])->to_array();
-              print_r($user_info);
+            //   $user_info = $tad->get_user_info(['pin' => 1119323])->to_array();
+            //   print_r($user_info);
 
-            echo("<br>");echo("<br>");
+            // echo("<br>");echo("<br>");
 
             // $tad->disable();
             // $tad->enable();
@@ -161,6 +161,43 @@ class Dashboard1Controller extends Controller
               // echo("<br>");
               // echo("<br>");
               // $logs1 = json_encode($logs1);
+            // $logs1 = $tad->get_att_log()->to_array();
+
+            // echo count($logs1);
+
+            // // print_r($logs1);
+
+            // $data1 = [];
+            // foreach($logs1 as $row)
+            // {
+            //   if(isset($row['PIN']))
+            //   {
+            //     $data1[] = [
+            //         'biometrico_id'          => 1,
+            //         'persona_id'             => NULL,
+            //         'tipo_marcacion'         => 2,
+            //         'n_documento_biometrico' => $row['PIN'],
+            //         'f_marcacion'            => $row['DateTime']
+            //     ];
+            //   }
+            //   else
+            //   {
+            //     foreach($row as $valor1)
+            //     {
+            //         $data1[] = [
+            //             'biometrico_id' => 1,
+            //             'persona_id' => NULL,
+            //             'tipo_marcacion' => 2,
+            //             'n_documento_biometrico' => $valor1['PIN'],
+            //             'f_marcacion' => $valor1['DateTime']
+            //         ];
+            //     }
+            //   }
+            // }
+
+            // return $data1;
+
+            $logs1 = $tad->get_free_sizes()->to_array();
           }
           catch (Exception $e)
           {

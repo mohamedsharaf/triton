@@ -17,6 +17,8 @@ use App\Models\Institucion\InstLugarDependencia;
 use App\Models\Institucion\InstUnidadDesconcentrada;
 use App\Models\Rrhh\RrhhBiometrico;
 use App\Models\Rrhh\RrhhLogAlerta;
+use App\Models\Rrhh\RrhhLogMarcacion;
+use App\Models\Rrhh\RrhhPersonaBiometrico;
 use App\User;
 
 use TADPHP\TADFactory;
@@ -34,6 +36,7 @@ class BiometricoController extends Controller
     private $permisos;
     private $tipo_emisor;
     private $tipo_alerta;
+    private $tipo_marcacion;
 
     public function __construct()
     {
@@ -66,6 +69,13 @@ class BiometricoController extends Controller
         $this->tipo_alerta = [
             '1' => 'ERROR DE CONEXION',
             '2' => 'ARRAY SIN DATOS'
+        ];
+
+        $this->tipo_marcacion = [
+            '1' => 'POR RED MEDIANTE CRON',
+            '2' => 'POR RED PULSANDO BOTON',
+            '3' => 'DESDE ARCHIVO SUBIDO',
+            '4' => 'POR DIGITAL PERSONA'
         ];
     }
 
@@ -1073,6 +1083,7 @@ class BiometricoController extends Controller
                         $tad_factory = new TADFactory($data_conexion);
                         $tad         = $tad_factory->get_instance();
 
+                        $f_log_asistencia_sw = TRUE;
                         try
                         {
                             $fb_conexion_array = $tad->get_date()->to_array();
@@ -1080,12 +1091,70 @@ class BiometricoController extends Controller
 
                             $e_conexion = 1;
 
-                            $respuesta['respuesta'] .= "Se apago el biométrico en la dirección IP " . $biometrico['ip'] . ".";
-                            $respuesta['sw']        = 1;
+                            $log_marcacion = $tad->get_att_log()->to_array();
+
+                            if(count($log_marcacion))
+                            {
+                                $data1  = [];
+                                foreach($log_marcacion as $row)
+                                {
+                                    if(isset($row['PIN']))
+                                    {
+                                        $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
+                                            ->where("n_documento_biometrico", "=",  $row['PIN'])
+                                            ->select('persona_id')
+                                            ->first();
+
+                                        if(count($consulta1) > 0)
+                                        {
+                                            $data1[] = [
+                                                'biometrico_id'          => $id,
+                                                'persona_id'             => $consulta1['persona_id'],
+                                                'tipo_marcacion'         => 2,
+                                                'n_documento_biometrico' => $row['PIN'],
+                                                'f_marcacion'            => $row['DateTime']
+                                            ];
+                                        }
+                                    }
+                                    else
+                                    {
+                                        foreach($row as $valor1)
+                                        {
+                                            $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
+                                                ->where("n_documento_biometrico", "=",  $valor1['PIN'])
+                                                ->select('persona_id')
+                                                ->first();
+
+                                            if(count($consulta1) > 0)
+                                            {
+                                                $data1[] = [
+                                                    'biometrico_id'          => $id,
+                                                    'persona_id'             => $consulta1['persona_id'],
+                                                    'tipo_marcacion'         => 2,
+                                                    'n_documento_biometrico' => $valor1['PIN'],
+                                                    'f_marcacion'            => $valor1['DateTime']
+                                                ];
+                                            }
+                                        }
+                                    }
+                                }
+
+                                RrhhLogMarcacion::insert($data1);
+
+                                $tad->delete_data(['value' => 3]);
+
+                                $respuesta['respuesta'] .= "Se obtuvo los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . ".";
+                                $respuesta['sw']        = 1;
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "No existe registros de asistencia en la siguiente dirección " . $biometrico['ip'] . ".";
+                                $f_log_asistencia_sw = FALSE;
+                            }
                         }
                         catch (Exception $e)
                         {
-                            $respuesta['respuesta'] .= "No se logro apagar el biométrico en la dirección IP " . $biometrico['ip'] . "<br>Verifique la conexión.<br>";
+                            $respuesta['respuesta'] .= "No se logró obtener los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . "<br>Verifique la conexión.<br>";
                             $e_conexion             = 2;
                             $fb_conexion            = null;
 
@@ -1099,17 +1168,30 @@ class BiometricoController extends Controller
                             $iu->f_alerta      = $fs_conexion;
                             $iu->mensaje       = $error_array[0];
                             $iu->save();
+
+                            $f_log_asistencia_sw = FALSE;
                         }
 
-                        $iu              = RrhhBiometrico::find($id);
-                        $iu->e_conexion  = $e_conexion;
-                        $iu->fs_conexion = $fs_conexion;
-                        $iu->fb_conexion = $fb_conexion;
-                        $iu->save();
+                        if($f_log_asistencia_sw)
+                        {
+                            $iu                   = RrhhBiometrico::find($id);
+                            $iu->e_conexion       = $e_conexion;
+                            $iu->fs_conexion      = $fs_conexion;
+                            $iu->fb_conexion      = $fb_conexion;
+                            $iu->f_log_asistencia = $fs_conexion;
+                            $iu->save();
+                        }
+                        else
+                        {
+                            $iu              = RrhhBiometrico::find($id);
+                            $iu->e_conexion  = $e_conexion;
+                            $iu->fs_conexion = $fs_conexion;
+                            $iu->fb_conexion = $fb_conexion;
+                            $iu->save();
+                        }
                     }
 
                 //=== OPERACION ===
-
                 return json_encode($respuesta);
                 break;
 
