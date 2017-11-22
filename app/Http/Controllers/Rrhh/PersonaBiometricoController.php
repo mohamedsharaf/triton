@@ -18,6 +18,7 @@ use App\Models\Institucion\InstUnidadDesconcentrada;
 use App\Models\Rrhh\RrhhPersona;
 use App\Models\Rrhh\RrhhBiometrico;
 use App\Models\Rrhh\RrhhLogAlerta;
+use App\Models\Rrhh\RrhhLogMarcacion;
 use App\Models\Rrhh\RrhhPersonaBiometrico;
 use App\User;
 
@@ -33,6 +34,7 @@ class PersonaBiometricoController extends Controller
 
     private $rol_id;
     private $permisos;
+    private $tipo_marcacion;
 
     public function __construct()
     {
@@ -46,6 +48,13 @@ class PersonaBiometricoController extends Controller
         $this->privilegio = [
             '0'  => 'USUARIO NORMAL',
             '14' => 'ADMINISTRADOR'
+        ];
+
+        $this->tipo_marcacion = [
+            '1' => 'POR RED MEDIANTE CRON',
+            '2' => 'POR RED PULSANDO BOTON',
+            '3' => 'DESDE ARCHIVO SUBIDO',
+            '4' => 'POR DIGITAL PERSONA'
         ];
     }
 
@@ -112,6 +121,7 @@ class PersonaBiometricoController extends Controller
                 'title_table'             => 'Personas y Biometricos',
                 'estado_array'            => $this->estado,
                 'privilegio_array'        => $this->privilegio,
+                'tipo_marcacion_array'    => $this->tipo_marcacion,
                 'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
@@ -289,29 +299,29 @@ class PersonaBiometricoController extends Controller
             case '2':
                 $jqgrid = new JqgridClass($request);
 
-                $tabla1 = "rrhh_log_alertas";
+                $tabla1 = "rrhh_log_marcaciones";
 
                 $select = "
                     id,
                     biometrico_id,
-                    tipo_emisor,
-                    tipo_alerta,
-                    f_alerta,
-                    mensaje
+                    persona_id,
+                    tipo_marcacion,
+                    n_documento_biometrico,
+                    f_marcacion
                 ";
 
                 $array_where = 'TRUE';
 
-                $array_where .= " AND biometrico_id=" . $request->input('biometrico_id');
+                $array_where .= " AND biometrico_id=" . $request->input('biometrico_id') . " AND persona_id=" . $request->input('persona_id');
 
                 $array_where .= $jqgrid->getWhere();
 
-                $count = RrhhLogAlerta::whereRaw($array_where)
+                $count = RrhhLogMarcacion::whereRaw($array_where)
                     ->count();
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
-                $query = RrhhLogAlerta::whereRaw($array_where)
+                $query = RrhhLogMarcacion::whereRaw($array_where)
                     ->select(DB::raw($select))
                     ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
                     ->offset($limit_offset['start'])
@@ -329,17 +339,13 @@ class PersonaBiometricoController extends Controller
                 foreach ($query as $row)
                 {
                     $val_array = array(
-                        'biometrico_id' => $row["biometrico_id"],
-                        'tipo_emisor'   => $row["tipo_emisor"],
-                        'tipo_alerta'   => $row["tipo_alerta"]
+                        'tipo_marcacion' => $row["tipo_marcacion"]
                     );
 
-                    $respuesta['rows'][$i]['id'] = $row["id"];
+                    $respuesta['rows'][$i]['id']   = $row["id"];
                     $respuesta['rows'][$i]['cell'] = array(
-                        $row["f_alerta"],
-                        $this->tipo_emisor[$row["tipo_emisor"]],
-                        $this->utilitarios(array('tipo' => '3', 'tipo_alerta' => $row["tipo_alerta"])),
-                        $row["mensaje"],
+                        $this->tipo_marcacion[$row["tipo_marcacion"]],
+                        $row["f_marcacion"],
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
                     );

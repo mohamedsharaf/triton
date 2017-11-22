@@ -123,6 +123,16 @@
             privilegio_jqgrid += ';' + index + ':' + value;
         });
 
+    // === TIPO DE MARCACION ===
+        var tipo_marcacion_json   = $.parseJSON('{!! json_encode($tipo_marcacion_array) !!}');
+        var tipo_marcacion_select = '';
+        var tipo_marcacion_jqgrid = ':Todos';
+
+        $.each(tipo_marcacion_json, function(index, value){
+            tipo_marcacion_select += '<option value="' + index + '">' + value + '</option>';
+            tipo_marcacion_jqgrid += ';' + index + ':' + value;
+        });
+
     // === LUGAR DE DEPENDENCIA ===
         var lugar_dependencia_json   = $.parseJSON('{!! json_encode($lugar_dependencia_array) !!}');
         var lugar_dependencia_select = '';
@@ -132,9 +142,6 @@
             lugar_dependencia_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
             lugar_dependencia_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
-
-    // === DROPZONE ===
-        Dropzone.autoDiscover = false;
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
@@ -239,11 +246,6 @@
                 }
             });
 
-        // === DROPZONE ===
-            // var valor1 = new Array();
-            // valor1[0]  = 17;
-            // utilitarios(valor1);
-
         // === JQGRID 1 ===
             var valor1 = new Array();
             valor1[0]  = 10;
@@ -291,9 +293,10 @@
                 break;
             // === JQGRID 1 ===
             case 10:
-                var edit1   = true;
-                var ancho1  = 5;
-                var ancho_d = 28;
+                var edit1      = true;
+                var ancho1     = 5;
+                var ancho_d    = 28;
+                var subgrid_sw = false;
                 @if(in_array(['codigo' => '0703'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
@@ -305,6 +308,9 @@
                 @if(in_array(['codigo' => '0705'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
+                @endif
+                @if(in_array(['codigo' => '0706'], $permisos))
+                    subgrid_sw = true;
                 @endif
 
                 $(jqgrid1).jqGrid({
@@ -324,7 +330,7 @@
                     multiboxonly: true,
                     altRows     : true,
                     rownumbers  : true,
-                    // subGrid      : true,
+                    subGrid     : subgrid_sw,
                     // multiselect  : true,
                     //autowidth     : true,
                     //gridview      :true,
@@ -461,45 +467,34 @@
                         subgrid_table_id = subgrid_id+"_t";
                         pager_id = "p_"+subgrid_table_id;
                         $("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table><div id='"+pager_id+"' class='scroll'></div>");
+
+                        var ret      = $(jqgrid1).jqGrid('getRowData', row_id);
+                        var val_json = $.parseJSON(ret.val_json);
+
                         $("#"+subgrid_table_id).jqGrid({
-                            url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&biometrico_id=' + row_id,
+                            url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&biometrico_id=' + val_json.biometrico_id + '&persona_id=' + val_json.persona_id,
                             datatype: 'json',
                             mtype: 'post',
                             colNames: [
+                                '<small>TIPO DE MARCACION</small>',
                                 '<small>FECHA Y HORA</small>',
-                                '<small>EMISOR</small>',
-                                '<small>TIPO DE ALERTA</small>',
-                                '<small>MENSAJE</small>',
                                 /*OTROS*/
                                 '<span class="font-xs">JSON</span>'
                             ],
                             colModel: [
                                 {
-                                    name : 'f_alerta',
-                                    index: 'f_alerta::text',
+                                    name       : 'tipo_marcacion',
+                                    index      : 'tipo_marcacion',
+                                    width      : 250,
+                                    align      : 'center',
+                                    stype      : 'select',
+                                    editoptions: {value:tipo_marcacion_jqgrid}
+                                },
+                                {
+                                    name : 'f_marcacion',
+                                    index: 'f_marcacion::text',
                                     width: 150,
                                     align: 'center'
-                                },
-                                {
-                                    name       : 'tipo_emisor',
-                                    index      : 'tipo_emisor',
-                                    width      : 100,
-                                    align      : 'center',
-                                    stype      : 'select',
-                                    editoptions: {value:tipo_emisor_jqgrid}
-                                },
-                                {
-                                    name       : 'tipo_alerta',
-                                    index      : 'tipo_alerta',
-                                    width      : 200,
-                                    align      : 'center',
-                                    stype      : 'select',
-                                    editoptions: {value:tipo_alerta_jqgrid}
-                                },
-                                {
-                                    name : 'mensaje',
-                                    index: 'mensaje',
-                                    width: 800
                                 },
                                 /*OTROS*/
                                 {
@@ -514,7 +509,7 @@
                             rowNum : 10,
                             rowList: [10, 20, 30],
 
-                            sortname : 'f_alerta',
+                            sortname : 'f_marcacion',
                             sortorder: "desc",
 
                             shrinkToFit: false,
@@ -788,93 +783,6 @@
                 break;
             // === DROPZONE 1 ===
             case 17:
-                $("#dropzoneForm_1").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'image/*',
-                    paramName: "file", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra la imagen aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        this.on("sending", function(file, xhr, formData){
-                            formData.append("usuario_id", $("#usuario_id").val());
-                            formData.append("estado", $(".estado_class:checked").val());
-                            formData.append("persona_id", $("#persona_id").val());
-                            formData.append("email", $("#email").val());
-                            formData.append("password", $("#password").val());
-                            formData.append("rol_id", $("#rol_id").val());
-                            formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                            formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        });
-                    },
-                    success: function(file, response){
-                        var data = $.parseJSON(response);
-                        if(data.sw === 1){
-                            var valor1 = new Array();
-                            valor1[0]  = 100;
-                            valor1[1]  = data.titulo;
-                            valor1[2]  = data.respuesta;
-                            utilitarios(valor1);
-
-                            $(jqgrid1).trigger("reloadGrid");
-                            if(data.iu === 1){
-                                var valor1 = new Array();
-                                valor1[0]  = 14;
-                                utilitarios(valor1);
-                            }
-                            else if(data.iu === 2){
-                                $('#modal_1').modal('hide');
-                            }
-                        }
-                        else if(data.sw === 0){
-                            if(data.error_sw === 1){
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = data.respuesta;
-                                utilitarios(valor1);
-                            }
-                            else
-                            {
-                                var respuesta_server = '';
-                                $.each(data.error.response.original, function(index, value) {
-                                    respuesta_server += value + '<br>';
-                                });
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = respuesta_server;
-                                utilitarios(valor1);
-                            }
-                        }
-                        else if(data.sw === 2){
-                            window.location.reload();
-                        }
-                        this.removeAllFiles(true);
-                    }
-                });
                 break;
             // === ELIMINAR HUELLA Y ROSTRO ===
             case 18:

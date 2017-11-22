@@ -17,10 +17,6 @@
     <link href="{!! asset('inspinia_v27/css/plugins/datapicker/datepicker3.css') !!}" rel="stylesheet">
 
     <link href="{!! asset('inspinia_v27/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css') !!}" rel="stylesheet">
-
-  <!-- Dropzone -->
-    <link href="{!! asset('inspinia_v27/css/plugins/dropzone/basic.css') !!}" rel="stylesheet">
-    <link href="{!! asset('inspinia_v27/css/plugins/dropzone/dropzone.css') !!}" rel="stylesheet">
 @endsection
 
 @section('css')
@@ -181,9 +177,6 @@
   <!-- Data picker -->
     <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
     <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>
-
-  <!-- DROPZONE -->
-    <script src="{{ asset('inspinia_v27/js/plugins/dropzone/dropzone.js') }}"></script>
 
 @endsection
 

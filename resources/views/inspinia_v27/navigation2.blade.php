@@ -14,14 +14,14 @@
                         <span class="clear">
                             <span class="block m-t-xs">
                                 <strong class="font-bold">{{ Auth::user()->name }}</strong>
-                            </span> <span class="text-muted text-xs block">Más ... <b class="caret"></b></span>
+                            {{-- </span> <span class="text-muted text-xs block">Más ... <b class="caret"></b></span> --}}
                         </span>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        <li><a href="profile.html">Mi perfil</a></li>
+                        {{-- <li><a href="profile.html">Mi perfil</a></li> --}}
                         {{-- <li><a href="contacts.html">Mi declaración</a></li>
                         <li><a href="mailbox.html">Mi hoja de vida</a></li> --}}
-                        <li class="divider"></li>
+                        {{-- <li class="divider"></li> --}}
                         <li><a href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">Cerrar sesión</a></li>
                     </ul>
                 </div>

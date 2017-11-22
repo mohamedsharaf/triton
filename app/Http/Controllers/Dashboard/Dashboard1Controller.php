@@ -161,7 +161,7 @@ class Dashboard1Controller extends Controller
               // echo("<br>");
               // echo("<br>");
               // $logs1 = json_encode($logs1);
-            // $logs1 = $tad->get_att_log()->to_array();
+            $logs1 = $tad->get_att_log()->to_array();
 
             // echo count($logs1);
 
@@ -196,8 +196,6 @@ class Dashboard1Controller extends Controller
             // }
 
             // return $data1;
-
-            $logs1 = $tad->get_free_sizes()->to_array();
           }
           catch (Exception $e)
           {

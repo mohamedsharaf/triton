@@ -292,9 +292,10 @@
                 break;
             // === JQGRID 1 ===
             case 10:
-                var edit1   = true;
-                var ancho1  = 5;
-                var ancho_d = 28;
+                var edit1      = true;
+                var ancho1     = 5;
+                var ancho_d    = 28;
+                var subgrid_sw = false;
                 @if(in_array(['codigo' => '0603'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
@@ -319,6 +320,9 @@
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
+                @if(in_array(['codigo' => '0609'], $permisos))
+                    subgrid_sw = true;
+                @endif
 
                 var hidden1 = true;
                 @if(in_array(['codigo' => '0602'], $permisos) || in_array(['codigo' => '0603'], $permisos))
@@ -342,7 +346,7 @@
                     multiboxonly : true,
                     altRows      : true,
                     rownumbers   : true,
-                    subGrid      : true,
+                    subGrid      : subgrid_sw,
                     // multiselect  : true,
                     //autowidth     : true,
                     //gridview      :true,

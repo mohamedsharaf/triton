@@ -22,7 +22,7 @@
 
     <h3 class="text-white">Bienvenido a TRITON</h3>
     <p class="text-white">
-        Centralizador de Asistencias
+        Sistema de Personal
     </p>
 
     <form class="m-t" role="form" method="POST" action="{{ route('login') }}">

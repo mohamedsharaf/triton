@@ -36,12 +36,12 @@ class HomeController extends Controller
                             ->get()
                             ->toArray();
         $data = array(
-            'rol_id'       => $this->rol_id,
-            'permisos'     => $this->permisos,
-            'title'       => 'Inicio',
-            'title_table' => 'Inicio',
-            'modulo'      => 'Inicio',
-            'submodulo'   => 'Inicio'
+            'rol_id'   => $this->rol_id,
+            'permisos' => $this->permisos,
+            'title'    => 'Inicio',
+            'home'     => 'Inicio',
+            'sistema'  => 'Recursos Humanos',
+            'modulo'   => 'Mi perfil'
         );
         return view('home')->with($data);
     }
