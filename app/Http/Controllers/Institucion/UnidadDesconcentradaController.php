@@ -408,7 +408,7 @@ class UnidadDesconcentradaController extends Controller
                                 //->where(DB::raw("CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombres, ubge_municipios.nombre)"), "ilike", "'%$nombre%'")
                                 ->where("ubge_municipios.estado", "=", $estado)
                                 ->select(DB::raw("ubge_municipios.id, CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) AS text"))
-                                ->orderByRaw("CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) ASC")
+                                ->orderByRaw("ubge_municipios.codigo ASC")
                                 ->limit($page_limit)
                                 ->get()
                                 ->toArray();
