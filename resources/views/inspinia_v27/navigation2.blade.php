@@ -5,9 +5,9 @@
                 <div class="dropdown profile-element">
                     <span>
                         @if(Auth::user()->imagen == '')
-                            <img alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
+                            <img id="img_imagen" alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
                         @else
-                            <img alt="image" class="img-circle" width="50" src="{!! asset('storage/seguridad/user/image/' . Auth::user()->imagen) !!}" />
+                            <img id="img_imagen" alt="image" class="img-circle" width="50" src="{!! asset('storage/seguridad/user/image/' . Auth::user()->imagen) !!}" />
                         @endif
                     </span>
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">

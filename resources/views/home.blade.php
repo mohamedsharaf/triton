@@ -258,13 +258,98 @@
             </div>
             <div id="tab-2" class="tab-pane">
               <div class="panel-body">
-                <strong>Donec quam felis</strong>
+                <div class="row">
+                  <form id="form_2" role="form" action="#">
+                    <input type="hidden" id="tipo1" name="tipo" value="3"/>
+                    {{ csrf_field() }}
 
-                <p>Thousand unknown plants are noticed by me: when I hear the buzz of the little world among the stalks, and grow familiar with the countless indescribable forms of the insects
-                    and flies, then I feel the presence of the Almighty, who formed us in his own image, and the breath </p>
+                    <div class="col-sm-12">
+                      <h3>
+                        <b>ROL Y CORREO ELECTRONICO</b>
+                      </h3>
+                    </div>
 
-                <p>I am alone, and feel the charm of existence in this spot, which was created for the bliss of souls like mine. I am so happy, my dear friend, so absorbed in the exquisite
-                    sense of mere tranquil existence, that I neglect my talents. I should be incapable of drawing a single stroke at the present moment; and yet.</p>
+                    <br>
+
+                    <div class="hr-line-dashed"></div>
+
+                    <div class="col-sm-12">
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label for="rol">Su rol es</label>
+                            <div class="input-group">
+                              <span class="input-group-addon"><i class="fa fa-bars"></i></span><input type="text" class="form-control" id="rol" name="rol" placeholder="Su rol es" disabled="disabled">
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                          <div class="form-group">
+                            <label for="email">Correo electrónico</label>
+                            <div class="input-group">
+                              <span class="input-group-addon"><i class="fa fa-envelope"></i></span><input type="text" class="form-control" id="email" name="email" placeholder="Correo electrónico" disabled="disabled">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                      <div class="alert alert-danger">
+                        <p>Solicite el cambio de ROL o CORREO ELECTRONICO con el ENCARGADO DE INFORMATICA.</p>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <h3>
+                        <b>CAMBIAR CONTRASEÑA</b>
+                      </h3>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <button type="button" class="btn btn-primary pull-right" onclick="utilitarios([20]);">
+                        <i class="fa fa-floppy-o"></i>
+                        <strong>Guardar</strong>
+                      </button>
+                    </div>
+
+                    <br>
+
+                    <div class="hr-line-dashed"></div>
+
+                    <div class="col-sm-12">
+                      <div class="row">
+                        <div class="col-sm-4">
+                          <div class="form-group">
+                            <label for="a_contrasenia">Contraseña actual</label>
+                            <div class="input-group">
+                              <span class="input-group-addon"><i class="fa fa-key"></i></span><input type="password" class="form-control" id="a_contrasenia" name="a_contrasenia" placeholder="Contraseña actual">
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                          <div class="form-group">
+                            <label for="contrasenia">Nueva contraseña</label>
+                            <div class="input-group">
+                              <span class="input-group-addon"><i class="fa fa-key"></i></span><input type="password" class="form-control" id="contrasenia" name="contrasenia" placeholder="Nueva contraseña">
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                          <div class="form-group">
+                            <label for="c_contrasenia">Confirmar nueva contraseña</label>
+                            <div class="input-group">
+                              <span class="input-group-addon"><i class="fa fa-key"></i></span><input type="password" class="form-control" id="c_contrasenia" name="c_contrasenia" placeholder="Confirmar nueva contraseña">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>

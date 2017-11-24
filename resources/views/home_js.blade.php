@@ -160,6 +160,7 @@
 
     // === FORMULARIO 1 ===
         var form_1 = "#form_1";
+        var form_2 = "#form_2";
 
     // === ESTADO CIVIL ===
         var estado_civil_json   = $.parseJSON('{!! json_encode($estado_civil_array) !!}');
@@ -250,6 +251,11 @@
             valor1[0]  = 16;
             utilitarios(valor1);
 
+        // === VALIDATE 1 ===
+            var valor1 = new Array();
+            valor1[0]  = 19;
+            utilitarios(valor1);
+
         // Add responsive to jqGrid
             // $(window).bind('resize', function () {
             // var width = $('.jqGrid_wrapper').width();
@@ -316,6 +322,9 @@
                         $("#municipio_id_residencia").select2("val", persona_json.municipio_id_residencia);
                     }
                 @endif
+
+                $("#rol").val(usuario_json.rol);
+                $("#email").val(usuario_json.email);
 
                 if(usuario_json.imagen != null){
                     $('#image_user').removeAttr('scr');
@@ -746,8 +755,7 @@
                     parallelUploads:1,
                     params: {
                         tipo      : 2,
-                        _token    : csrf_token,
-                        usuario_id: usuario_json.id
+                        _token    : csrf_token
                     },
                     // forceFallback:true,
                     createImageThumbnails: true,
@@ -764,16 +772,6 @@
                     dictFileTooBig:'El archivo es demasiado grande.',
                     dictMaxFilesExceeded:'Número máximo de archivos superado.',
                     init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
                     },
                     success: function(file, response){
                         var data = $.parseJSON(response);
@@ -783,6 +781,15 @@
                             valor1[1]  = data.titulo;
                             valor1[2]  = data.respuesta;
                             utilitarios(valor1);
+
+                            $('#image_user').removeAttr('scr');
+                            $('#image_user').attr('src', public_url + '/' + data.nombre_archivo + '?' + Math.random());
+
+                            $('#img_imagen').removeAttr('scr');
+                            $('#img_imagen').attr('src', public_url + '/' + data.nombre_archivo + '?' + Math.random());
+
+                            $("#dropzoneForm_1").hide();
+                            $("#image_user_p").show();
                         }
                         else if(data.sw === 0){
                             if(data.error_sw === 1){
@@ -812,6 +819,56 @@
                     }
                 });
                 break;
+            // === VALIDACION ===
+            case 19:
+                $(form_2).validate({
+                    rules: {
+                        a_contrasenia:{
+                            required : true,
+                            minlength: 6,
+                            maxlength: 16
+                        },
+                        contrasenia:{
+                            required : true,
+                            minlength: 6,
+                            maxlength: 16
+                        },
+                        c_contrasenia:{
+                            equalTo: "#contrasenia"
+                        }
+                    },
+                    // errorElement: 'p'
+                });
+                break;
+            // === GUARDAR CONTRASEÑA USUARIO ===
+            case 20:
+                if($(form_2).valid()){
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = $(form_2).serialize();
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = "¡Favor complete o corrija los datos solicitados!";
+                    utilitarios(valor1);
+                }
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -838,23 +895,65 @@
                                     valor1[1]  = data.titulo;
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                    if(data.iu === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 14;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.iu === 2){
-                                        $('#modal_1').modal('hide');
-                                    }
                                 }
                                 else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else
+                                    {
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === CAMBIAR CONTRASEÑA ===
+                            case '3':
+                                if(data.sw === 1){
                                     var valor1 = new Array();
-                                    valor1[0]  = 101;
+                                    valor1[0]  = 100;
                                     valor1[1]  = data.titulo;
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
+
+                                    $("#a_contrasenia, #contrasenia, #c_contrasenia").val();
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else
+                                    {
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
                                 }
                                 else if(data.sw === 2){
                                     window.location.reload();
