@@ -198,7 +198,7 @@
                                 <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono">
                               </div>
                           </div>
-                          <div id="estado_civil_div" class="col-sm-6">
+                          <div class="col-sm-6">
                               <div class="form-group">
                                 <label>Celular</label>
                                 <input type="text" class="form-control" id="celular" name="celular" placeholder="Celular" data-mask="99999999">

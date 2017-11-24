@@ -26,11 +26,6 @@ class PersonaController extends Controller
     private $rol_id;
     private $permisos;
 
-    /**
-    * Create a new controller instance.
-    *
-    * @return void
-    */
     public function __construct()
     {
         $this->middleware('auth');
@@ -54,11 +49,6 @@ class PersonaController extends Controller
         ];
     }
 
-    /**
-    * Show the application dashboard.
-    *
-    * @return \Illuminate\Http\Response
-    */
     public function index()
     {
         $this->rol_id   = Auth::user()->rol_id;

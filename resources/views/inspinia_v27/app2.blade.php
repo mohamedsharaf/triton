@@ -15,7 +15,7 @@
 
         <!-- Styles -->
             <link href="{!! asset('inspinia_v27/css/bootstrap.min.css') !!}" rel="stylesheet">
-            <link href="{!! asset('inspinia_v27/font-awesome-47/css/font-awesome.min.css') !!}" rel="stylesheet">
+            <link href="{!! asset('inspinia_v27/font-awesome-47/css/font-awesome.css') !!}" rel="stylesheet">
             <link href="{!! asset('inspinia_v27/css/animate.css') !!}" rel="stylesheet">
 
             @yield('css_plugins')
