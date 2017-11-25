@@ -2114,7 +2114,8 @@ div.dt-button-info {
 .ui-state-highlight,
 .ui-widget-content .ui-state-highlight,
 .ui-widget-header .ui-state-highlight {
-  background: #f2fbff;
+  /*background: #f2fbff;*/
+  background: #c9e8f7;
 }
 .ui-state-active,
 .ui-widget-content .ui-state-active,
@@ -8550,4 +8551,9 @@ body.md-skin {
   #page-wrapper {
     margin: 0;
   }
+}
+
+.myAltRowClass {
+  background-color: #DDDDDC;
+  background-image: none;
 }

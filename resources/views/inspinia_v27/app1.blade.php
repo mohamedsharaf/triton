@@ -8,7 +8,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>TRITON - @yield('title') </title>
+    <title>@yield('title') </title>
     <link rel="shortcut icon" href="{!! asset('image/logo/favicon.ico') !!}"/>
 
     <!-- Styles -->
