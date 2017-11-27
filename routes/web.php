@@ -71,6 +71,16 @@
         Route::match(["get", "post"], '/unidad_desconcentrada/view_jqgrid', 'Institucion\UnidadDesconcentradaController@view_jqgrid');
         Route::post('/unidad_desconcentrada/send_ajax', 'Institucion\UnidadDesconcentradaController@send_ajax');
 
+//=== AUO ===
+    Route::get('/auo', 'Institucion\AuoController@index')->name('auo');
+        Route::match(["get", "post"], '/auo/view_jqgrid', 'Institucion\AuoController@view_jqgrid');
+        Route::post('/auo/send_ajax', 'Institucion\AuoController@send_ajax');
+
+//=== CARGOS ===
+    Route::get('/cargo', 'Institucion\CargoController@index')->name('cargo');
+        Route::match(["get", "post"], '/cargo/view_jqgrid', 'Institucion\CargoController@view_jqgrid');
+        Route::post('/cargo/send_ajax', 'Institucion\CargoController@send_ajax');
+
 //=== PERSONA ===
     Route::get('/persona', 'Rrhh\PersonaController@index')->name('persona');
         Route::match(["get", "post"], '/persona/view_jqgrid', 'Rrhh\PersonaController@view_jqgrid');
