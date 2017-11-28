@@ -19,7 +19,7 @@ class CreateInstAuosTable extends Migration
             $table->integer('auo_id')->unsigned()->nullable();
 
             $table->smallInteger('estado')->default('1')->unsigned();
-              $table->string('nombre', 250)->nullable();
+            $table->string('nombre', 250)->nullable();
 
             $table->timestamps();
 

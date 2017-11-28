@@ -15,7 +15,29 @@ class CreateInstCargosTable extends Migration
     {
         Schema::create('inst_cargos', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('auo_id')->unsigned()->nullable();
+            $table->integer('cargo_id')->unsigned()->nullable();
+            $table->integer('tipo_cargo_id')->unsigned()->nullable();
+
+            $table->smallInteger('estado')->default('1')->unsigned();
+            $table->string('nombre', 250)->nullable();
+
             $table->timestamps();
+
+            $table->foreign('auo_id')
+                ->references('id')
+                ->on('inst_auos')
+                ->onDelete('cascade');
+
+            $table->foreign('cargo_id')
+                ->references('id')
+                ->on('inst_cargos')
+                ->onDelete('cascade');
+
+            $table->foreign('tipo_cargo_id')
+                ->references('id')
+                ->on('inst_tipos_cargo')
+                ->onDelete('cascade');
         });
     }
 
