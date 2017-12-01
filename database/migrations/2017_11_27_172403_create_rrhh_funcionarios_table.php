@@ -17,8 +17,13 @@ class CreateRrhhFuncionariosTable extends Migration
             $table->increments('id');
             $table->integer('persona_id')->unsigned()->nullable();
             $table->integer('cargo_id')->unsigned()->nullable();
+            $table->integer('unidad_desconcentrada_id')->unsigned()->nullable();
 
             $table->smallInteger('estado')->default('1')->unsigned();
+            $table->date('f_ingreso')->nullable();
+            $table->double('sueldo')->nullable();
+
+            $table->timestamps();
 
             $table->foreign('persona_id')
                 ->references('id')
@@ -30,7 +35,10 @@ class CreateRrhhFuncionariosTable extends Migration
                 ->on('inst_cargos')
                 ->onDelete('cascade');
 
-            $table->timestamps();
+            $table->foreign('unidad_desconcentrada_id')
+                ->references('id')
+                ->on('inst_unidades_desconcentradas')
+                ->onDelete('cascade');
         });
     }
 

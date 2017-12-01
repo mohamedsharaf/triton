@@ -466,7 +466,7 @@
                 $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
 
                 if(ret.n_documento != ""){
-                    var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ret.nombre;
+                    var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre;
 
                     $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
                     $("#persona_id").select2("val", val_json.persona_id);

@@ -20,6 +20,8 @@ class CreateInstCargosTable extends Migration
             $table->integer('tipo_cargo_id')->unsigned()->nullable();
 
             $table->smallInteger('estado')->default('1')->unsigned();
+            $table->string('item_contrato', 500)->nullable();
+            $table->smallInteger('acefalia')->unsigned();
             $table->string('nombre', 250)->nullable();
 
             $table->timestamps();
