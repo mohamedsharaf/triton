@@ -143,7 +143,7 @@ class Kernel extends ConsoleKernel
                                         $data1[] = [
                                             'biometrico_id'          => $row1['id'],
                                             'persona_id'             => $consulta2['persona_id'],
-                                            'tipo_marcacion'         => 2,
+                                            'tipo_marcacion'         => 1,
                                             'n_documento_biometrico' => $row['PIN'],
                                             'f_marcacion'            => $row['DateTime']
                                         ];
