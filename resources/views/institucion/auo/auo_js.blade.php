@@ -107,7 +107,7 @@
             });
             $("#lugar_dependencia_id").appendTo("#lugar_dependencia_id_div");
 
-            $('#auo_id').select2({
+            $('#auo_id, #auo_id_r').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -342,20 +342,22 @@
                     }
                 })
                 @endif
-                // .navSeparatorAdd(pjqgrid1,{
-                //   sepclass : "ui-separator"
-                // })
-                // .navButtonAdd(pjqgrid1,{
-                //   "id"          : "print1",
-                //   caption       : "",
-                //   title         : 'Reportes',
-                //   buttonicon    : "ui-icon ui-icon-print",
-                //   onClickButton : function(){
-                //       var valor1 = new Array();
-                //       valor1[0]  = 13;
-                //       utilitarios(valor1);
-                //   }
-                // })
+                @if(in_array(['codigo' => '0304'], $permisos))
+                    .navSeparatorAdd(pjqgrid1,{
+                      sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid1,{
+                      "id"          : "print1",
+                      caption       : "",
+                      title         : 'Reportes',
+                      buttonicon    : "ui-icon ui-icon-print",
+                      onClickButton : function(){
+                          var valor1 = new Array();
+                          valor1[0]  = 13;
+                          utilitarios(valor1);
+                      }
+                    })
+                @endif
                 ;
                 break;
             // === ABRIR MODAL ===
@@ -393,7 +395,7 @@
                 break;
             // === REPORTES MODAL ===
             case 13:
-                alert("REPORTE");
+                $('#modal_2').modal();
                 break;
             // === RESETEAR FORMULARIO ===
             case 14:
@@ -455,8 +457,38 @@
                     }
                 });
                 break;
-            // === DROPZONE 1 ===
+            // === SELECT2 ORGANIGRAMA AREA O UNIDAD DESCONCENTRADA ===
             case 17:
+                $('#chart-container-1').empty();
+
+                var auo_id=$.trim($("#auo_id_r").val());
+
+                if(auo_id != ''){
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = "tipo=101&auo_id=" + $("#auo_id_r").val() + "&_token=" + csrf_token;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = "ALERTA";
+                    valor1[2]  = "¡Favor seleccione un ÁREA O UNIDAD ORGANIZACIONAL!";
+                    utilitarios(valor1);
+                }
                 break;
             // === MENSAJE ERROR ===
             case 100:
@@ -525,26 +557,29 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-
-                            // === SELECT2 RELLENAR AREA O UNIDAD DESCONCENTRADA POR LUGAR DE DEPENDENCIA ===
-                            case '103':
-                                if(data.sw === 2){
-                                    var unidad_desconcentrada_select = '';
-                                    $.each(data.consulta, function(index, value) {
-                                        unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                            // === SELECT2 ORGANIGRAMA AREA O UNIDAD DESCONCENTRADA ===
+                            case '101':
+                                if(data.sw === 1){
+                                    $('#chart-container-1').orgchart({
+                                        'data'               : data.respuesta,
+                                        // 'depth'           : 2,
+                                        // 'nodeContent'        : 'title',
+                                        'exportButton'       : true,
+                                        'exportFilename'     : 'organigrama_areas_unidades_organizacionales'
                                     });
-                                    $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
                                 }
-                                break;
-                            // === SELECT2 BIOMETRICOS ===
-                            case '104':
-                                if(data.sw === 2){
-                                    var biometrico_select = '';
-                                    $.each(data.consulta, function(index, value) {
-                                        biometrico_select += '<option value="' + value.id + '">' + 'MP-' + value.nombre + '</option>';
-                                    });
-                                    $('#biometrico_id').append(biometrico_select);
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
                                 }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
                             default:
                                 break;

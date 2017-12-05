@@ -463,6 +463,96 @@ class AuoController extends Controller
                     }
                 }
                 break;
+
+            // === SELECT2 ORGANIGRAMA AREA O UNIDAD DESCONCENTRADA ===
+            case '101':
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ALERTA</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo
+                    );
+                //=== OPERACION ===
+                    if($request->has('auo_id'))
+                    {
+                        $auo_id     = trim($request->input('auo_id'));
+
+                        $user_id = Auth::user()->id;
+
+                        $consulta1 = SegLdUser::where("seg_ld_users.user_id", "=", $user_id)
+                                ->select('lugar_dependencia_id')
+                                ->get()
+                                ->toArray();
+
+                        $array_where = "TRUE";
+
+                        if(count($consulta1) > 0)
+                        {
+                            $c_1_sw        = TRUE;
+                            $c_2_sw        = TRUE;
+                            $array_where_1 = "";
+                            foreach ($consulta1 as $valor)
+                            {
+                                if($valor['lugar_dependencia_id'] == '1')
+                                {
+                                    $c_2_sw = FALSE;
+                                    break;
+                                }
+
+                                if($c_1_sw)
+                                {
+                                    $array_where_1 .= " AND (id=" . $valor['lugar_dependencia_id'];
+                                    $c_1_sw      = FALSE;
+                                }
+                                else
+                                {
+                                    $array_where_1 .= " OR id=" . $valor['lugar_dependencia_id'];
+                                }
+                            }
+                            $array_where_1 .= ")";
+
+                            if($c_2_sw)
+                            {
+                                $array_where .= $array_where_1;
+                            }
+                        }
+                        else
+                        {
+                            $array_where .= " AND id=0";
+                        }
+
+                        $organigrama_array = [];
+
+                        $consulta1 = InstAuo::whereRaw($array_where)
+                                    ->where("estado", "=", 1)
+                                    ->where("id", "=", $auo_id)
+                                    ->select('id', 'nombre')
+                                    ->first()
+                                    ->toArray();
+
+                        if(count($consulta1) > 0)
+                        {
+                            $organigrama_array['name'] = $consulta1['nombre'];
+
+                            $organigrama_array['children'] = $this->utilitarios(['tipo' => '10', 'auo_id' => $auo_id]);
+
+                            $respuesta['respuesta'] = $organigrama_array;
+                            $respuesta['sw'] = 1;
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "¡No existe en su LUGAR DE DEPENDENCIA el ÁREA O UNIDAD ORGANIZACIONAL!<br>¡Verifique!";
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "¡Favor seleccione un ÁREA O UNIDAD ORGANIZACIONAL!<br>¡Verifique!";
+                    }
+
+                return json_encode($respuesta);
+                break;
             default:
                 break;
         }
@@ -518,6 +608,28 @@ class AuoController extends Controller
                     }
                 }
                 return($respuesta);
+                break;
+            case '10':
+                $organigrama_array = [];
+                $consulta1 = InstAuo::where("estado", "=", 1)
+                                    ->where("auo_id", "=", $valor['auo_id'])
+                                    ->select('id', 'nombre')
+                                    ->orderBy("nombre")
+                                    ->get()
+                                    ->toArray();
+
+                if(count($consulta1) > 0)
+                {
+                    foreach ($consulta1 as $row1)
+                    {
+                        $organigrama_array[] = [
+                            'name'     => $row1['nombre'],
+                            'children' => $this->utilitarios(['tipo' => '10', 'auo_id' => $row1['id']])
+                        ];
+                    }
+                }
+
+                return $organigrama_array;
                 break;
             default:
                 break;

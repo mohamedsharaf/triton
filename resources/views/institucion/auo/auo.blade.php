@@ -17,6 +17,8 @@
     <link href="{!! asset('inspinia_v27/css/plugins/datapicker/datepicker3.css') !!}" rel="stylesheet">
 
     <link href="{!! asset('inspinia_v27/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css') !!}" rel="stylesheet">
+
+    <link href="{!! asset('inspinia_v27/css/plugins/orgchart/jquery.orgchart.min.css') !!}" rel="stylesheet">
 @endsection
 
 @section('css')
@@ -40,9 +42,62 @@
           width: 15px;
         }
 
-        /*.modal-xlg {
+        .modal-xlg {
             width: 90%;
-        }*/
+        }
+
+        .orgchart .node{
+          box-sizing:border-box;
+          display   :inline-block;
+          position  :relative;
+          margin    :0;
+          padding   :3px;
+          border    :2px dashed transparent;
+          text-align:center;
+          width     :auto;
+        }
+
+        .oc-export-btn{
+          right:15px;
+          top  :92px;
+        }
+
+        .orgchart .node .title{
+          text-align      :center;
+          font-size       :12px;
+          font-weight     :700;
+          height          :20px;
+          line-height     :20px;
+          overflow        :hidden;
+          text-overflow   :ellipsis;
+          white-space     :nowrap;
+          background-color:#4587BC;
+          color           :#fff;
+          border-radius   :1px 1px 1px 1px;
+          padding-left    :4px;
+          padding-right   :4px;
+        }
+
+        .orgchart .lines .topLine{
+          border-top:2px solid #0069AA
+        }
+        .orgchart .lines .rightLine{
+          border-right :1px solid #0069AA;
+          float        :none;
+          border-radius:0
+        }
+        .orgchart .lines .leftLine{
+          border-left  :1px solid #0069AA;
+          float        :none;
+          border-radius:0
+        }
+        .orgchart .lines .downLine{
+          background-color:#0069AA;
+          margin          :0 auto;
+          height          :20px;
+          width           :2px;
+          float           :none
+        }
     </style>
 @endsection
 
@@ -140,6 +195,46 @@
           </div>
         </div>
       </div>
+
+      <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-xlg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">&times;</span>
+                <span class="sr-only">Close</span>
+              </button>
+
+              <h4 class="modal-title">
+                Generar reportes
+              </h4>
+            </div>
+
+            <div class="modal-body">
+              <div class="row">
+                <form id="form_2" role="form" action="#">
+                  <div class="col-sm-12">
+                    <div id="auo_id_div" class="form-group">
+                      <label for="auo_id_r">Área o unidad organizacional</label>
+                      <select name="auo_id" id="auo_id_r" data-placeholder="Área o unidad organizacional" multiple="multiple" style="width: 100%;">
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              <div class="row">
+                <div id="chart-container-1" style="overflow-x: scroll;"></div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" onclick="utilitarios([17]);">Organigrama</button>
+              <button type="button" class="btn btn-danger" data-dismiss="modal">Salir</button>
+            </div>
+          </div>
+        </div>
+      </div>
 @endsection
 
 @section('js_plugins')
@@ -177,6 +272,10 @@
     <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
     <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>
 
+  <!-- OrgChart -->
+    <script src="{{ asset('inspinia_v27/js/plugins/orgchart/html2canvas.min.js') }}"></script>
+    <script src="{{ asset('inspinia_v27/js/plugins/orgchart/jspdf.min.js') }}"></script>
+    <script src="{{ asset('inspinia_v27/js/plugins/orgchart/jquery.orgchart.min.js') }}"></script>
 @endsection
 
 @section('js')
