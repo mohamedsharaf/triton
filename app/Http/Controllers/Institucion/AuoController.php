@@ -357,8 +357,6 @@ class AuoController extends Controller
                             $iu->nombre               = $data1['nombre'];
                             $iu->save();
 
-                            $id = $iu->id;
-
                             $respuesta['respuesta'] .= "El ÁREA O UNIDAD ORGANIZACIONAL fue registrado con éxito.";
                             $respuesta['sw']         = 1;
                         }
@@ -578,36 +576,6 @@ class AuoController extends Controller
                         return($respuesta);
                         break;
                 }
-                break;
-            case '2':
-                if($valor['imagen'] == '')
-                {
-                    return '';
-                }
-                else
-                {
-                    return "<img  width='100%' class='img-thumbnail' alt='Imagen Personal' src='" . asset($this->public_url . $valor['imagen']) . "' />";
-                }
-                break;
-            case '3':
-                $respuesta = '';
-                if($valor['d_json'] != '')
-                {
-                    $sw = TRUE;
-                    foreach(json_decode($valor['d_json']) as $valor)
-                    {
-                        if($sw)
-                        {
-                            $respuesta .= $valor;
-                            $sw = FALSE;
-                        }
-                        else
-                        {
-                            $respuesta .= "<br>" . $valor;
-                        }
-                    }
-                }
-                return($respuesta);
                 break;
             case '10':
                 $organigrama_array = [];

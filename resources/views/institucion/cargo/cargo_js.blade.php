@@ -29,8 +29,15 @@
         var col_name_1    = new Array(
             "",
             "ESTADO",
-            "NOMBRE",
-            "DEPENDENCIA",
+            "¿ACEFALO?",
+            "TIPO DE CARGO",
+            "NUMERO",
+            "CARGO",
+
+            "CARGO DE DEPENDENCIA",
+
+            "AREA UNIDAD ORGANIZACIONAL",
+
             "LUGAR ORGANIZACIONAL",
 
             ""
@@ -38,29 +45,47 @@
         var col_m_name_1  = new Array(
             "act",
             "estado",
+            "acefalia",
+            "tipo_cargo",
+            "item_contrato",
             "nombre",
 
+            "cargo",
+
             "auo",
+
             "lugar_dependencia",
 
             "val_json"
         );
         var col_m_index_1 = new Array(
             "",
-            "inst_auos.estado",
-            "inst_auos.nombre",
-
+            "inst_cargos.estado",
+            "inst_cargos.acefalia",
             "a2.nombre",
+            "inst_cargos.item_contrato",
+            "inst_cargos.nombre",
+
             "a3.nombre",
+
+            "a4.nombre",
+
+            "a5.nombre",
 
             ""
         );
         var col_m_width_1 = new Array(
             33,
+            110,
+            85,
             120,
-            500,
+            150,
+            350,
 
-            500,
+            350,
+
+            350,
+
             350,
 
             10
@@ -69,8 +94,14 @@
             "center",
             "center",
             "center",
+            "center",
+            "center",
+            "center",
 
             "center",
+
+            "center",
+
             "center",
 
             "center"
@@ -87,6 +118,16 @@
         $.each(estado_json, function(index, value) {
             estado_select += '<option value="' + index + '">' + value + '</option>';
             estado_jqgrid += ';' + index + ':' + value;
+        });
+
+    // === ACEFALIA ===
+        var acefalia_json   = $.parseJSON('{!! json_encode($acefalia_array) !!}');
+        var acefalia_select = '';
+        var acefalia_jqgrid = ':Todos';
+
+        $.each(acefalia_json, function(index, value) {
+            acefalia_select += '<option value="' + index + '">' + value + '</option>';
+            acefalia_jqgrid += ';' + index + ':' + value;
         });
 
     // === LUGAR DE DEPENDENCIA ===
@@ -111,12 +152,6 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#lugar_dependencia_id').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id").select2({
-                maximumSelectionLength: 1
-            });
-            $("#lugar_dependencia_id").appendTo("#lugar_dependencia_id_div");
-
             $('#auo_id, #auo_id_r').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
@@ -142,6 +177,36 @@
             });
             $("#auo_id").appendTo("#auo_id_div");
 
+            $("#cargo_id").select2({
+                maximumSelectionLength: 1
+            });
+            $("#cargo_id").appendTo("#cargo_id_div");
+
+            $('#tipo_cargo_id').append(tipo_cargo_select);
+            $("#tipo_cargo_id").select2({
+                maximumSelectionLength: 1
+            });
+            $("#tipo_cargo_id").appendTo("#tipo_cargo_id_div");
+
+        // === SELECT CHANGE ===
+            $("#auo_id").on("change", function(e) {
+                $('#cargo_id').select2('val','');
+                $('#cargo_id option').remove();
+                switch ($.trim(this.value)){
+                    case '':
+                        break;
+                    default:
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = false;
+                        valor1[4]  = "tipo=102&auo_id=" + this.value + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                }
+            });
+
         // === JQGRID 1 ===
             var valor1 = new Array();
             valor1[0]  = 10;
@@ -165,7 +230,7 @@
                 utilitarios(valor1);
             },0);
 
-            $( "#navbar-minimalize-button" ).on( "click", function() {
+            $("#navbar-minimalize-button" ).on( "click", function() {
                 setTimeout(function(){
                     $('.wrapper-content').removeClass('animated fadeInRight');
                     var valor1 = new Array();
@@ -192,7 +257,7 @@
                 var edit1      = true;
                 var ancho1     = 5;
                 var ancho_d    = 28;
-                @if(in_array(['codigo' => '0303'], $permisos))
+                @if(in_array(['codigo' => '0403'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
@@ -206,7 +271,7 @@
                     pager       : pjqgrid1,
                     rowNum      : 10,
                     rowList     : [10, 20, 30],
-                    sortname    : 'inst_auos.id',
+                    sortname    : 'inst_cargos.id',
                     sortorder   : "desc",
                     viewrecords : true,
                     shrinkToFit : false,
@@ -226,7 +291,11 @@
                         col_name_1[2],
                         col_name_1[3],
                         col_name_1[4],
-                        col_name_1[5]
+                        col_name_1[5],
+                        col_name_1[6],
+                        col_name_1[7],
+                        col_name_1[8],
+                        col_name_1[9]
                     ],
                     colModel : [
                         {
@@ -249,16 +318,20 @@
                             editoptions: {value:estado_jqgrid}
                         },
                         {
-                            name  : col_m_name_1[2],
-                            index : col_m_index_1[2],
-                            width : col_m_width_1[2],
-                            align : col_m_align_1[2]
+                            name       : col_m_name_1[2],
+                            index      : col_m_index_1[2],
+                            width      : col_m_width_1[2],
+                            align      : col_m_align_1[2],
+                            stype      :'select',
+                            editoptions: {value:acefalia_jqgrid}
                         },
                         {
-                            name  : col_m_name_1[3],
-                            index : col_m_index_1[3],
-                            width : col_m_width_1[3],
-                            align : col_m_align_1[3]
+                            name       : col_m_name_1[3],
+                            index      : col_m_index_1[3],
+                            width      : col_m_width_1[3],
+                            align      : col_m_align_1[3],
+                            stype      :'select',
+                            editoptions: {value:tipo_cargo_jqgrid}
                         },
                         {
                             name  : col_m_name_1[4],
@@ -266,13 +339,38 @@
                             width : col_m_width_1[4],
                             align : col_m_align_1[4]
                         },
-
+                        {
+                            name  : col_m_name_1[5],
+                            index : col_m_index_1[5],
+                            width : col_m_width_1[5],
+                            align : col_m_align_1[5]
+                        },
+                        {
+                            name  : col_m_name_1[6],
+                            index : col_m_index_1[6],
+                            width : col_m_width_1[6],
+                            align : col_m_align_1[6]
+                        },
+                        {
+                            name  : col_m_name_1[7],
+                            index : col_m_index_1[7],
+                            width : col_m_width_1[7],
+                            align : col_m_align_1[7]
+                        },
+                        {
+                            name       : col_m_name_1[8],
+                            index      : col_m_index_1[8],
+                            width      : col_m_width_1[8],
+                            align      : col_m_align_1[8],
+                            stype      :'select',
+                            editoptions: {value:lugar_dependencia_jqgrid}
+                        },
                         // === OCULTO ===
                             {
-                                name  : col_m_name_1[5],
-                                index : col_m_index_1[5],
-                                width : col_m_width_1[5],
-                                align : col_m_align_1[5],
+                                name  : col_m_name_1[9],
+                                index : col_m_index_1[9],
+                                width : col_m_width_1[9],
+                                align : col_m_align_1[9],
                                 search: false,
                                 hidden: true
                             }
@@ -284,7 +382,7 @@
                         var ids = $(jqgrid1).jqGrid('getDataIDs');
                         for(var i = 0; i < ids.length; i++){
                             var cl = ids[i];
-                            @if(in_array(['codigo' => '0303'], $permisos))
+                            @if(in_array(['codigo' => '0403'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                             @else
                                 ed = '';
@@ -312,7 +410,7 @@
                 .navSeparatorAdd(pjqgrid1,{
                     sepclass : "ui-separator"
                 })
-                @if(in_array(['codigo' => '0302'], $permisos))
+                @if(in_array(['codigo' => '0402'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "add1",
                     caption       : "",
@@ -329,7 +427,7 @@
                     }
                 })
                 @endif
-                @if(in_array(['codigo' => '0303'], $permisos))
+                @if(in_array(['codigo' => '0403'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "edit1",
                     caption       : "",
@@ -352,7 +450,7 @@
                     }
                 })
                 @endif
-                @if(in_array(['codigo' => '0304'], $permisos))
+                @if(in_array(['codigo' => '0404'], $permisos))
                     .navSeparatorAdd(pjqgrid1,{
                       sepclass : "ui-separator"
                     })
@@ -412,11 +510,12 @@
                 $('#modal_1_title').empty();
                 $('#modal_1_title').append('Agregar área o unidad organizacional');
 
-                $("#id_auo").val('');
+                $("#id_cargo").val('');
 
                 // $('#lugar_dependencia_id').select2("val", "");
                 // $('#auo_id').select2("val", "");
 
+                $("#item_contrato").val('');
                 $("#nombre").val('');
 
                 // $(form_1)[0].reset();
@@ -454,16 +553,20 @@
             case 16:
                 $(form_1).validate({
                     rules: {
-                        lugar_dependencia_id:{
-                            required : true
-                        },
                         auo_id:{
                             required: true
+                        },
+                        tipo_cargo_id:{
+                            required: true
+                        },
+                        item_contrato:{
+                            required : true,
+                            maxlength: 50
                         },
                         nombre:{
                             required : true,
                             maxlength: 250
-                        },
+                        }
                     }
                 });
                 break;
@@ -567,7 +670,7 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === SELECT2 ORGANIGRAMA AREA O UNIDAD DESCONCENTRADA ===
+                            // === SELECT2 ORGANIGRAMA CARGOS POR AREA O UNIDAD DESCONCENTRADA ===
                             case '101':
                                 if(data.sw === 1){
                                     $('#chart-container-1').orgchart({
@@ -590,6 +693,16 @@
                                 }
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === SELECT2 CARGOS POR UNIDAD DESCONCENTRADA ===
+                            case '102':
+                                if(data.sw === 2){
+                                    var cargo_select = '';
+                                    $.each(data.consulta, function(index, value) {
+                                        cargo_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                                    });
+                                    $('#cargo_id').append(cargo_select);
+                                }
                                 break;
                             default:
                                 break;

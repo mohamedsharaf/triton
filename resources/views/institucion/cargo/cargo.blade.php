@@ -119,7 +119,7 @@
         </div>
     </div>
 
-    <div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="wrapper wrapper-content animated fadeInRight">
         <div class="row">
             <div class="col-lg-12">
                 <div class="jqGrid_wrapper">
@@ -148,7 +148,7 @@
             <div class="modal-body">
               <div class="row">
                 <form id="form_1" role="form" action="#">
-                  <input type="hidden" id="id_auo" name="id" value=""/>
+                  <input type="hidden" id="id_cargo" name="id" value=""/>
                   <input type="hidden" id="tipo1" name="tipo" value="1"/>
                   {{ csrf_field() }}
                   <div class="col-sm-12">
@@ -166,21 +166,52 @@
                       </div>
                     </div>
 
-                    <div id="lugar_dependencia_id_div" class="form-group">
-                      <label for="lugar_dependencia_id">Lugar de dependencia</label>
-                      <select name="lugar_dependencia_id" id="lugar_dependencia_id" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
-                      </select>
+                    <div class="form-group">
+                      <label>¿Acéfalo?</label>
+                      <div>
+                          <div class="radio radio-primary radio-inline">
+                            <input type="radio" id="acefalia_1_id" class="acefalia_class" name="acefalia" value="1">
+                            <label class="text-success" for="acefalia_1_id"> {{ $acefalia_array['1'] }} </label>
+                          </div>
+                          <div class="radio radio-danger radio-inline">
+                              <input type="radio" id="acefalia_2_id" class="acefalia_class" name="acefalia" value="2" checked="checked">
+                              <label class="text-danger" for="acefalia_2_id"> {{ $acefalia_array['2'] }} </label>
+                          </div>
+                      </div>
                     </div>
 
                     <div id="auo_id_div" class="form-group">
-                      <label for="auo_id">Área o unidad organizacional de dependencia</label>
-                      <select name="auo_id" id="auo_id" data-placeholder="Área o unidad organizacional de dependencia" multiple="multiple" style="width: 100%;">
+                      <label for="auo_id">Área o unidad organizacional</label>
+                      <select name="auo_id" id="auo_id" data-placeholder="Área o unidad organizacional" multiple="multiple" style="width: 100%;">
                       </select>
                     </div>
 
+                    <div id="cargo_id_div" class="form-group">
+                      <label for="cargo_id">Cargo de dependencia</label>
+                      <select name="cargo_id" id="cargo_id" data-placeholder="Cargo de dependencia" multiple="multiple" style="width: 100%;">
+                      </select>
+                    </div>
+
+                    <div class="row">
+                        <div id="tipo_cargo_id_div" class="col-sm-6">
+                            <div class="form-group">
+                              <label for="tipo_cargo_id">Tipo de cargo</label>
+                              <select name="tipo_cargo_id" id="tipo_cargo_id" data-placeholder="Tipo de cargo" multiple="multiple" style="width: 100%;">
+                              </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                              <label for="item_contrato">Número</label>
+                              <input type="text" class="form-control" id="item_contrato" name="item_contrato" placeholder="Número">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                      <label for="nombre">Área o unidad organizacional</label>
-                      <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Área o unidad organizacional">
+                      <label for="nombre">Cargo</label>
+                      <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Cargo">
                     </div>
                   </div>
                 </form>

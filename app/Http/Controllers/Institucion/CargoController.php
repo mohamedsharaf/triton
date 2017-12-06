@@ -23,6 +23,7 @@ use Exception;
 class CargoController extends Controller
 {
     private $estado;
+    private $acefalia;
 
     private $rol_id;
     private $permisos;
@@ -34,6 +35,11 @@ class CargoController extends Controller
         $this->estado = [
             '1' => 'HABILITADO',
             '2' => 'INHABILITADO'
+        ];
+
+        $this->acefalia = [
+            '1' => 'SI',
+            '2' => 'NO'
         ];
     }
 
@@ -99,7 +105,8 @@ class CargoController extends Controller
                 'modulo'                  => 'Cargos',
                 'title_table'             => 'Cargos',
                 'estado_array'            => $this->estado,
-                'tipo_cargo_array'        => InstTipoCargo::whereRaw($array_where)
+                'acefalia_array'          => $this->acefalia,
+                'tipo_cargo_array'        => InstTipoCargo::where("estado", "=", 1)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
                                                 ->get()
@@ -137,19 +144,29 @@ class CargoController extends Controller
             case '1':
                 $jqgrid = new JqgridClass($request);
 
-                $tabla1 = "inst_auos";
-                $tabla2 = "inst_lugares_dependencia";
+                $tabla1 = "inst_cargos";
+                $tabla2 = "inst_tipos_cargo";
+                $tabla3 = "inst_auos";
+                $tabla4 = "inst_lugares_dependencia";
 
                 $select = "
                     $tabla1.id,
-                    $tabla1.lugar_dependencia_id,
                     $tabla1.auo_id,
+                    $tabla1.cargo_id,
+                    $tabla1.tipo_cargo_id,
                     $tabla1.estado,
+                    $tabla1.item_contrato,
+                    $tabla1.acefalia,
                     $tabla1.nombre,
 
-                    a2.nombre AS auo,
+                    a2.nombre AS tipo_cargo,
 
-                    a3.nombre AS lugar_dependencia
+                    a3.nombre AS cargo,
+
+                    a4.lugar_dependencia_id,
+                    a4.nombre AS auo,
+
+                    a5.nombre AS lugar_dependencia
                 ";
 
                 $array_where = 'TRUE';
@@ -175,12 +192,12 @@ class CargoController extends Controller
 
                         if($c_1_sw)
                         {
-                            $array_where_1 .= " AND ($tabla1.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            $array_where_1 .= " AND (a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
                             $c_1_sw        = FALSE;
                         }
                         else
                         {
-                            $array_where_1 .= " OR $tabla1.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            $array_where_1 .= " OR a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
                         }
                     }
                     $array_where_1 .= ")";
@@ -192,20 +209,24 @@ class CargoController extends Controller
                 }
                 else
                 {
-                    $array_where .= " AND $tabla1.lugar_dependencia_id=0 AND ";
+                    $array_where .= " AND a4.lugar_dependencia_id=0 AND ";
                 }
 
                 $array_where .= $jqgrid->getWhere();
 
-                $count = InstAuo::leftJoin("$tabla1 AS a2", "a2.id", "=", "$tabla1.auo_id")
-                    ->leftJoin("$tabla2 AS a3", "a3.id", "=", "$tabla1.lugar_dependencia_id")
+                $count = InstCargo::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_cargo_id")
+                    ->leftJoin("$tabla1 AS a3", "a3.id", "=", "$tabla1.cargo_id")
+                    ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.auo_id")
+                    ->leftJoin("$tabla4 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
                     ->whereRaw($array_where)
                     ->count();
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
-                $query = InstAuo::leftJoin("$tabla1 AS a2", "a2.id", "=", "$tabla1.auo_id")
-                    ->leftJoin("$tabla2 AS a3", "a3.id", "=", "$tabla1.lugar_dependencia_id")
+                $query = InstCargo::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_cargo_id")
+                    ->leftJoin("$tabla1 AS a3", "a3.id", "=", "$tabla1.cargo_id")
+                    ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.auo_id")
+                    ->leftJoin("$tabla4 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
                     ->whereRaw($array_where)
                     ->select(DB::raw($select))
                     ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -226,14 +247,20 @@ class CargoController extends Controller
                     $val_array = array(
                         'lugar_dependencia_id' => $row["lugar_dependencia_id"],
                         'auo_id'               => $row["auo_id"],
-                        'estado'               => $row["estado"]
+                        'cargo_id'             => $row["cargo_id"],
+                        'tipo_cargo_id'        => $row["tipo_cargo_id"],
+                        'acefalia'             => $row["acefalia"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
                         $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
+                        $this->utilitarios(array('tipo' => '2', 'acefalia' => $row["acefalia"])),
+                        $row["tipo_cargo"],
+                        $row["item_contrato"],
                         $row["nombre"],
+                        $row["cargo"],
                         $row["auo"],
                         $row["lugar_dependencia"],
                         //=== VARIABLES OCULTOS ===
@@ -286,7 +313,7 @@ class CargoController extends Controller
                     $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>ÁREA O UNIDAD ORGANIZACIONAL</strong></div>',
+                        'titulo'     => '<div class="text-center"><strong>CARGO</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
                         'iu'         => 1,
@@ -299,7 +326,7 @@ class CargoController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '0303'], $this->permisos))
+                        if(!in_array(['codigo' => '0403'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
@@ -307,7 +334,7 @@ class CargoController extends Controller
                     }
                     else
                     {
-                        if(!in_array(['codigo' => '0302'], $this->permisos))
+                        if(!in_array(['codigo' => '0402'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
                             return json_encode($respuesta);
@@ -318,17 +345,21 @@ class CargoController extends Controller
                     try
                     {
                         $validator = $this->validate($request,[
-                            'lugar_dependencia_id' => 'required',
-                            'auo_id'               => 'required',
-                            'nombre'               => 'required|max:250'
+                            'auo_id'        => 'required',
+                            'tipo_cargo_id' => 'required',
+                            'item_contrato' => 'required|max:50',
+                            'nombre'        => 'required|max:250'
                         ],
                         [
-                            'lugar_dependencia_id.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
+                            'auo_id.required' => 'El campo ÁREA O UNIDAD ORGANIZACIONAL es obligatorio.',
 
-                            'auo_id.required' => 'El campo ÁREA O UNIDAD ORGANIZACIONAL DE DEPENDENCIA es obligatorio.',
+                            'tipo_cargo_id.required' => 'El campo TIPO DE CARGO es obligatorio.',
 
-                            'nombre.required' => 'El campo ÁREA O UNIDAD ORGANIZACIONAL es obligatorio.',
-                            'nombre.max'      => 'El campo ÁREA O UNIDAD ORGANIZACIONAL debe ser :max caracteres como máximo.'
+                            'item_contrato.required' => 'El campo NUMERO es obligatorio.',
+                            'item_contrato.max'      => 'El campo NUMERO debe ser :max caracteres como máximo.',
+
+                            'nombre.required' => 'El campo CARGO es obligatorio.',
+                            'nombre.max'      => 'El campo CARGO debe ser :max caracteres como máximo.'
                         ]);
                     }
                     catch (Exception $e)
@@ -339,10 +370,13 @@ class CargoController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $data1['estado']               = trim($request->input('estado'));
-                    $data1['lugar_dependencia_id'] = trim($request->input('lugar_dependencia_id'));
-                    $data1['auo_id']               = trim($request->input('auo_id'));
-                    $data1['nombre']               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                    $data1['estado']        = trim($request->input('estado'));
+                    $data1['acefalia']      = trim($request->input('acefalia'));
+                    $data1['auo_id']        = trim($request->input('auo_id'));
+                    $data1['cargo_id']      = trim($request->input('cargo_id'));
+                    $data1['tipo_cargo_id'] = trim($request->input('tipo_cargo_id'));
+                    $data1['item_contrato'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('item_contrato'))));
+                    $data1['nombre']        = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
                     foreach ($data1 as $llave => $valor)
@@ -357,16 +391,17 @@ class CargoController extends Controller
                         $consulta1 = InstAuo::where('lugar_dependencia_id', '=', $data1['lugar_dependencia_id'])->where('nombre', '=', $data1['nombre'])->count();
                         if($consulta1 < 1)
                         {
-                            $iu                       = new InstAuo;
-                            $iu->lugar_dependencia_id = $data1['lugar_dependencia_id'];
-                            $iu->auo_id               = $data1['auo_id'];
-                            $iu->estado               = $data1['estado'];
-                            $iu->nombre               = $data1['nombre'];
+                            $iu                = new InstAuo;
+                            $iu->estado        = $data1['estado'];
+                            $iu->acefalia      = $data1['acefalia'];
+                            $iu->auo_id        = $data1['auo_id'];
+                            $iu->cargo_id      = $data1['cargo_id'];
+                            $iu->tipo_cargo_id = $data1['tipo_cargo_id'];
+                            $iu->item_contrato = $data1['item_contrato'];
+                            $iu->nombre        = $data1['nombre'];
                             $iu->save();
 
-                            $id = $iu->id;
-
-                            $respuesta['respuesta'] .= "El ÁREA O UNIDAD ORGANIZACIONAL fue registrado con éxito.";
+                            $respuesta['respuesta'] .= "El CARGO fue registrado con éxito.";
                             $respuesta['sw']         = 1;
                         }
                         else
@@ -379,14 +414,17 @@ class CargoController extends Controller
                         $consulta1 = InstAuo::where('lugar_dependencia_id', '=', $data1['lugar_dependencia_id'])->where('nombre', '=', $data1['nombre'])->where('id', '<>', $id)->count();
                         if($consulta1 < 1)
                         {
-                            $iu                       = InstAuo::find($id);
-                            $iu->lugar_dependencia_id = $data1['lugar_dependencia_id'];
-                            $iu->auo_id               = $data1['auo_id'];
-                            $iu->estado               = $data1['estado'];
-                            $iu->nombre               = $data1['nombre'];
+                            $iu                = InstAuo::find($id);
+                            $iu->estado        = $data1['estado'];
+                            $iu->acefalia      = $data1['acefalia'];
+                            $iu->auo_id        = $data1['auo_id'];
+                            $iu->cargo_id      = $data1['cargo_id'];
+                            $iu->tipo_cargo_id = $data1['tipo_cargo_id'];
+                            $iu->item_contrato = $data1['item_contrato'];
+                            $iu->nombre        = $data1['nombre'];
                             $iu->save();
 
-                            $respuesta['respuesta'] .= "El ÁREA O UNIDAD ORGANIZACIONAL se edito con éxito.";
+                            $respuesta['respuesta'] .= "El CARGO se edito con éxito.";
                             $respuesta['sw']         = 1;
                             $respuesta['iu']         = 2;
                         }
@@ -413,7 +451,7 @@ class CargoController extends Controller
                             ->get()
                             ->toArray();
 
-                    $array_where = "nombre ilike '%$nombre%'";
+                    $array_where = "CONCAT_WS(' - ', a2.nombre, inst_auos.nombre) ilike '%$nombre%'";
 
                     if(count($consulta1) > 0)
                     {
@@ -450,13 +488,14 @@ class CargoController extends Controller
                         $array_where .= " AND id=0";
                     }
 
-                    $query = InstAuo::whereRaw($array_where)
-                                ->where("estado", "=", $estado)
-                                ->select('id', 'nombre AS text')
-                                ->orderBy("nombre")
-                                ->limit($page_limit)
-                                ->get()
-                                ->toArray();
+                    $query = InstAuo::leftJoin("inst_lugares_dependencia AS a2", "a2.id", "=", "inst_auos.lugar_dependencia_id")
+                        ->whereRaw($array_where)
+                        ->where("inst_auos.estado", "=", $estado)
+                        ->select(DB::raw("inst_auos.id, CONCAT_WS(' - ', a2.nombre, inst_auos.nombre) AS text"))
+                        ->orderByRaw("CONCAT_WS(' - ', a2.nombre, inst_auos.nombre) ASC")
+                        ->limit($page_limit)
+                        ->get()
+                        ->toArray();
 
                     if(count($query) > 0)
                     {
@@ -471,7 +510,7 @@ class CargoController extends Controller
                 }
                 break;
 
-            // === SELECT2 ORGANIGRAMA AREA O UNIDAD DESCONCENTRADA ===
+            // === SELECT2 ORGANIGRAMA CARGOS POR AREA O UNIDAD DESCONCENTRADA ===
             case '101':
                 // === INICIALIZACION DE VARIABLES ===
                     $data1     = array();
@@ -560,6 +599,29 @@ class CargoController extends Controller
 
                 return json_encode($respuesta);
                 break;
+
+            // === SELECT2 CARGOS POR UNIDAD DESCONCENTRADA ===
+            case '102':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('auo_id'))
+                {
+                    $auo_id  = $request->input('auo_id');
+                    $query = InstCargo::where("auo_id", "=", $auo_id)
+                        ->where("estado", "=", 1)
+                        ->select('id', 'nombre')
+                        ->get()
+                        ->toArray();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
             default:
                 break;
         }
@@ -587,34 +649,21 @@ class CargoController extends Controller
                 }
                 break;
             case '2':
-                if($valor['imagen'] == '')
+                switch($valor['acefalia'])
                 {
-                    return '';
+                    case '1':
+                        $respuesta = '<span class="label label-primary font-sm">' . $this->acefalia[$valor['acefalia']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->acefalia[$valor['acefalia']] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '<span class="label label-default font-sm">?</span>';
+                        return($respuesta);
+                        break;
                 }
-                else
-                {
-                    return "<img  width='100%' class='img-thumbnail' alt='Imagen Personal' src='" . asset($this->public_url . $valor['imagen']) . "' />";
-                }
-                break;
-            case '3':
-                $respuesta = '';
-                if($valor['d_json'] != '')
-                {
-                    $sw = TRUE;
-                    foreach(json_decode($valor['d_json']) as $valor)
-                    {
-                        if($sw)
-                        {
-                            $respuesta .= $valor;
-                            $sw = FALSE;
-                        }
-                        else
-                        {
-                            $respuesta .= "<br>" . $valor;
-                        }
-                    }
-                }
-                return($respuesta);
                 break;
             case '10':
                 $organigrama_array = [];

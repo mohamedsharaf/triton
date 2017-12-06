@@ -251,12 +251,13 @@
                             align : col_m_align_1[3]
                         },
                         {
-                            name  : col_m_name_1[4],
-                            index : col_m_index_1[4],
-                            width : col_m_width_1[4],
-                            align : col_m_align_1[4]
+                            name       : col_m_name_1[4],
+                            index      : col_m_index_1[4],
+                            width      : col_m_width_1[4],
+                            align      : col_m_align_1[4],
+                            stype      :'select',
+                            editoptions: {value:lugar_dependencia_jqgrid}
                         },
-
                         // === OCULTO ===
                             {
                                 name  : col_m_name_1[5],
@@ -453,7 +454,7 @@
                         nombre:{
                             required : true,
                             maxlength: 250
-                        },
+                        }
                     }
                 });
                 break;
