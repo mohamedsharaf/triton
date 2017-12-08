@@ -13,6 +13,7 @@ class RrhhFuncionario extends Model
         'cargo_id',
         'unidad_desconcentrada_id',
         'estado',
+        'situacion',
         'f_ingreso',
         'sueldo'
     ];

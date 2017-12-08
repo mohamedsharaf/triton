@@ -19,7 +19,7 @@
         };
     // === VARIABLES GLOBALES ===
         var base_url       = "{!! url('') !!}";
-        var url_controller = "{!! url('/persona_biometrico') !!}";
+        var url_controller = "{!! url('/funcionario') !!}";
         var csrf_token     = "{!! csrf_token() !!}";
 
     // === JQGRID1 ===
@@ -29,14 +29,15 @@
         var col_name_1    = new Array(
             "",
             "ESTADO",
-            "FECHA DE REGISTRO",
-            "NUMERO DE REGISTRO",
-            "PERSONA",
-            "PRIVILEGIO",
+            "¿ACEFALO?",
+            "TIPO DE CARGO",
+            "NUMERO",
+            "CARGO",
 
-            "CODIGO ACTIVO FIJO",
-            "IP",
-            "UNIDAD DESCONCENTRADA",
+            "CARGO DE DEPENDENCIA",
+
+            "AREA UNIDAD ORGANIZACIONAL",
+
             "LUGAR DE DEPENDENCIA",
 
             ""
@@ -44,44 +45,48 @@
         var col_m_name_1  = new Array(
             "act",
             "estado",
-            "f_registro_biometrico",
-            "n_documento_biometrico",
+            "acefalia",
+            "tipo_cargo",
+            "item_contrato",
             "nombre",
-            "privilegio",
 
-            "codigo_af",
-            "ip",
-            "unidad_desconcentrada",
+            "cargo",
+
+            "auo",
+
             "lugar_dependencia",
 
             "val_json"
         );
         var col_m_index_1 = new Array(
             "",
-            "rrhh_personas_biometricos.estado",
-            "rrhh_personas_biometricos.f_registro_biometrico::text",
-            "rrhh_personas_biometricos.n_documento_biometrico::text",
-            "rrhh_personas_biometricos.nombre",
-            "rrhh_personas_biometricos.privilegio",
+            "inst_cargos.estado",
+            "inst_cargos.acefalia",
+            "a2.nombre",
+            "inst_cargos.item_contrato",
+            "inst_cargos.nombre",
 
-            "a3.codigo_af",
-            "a3.ip",
+            "a3.nombre",
+
             "a4.nombre",
+
             "a5.nombre",
 
             ""
         );
         var col_m_width_1 = new Array(
             33,
-            225,
-            140,
+            110,
+            85,
+            120,
             150,
             300,
-            180,
-            145,
-            100,
-            500,
-            350,
+
+            300,
+
+            300,
+
+            300,
 
             10
         );
@@ -92,9 +97,11 @@
             "center",
             "center",
             "center",
+
             "center",
+
             "center",
-            "center",
+
             "center",
 
             "center"
@@ -113,24 +120,24 @@
             estado_jqgrid += ';' + index + ':' + value;
         });
 
-    // === PRIVILEGIO ===
-        var privilegio_json   = $.parseJSON('{!! json_encode($privilegio_array) !!}');
-        var privilegio_select = '';
-        var privilegio_jqgrid = ':Todos';
+    // === ACEFALIA ===
+        var acefalia_json   = $.parseJSON('{!! json_encode($acefalia_array) !!}');
+        var acefalia_select = '';
+        var acefalia_jqgrid = ':Todos';
 
-        $.each(privilegio_json, function(index, value){
-            privilegio_select += '<option value="' + index + '">' + value + '</option>';
-            privilegio_jqgrid += ';' + index + ':' + value;
+        $.each(acefalia_json, function(index, value) {
+            acefalia_select += '<option value="' + index + '">' + value + '</option>';
+            acefalia_jqgrid += ';' + index + ':' + value;
         });
 
-    // === TIPO DE MARCACION ===
-        var tipo_marcacion_json   = $.parseJSON('{!! json_encode($tipo_marcacion_array) !!}');
-        var tipo_marcacion_select = '';
-        var tipo_marcacion_jqgrid = ':Todos';
+    // === SITUACION ===
+        var situacion_json   = $.parseJSON('{!! json_encode($situacion_array) !!}');
+        var situacion_select = '';
+        var situacion_jqgrid = ':Todos';
 
-        $.each(tipo_marcacion_json, function(index, value){
-            tipo_marcacion_select += '<option value="' + index + '">' + value + '</option>';
-            tipo_marcacion_jqgrid += ';' + index + ':' + value;
+        $.each(situacion_json, function(index, value) {
+            situacion_select += '<option value="' + index + '">' + value + '</option>';
+            situacion_jqgrid += ';' + index + ':' + value;
         });
 
     // === LUGAR DE DEPENDENCIA ===
@@ -143,9 +150,19 @@
             lugar_dependencia_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
+    // === TIPO DE CARGO ===
+        var tipo_cargo_json   = $.parseJSON('{!! json_encode($tipo_cargo_array) !!}');
+        var tipo_cargo_select = '';
+        var tipo_cargo_jqgrid = ':Todos';
+
+        $.each(tipo_cargo_json, function(index, value) {
+            tipo_cargo_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            tipo_cargo_jqgrid += ';' + value.nombre + ':' + value.nombre;
+        });
+
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#persona_id').select2({
+            $('#auo_id, #auo_id_r').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -157,7 +174,7 @@
                             q         : params.term,
                             page_limit: 10,
                             estado    : 1,
-                            tipo      : 101,
+                            tipo      : 100,
                             _token    : csrf_token
                         };
                     },
@@ -168,36 +185,23 @@
                     }
                 }
             });
-            $("#persona_id").appendTo("#persona_id_div");
+            $("#auo_id").appendTo("#auo_id_div");
 
-            $('#lugar_dependencia_id').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id").select2({
+            $("#cargo_id").select2({
                 maximumSelectionLength: 1
             });
-            $("#lugar_dependencia_id").appendTo("#lugar_dependencia_id_div");
+            $("#cargo_id").appendTo("#cargo_id_div");
 
-            $("#unidad_desconcentrada_id").select2({
+            $('#tipo_cargo_id').append(tipo_cargo_select);
+            $("#tipo_cargo_id").select2({
                 maximumSelectionLength: 1
             });
-            $("#unidad_desconcentrada_id").appendTo("#unidad_desconcentrada_id_div");
-
-            $("#biometrico_id").select2({
-                maximumSelectionLength: 1
-            });
-            $("#biometrico_id").appendTo("#biometrico_id_div");
-
-            $('#privilegio').append(privilegio_select);
-            $("#privilegio").select2({
-                maximumSelectionLength: 1
-            });
-            $("#privilegio").appendTo("#privilegio_div");
+            $("#tipo_cargo_id").appendTo("#tipo_cargo_id_div");
 
         // === SELECT CHANGE ===
-            $("#lugar_dependencia_id").on("change", function(e) {
-                $('#unidad_desconcentrada_id').select2('val','');
-                $('#unidad_desconcentrada_id option').remove();
-                $('#biometrico_id').select2('val','');
-                $('#biometrico_id option').remove();
+            $("#auo_id").on("change", function(e) {
+                $('#cargo_id').select2('val','');
+                $('#cargo_id option').remove();
                 switch ($.trim(this.value)){
                     case '':
                         break;
@@ -207,42 +211,9 @@
                         valor1[1]  = url_controller + '/send_ajax';
                         valor1[2]  = 'POST';
                         valor1[3]  = false;
-                        valor1[4]  = "tipo=103&lugar_dependencia_id=" + this.value + "&_token=" + csrf_token;
+                        valor1[4]  = "tipo=102&auo_id=" + this.value + "&_token=" + csrf_token;
                         valor1[5]  = 'json';
                         utilitarios(valor1);
-                }
-            });
-
-            $("#unidad_desconcentrada_id").on("change", function(e) {
-                $('#biometrico_id').select2('val','');
-                $('#biometrico_id option').remove();
-                switch ($.trim(this.value)){
-                    case '':
-                        break;
-                    default:
-                        var valor1 = new Array();
-                        valor1[0]  = 150;
-                        valor1[1]  = url_controller + '/send_ajax';
-                        valor1[2]  = 'POST';
-                        valor1[3]  = false;
-                        valor1[4]  = "tipo=104&unidad_desconcentrada_id=" + this.value + "&_token=" + csrf_token;
-                        valor1[5]  = 'json';
-                        utilitarios(valor1);
-                }
-            });
-
-        // === RADIO CHANGE ===
-            $(".estado_class").on("change", function(e) {
-                $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", false);
-                switch ($(".estado_class:checked").val()){
-                    case '2':
-                        $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
-                        break;
-                    case '3':
-                        $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
-                        break;
-                    default:
-                        break;
                 }
             });
 
@@ -269,7 +240,7 @@
                 utilitarios(valor1);
             },0);
 
-            $( "#navbar-minimalize-button" ).on( "click", function() {
+            $("#navbar-minimalize-button" ).on( "click", function() {
                 setTimeout(function(){
                     $('.wrapper-content').removeClass('animated fadeInRight');
                     var valor1 = new Array();
@@ -296,21 +267,9 @@
                 var edit1      = true;
                 var ancho1     = 5;
                 var ancho_d    = 28;
-                var subgrid_sw = false;
-                @if(in_array(['codigo' => '0703'], $permisos))
+                @if(in_array(['codigo' => '0403'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
-                @endif
-                @if(in_array(['codigo' => '0704'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
-                @endif
-                @if(in_array(['codigo' => '0705'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
-                @endif
-                @if(in_array(['codigo' => '0706'], $permisos))
-                    subgrid_sw = true;
                 @endif
 
                 $(jqgrid1).jqGrid({
@@ -322,7 +281,7 @@
                     pager       : pjqgrid1,
                     rowNum      : 10,
                     rowList     : [10, 20, 30],
-                    sortname    : 'rrhh_personas_biometricos.id',
+                    sortname    : 'inst_cargos.id',
                     sortorder   : "desc",
                     viewrecords : true,
                     shrinkToFit : false,
@@ -330,7 +289,7 @@
                     multiboxonly: true,
                     altRows     : true,
                     rownumbers  : true,
-                    subGrid     : subgrid_sw,
+                    // subGrid     : subgrid_sw,
                     // multiselect  : true,
                     //autowidth     : true,
                     //gridview      :true,
@@ -346,8 +305,7 @@
                         col_name_1[6],
                         col_name_1[7],
                         col_name_1[8],
-                        col_name_1[9],
-                        col_name_1[10]
+                        col_name_1[9]
                     ],
                     colModel : [
                         {
@@ -370,16 +328,20 @@
                             editoptions: {value:estado_jqgrid}
                         },
                         {
-                            name  : col_m_name_1[2],
-                            index : col_m_index_1[2],
-                            width : col_m_width_1[2],
-                            align : col_m_align_1[2]
+                            name       : col_m_name_1[2],
+                            index      : col_m_index_1[2],
+                            width      : col_m_width_1[2],
+                            align      : col_m_align_1[2],
+                            stype      :'select',
+                            editoptions: {value:acefalia_jqgrid}
                         },
                         {
-                            name  : col_m_name_1[3],
-                            index : col_m_index_1[3],
-                            width : col_m_width_1[3],
-                            align : col_m_align_1[3]
+                            name       : col_m_name_1[3],
+                            index      : col_m_index_1[3],
+                            width      : col_m_width_1[3],
+                            align      : col_m_align_1[3],
+                            stype      :'select',
+                            editoptions: {value:tipo_cargo_jqgrid}
                         },
                         {
                             name  : col_m_name_1[4],
@@ -388,12 +350,10 @@
                             align : col_m_align_1[4]
                         },
                         {
-                            name       : col_m_name_1[5],
-                            index      : col_m_index_1[5],
-                            width      : col_m_width_1[5],
-                            align      : col_m_align_1[5],
-                            stype      :'select',
-                            editoptions: {value:privilegio_jqgrid}
+                            name  : col_m_name_1[5],
+                            index : col_m_index_1[5],
+                            width : col_m_width_1[5],
+                            align : col_m_align_1[5]
                         },
                         {
                             name  : col_m_name_1[6],
@@ -408,26 +368,19 @@
                             align : col_m_align_1[7]
                         },
                         {
-                            name  : col_m_name_1[8],
-                            index : col_m_index_1[8],
-                            width : col_m_width_1[8],
-                            align : col_m_align_1[8]
-                        },
-                        {
-                            name       : col_m_name_1[9],
-                            index      : col_m_index_1[9],
-                            width      : col_m_width_1[9],
-                            align      : col_m_align_1[9],
+                            name       : col_m_name_1[8],
+                            index      : col_m_index_1[8],
+                            width      : col_m_width_1[8],
+                            align      : col_m_align_1[8],
                             stype      :'select',
                             editoptions: {value:lugar_dependencia_jqgrid}
                         },
-
                         // === OCULTO ===
                             {
-                                name  : col_m_name_1[10],
-                                index : col_m_index_1[10],
-                                width : col_m_width_1[10],
-                                align : col_m_align_1[10],
+                                name  : col_m_name_1[9],
+                                index : col_m_index_1[9],
+                                width : col_m_width_1[9],
+                                align : col_m_align_1[9],
                                 search: false,
                                 hidden: true
                             }
@@ -439,128 +392,17 @@
                         var ids = $(jqgrid1).jqGrid('getDataIDs');
                         for(var i = 0; i < ids.length; i++){
                             var cl = ids[i];
-                            @if(in_array(['codigo' => '0703'], $permisos))
+                            @if(in_array(['codigo' => '0403'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                             @else
                                 ed = '';
                             @endif
 
-                            @if(in_array(['codigo' => '0704'], $permisos))
-                                hr = " <button type='button' class='btn btn-xs btn-warning' title='Eliminar huellas y rostro' onclick=\"utilitarios([18, " + cl + "]);\"><i class='fa fa-key'></i></button>";
-                            @else
-                                hr = '';
-                            @endif
-
-                            @if(in_array(['codigo' => '0705'], $permisos))
-                                de = " <button type='button' class='btn btn-xs btn-danger' title='Eliminar relación PERSONA-BIOMETRICO' onclick=\"utilitarios([19, " + cl + "]);\"><i class='fa fa-trash'></i></button>";
-                            @else
-                                de = '';
-                            @endif
-
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed + hr + de)
+                                act : $.trim(ed)
                             });
                         }
-                    },
-                    subGridRowExpanded: function(subgrid_id, row_id) {
-                        var subgrid_table_id, pager_id;
-                        subgrid_table_id = subgrid_id+"_t";
-                        pager_id = "p_"+subgrid_table_id;
-                        $("#"+subgrid_id).html("<table id='"+subgrid_table_id+"' class='scroll'></table><div id='"+pager_id+"' class='scroll'></div>");
-
-                        var ret      = $(jqgrid1).jqGrid('getRowData', row_id);
-                        var val_json = $.parseJSON(ret.val_json);
-
-                        $("#"+subgrid_table_id).jqGrid({
-                            url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&biometrico_id=' + val_json.biometrico_id + '&persona_id=' + val_json.persona_id,
-                            datatype: 'json',
-                            mtype: 'post',
-                            colNames: [
-                                '<small>TIPO DE MARCACION</small>',
-                                '<small>FECHA Y HORA</small>',
-                                /*OTROS*/
-                                '<span class="font-xs">JSON</span>'
-                            ],
-                            colModel: [
-                                {
-                                    name       : 'tipo_marcacion',
-                                    index      : 'tipo_marcacion',
-                                    width      : 250,
-                                    align      : 'center',
-                                    stype      : 'select',
-                                    editoptions: {value:tipo_marcacion_jqgrid}
-                                },
-                                {
-                                    name : 'f_marcacion',
-                                    index: 'f_marcacion::text',
-                                    width: 150,
-                                    align: 'center'
-                                },
-                                /*OTROS*/
-                                {
-                                    name: 'val_json',
-                                    index: '',
-                                    width: 10,
-                                    search: false,
-                                    hidden: true
-                                }
-                            ],
-                            pager  : pager_id,
-                            rowNum : 10,
-                            rowList: [10, 20, 30],
-
-                            sortname : 'f_marcacion::text',
-                            sortorder: "desc",
-
-                            shrinkToFit: false,
-                            altRows    : true,
-                            autowidth  : true,
-
-                            viewrecords: true,
-                            gridview:true,
-                            // rownumbers:true,
-                            multiboxonly: true,
-
-                            height: '100%'//,
-
-                            // ondblClickRow: function(id_row){
-                            //     var ret1      = $("#"+subgrid_table_id).jqGrid('getRowData', id_row);
-                            //     var val_json1 = $.parseJSON(ret1.val_json);
-
-                            //     var win = window.open(base_url + c_upload_dir + 'pdf/' + val_json1.upload_pdf,  '_blank');
-                            //     win.focus();
-                            // }
-                        });
-
-                        $("#"+subgrid_table_id).jqGrid('navGrid',"#"+pager_id,{
-                            edit: false,
-                            add: false,
-                            del: false,
-                            search: false
-                        });
-
-                        $("#"+subgrid_table_id).jqGrid('filterToolbar',{
-                            searchOnEnter : true,
-                            stringResult  : true,
-                            defaultSearch : 'cn'
-                        });
                     }
-                });
-
-                $(jqgrid1).jqGrid('setGroupHeaders', {
-                    useColSpanStyle: true,
-                    groupHeaders   :[
-                        {
-                            startColumnName: 'n_documento_biometrico',
-                            numberOfColumns: 3,
-                            titleText      : 'BIOMETRICO'
-                        },
-                        {
-                            startColumnName: 'codigo_af',
-                            numberOfColumns: 4,
-                            titleText      : 'UBICACION DEL BIOMETRICO'
-                        }
-                    ]
                 });
 
                 $(jqgrid1).jqGrid('filterToolbar',{
@@ -578,7 +420,7 @@
                 .navSeparatorAdd(pjqgrid1,{
                     sepclass : "ui-separator"
                 })
-                @if(in_array(['codigo' => '0702'], $permisos))
+                @if(in_array(['codigo' => '0402'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "add1",
                     caption       : "",
@@ -595,7 +437,7 @@
                     }
                 })
                 @endif
-                @if(in_array(['codigo' => '0703'], $permisos))
+                @if(in_array(['codigo' => '0403'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "edit1",
                     caption       : "",
@@ -618,20 +460,22 @@
                     }
                 })
                 @endif
-                // .navSeparatorAdd(pjqgrid1,{
-                //   sepclass : "ui-separator"
-                // })
-                // .navButtonAdd(pjqgrid1,{
-                //   "id"          : "print1",
-                //   caption       : "",
-                //   title         : 'Reportes',
-                //   buttonicon    : "ui-icon ui-icon-print",
-                //   onClickButton : function(){
-                //       var valor1 = new Array();
-                //       valor1[0]  = 13;
-                //       utilitarios(valor1);
-                //   }
-                // })
+                @if(in_array(['codigo' => '0404'], $permisos))
+                    .navSeparatorAdd(pjqgrid1,{
+                      sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid1,{
+                      "id"          : "print1",
+                      caption       : "",
+                      title         : 'Reportes',
+                      buttonicon    : "ui-icon ui-icon-print",
+                      onClickButton : function(){
+                          var valor1 = new Array();
+                          valor1[0]  = 13;
+                          utilitarios(valor1);
+                      }
+                    })
+                @endif
                 ;
                 break;
             // === ABRIR MODAL ===
@@ -645,111 +489,76 @@
                 utilitarios(valor1);
 
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Editar relación PERSONA - BIOMETRICO');
-                $("#persona_biometrico_id").val(valor[1]);
+                $('#modal_1_title').append('Editar cargo');
+                $("#id_cargo").val(valor[1]);
+
+                $('#auo_id option').remove();
+                $('#auo_id').select2("val", "");
+
+                $('#cargo_id option').remove();
+                $('#cargo_id').select2("val", "");
 
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
 
-                var persona = val_json.n_documento + ' - ' + $.trim(val_json.ap_paterno + ' ' +  val_json.ap_materno) + ' ' + val_json.nombre_persona;
+                $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
+                // $(".acefalia_class[value=" + val_json.acefalia + "]").prop('checked', true);
 
-                $('#persona_id option').remove();
-                $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
-                $("#persona_id").select2("val", val_json.persona_id);
+                if(ret.auo != ""){
+                    var auo = ret.auo + ' - ' + ret.auo;
+                    $('#auo_id').append('<option value="' + val_json.auo_id + '">' + auo + '</option>');
+                    $("#auo_id").select2("val", val_json.auo_id);
+                }
 
-                $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
-                $("#unidad_desconcentrada_id").select2("val", val_json.unidad_desconcentrada_id);
-                $("#biometrico_id").select2("val", val_json.biometrico_id);
-                $("#privilegio").select2("val", val_json.privilegio);
+                if(ret.cargo != ""){
+                    $('#cargo_id').select2("val", val_json.cargo_id);
+                }
 
-                $("#persona_id").select2("enable", false);
-                $("#lugar_dependencia_id").select2("enable", false);
-                $("#unidad_desconcentrada_id").select2("enable", false);
-                $("#biometrico_id").select2("enable", false);
+                $("#tipo_cargo_id").select2("val", val_json.tipo_cargo_id);
+                $("#item_contrato").val(ret.item_contrato);
+                $("#nombre").val(ret.nombre);
 
                 $('#modal_1').modal();
                 break;
             // === REPORTES MODAL ===
             case 13:
-                alert("REPORTE");
+                $('#modal_2').modal();
                 break;
             // === RESETEAR FORMULARIO ===
             case 14:
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Agregar relación PERSONA - BIOMETRICO');
+                $('#modal_1_title').append('Agregar cargo');
 
-                $("#persona_biometrico_id").val('');
+                $("#id_cargo").val('');
 
-                $('#persona_id').select2("val", "");
-                $('#privilegio').select2("val", "0");
+                // $('#lugar_dependencia_id').select2("val", "");
+                // $('#auo_id').select2("val", "");
 
-                $("#persona_id").select2("enable", true);
-                $("#lugar_dependencia_id").select2("enable", true);
-                $("#unidad_desconcentrada_id").select2("enable", true);
-                $("#biometrico_id").select2("enable", true);
+                $("#item_contrato").val('');
+                $("#nombre").val('');
+
+                // $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
             case 15:
                 if($(form_1).valid()){
-                    var persona_biometrico_id = $.trim($("#persona_biometrico_id").val());
-                    if(persona_biometrico_id != ""){
-                        swal({
-                            title             : "PERSONA - BIOMETRICO",
-                            text              : "¿Esta seguro de editar la relación PERSONA-BIOMETRICO?\nSi se edita se perderá el registro de las huellas y el rostro.",
-                            type              : "warning",
-                            showCancelButton  : true,
-                            confirmButtonColor: "#DD6B55",
-                            confirmButtonText : "Editar",
-                            cancelButtonText  : "Cancelar",
-                            closeOnConfirm    : false,
-                            closeOnCancel     : false
-                        },
-                        function(isConfirm){
-                            if (isConfirm){
-                                swal.close();
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
 
-                                swal({
-                                    title             : "ENVIANDO INFORMACIÓN",
-                                    text              : "Espere a que guarde la información.",
-                                    allowEscapeKey    : false,
-                                    showConfirmButton : false,
-                                    type              : "info"
-                                });
-                                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                                var valor1 = new Array();
-                                valor1[0]  = 150;
-                                valor1[1]  = url_controller + '/send_ajax';
-                                valor1[2]  = 'POST';
-                                valor1[3]  = true;
-                                valor1[4]  = $(form_1).serialize();
-                                valor1[5]  = 'json';
-                                utilitarios(valor1);
-                            }
-                            else{
-                                swal.close();
-                            }
-                        });
-                    }
-                    else{
-                        swal({
-                            title             : "ENVIANDO INFORMACIÓN",
-                            text              : "Espere a que guarde la información.",
-                            allowEscapeKey    : false,
-                            showConfirmButton : false,
-                            type              : "info"
-                        });
-                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                        var valor1 = new Array();
-                        valor1[0]  = 150;
-                        valor1[1]  = url_controller + '/send_ajax';
-                        valor1[2]  = 'POST';
-                        valor1[3]  = true;
-                        valor1[4]  = $(form_1).serialize();
-                        valor1[5]  = 'json';
-                        utilitarios(valor1);
-                    }
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = $(form_1).serialize();
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
                 }
                 else{
                     var valor1 = new Array();
@@ -763,118 +572,63 @@
             case 16:
                 $(form_1).validate({
                     rules: {
-                        persona_id:{
-                            required : true
-                        },
-                        lugar_dependencia_id:{
+                        auo_id:{
                             required: true
                         },
-                        unidad_desconcentrada_id:{
+                        tipo_cargo_id:{
                             required: true
                         },
-                        biometrico_id:{
-                            required: true
+                        item_contrato:{
+                            required : true,
+                            maxlength: 50
                         },
-                        privilegio:{
-                            required: true
+                        nombre:{
+                            required : true,
+                            maxlength: 250
                         }
                     }
                 });
                 break;
-            // === DROPZONE 1 ===
+            // === SELECT2 ORGANIGRAMA AREA O UNIDAD DESCONCENTRADA ===
             case 17:
-                break;
-            // === ELIMINAR HUELLA Y ROSTRO ===
-            case 18:
-                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
-                var val_json = $.parseJSON(ret.val_json);
+                $('#chart-container-1').empty();
 
-                if(val_json.estado == 1){
+                var auo_id=$.trim($("#auo_id_r").val());
+
+                if(auo_id != ''){
                     swal({
-                        title             : "ELIMINAR HUELLAS Y ROSTRO",
-                        text              : "¿Esta seguro de elininar las huelas y el rostro del biométrico?",
-                        type              : "warning",
-                        showCancelButton  : true,
-                        confirmButtonColor: "#DD6B55",
-                        confirmButtonText : "Eliminar",
-                        cancelButtonText  : "Cancelar",
-                        closeOnConfirm    : false,
-                        closeOnCancel     : false
-                    },
-                    function(isConfirm){
-                        if (isConfirm){
-                            swal.close();
-
-                            swal({
-                                title            : "ELIMINANDO HUELLAS Y ROSTRO",
-                                text             : "Espere a que se elimine las huellas y rostro del biométrico.",
-                                allowEscapeKey   : false,
-                                showConfirmButton: false,
-                                type             : "info"
-                            });
-                            $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                            var valor1 = new Array();
-                            valor1[0]  = 150;
-                            valor1[1]  = url_controller + '/send_ajax';
-                            valor1[2]  = 'POST';
-                            valor1[3]  = true;
-                            valor1[4]  = "tipo=2&id=" + valor[1] + "&_token=" + csrf_token;
-                            valor1[5]  = 'json';
-                            utilitarios(valor1);
-                        }
-                        else{
-                            swal.close();
-                        }
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
                     });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = "tipo=101&auo_id=" + $("#auo_id_r").val() + "&_token=" + csrf_token;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
                 }
                 else{
                     var valor1 = new Array();
-                    valor1[0]  = 102;
+                    valor1[0]  = 101;
                     valor1[1]  = "ALERTA";
-                    valor1[2]  = "EL BIOMETRICO NO PERMITE REGISTROS.";
+                    valor1[2]  = "¡Favor seleccione un ÁREA O UNIDAD ORGANIZACIONAL!";
                     utilitarios(valor1);
                 }
                 break;
-            // === ELIMINAR RELACION PERSONA - BIOMETRICO ===
-            case 19:
-                swal({
-                    title             : "ELIMINAR RELACION PERSONA - BIOMETRICO",
-                    text              : "¿Esta seguro de eliminar la relación Persona - Biométrico?",
-                    type              : "warning",
-                    showCancelButton  : true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText : "Eliminar",
-                    cancelButtonText  : "Cancelar",
-                    closeOnConfirm    : false,
-                    closeOnCancel     : false
-                },
-                function(isConfirm){
-                    if (isConfirm){
-                        swal.close();
+            // === EXCEL CARGOS ===
+            case 18:
+                var concatenar_valores = '';
+                concatenar_valores     += '?tipo=1';
 
-                        swal({
-                            title            : "ELIMINANDO RELACION PERSONA - BIOMETRICO",
-                            text             : "Espere a que se elimine la relación Persona - Biométrico.",
-                            allowEscapeKey   : false,
-                            showConfirmButton: false,
-                            type             : "info"
-                        });
-                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                        var valor1 = new Array();
-                        valor1[0]  = 150;
-                        valor1[1]  = url_controller + '/send_ajax';
-                        valor1[2]  = 'POST';
-                        valor1[3]  = true;
-                        valor1[4]  = "tipo=3&id=" + valor[1] + "&_token=" + csrf_token;
-                        valor1[5]  = 'json';
-                        utilitarios(valor1);
-                    }
-                    else{
-                        swal.close();
-                    }
-                });
+                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                win.focus();
                 break;
             // === MENSAJE ERROR ===
             case 100:
@@ -943,16 +697,16 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === ELIMINAR HUELLA Y ROSTRO ===
-                            case '2':
+                            // === SELECT2 ORGANIGRAMA CARGOS POR AREA O UNIDAD DESCONCENTRADA ===
+                            case '101':
                                 if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    // $(jqgrid1).trigger("reloadGrid");
+                                    $('#chart-container-1').orgchart({
+                                        'data'               : data.respuesta,
+                                        // 'depth'           : 2,
+                                        'nodeContent'        : 'title',
+                                        'exportButton'       : true,
+                                        'exportFilename'     : 'organigrama_por_auo'
+                                    });
                                 }
                                 else if(data.sw === 0){
                                     var valor1 = new Array();
@@ -960,8 +714,6 @@
                                     valor1[1]  = data.titulo;
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
                                 }
                                 else if(data.sw === 2){
                                     window.location.reload();
@@ -969,51 +721,14 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === ELIMINAR RELACION PERSONA - BIOMETRICO ===
-                            case '3':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === SELECT2 UNIDAD DESCONCENTRADA ===
-                            case '103':
+                            // === SELECT2 CARGOS POR UNIDAD DESCONCENTRADA ===
+                            case '102':
                                 if(data.sw === 2){
-                                    var unidad_desconcentrada_select = '';
+                                    var cargo_select = '';
                                     $.each(data.consulta, function(index, value) {
-                                        unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                                        cargo_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
                                     });
-                                    $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
-                                }
-                                break;
-                            // === SELECT2 BIOMETRICOS ===
-                            case '104':
-                                if(data.sw === 2){
-                                    var biometrico_select = '';
-                                    $.each(data.consulta, function(index, value) {
-                                        biometrico_select += '<option value="' + value.id + '">' + 'MP-' + value.nombre + '</option>';
-                                    });
-                                    $('#biometrico_id').append(biometrico_select);
+                                    $('#cargo_id').append(cargo_select);
                                 }
                                 break;
                             default:

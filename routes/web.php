@@ -80,11 +80,18 @@
     Route::get('/cargo', 'Institucion\CargoController@index')->name('cargo');
         Route::match(["get", "post"], '/cargo/view_jqgrid', 'Institucion\CargoController@view_jqgrid');
         Route::post('/cargo/send_ajax', 'Institucion\CargoController@send_ajax');
+        Route::match(["get", "post"], '/cargo/reportes', 'Institucion\CargoController@reportes');
 
 //=== PERSONA ===
     Route::get('/persona', 'Rrhh\PersonaController@index')->name('persona');
         Route::match(["get", "post"], '/persona/view_jqgrid', 'Rrhh\PersonaController@view_jqgrid');
         Route::post('/persona/send_ajax', 'Rrhh\PersonaController@send_ajax');
+
+//=== FUNCIONARIOS ===
+    Route::get('/funcionario', 'Rrhh\FuncionarioController@index')->name('funcionario');
+        Route::match(["get", "post"], '/funcionario/view_jqgrid', 'Rrhh\FuncionarioController@view_jqgrid');
+        Route::post('/funcionario/send_ajax', 'Rrhh\FuncionarioController@send_ajax');
+        Route::match(["get", "post"], '/funcionario/reportes', 'Rrhh\FuncionarioController@reportes');
 
 //=== BIOMETRICOS ===
     Route::get('/biometrico', 'Rrhh\BiometricoController@index')->name('biometrico');

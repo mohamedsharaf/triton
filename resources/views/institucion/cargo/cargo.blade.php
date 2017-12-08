@@ -166,7 +166,7 @@
                       </div>
                     </div>
 
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                       <label>¿Acéfalo?</label>
                       <div>
                           <div class="radio radio-primary radio-inline">
@@ -178,7 +178,7 @@
                               <label class="text-danger" for="acefalia_2_id"> {{ $acefalia_array['2'] }} </label>
                           </div>
                       </div>
-                    </div>
+                    </div> --}}
 
                     <div id="auo_id_div" class="form-group">
                       <label for="auo_id">Área o unidad organizacional</label>
@@ -260,6 +260,7 @@
             </div>
 
             <div class="modal-footer">
+              <button type="button" class="btn btn-success" onclick="utilitarios([18]);">Excel</button>
               <button type="button" class="btn btn-primary" onclick="utilitarios([17]);">Organigrama</button>
               <button type="button" class="btn btn-danger" data-dismiss="modal">Salir</button>
             </div>

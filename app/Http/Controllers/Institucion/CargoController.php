@@ -18,6 +18,8 @@ use App\Models\Institucion\InstAuo;
 use App\Models\Institucion\InstTipoCargo;
 use App\Models\Institucion\InstCargo;
 
+use Maatwebsite\Excel\Facades\Excel;
+
 use Exception;
 
 class CargoController extends Controller
@@ -27,6 +29,8 @@ class CargoController extends Controller
 
     private $rol_id;
     private $permisos;
+
+    private $reporte_1;
 
     public function __construct()
     {
@@ -249,7 +253,8 @@ class CargoController extends Controller
                         'auo_id'               => $row["auo_id"],
                         'cargo_id'             => $row["cargo_id"],
                         'tipo_cargo_id'        => $row["tipo_cargo_id"],
-                        'acefalia'             => $row["acefalia"]
+                        'acefalia'             => $row["acefalia"],
+                        'estado'               => $row["estado"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
@@ -371,7 +376,7 @@ class CargoController extends Controller
 
                 //=== OPERACION ===
                     $data1['estado']        = trim($request->input('estado'));
-                    $data1['acefalia']      = trim($request->input('acefalia'));
+                    // $data1['acefalia']      = trim($request->input('acefalia'));
                     $data1['auo_id']        = trim($request->input('auo_id'));
                     $data1['cargo_id']      = trim($request->input('cargo_id'));
                     $data1['tipo_cargo_id'] = trim($request->input('tipo_cargo_id'));
@@ -451,7 +456,7 @@ class CargoController extends Controller
                         {
                             $iu                = new InstCargo;
                             $iu->estado        = $data1['estado'];
-                            $iu->acefalia      = $data1['acefalia'];
+                            // $iu->acefalia      = $data1['acefalia'];
                             $iu->auo_id        = $data1['auo_id'];
                             $iu->cargo_id      = $data1['cargo_id'];
                             $iu->tipo_cargo_id = $data1['tipo_cargo_id'];
@@ -530,7 +535,7 @@ class CargoController extends Controller
                         {
                             $iu                = InstCargo::find($id);
                             $iu->estado        = $data1['estado'];
-                            $iu->acefalia      = $data1['acefalia'];
+                            // $iu->acefalia      = $data1['acefalia'];
                             $iu->auo_id        = $data1['auo_id'];
                             $iu->cargo_id      = $data1['cargo_id'];
                             $iu->tipo_cargo_id = $data1['tipo_cargo_id'];
@@ -778,6 +783,186 @@ class CargoController extends Controller
                     }
                 }
                 return $organigrama_array;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public function reportes(Request $request)
+    {
+        $tipo = $request->input('tipo');
+
+        switch($tipo)
+        {
+            case '1':
+                Excel::create('Cargos_' . date('Y-m-d_H-i-s'), function($excel){
+                    $tabla1 = "inst_cargos";
+                    $tabla2 = "inst_tipos_cargo";
+                    $tabla3 = "inst_auos";
+                    $tabla4 = "inst_lugares_dependencia";
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.auo_id,
+                        $tabla1.cargo_id,
+                        $tabla1.tipo_cargo_id,
+                        $tabla1.estado,
+                        $tabla1.item_contrato,
+                        $tabla1.acefalia,
+                        $tabla1.nombre,
+
+                        a2.nombre AS tipo_cargo,
+
+                        a3.nombre AS cargo,
+
+                        a4.lugar_dependencia_id,
+                        a4.nombre AS auo,
+
+                        a5.nombre AS lugar_dependencia
+                    ";
+
+                    $array_where = 'TRUE';
+
+                    $user_id = Auth::user()->id;
+
+                    $consulta1 = SegLdUser::where("user_id", "=", $user_id)
+                        ->select('lugar_dependencia_id')
+                        ->get()
+                        ->toArray();
+                    if(count($consulta1) > 0)
+                    {
+                        $c_1_sw        = TRUE;
+                        $c_2_sw        = TRUE;
+                        $array_where_1 = '';
+                        foreach ($consulta1 as $valor)
+                        {
+                            if($valor['lugar_dependencia_id'] == '1')
+                            {
+                                $c_2_sw = FALSE;
+                                break;
+                            }
+
+                            if($c_1_sw)
+                            {
+                                $array_where_1 .= " AND (a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                                $c_1_sw        = FALSE;
+                            }
+                            else
+                            {
+                                $array_where_1 .= " OR a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            }
+                        }
+                        $array_where_1 .= ")";
+
+                        if($c_2_sw)
+                        {
+                            $array_where .= $array_where_1;
+                        }
+                    }
+                    else
+                    {
+                        $array_where .= " AND a4.lugar_dependencia_id=0 AND ";
+                    }
+
+                    $this->reporte_1 = InstCargo::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_cargo_id")
+                        ->leftJoin("$tabla1 AS a3", "a3.id", "=", "$tabla1.cargo_id")
+                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.auo_id")
+                        ->leftJoin("$tabla4 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderBy('a5.nombre', 'ASC')
+                        ->orderBy('a4.nombre', 'ASC')
+                        ->orderBy("$tabla1.tipo_cargo_id", 'ASC')
+                        ->orderBy("$tabla1.item_contrato", 'ASC')
+                        ->orderBy("$tabla1.nombre", 'ASC')
+                        ->get()
+                        ->toArray();
+
+                    $excel->sheet('Cargos Dependencia', function($sheet){
+                        $sheet->row(1, [
+                            'LUGAR DE DEPENDENCIA',
+                            'AREA UNIDAD ORGANIZACIONAL',
+                            'CARGO DE DEPENDENCIA',
+                            'ESTADO',
+                            '¿ACEFALO?',
+                            'TIPO DE CARGO',
+                            'NUMERO',
+                            'CARGO'
+                        ]);
+
+                        $sheet->row(1, function($row){
+                            $row->setBackground('#CCCCCC');
+                            $row->setFontWeight('bold');
+                            $row->setAlignment('center');
+                        });
+
+                        $sheet->freezeFirstRow();
+                        $sheet->setAutoFilter();
+
+                        foreach($this->reporte_1 as $index => $row1)
+                        {
+                            $sheet->row($index+2, [
+                                $row1["lugar_dependencia"],
+                                $row1["auo"],
+                                $row1["cargo"],
+                                $this->estado[$row1["estado"]],
+                                $this->acefalia[$row1["acefalia"]],
+                                $row1["tipo_cargo"],
+                                $row1["item_contrato"],
+                                $row1["nombre"]
+                            ]);
+                        }
+
+                        $sheet->setAutoSize(true);
+                    });
+
+                    $excel->sheet('Cargos', function($sheet){
+                        $sheet->row(1, [
+                            'LUGAR DE DEPENDENCIA',
+                            'AREA UNIDAD ORGANIZACIONAL',
+                            '¿ACEFALO?',
+                            'TIPO DE CARGO',
+                            'NUMERO',
+                            'CARGO'
+                        ]);
+
+                        $sheet->row(1, function($row){
+                            $row->setBackground('#CCCCCC');
+                            $row->setFontWeight('bold');
+                            $row->setAlignment('center');
+                        });
+
+                        $sheet->freezeFirstRow();
+                        $sheet->setAutoFilter();
+
+                        foreach($this->reporte_1 as $index => $row1)
+                        {
+                            $sheet->row($index+2, [
+                                $row1["lugar_dependencia"],
+                                $row1["auo"],
+                                $this->acefalia[$row1["acefalia"]],
+                                $row1["tipo_cargo"],
+                                $row1["item_contrato"],
+                                $row1["nombre"]
+                            ]);
+
+                            if($row1["acefalia"] == 1)
+                            {
+                                $sheet->row($index+2, function($row){
+                                    $row->setBackground('#ffc7ce');
+                                    $row->setFontColor('#9c0006');
+                                });
+                            }
+                        }
+
+                        $sheet->cells('C1:D' . ($index + 2), function($cells){
+                            $cells->setAlignment('center');
+                        });
+
+                        $sheet->setAutoSize(true);
+                    });
+                })->export('xlsx');
                 break;
             default:
                 break;

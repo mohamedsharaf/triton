@@ -38,7 +38,7 @@
 
             "AREA UNIDAD ORGANIZACIONAL",
 
-            "LUGAR ORGANIZACIONAL",
+            "LUGAR DE DEPENDENCIA",
 
             ""
         );
@@ -492,7 +492,7 @@
                 var val_json = $.parseJSON(ret.val_json);
 
                 $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
-                $(".acefalia_class[value=" + val_json.acefalia + "]").prop('checked', true);
+                // $(".acefalia_class[value=" + val_json.acefalia + "]").prop('checked', true);
 
                 if(ret.auo != ""){
                     var auo = ret.auo + ' - ' + ret.auo;
@@ -612,6 +612,14 @@
                     utilitarios(valor1);
                 }
                 break;
+            // === EXCEL CARGOS ===
+            case 18:
+                var concatenar_valores = '';
+                concatenar_valores     += '?tipo=1';
+
+                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                win.focus();
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -687,7 +695,7 @@
                                         // 'depth'           : 2,
                                         'nodeContent'        : 'title',
                                         'exportButton'       : true,
-                                        'exportFilename'     : 'organigrama_areas_unidades_organizacionales'
+                                        'exportFilename'     : 'organigrama_por_auo'
                                     });
                                 }
                                 else if(data.sw === 0){

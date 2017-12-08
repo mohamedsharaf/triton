@@ -20,6 +20,7 @@ class CreateRrhhFuncionariosTable extends Migration
             $table->integer('unidad_desconcentrada_id')->unsigned()->nullable();
 
             $table->smallInteger('estado')->default('1')->unsigned();
+            $table->smallInteger('situacion')->default('1')->unsigned();
             $table->date('f_ingreso')->nullable();
             $table->double('sueldo')->nullable();
 
