@@ -80,13 +80,13 @@
             85,
             120,
             150,
-            350,
+            300,
 
-            350,
+            300,
 
-            350,
+            300,
 
-            350,
+            300,
 
             10
         );
@@ -479,24 +479,33 @@
                 utilitarios(valor1);
 
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Editar área o unidad organizacional');
-                $("#id_auo").val(valor[1]);
+                $('#modal_1_title').append('Editar cargo');
+                $("#id_cargo").val(valor[1]);
 
                 $('#auo_id option').remove();
                 $('#auo_id').select2("val", "");
+
+                $('#cargo_id option').remove();
+                $('#cargo_id').select2("val", "");
 
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
 
                 $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
+                $(".acefalia_class[value=" + val_json.acefalia + "]").prop('checked', true);
 
-                $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
                 if(ret.auo != ""){
-                    var auo = ret.auo;
+                    var auo = ret.auo + ' - ' + ret.auo;
                     $('#auo_id').append('<option value="' + val_json.auo_id + '">' + auo + '</option>');
                     $("#auo_id").select2("val", val_json.auo_id);
                 }
 
+                if(ret.cargo != ""){
+                    $('#cargo_id').select2("val", val_json.cargo_id);
+                }
+
+                $("#tipo_cargo_id").select2("val", val_json.tipo_cargo_id);
+                $("#item_contrato").val(ret.item_contrato);
                 $("#nombre").val(ret.nombre);
 
                 $('#modal_1').modal();
@@ -508,7 +517,7 @@
             // === RESETEAR FORMULARIO ===
             case 14:
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Agregar área o unidad organizacional');
+                $('#modal_1_title').append('Agregar cargo');
 
                 $("#id_cargo").val('');
 
@@ -676,7 +685,7 @@
                                     $('#chart-container-1').orgchart({
                                         'data'               : data.respuesta,
                                         // 'depth'           : 2,
-                                        // 'nodeContent'        : 'title',
+                                        'nodeContent'        : 'title',
                                         'exportButton'       : true,
                                         'exportFilename'     : 'organigrama_areas_unidades_organizacionales'
                                     });

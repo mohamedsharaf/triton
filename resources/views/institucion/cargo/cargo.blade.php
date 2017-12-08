@@ -47,13 +47,13 @@
         }
 
         .orgchart .node{
-          box-sizing:border-box;
+          /*box-sizing:border-box;
           display   :inline-block;
           position  :relative;
           margin    :0;
           padding   :3px;
           border    :2px dashed transparent;
-          text-align:center;
+          text-align:center;*/
           width     :auto;
         }
 
@@ -73,7 +73,7 @@
           white-space     :nowrap;
           background-color:#4587BC;
           color           :#fff;
-          border-radius   :1px 1px 1px 1px;
+          border-radius   :2px 2px 2px 2px;
           padding-left    :4px;
           padding-right   :4px;
         }

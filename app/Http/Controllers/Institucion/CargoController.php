@@ -388,10 +388,68 @@ class CargoController extends Controller
                 // === REGISTRAR MODIFICAR VALORES ===
                     if($opcion == 'n')
                     {
-                        $consulta1 = InstAuo::where('lugar_dependencia_id', '=', $data1['lugar_dependencia_id'])->where('nombre', '=', $data1['nombre'])->count();
-                        if($consulta1 < 1)
+                        $sw_tipo_cargo = FALSE;
+
+                        $consulta2 = InstCargo::where('auo_id', '=', $data1['auo_id'])
+                            ->whereNull('cargo_id')
+                            ->count();
+
+                        if($consulta2 < 2)
                         {
-                            $iu                = new InstAuo;
+                            $sw_cargo_null = FALSE;
+                            if($consulta2 == 0)
+                            {
+                                $sw_cargo_null = TRUE;
+                            }
+                            else if($consulta2 == 1)
+                            {
+                                if($data1['cargo_id'] != '')
+                                {
+                                    $sw_cargo_null = TRUE;
+                                }
+                            }
+
+                            if($sw_cargo_null)
+                            {
+                                switch($data1['tipo_cargo_id'])
+                                {
+                                    case '1':
+                                        if(is_numeric($data1['item_contrato']))
+                                        {
+                                            $consulta1 = InstCargo::where('item_contrato', '=', $data1['item_contrato'])
+                                                ->count();
+                                            if($consulta1 < 1)
+                                            {
+                                                $sw_tipo_cargo = TRUE;
+                                            }
+                                            else
+                                            {
+                                                $respuesta['respuesta'] .= "El NÚMERO DE ITEM ya existe.";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            $respuesta['respuesta'] .= "El NÚMERO DE ITEM debe de ser número entero.";
+                                        }
+                                        break;
+                                    default:
+                                        $sw_tipo_cargo = TRUE;
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "Favor seleccione CARGO DE DEPENDENCIA.";
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "Existe " . $consulta2 . " cargos que no tienen CARGO DE DEPENDENCIA.";
+                        }
+
+                        if($sw_tipo_cargo)
+                        {
+                            $iu                = new InstCargo;
                             $iu->estado        = $data1['estado'];
                             $iu->acefalia      = $data1['acefalia'];
                             $iu->auo_id        = $data1['auo_id'];
@@ -404,17 +462,73 @@ class CargoController extends Controller
                             $respuesta['respuesta'] .= "El CARGO fue registrado con éxito.";
                             $respuesta['sw']         = 1;
                         }
-                        else
-                        {
-                            $respuesta['respuesta'] .= "El ÁREA O UNIDAD ORGANIZACIONAL en el LUGAR DE DEPENDENCIA ya fue registrada.";
-                        }
                     }
                     else
                     {
-                        $consulta1 = InstAuo::where('lugar_dependencia_id', '=', $data1['lugar_dependencia_id'])->where('nombre', '=', $data1['nombre'])->where('id', '<>', $id)->count();
-                        if($consulta1 < 1)
+                        $sw_tipo_cargo = FALSE;
+
+                        $consulta2 = InstCargo::where('auo_id', '=', $data1['auo_id'])
+                            ->whereNull('cargo_id')
+                            ->where('id', '<>', $id)
+                            ->count();
+
+                        if($consulta2 < 2)
                         {
-                            $iu                = InstAuo::find($id);
+                            $sw_cargo_null = FALSE;
+                            if($consulta2 == 0)
+                            {
+                                $sw_cargo_null = TRUE;
+                            }
+                            else if($consulta2 == 1)
+                            {
+                                if($data1['cargo_id'] != '')
+                                {
+                                    $sw_cargo_null = TRUE;
+                                }
+                            }
+
+                            if($sw_cargo_null)
+                            {
+                                switch($data1['tipo_cargo_id'])
+                                {
+                                    case '1':
+                                        if(is_numeric($data1['item_contrato']))
+                                        {
+                                            $consulta1 = InstCargo::where('item_contrato', '=', $data1['item_contrato'])
+                                                ->where('id', '<>', $id)
+                                                ->count();
+                                            if($consulta1 < 1)
+                                            {
+                                                $sw_tipo_cargo = TRUE;
+                                            }
+                                            else
+                                            {
+                                                $respuesta['respuesta'] .= "El NÚMERO DE ITEM ya existe.";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            $respuesta['respuesta'] .= "El NÚMERO DE ITEM debe ser número entero.";
+                                        }
+                                        break;
+                                    default:
+                                        $sw_tipo_cargo = TRUE;
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "Favor seleccione CARGO DE DEPENDENCIA.";
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "Existe " . $consulta2 . " cargos que no tienen CARGO DE DEPENDENCIA.";
+                        }
+
+                        if($sw_tipo_cargo)
+                        {
+                            $iu                = InstCargo::find($id);
                             $iu->estado        = $data1['estado'];
                             $iu->acefalia      = $data1['acefalia'];
                             $iu->auo_id        = $data1['auo_id'];
@@ -427,10 +541,6 @@ class CargoController extends Controller
                             $respuesta['respuesta'] .= "El CARGO se edito con éxito.";
                             $respuesta['sw']         = 1;
                             $respuesta['iu']         = 2;
-                        }
-                        else
-                        {
-                            $respuesta['respuesta'] .= "El ÁREA O UNIDAD ORGANIZACIONAL en el LUGAR DE DEPENDENCIA ya fue registrada.";
                         }
                     }
                 return json_encode($respuesta);
@@ -528,68 +638,40 @@ class CargoController extends Controller
                         $user_id = Auth::user()->id;
 
                         $consulta1 = SegLdUser::where("seg_ld_users.user_id", "=", $user_id)
-                                ->select('lugar_dependencia_id')
-                                ->get()
-                                ->toArray();
-
-                        $array_where = "TRUE";
-
-                        if(count($consulta1) > 0)
-                        {
-                            $c_1_sw        = TRUE;
-                            $c_2_sw        = TRUE;
-                            $array_where_1 = "";
-                            foreach ($consulta1 as $valor)
-                            {
-                                if($valor['lugar_dependencia_id'] == '1')
-                                {
-                                    $c_2_sw = FALSE;
-                                    break;
-                                }
-
-                                if($c_1_sw)
-                                {
-                                    $array_where_1 .= " AND (id=" . $valor['lugar_dependencia_id'];
-                                    $c_1_sw      = FALSE;
-                                }
-                                else
-                                {
-                                    $array_where_1 .= " OR id=" . $valor['lugar_dependencia_id'];
-                                }
-                            }
-                            $array_where_1 .= ")";
-
-                            if($c_2_sw)
-                            {
-                                $array_where .= $array_where_1;
-                            }
-                        }
-                        else
-                        {
-                            $array_where .= " AND id=0";
-                        }
+                            ->select('lugar_dependencia_id')
+                            ->get()
+                            ->toArray();
 
                         $organigrama_array = [];
 
-                        $consulta1 = InstAuo::whereRaw($array_where)
-                                    ->where("estado", "=", 1)
-                                    ->where("id", "=", $auo_id)
-                                    ->select('id', 'nombre')
-                                    ->first()
-                                    ->toArray();
+                        $consulta1 = InstCargo::leftJoin("inst_tipos_cargo AS a2", "a2.id", "=", "inst_cargos.tipo_cargo_id")
+                            ->whereNull('inst_cargos.cargo_id')
+                            ->where("inst_cargos.estado", "=", 1)
+                            ->where("inst_cargos.auo_id", "=", $auo_id)
+                            ->select('inst_cargos.id', 'inst_cargos.tipo_cargo_id', 'inst_cargos.item_contrato', 'inst_cargos.nombre', 'inst_cargos.acefalia', 'a2.nombre AS tipo_cargo')
+                            ->first()
+                            ->toArray();
 
                         if(count($consulta1) > 0)
                         {
-                            $organigrama_array['name'] = $consulta1['nombre'];
+                            if($consulta1['tipo_cargo_id'] == 1)
+                            {
+                                $organigrama_array['name']  = $consulta1['tipo_cargo'] . ' ' . $consulta1['item_contrato'] . ' - ¿ACEFALO? ' . $this->acefalia[$consulta1['acefalia']];
+                            }
+                            else
+                            {
+                                $organigrama_array['name']  = $consulta1['tipo_cargo'] . ' - ¿ACEFALO? ' . $this->acefalia[$consulta1['acefalia']];
+                            }
+                            $organigrama_array['title'] = $consulta1['nombre'];
 
-                            $organigrama_array['children'] = $this->utilitarios(['tipo' => '10', 'auo_id' => $auo_id]);
+                            $organigrama_array['children'] = $this->utilitarios(['tipo' => '10', 'cargo_id' => $consulta1['id']]);
 
                             $respuesta['respuesta'] = $organigrama_array;
-                            $respuesta['sw'] = 1;
+                            $respuesta['sw']        = 1;
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "¡No existe en su LUGAR DE DEPENDENCIA el ÁREA O UNIDAD ORGANIZACIONAL!<br>¡Verifique!";
+                            $respuesta['respuesta'] .= "¡No existe CARGOS en el ÁREA O UNIDAD ORGANIZACIONAL seleccionada!<br>¡Verifique!";
                         }
                     }
                     else
@@ -667,24 +749,34 @@ class CargoController extends Controller
                 break;
             case '10':
                 $organigrama_array = [];
-                $consulta1 = InstAuo::where("estado", "=", 1)
-                                    ->where("auo_id", "=", $valor['auo_id'])
-                                    ->select('id', 'nombre')
-                                    ->orderBy("nombre")
-                                    ->get()
-                                    ->toArray();
+                $consulta1 = InstCargo::leftJoin("inst_tipos_cargo AS a2", "a2.id", "=", "inst_cargos.tipo_cargo_id")
+                    ->where("inst_cargos.estado", "=", 1)
+                    ->where("inst_cargos.cargo_id", "=", $valor['cargo_id'])
+                    ->select('inst_cargos.id', 'inst_cargos.tipo_cargo_id', 'inst_cargos.item_contrato', 'inst_cargos.nombre', 'inst_cargos.acefalia', 'a2.nombre AS tipo_cargo')
+                    ->orderBy("inst_cargos.nombre")
+                    ->get()
+                    ->toArray();
 
                 if(count($consulta1) > 0)
                 {
                     foreach ($consulta1 as $row1)
                     {
+                        if($row1['tipo_cargo_id'] == 1)
+                        {
+                            $name = $row1['tipo_cargo'] . ' ' . $row1['item_contrato'] . ' - ¿ACEFALO? ' . $this->acefalia[$row1['acefalia']];
+                        }
+                        else
+                        {
+                            $name = $row1['tipo_cargo'] . ' - ¿ACEFALO? ' . $this->acefalia[$row1['acefalia']];
+                        }
                         $organigrama_array[] = [
-                            'name'     => $row1['nombre'],
-                            'children' => $this->utilitarios(['tipo' => '10', 'auo_id' => $row1['id']])
+
+                            'name'     => $name,
+                            'title'    => $row1['nombre'],
+                            'children' => $this->utilitarios(['tipo' => '10', 'cargo_id' => $row1['id']])
                         ];
                     }
                 }
-
                 return $organigrama_array;
                 break;
             default:
