@@ -583,12 +583,12 @@ class CargoController extends Controller
 
                             if($c_1_sw)
                             {
-                                $array_where_1 .= " AND (id=" . $valor['lugar_dependencia_id'];
+                                $array_where_1 .= " AND (lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
                                 $c_1_sw      = FALSE;
                             }
                             else
                             {
-                                $array_where_1 .= " OR id=" . $valor['lugar_dependencia_id'];
+                                $array_where_1 .= " OR lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
                             }
                         }
                         $array_where_1 .= ")";
@@ -600,7 +600,7 @@ class CargoController extends Controller
                     }
                     else
                     {
-                        $array_where .= " AND id=0";
+                        $array_where .= " AND lugar_dependencia_id=0";
                     }
 
                     $query = InstAuo::leftJoin("inst_lugares_dependencia AS a2", "a2.id", "=", "inst_auos.lugar_dependencia_id")

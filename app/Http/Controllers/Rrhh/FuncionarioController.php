@@ -33,6 +33,7 @@ class FuncionarioController extends Controller
     private $estado;
     private $acefalia;
     private $situacion;
+    private $documento_sw;
 
     private $rol_id;
     private $permisos;
@@ -56,6 +57,11 @@ class FuncionarioController extends Controller
         $this->situacion = [
             '1' => 'EVENTUAL',
             '2' => 'INSTITUCIONALIZADO'
+        ];
+
+        $this->documento_sw = [
+            '1' => 'NO',
+            '2' => 'SI'
         ];
     }
 
@@ -124,6 +130,7 @@ class FuncionarioController extends Controller
                 'estado_array'            => $this->estado,
                 'acefalia_array'          => $this->acefalia,
                 'situacion_array'         => $this->situacion,
+                'documento_sw_array'      => $this->documento_sw,
                 'tipo_cargo_array'        => InstTipoCargo::where("estado", "=", 1)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
@@ -166,28 +173,49 @@ class FuncionarioController extends Controller
                 $tabla2 = "inst_tipos_cargo";
                 $tabla3 = "inst_auos";
                 $tabla4 = "inst_lugares_dependencia";
+                $tabla5 = "rrhh_funcionarios";
+                $tabla6 = "rrhh_personas";
+                $tabla7 = "inst_unidades_desconcentradas";
 
                 $select = "
                     $tabla1.id,
                     $tabla1.auo_id,
-                    $tabla1.cargo_id,
                     $tabla1.tipo_cargo_id,
-                    $tabla1.estado,
                     $tabla1.item_contrato,
                     $tabla1.acefalia,
-                    $tabla1.nombre,
+                    $tabla1.nombre As cargo,
 
                     a2.nombre AS tipo_cargo,
 
-                    a3.nombre AS cargo,
+                    a3.lugar_dependencia_id AS lugar_dependencia_id_cargo,
+                    a3.nombre AS auo_cargo,
 
-                    a4.lugar_dependencia_id,
-                    a4.nombre AS auo,
+                    a4.nombre AS lugar_dependencia_cargo,
 
-                    a5.nombre AS lugar_dependencia
+                    a5.id AS funcionario_id,
+                    a5.persona_id,
+                    a5.cargo_id,
+                    a5.unidad_desconcentrada_id,
+                    a5.situacion,
+                    a5.documento_sw,
+                    a5.f_ingreso,
+                    a5.f_salida,
+                    a5.sueldo,
+                    a5.observaciones,
+                    a5.documento_file,
+
+                    a6.n_documento,
+                    a6.nombre AS nombre_persona,
+                    a6.ap_paterno,
+                    a6.ap_materno,
+
+                    a7.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
+                    a7.nombre AS ud_funcionario,
+
+                    a8.nombre AS lugar_dependencia_funcionario
                 ";
 
-                $array_where = 'TRUE';
+                $array_where = "$tabla1.estado=1";
 
                 $user_id = Auth::user()->id;
 
@@ -210,12 +238,12 @@ class FuncionarioController extends Controller
 
                         if($c_1_sw)
                         {
-                            $array_where_1 .= " AND (a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            $array_where_1 .= " AND (a3.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
                             $c_1_sw        = FALSE;
                         }
                         else
                         {
-                            $array_where_1 .= " OR a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            $array_where_1 .= " OR a3.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
                         }
                     }
                     $array_where_1 .= ")";
@@ -227,24 +255,30 @@ class FuncionarioController extends Controller
                 }
                 else
                 {
-                    $array_where .= " AND a4.lugar_dependencia_id=0 AND ";
+                    $array_where .= " AND a3.lugar_dependencia_id=0 AND ";
                 }
 
                 $array_where .= $jqgrid->getWhere();
 
                 $count = InstCargo::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_cargo_id")
-                    ->leftJoin("$tabla1 AS a3", "a3.id", "=", "$tabla1.cargo_id")
-                    ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.auo_id")
-                    ->leftJoin("$tabla4 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.auo_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->leftJoin("$tabla5 AS a5", "a5.cargo_id", "=", "$tabla1.id")
+                    ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.persona_id")
+                    ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a5.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
                     ->whereRaw($array_where)
                     ->count();
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
                 $query = InstCargo::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_cargo_id")
-                    ->leftJoin("$tabla1 AS a3", "a3.id", "=", "$tabla1.cargo_id")
-                    ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.auo_id")
-                    ->leftJoin("$tabla4 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.auo_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->leftJoin("$tabla5 AS a5", "a5.cargo_id", "=", "$tabla1.id")
+                    ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.persona_id")
+                    ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a5.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
                     ->whereRaw($array_where)
                     ->select(DB::raw($select))
                     ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -263,25 +297,46 @@ class FuncionarioController extends Controller
                 foreach ($query as $row)
                 {
                     $val_array = array(
-                        'lugar_dependencia_id' => $row["lugar_dependencia_id"],
-                        'auo_id'               => $row["auo_id"],
-                        'cargo_id'             => $row["cargo_id"],
-                        'tipo_cargo_id'        => $row["tipo_cargo_id"],
-                        'acefalia'             => $row["acefalia"],
-                        'estado'               => $row["estado"]
+                        'auo_id'                           => $row["auo_id"],
+                        'tipo_cargo_id'                    => $row["tipo_cargo_id"],
+                        'acefalia'                         => $row["acefalia"],
+                        'lugar_dependencia_id_cargo'       => $row["lugar_dependencia_id_cargo"],
+                        'funcionario_id'                   => $row["funcionario_id"],
+                        'persona_id'                       => $row["persona_id"],
+                        'unidad_desconcentrada_id'         => $row["unidad_desconcentrada_id"],
+                        'situacion'                        => $row["situacion"],
+                        'documento_sw'                     => $row["documento_sw"],
+                        'documento_file'                   => $row["documento_file"],
+                        'lugar_dependencia_id_funcionario' => $row["lugar_dependencia_id_funcionario"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
-                        $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
                         $this->utilitarios(array('tipo' => '2', 'acefalia' => $row["acefalia"])),
                         $row["tipo_cargo"],
+                        ($row["situacion"] == '')? '' : $this->situacion[$row["situacion"]],
+                        ($row["documento_sw"] == '')? '' : $this->documento_sw[$row["documento_sw"]],
                         $row["item_contrato"],
-                        $row["nombre"],
+
+                        $row["n_documento"],
+                        $row["nombre_persona"],
+                        $row["ap_paterno"],
+                        $row["ap_materno"],
+
+                        $row["f_ingreso"],
+                        $row["f_salida"],
+                        $row["sueldo"],
+
+                        $row["ud_funcionario"],
+                        $row["lugar_dependencia_funcionario"],
+
                         $row["cargo"],
-                        $row["auo"],
-                        $row["lugar_dependencia"],
+                        $row["auo_cargo"],
+                        $row["lugar_dependencia_cargo"],
+
+                        $row["observaciones"],
+
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
                     );
@@ -565,7 +620,7 @@ class FuncionarioController extends Controller
                 return json_encode($respuesta);
                 break;
 
-            // === SELECT2 RELLENAR AREA O UNIDAD DESCONCENTRADA POR LUGAR DE DEPENDENCIA ===
+            // === SELECT2 PERSONA ===
             case '100':
                 if($request->has('q'))
                 {
@@ -573,58 +628,13 @@ class FuncionarioController extends Controller
                     $estado     = trim($request->input('estado'));
                     $page_limit = trim($request->input('page_limit'));
 
-                    $user_id = Auth::user()->id;
-
-                    $consulta1 = SegLdUser::where("seg_ld_users.user_id", "=", $user_id)
-                            ->select('lugar_dependencia_id')
-                            ->get()
-                            ->toArray();
-
-                    $array_where = "CONCAT_WS(' - ', a2.nombre, inst_auos.nombre) ilike '%$nombre%'";
-
-                    if(count($consulta1) > 0)
-                    {
-                        $c_1_sw        = TRUE;
-                        $c_2_sw        = TRUE;
-                        $array_where_1 = "";
-                        foreach ($consulta1 as $valor)
-                        {
-                            if($valor['lugar_dependencia_id'] == '1')
-                            {
-                                $c_2_sw = FALSE;
-                                break;
-                            }
-
-                            if($c_1_sw)
-                            {
-                                $array_where_1 .= " AND (id=" . $valor['lugar_dependencia_id'];
-                                $c_1_sw      = FALSE;
-                            }
-                            else
-                            {
-                                $array_where_1 .= " OR id=" . $valor['lugar_dependencia_id'];
-                            }
-                        }
-                        $array_where_1 .= ")";
-
-                        if($c_2_sw)
-                        {
-                            $array_where .= $array_where_1;
-                        }
-                    }
-                    else
-                    {
-                        $array_where .= " AND id=0";
-                    }
-
-                    $query = InstAuo::leftJoin("inst_lugares_dependencia AS a2", "a2.id", "=", "inst_auos.lugar_dependencia_id")
-                        ->whereRaw($array_where)
-                        ->where("inst_auos.estado", "=", $estado)
-                        ->select(DB::raw("inst_auos.id, CONCAT_WS(' - ', a2.nombre, inst_auos.nombre) AS text"))
-                        ->orderByRaw("CONCAT_WS(' - ', a2.nombre, inst_auos.nombre) ASC")
-                        ->limit($page_limit)
-                        ->get()
-                        ->toArray();
+                    $query = RrhhPersona::whereRaw("CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) ilike '%$nombre%'")
+                                ->where("estado", "=", $estado)
+                                ->select(DB::raw("id, CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) AS text"))
+                                ->orderByRaw("CONCAT_WS(' ', ap_paterno, ap_materno, nombre) ASC")
+                                ->limit($page_limit)
+                                ->get()
+                                ->toArray();
 
                     if(count($query) > 0)
                     {
@@ -715,6 +725,28 @@ class FuncionarioController extends Controller
                         ->select('id', 'nombre')
                         ->get()
                         ->toArray();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
+
+            // === SELECT2 UNIDAD DESCONCENTRADA ===
+            case '103':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('lugar_dependencia_id'))
+                {
+                    $lugar_dependencia_id = $request->input('lugar_dependencia_id');
+                    $query = InstUnidadDesconcentrada::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                                ->select('id', 'nombre')
+                                ->get()
+                                ->toArray();
                     if(count($query) > 0)
                     {
                         $respuesta['consulta'] = $query;

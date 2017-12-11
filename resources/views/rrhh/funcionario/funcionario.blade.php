@@ -132,7 +132,7 @@
 
   <!-- === MODAL === -->
     <div id="modal_1" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">
@@ -148,22 +148,82 @@
           <div class="modal-body">
             <div class="row">
               <form id="form_1" role="form" action="#">
-                <input type="hidden" id="id_cargo" name="id" value=""/>
+                <input type="hidden" id="id_funcionario" name="id" value=""/>
                 <input type="hidden" id="tipo1" name="tipo" value="1"/>
                 {{ csrf_field() }}
                 <div class="col-sm-12">
                   <div class="form-group">
-                    <label>Estado</label>
+                    <label>Situación</label>
                     <div>
                         <div class="radio radio-primary radio-inline">
-                          <input type="radio" id="estado_1_id" class="estado_class" name="estado" value="1" checked="checked">
-                          <label class="text-success" for="estado_1_id"> {{ $estado_array['1'] }} </label>
+                          <input type="radio" id="situacion_1_id" class="situacion_class" name="situacion" value="1" checked="checked">
+                          <label class="text-success" for="situacion_1_id"> {{ $situacion_array['1'] }} </label>
                         </div>
                         <div class="radio radio-danger radio-inline">
-                            <input type="radio" id="estado_2_id" class="estado_class" name="estado" value="2">
-                            <label class="text-danger" for="estado_2_id"> {{ $estado_array['2'] }} </label>
+                            <input type="radio" id="situacion_2_id" class="situacion_class" name="situacion" value="2">
+                            <label class="text-danger" for="situacion_2_id"> {{ $situacion_array['2'] }} </label>
                         </div>
                     </div>
+                  </div>
+
+                  <div id="persona_id_div" class="form-group">
+                    <label for="persona_id">Funcionario</label>
+                    <select name="persona_id" id="persona_id" data-placeholder="Funcionario" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                          <label for="f_ingreso">Fecha de ingreso</label>
+                          <input type="text" class="form-control" id="f_ingreso" name="f_ingreso" placeholder="año-mes-día" data-mask="9999-99-99">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                          <label for="f_salida">Fecha de salida</label>
+                          <input type="text" class="form-control" id="f_salida" name="f_salida" placeholder="año-mes-día" data-mask="9999-99-99">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                          <label for="sueldo">Sueldo</label>
+                          <input type="text" class="form-control" id="sueldo" name="sueldo" placeholder="Sueldo">
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="observaciones">Observaciones</label>
+                    <input type="text" class="form-control" id="observaciones" name="observaciones" placeholder="Observaciones">
+                  </div>
+
+                  <h3 class="text-success">
+                    <b>UBICACION DEL FUNCIONARIO</b>
+                  </h3>
+
+                  <div id="lugar_dependencia_id_funcionario_div" class="form-group">
+                    <label for="lugar_dependencia_id_funcionario">Lugar de dependencia</label>
+                    <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <div id="unidad_desconcentrada_id_div" class="form-group">
+                    <label for="unidad_desconcentrada_id">Unidad desconcentrada</label>
+                    <select name="unidad_desconcentrada_id" id="unidad_desconcentrada_id" data-placeholder="Unidad desconcentrada" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <h3 class="text-success">
+                    <b>UBICACION DEL CARGO</b>
+                  </h3>
+
+                  <div id="lugar_dependencia_id_cargo_div" class="form-group">
+                    <label for="lugar_dependencia_id_cargo">Lugar de dependencia</label>
+                    <select name="lugar_dependencia_id_cargo" id="lugar_dependencia_id_cargo" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                    </select>
                   </div>
 
                   <div id="auo_id_div" class="form-group">
@@ -173,31 +233,9 @@
                   </div>
 
                   <div id="cargo_id_div" class="form-group">
-                    <label for="cargo_id">Cargo de dependencia</label>
-                    <select name="cargo_id" id="cargo_id" data-placeholder="Cargo de dependencia" multiple="multiple" style="width: 100%;">
+                    <label for="cargo_id">Cargo</label>
+                    <select name="cargo_id" id="cargo_id" data-placeholder="Cargo" multiple="multiple" style="width: 100%;">
                     </select>
-                  </div>
-
-                  <div class="row">
-                      <div id="tipo_cargo_id_div" class="col-sm-6">
-                          <div class="form-group">
-                            <label for="tipo_cargo_id">Tipo de cargo</label>
-                            <select name="tipo_cargo_id" id="tipo_cargo_id" data-placeholder="Tipo de cargo" multiple="multiple" style="width: 100%;">
-                            </select>
-                          </div>
-                      </div>
-
-                      <div class="col-sm-6">
-                          <div class="form-group">
-                            <label for="item_contrato">Número</label>
-                            <input type="text" class="form-control" id="item_contrato" name="item_contrato" placeholder="Número">
-                          </div>
-                      </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="nombre">Cargo</label>
-                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Cargo">
                   </div>
                 </div>
               </form>
@@ -205,9 +243,8 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
             <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">Salir</button>
+            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
           </div>
         </div>
       </div>

@@ -21,8 +21,12 @@ class CreateRrhhFuncionariosTable extends Migration
 
             $table->smallInteger('estado')->default('1')->unsigned();
             $table->smallInteger('situacion')->default('1')->unsigned();
+            $table->smallInteger('documento_sw')->default('1')->unsigned();
             $table->date('f_ingreso')->nullable();
+            $table->date('f_salida')->nullable();
             $table->double('sueldo')->nullable();
+            $table->string('observaciones', 500)->nullable();
+            $table->string('documento_file', 250)->nullable();
 
             $table->timestamps();
 
