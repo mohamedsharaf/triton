@@ -19,6 +19,10 @@
     <link href="{!! asset('inspinia_v27/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css') !!}" rel="stylesheet">
 
     <link href="{!! asset('inspinia_v27/css/plugins/orgchart/jquery.orgchart.min.css') !!}" rel="stylesheet">
+
+  <!-- Dropzone -->
+    <link href="{!! asset('inspinia_v27/css/plugins/dropzone/basic.css') !!}" rel="stylesheet">
+    <link href="{!! asset('inspinia_v27/css/plugins/dropzone/dropzone.css') !!}" rel="stylesheet">
 @endsection
 
 @section('css')
@@ -149,20 +153,22 @@
             <div class="row">
               <form id="form_1" role="form" action="#">
                 <input type="hidden" id="id_funcionario" name="id" value=""/>
+                <input type="hidden" id="cargo_id" name="cargo_id" value=""/>
+                <input type="hidden" id="tipo_cargo_id" name="tipo_cargo_id" value=""/>
                 <input type="hidden" id="tipo1" name="tipo" value="1"/>
                 {{ csrf_field() }}
                 <div class="col-sm-12">
                   <div class="form-group">
                     <label>Situación</label>
                     <div>
-                        <div class="radio radio-primary radio-inline">
-                          <input type="radio" id="situacion_1_id" class="situacion_class" name="situacion" value="1" checked="checked">
-                          <label class="text-success" for="situacion_1_id"> {{ $situacion_array['1'] }} </label>
-                        </div>
-                        <div class="radio radio-danger radio-inline">
-                            <input type="radio" id="situacion_2_id" class="situacion_class" name="situacion" value="2">
-                            <label class="text-danger" for="situacion_2_id"> {{ $situacion_array['2'] }} </label>
-                        </div>
+                      <div class="radio radio-primary radio-inline">
+                        <input type="radio" id="situacion_1_id" class="situacion_class" name="situacion" value="1" checked="checked">
+                        <label class="text-success" for="situacion_1_id"> {{ $situacion_array['1'] }} </label>
+                      </div>
+                      <div class="radio radio-danger radio-inline">
+                        <input type="radio" id="situacion_2_id" class="situacion_class" name="situacion" value="2">
+                        <label class="text-danger" for="situacion_2_id"> {{ $situacion_array['2'] }} </label>
+                      </div>
                     </div>
                   </div>
 
@@ -233,8 +239,8 @@
                   </div>
 
                   <div id="cargo_id_div" class="form-group">
-                    <label for="cargo_id">Cargo</label>
-                    <select name="cargo_id" id="cargo_id" data-placeholder="Cargo" multiple="multiple" style="width: 100%;">
+                    <label for="cargo_id_d">Cargo</label>
+                    <select name="cargo_id_d" id="cargo_id_d" data-placeholder="Cargo" multiple="multiple" style="width: 100%;">
                     </select>
                   </div>
                 </div>
@@ -251,6 +257,42 @@
     </div>
 
     <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              Subir documento
+            </h4>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-12">
+                <form action="#" class="dropzone" id="dropzoneForm_1">
+                  <input type="hidden" id="id_funcionario_2" name="id" value=""/>
+                  <div class="fallback">
+                    <input name="file" type="file"/>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
+            <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Salir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal_4" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
       <div class="modal-dialog modal-xlg">
         <div class="modal-content">
           <div class="modal-header">
@@ -331,6 +373,9 @@
     <script src="{{ asset('inspinia_v27/js/plugins/orgchart/html2canvas.min.js') }}"></script>
     <script src="{{ asset('inspinia_v27/js/plugins/orgchart/jspdf.min.js') }}"></script>
     <script src="{{ asset('inspinia_v27/js/plugins/orgchart/jquery.orgchart.min.js') }}"></script>
+
+  <!-- DROPZONE -->
+    <script src="{{ asset('inspinia_v27/js/plugins/dropzone/dropzone.js') }}"></script>
 @endsection
 
 @section('js')

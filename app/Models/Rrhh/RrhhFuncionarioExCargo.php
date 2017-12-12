@@ -4,9 +4,9 @@ namespace App\Models\Rrhh;
 
 use Illuminate\Database\Eloquent\Model;
 
-class RrhhFuncionario extends Model
+class RrhhFuncionarioExCargo extends Model
 {
-    protected $table = 'rrhh_funcionarios';
+    protected $table = 'rrhh_funcionarios_ex_cargos';
 
     protected $fillable = [
         'persona_id',

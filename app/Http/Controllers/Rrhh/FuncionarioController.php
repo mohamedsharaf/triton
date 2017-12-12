@@ -20,6 +20,7 @@ use App\Models\Institucion\InstTipoCargo;
 use App\Models\Institucion\InstCargo;
 use App\Models\Rrhh\RrhhPersona;
 use App\Models\Rrhh\RrhhFuncionario;
+use App\Models\Rrhh\RrhhFuncionarioExCargo;
 use App\Models\Rrhh\RrhhBiometrico;
 use App\Models\Rrhh\RrhhLogMarcacion;
 use App\Models\Rrhh\RrhhPersonaBiometrico;
@@ -37,6 +38,9 @@ class FuncionarioController extends Controller
 
     private $rol_id;
     private $permisos;
+
+    private $public_dir;
+    private $public_url;
 
     private $reporte_1;
 
@@ -63,6 +67,9 @@ class FuncionarioController extends Controller
             '1' => 'NO',
             '2' => 'SI'
         ];
+
+        $this->public_dir = '/storage/rrhh/funcionario/documentos/designacion';
+        $this->public_url = 'storage/rrhh/funcionario/documentos/designacion/';
     }
 
     public function index()
@@ -127,6 +134,7 @@ class FuncionarioController extends Controller
                 'sistema'                 => 'REcursos humanos',
                 'modulo'                  => 'Funcionarios',
                 'title_table'             => 'Funcionarios',
+                'public_url'              => $this->public_url,
                 'estado_array'            => $this->estado,
                 'acefalia_array'          => $this->acefalia,
                 'situacion_array'         => $this->situacion,
@@ -218,6 +226,7 @@ class FuncionarioController extends Controller
                 $array_where = "$tabla1.estado=1";
 
                 $user_id = Auth::user()->id;
+                $rol_id  = Auth::user()->rol_id;
 
                 $consulta1 = SegLdUser::where("user_id", "=", $user_id)
                     ->select('lugar_dependencia_id')
@@ -230,7 +239,7 @@ class FuncionarioController extends Controller
                     $array_where_1 = '';
                     foreach ($consulta1 as $valor)
                     {
-                        if($valor['lugar_dependencia_id'] == '1')
+                        if(($valor['lugar_dependencia_id'] == '1') && ($rol_id == '1' || $rol_id == '5'))
                         {
                             $c_2_sw = FALSE;
                             break;
@@ -313,10 +322,11 @@ class FuncionarioController extends Controller
                     $respuesta['rows'][$i]['id'] = $row["id"];
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
-                        $this->utilitarios(array('tipo' => '2', 'acefalia' => $row["acefalia"])),
+                        $this->utilitarios(array('tipo' => '2', 'acefalia' => $row["acefalia"], 'id' => $row["funcionario_id"])),
                         $row["tipo_cargo"],
                         ($row["situacion"] == '')? '' : $this->situacion[$row["situacion"]],
-                        ($row["documento_sw"] == '')? '' : $this->documento_sw[$row["documento_sw"]],
+                        $this->utilitarios(array('tipo' => '3', 'documento_sw' => $row["documento_sw"], 'id' => $row["funcionario_id"])),
+                        // ($row["documento_sw"] == '')? '' : $this->documento_sw[$row["documento_sw"]],
                         $row["item_contrato"],
 
                         $row["n_documento"],
@@ -387,7 +397,7 @@ class FuncionarioController extends Controller
                     $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>CARGO</strong></div>',
+                        'titulo'     => '<div class="text-center"><strong>FUNCIONARIO</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
                         'iu'         => 1,
@@ -400,7 +410,7 @@ class FuncionarioController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '0403'], $this->permisos))
+                        if(!in_array(['codigo' => '0803'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
@@ -408,7 +418,7 @@ class FuncionarioController extends Controller
                     }
                     else
                     {
-                        if(!in_array(['codigo' => '0402'], $this->permisos))
+                        if(!in_array(['codigo' => '0802'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
                             return json_encode($respuesta);
@@ -418,23 +428,55 @@ class FuncionarioController extends Controller
                 // === VALIDATE ===
                     try
                     {
-                        $validator = $this->validate($request,[
-                            'auo_id'        => 'required',
-                            'tipo_cargo_id' => 'required',
-                            'item_contrato' => 'required|max:50',
-                            'nombre'        => 'required|max:250'
-                        ],
-                        [
-                            'auo_id.required' => 'El campo ÁREA O UNIDAD ORGANIZACIONAL es obligatorio.',
+                        if($request->has('f_salida'))
+                        {
+                            $validator = $this->validate($request,[
+                                'persona_id'                       => 'required',
+                                'f_ingreso'                        => 'required|date',
+                                'f_salida'                         => 'date',
+                                'sueldo'                           => 'required|numeric',
+                                'lugar_dependencia_id_funcionario' => 'required',
+                                'unidad_desconcentrada_id'         => 'required'
+                            ],
+                            [
+                                'persona_id.required' => 'El campo FUNCIONARIO es obligatorio.',
 
-                            'tipo_cargo_id.required' => 'El campo TIPO DE CARGO es obligatorio.',
+                                'f_ingreso.required' => 'El campo FECHA DE INGRESO es obligatorio.',
+                                'f_ingreso.date'     => 'El campo FECHA DE INGRESO no corresponde a una fecha válida.',
 
-                            'item_contrato.required' => 'El campo NUMERO es obligatorio.',
-                            'item_contrato.max'      => 'El campo NUMERO debe ser :max caracteres como máximo.',
+                                'f_salida.date' => 'El campo FECHA DE SALIDA no corresponde a una fecha válida.',
 
-                            'nombre.required' => 'El campo CARGO es obligatorio.',
-                            'nombre.max'      => 'El campo CARGO debe ser :max caracteres como máximo.'
-                        ]);
+                                'sueldo.required' => 'El campo SUELDO es obligatorio.',
+                                'sueldo.numeric'  => 'El campo SUELDO debe ser un número.',
+
+                                'lugar_dependencia_id_funcionario.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
+
+                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.'
+                            ]);
+                        }
+                        else
+                        {
+                            $validator = $this->validate($request,[
+                                'persona_id'                       => 'required',
+                                'f_ingreso'                        => 'required|date',
+                                'sueldo'                           => 'required|numeric',
+                                'lugar_dependencia_id_funcionario' => 'required',
+                                'unidad_desconcentrada_id'         => 'required'
+                            ],
+                            [
+                                'persona_id.required' => 'El campo FUNCIONARIO es obligatorio.',
+
+                                'f_ingreso.required' => 'El campo FECHA DE INGRESO es obligatorio.',
+                                'f_ingreso.date'     => 'El campo FECHA DE INGRESO no corresponde a una fecha válida.',
+
+                                'sueldo.required' => 'El campo SUELDO es obligatorio.',
+                                'sueldo.numeric'  => 'El campo SUELDO debe ser un número.',
+
+                                'lugar_dependencia_id_funcionario.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
+
+                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.'
+                            ]);
+                        }
                     }
                     catch (Exception $e)
                     {
@@ -444,13 +486,14 @@ class FuncionarioController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $data1['estado']        = trim($request->input('estado'));
-                    // $data1['acefalia']      = trim($request->input('acefalia'));
-                    $data1['auo_id']        = trim($request->input('auo_id'));
-                    $data1['cargo_id']      = trim($request->input('cargo_id'));
-                    $data1['tipo_cargo_id'] = trim($request->input('tipo_cargo_id'));
-                    $data1['item_contrato'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('item_contrato'))));
-                    $data1['nombre']        = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                    $data1['persona_id']               = trim($request->input('persona_id'));
+                    $data1['cargo_id']                 = trim($request->input('cargo_id'));
+                    $data1['unidad_desconcentrada_id'] = trim($request->input('unidad_desconcentrada_id'));
+                    $data1['situacion']                = trim($request->input('situacion'));
+                    $data1['f_ingreso']                = trim($request->input('f_ingreso'));
+                    $data1['f_salida']                 = trim($request->input('f_salida'));
+                    $data1['sueldo']                   = trim($request->input('sueldo'));
+                    $data1['observaciones']            = strtoupper($util->getNoAcentoNoComilla(trim($request->input('observaciones'))));
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
                     foreach ($data1 as $llave => $valor)
@@ -462,161 +505,224 @@ class FuncionarioController extends Controller
                 // === REGISTRAR MODIFICAR VALORES ===
                     if($opcion == 'n')
                     {
-                        $sw_tipo_cargo = FALSE;
-
-                        $consulta2 = InstCargo::where('auo_id', '=', $data1['auo_id'])
-                            ->whereNull('cargo_id')
+                        $consulta1 = RrhhFuncionario::where('persona_id', '=', $data1['persona_id'])
                             ->count();
 
-                        if($consulta2 < 2)
+                        if($consulta1 < 1)
                         {
-                            $sw_cargo_null = FALSE;
-                            if($consulta2 == 0)
-                            {
-                                $sw_cargo_null = TRUE;
-                            }
-                            else if($consulta2 == 1)
-                            {
-                                if($data1['cargo_id'] != '')
-                                {
-                                    $sw_cargo_null = TRUE;
-                                }
-                            }
+                            $iu                           = new RrhhFuncionario;
+                            $iu->persona_id               = $data1['persona_id'];
+                            $iu->cargo_id                 = $data1['cargo_id'];
+                            $iu->unidad_desconcentrada_id = $data1['unidad_desconcentrada_id'];
+                            $iu->situacion                = $data1['situacion'];
+                            $iu->f_ingreso                = $data1['f_ingreso'];
+                            $iu->f_salida                 = $data1['f_salida'];
+                            $iu->sueldo                   = $data1['sueldo'];
+                            $iu->observaciones            = $data1['observaciones'];
+                            $iu->save();
 
-                            if($sw_cargo_null)
-                            {
-                                switch($data1['tipo_cargo_id'])
-                                {
-                                    case '1':
-                                        if(is_numeric($data1['item_contrato']))
-                                        {
-                                            $consulta1 = InstCargo::where('item_contrato', '=', $data1['item_contrato'])
-                                                ->count();
-                                            if($consulta1 < 1)
-                                            {
-                                                $sw_tipo_cargo = TRUE;
-                                            }
-                                            else
-                                            {
-                                                $respuesta['respuesta'] .= "El NÚMERO DE ITEM ya existe.";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $respuesta['respuesta'] .= "El NÚMERO DE ITEM debe de ser número entero.";
-                                        }
-                                        break;
-                                    default:
-                                        $sw_tipo_cargo = TRUE;
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                $respuesta['respuesta'] .= "Favor seleccione CARGO DE DEPENDENCIA.";
-                            }
+                            $respuesta['respuesta'] .= "El FUNCIONARIO fue registrado con éxito.";
+                            $respuesta['sw']         = 1;
+
+                            $iu           = InstCargo::find($data1['cargo_id']);
+                            $iu->acefalia = 2;
+                            $iu->save();
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "Existe " . $consulta2 . " cargos que no tienen CARGO DE DEPENDENCIA.";
-                        }
-
-                        if($sw_tipo_cargo)
-                        {
-                            $iu                = new InstCargo;
-                            $iu->estado        = $data1['estado'];
-                            // $iu->acefalia      = $data1['acefalia'];
-                            $iu->auo_id        = $data1['auo_id'];
-                            $iu->cargo_id      = $data1['cargo_id'];
-                            $iu->tipo_cargo_id = $data1['tipo_cargo_id'];
-                            $iu->item_contrato = $data1['item_contrato'];
-                            $iu->nombre        = $data1['nombre'];
-                            $iu->save();
-
-                            $respuesta['respuesta'] .= "El CARGO fue registrado con éxito.";
-                            $respuesta['sw']         = 1;
+                            $respuesta['respuesta'] .= "La PERSONA ya fue registrada en otro cargo.";
                         }
                     }
                     else
                     {
-                        $sw_tipo_cargo = FALSE;
-
-                        $consulta2 = InstCargo::where('auo_id', '=', $data1['auo_id'])
-                            ->whereNull('cargo_id')
+                        $consulta1 = RrhhFuncionario::where('persona_id', '=', $data1['persona_id'])
                             ->where('id', '<>', $id)
                             ->count();
 
-                        if($consulta2 < 2)
+                        if($consulta1 < 1)
                         {
-                            $sw_cargo_null = FALSE;
-                            if($consulta2 == 0)
-                            {
-                                $sw_cargo_null = TRUE;
-                            }
-                            else if($consulta2 == 1)
-                            {
-                                if($data1['cargo_id'] != '')
-                                {
-                                    $sw_cargo_null = TRUE;
-                                }
-                            }
-
-                            if($sw_cargo_null)
-                            {
-                                switch($data1['tipo_cargo_id'])
-                                {
-                                    case '1':
-                                        if(is_numeric($data1['item_contrato']))
-                                        {
-                                            $consulta1 = InstCargo::where('item_contrato', '=', $data1['item_contrato'])
-                                                ->where('id', '<>', $id)
-                                                ->count();
-                                            if($consulta1 < 1)
-                                            {
-                                                $sw_tipo_cargo = TRUE;
-                                            }
-                                            else
-                                            {
-                                                $respuesta['respuesta'] .= "El NÚMERO DE ITEM ya existe.";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $respuesta['respuesta'] .= "El NÚMERO DE ITEM debe ser número entero.";
-                                        }
-                                        break;
-                                    default:
-                                        $sw_tipo_cargo = TRUE;
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                $respuesta['respuesta'] .= "Favor seleccione CARGO DE DEPENDENCIA.";
-                            }
-                        }
-                        else
-                        {
-                            $respuesta['respuesta'] .= "Existe " . $consulta2 . " cargos que no tienen CARGO DE DEPENDENCIA.";
-                        }
-
-                        if($sw_tipo_cargo)
-                        {
-                            $iu                = InstCargo::find($id);
-                            $iu->estado        = $data1['estado'];
-                            // $iu->acefalia      = $data1['acefalia'];
-                            $iu->auo_id        = $data1['auo_id'];
-                            $iu->cargo_id      = $data1['cargo_id'];
-                            $iu->tipo_cargo_id = $data1['tipo_cargo_id'];
-                            $iu->item_contrato = $data1['item_contrato'];
-                            $iu->nombre        = $data1['nombre'];
+                            $iu                           = RrhhFuncionario::find($id);
+                            $iu->persona_id               = $data1['persona_id'];
+                            $iu->cargo_id                 = $data1['cargo_id'];
+                            $iu->unidad_desconcentrada_id = $data1['unidad_desconcentrada_id'];
+                            $iu->situacion                = $data1['situacion'];
+                            $iu->f_ingreso                = $data1['f_ingreso'];
+                            $iu->f_salida                 = $data1['f_salida'];
+                            $iu->sueldo                   = $data1['sueldo'];
+                            $iu->observaciones            = $data1['observaciones'];
                             $iu->save();
 
-                            $respuesta['respuesta'] .= "El CARGO se edito con éxito.";
+                            $respuesta['respuesta'] .= "El FUNCIONARIO se edito con éxito.";
                             $respuesta['sw']         = 1;
                             $respuesta['iu']         = 2;
                         }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "La PERSONA ya fue registrada en otro cargo.";
+                        }
                     }
+                return json_encode($respuesta);
+                break;
+            // === UPLOAD IMAGE ===
+            case '2':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SUBIR DOCUMENTO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'error_sw'   => 1
+                    );
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '0803'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "La ID del FUNCIONARIO es obligatorio.";
+                        return json_encode($respuesta);
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                       $validator = $this->validate($request,[
+                            'file' => 'mimes:pdf|max:5120'
+                        ],
+                        [
+                            'file.mimes' => 'El archivo subido debe de ser de tipo :values.',
+                            'file.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $consulta1 = RrhhFuncionario::where('id', '=', $id)
+                        ->select('documento_file')
+                        ->first()
+                        ->toArray();
+                    if($consulta1['documento_file'] != '')
+                    {
+                        if(file_exists(public_path($this->public_dir) . '/' . $consulta1['documento_file']))
+                        {
+                            unlink(public_path($this->public_dir) . '/' . $consulta1['documento_file']);
+                        }
+                    }
+
+                    if($request->hasFile('file'))
+                    {
+                        $archivo           = $request->file('file');
+                        $nombre_archivo    = uniqid('designacion_', true) . '.' . $archivo->getClientOriginalExtension();
+                        $direccion_archivo = public_path($this->public_dir);
+
+                        $archivo->move($direccion_archivo, $nombre_archivo);
+                    }
+
+                    $iu                 = RrhhFuncionario::find($id);
+                    $iu->documento_sw   = 2;
+                    $iu->documento_file = $nombre_archivo;
+                    $iu->save();
+
+                    $respuesta['respuesta'] .= "El DOCUMENTO DE DESIGNACION se subio con éxito.";
+                    $respuesta['sw']         = 1;
+
+                return json_encode($respuesta);
+                break;
+            // === ELIMINAR FUNCIONARIO DEL CARGO ===
+            case '3':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ALERTA</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo
+                    );
+
+                    $fh_servidor = date("Y-m-d H:i:s");
+                    $f_servidor = date("Y-m-d");
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if(!in_array(['codigo' => '0805'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para ELIMINAR AL FUNCIONARIO DEL CARGO.";
+                        return json_encode($respuesta);
+                    }
+
+                // === CONSULTA ===
+                    $consulta2 = RrhhFuncionario::where('id', '=', $id)
+                            ->count();
+
+                //=== OPERACION ===
+                    if($consulta2 == '1')
+                    {
+                        $consulta1 = RrhhFuncionario::where('id', '=', $id)
+                            ->first()
+                            ->toArray();
+
+                        $iu                           = new RrhhFuncionarioExCargo;
+                        $iu->persona_id               = $consulta1['persona_id'];
+                        $iu->cargo_id                 = $consulta1['cargo_id'];
+                        $iu->unidad_desconcentrada_id = $consulta1['unidad_desconcentrada_id'];
+                        $iu->estado                   = $consulta1['estado'];
+                        $iu->situacion                = $consulta1['situacion'];
+                        $iu->documento_sw             = $consulta1['documento_sw'];
+                        $iu->f_ingreso                = $consulta1['f_ingreso'];
+                        $iu->f_salida                 = $f_servidor;
+                        $iu->sueldo                   = $consulta1['sueldo'];
+                        $iu->observaciones            = $consulta1['observaciones'];
+                        $iu->documento_file           = $consulta1['documento_file'];
+                        $iu->save();
+
+                        $de = RrhhFuncionario::find($id);
+                        $de->delete();
+
+                        $iu           = InstCargo::find($consulta1['cargo_id']);
+                        $iu->acefalia = 1;
+                        $iu->save();
+
+                        $respuesta['sw'] = 1;
+                        $respuesta['respuesta'] .= "Se elimino al FUNCIONARIO DEL CARGO.";
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "Ya se elimino al FUNCIONARIO DEL CARGO.";
+                    }
+
                 return json_encode($respuesta);
                 break;
 
@@ -789,7 +895,10 @@ class FuncionarioController extends Controller
                         return($respuesta);
                         break;
                     case '2':
-                        $respuesta = '<span class="label label-danger font-sm">' . $this->acefalia[$valor['acefalia']] . '</span>';
+                        $respuesta = '<button class="btn btn-xs btn-danger" onclick="utilitarios([21, ' . $valor['id'] . ']);" title="Eliminar al funcionario del cargo">
+                            <i class="fa fa-trash"></i>
+                            <strong>' . $this->acefalia[$valor['acefalia']] . '</strong>
+                        </button>';
                         return($respuesta);
                         break;
                     default:
@@ -798,6 +907,30 @@ class FuncionarioController extends Controller
                         break;
                 }
                 break;
+            case '3':
+                switch($valor['documento_sw'])
+                {
+                    case '1':
+                        $respuesta = '<button class="btn btn-xs btn-danger" onclick="utilitarios([19, ' . $valor['id'] . ']);" title="Clic para subir documento">
+                            <i class="fa fa-upload"></i>
+                            <strong>' . $this->documento_sw[$valor['documento_sw']] . '</strong>
+                        </button>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<button class="btn btn-xs btn-primary" onclick="utilitarios([19, ' . $valor['id'] . ']);" title="Clic para remplazar el documento">
+                            <i class="fa fa-upload"></i>
+                            <strong>' . $this->documento_sw[$valor['documento_sw']] . '</strong>
+                        </button>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+
             case '10':
                 $organigrama_array = [];
                 $consulta1 = InstCargo::leftJoin("inst_tipos_cargo AS a2", "a2.id", "=", "inst_cargos.tipo_cargo_id")

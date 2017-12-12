@@ -21,6 +21,7 @@
         var base_url       = "{!! url('') !!}";
         var url_controller = "{!! url('/funcionario') !!}";
         var csrf_token     = "{!! csrf_token() !!}";
+        var public_url     = "{!! asset($public_url) !!}";
 
     // === JQGRID1 ===
         var title_table   = "{!! $title_table !!}";
@@ -95,9 +96,9 @@
             "a6.ap_paterno",
             "a6.ap_materno",
 
-            "a5.f_ingreso",
-            "a5.f_salida",
-            "a5.sueldo",
+            "a5.f_ingreso::text",
+            "a5.f_salida::text",
+            "a5.sueldo::text",
 
             "a7.nombre",
             "a8.nombre",
@@ -112,20 +113,20 @@
         );
         var col_m_width_1 = new Array(
             33,
-            85,
+            78,
             120,
-            120,
+            142,
+            75,
+            75,
+
+            80,
+            100,
+            100,
+            100,
+
             85,
             85,
-
-            100,
-            100,
-            100,
-            100,
-
-            100,
-            100,
-            100,
+            85,
 
             300,
             300,
@@ -144,7 +145,7 @@
             "center",
             "center",
             "center",
-            "center",
+            "right",
 
             "right",
             "left",
@@ -230,6 +231,9 @@
             tipo_cargo_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
+    // === DROPZONE ===
+        Dropzone.autoDiscover = false;
+
     $(document).ready(function(){
         //=== INICIALIZAR ===
             $('#persona_id').select2({
@@ -258,14 +262,14 @@
             $("#persona_id").appendTo("#persona_id_div");
 
             $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id").select2({
+            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id_d").select2({
                 maximumSelectionLength: 1
             });
             $("#lugar_dependencia_id_funcionario").appendTo("#lugar_dependencia_id_funcionario_div");
             $("#lugar_dependencia_id_cargo").appendTo("#lugar_dependencia_id_cargo_div");
             $("#unidad_desconcentrada_id").appendTo("#unidad_desconcentrada_id_div");
             $("#auo_id").appendTo("#auo_id_div");
-            $("#cargo_id").appendTo("#cargo_id_div");
+            $("#cargo_id_d").appendTo("#cargo_id_div");
 
             $('#f_ingreso').datepicker({
                 startView            : 2,
@@ -290,6 +294,11 @@
                 endDate              : '+1y',
                 language             : "es"
             });
+
+        // === DROPZONE ===
+            var valor1 = new Array();
+            valor1[0]  = 20;
+            utilitarios(valor1);
 
         // === SELECT CHANGE ===
             $("#lugar_dependencia_id_funcionario").on("change", function(e) {
@@ -574,6 +583,25 @@
                                 act : $.trim(ed)
                             });
                         }
+                    },
+                    ondblClickRow: function(id_row){
+                        var ret            = $(jqgrid1).jqGrid('getRowData', id_row);
+                        var val_json       = $.parseJSON(ret.val_json);
+                        var respado_pdf_sw = true;
+
+                        if(val_json.documento_sw == '2'){
+                            var win = window.open(public_url + '/' + val_json.documento_file,  '_blank');
+                            win.focus();
+                            respado_pdf_sw = false;
+                        }
+
+                        if(respado_pdf_sw){
+                            var valor1 = new Array();
+                            valor1[0]  = 101;
+                            valor1[1]  = '<div class="text-center"><strong>SIN RESPALDO PDF</strong></div>';
+                            valor1[2]  = "El FUNCIONARIO no tiene ningun respaldo PDF.";
+                            utilitarios(valor1);
+                        }
                     }
                 });
 
@@ -692,20 +720,22 @@
                 $('#modal_1_title').empty();
 
                 if(val_json.funcionario_id == null){
-                    $('#modal_1_title').append('Agregar información del funcionario');
+                    $('#modal_1_title').append('Agregar información del funcionario con ' + ret.tipo_cargo);
                 }
                 else{
-                    $('#modal_1_title').append('Modificar información del funcionario');
+                    $('#modal_1_title').append('Modificar información del funcionario con ' + ret.tipo_cargo);
                 }
 
                 $("#id_funcionario").val(val_json.funcionario_id);
+                $("#cargo_id").val(valor[1]);
+                $("#tipo_cargo_id").val(val_json.tipo_cargo_id);
 
                 if(val_json.situacion != ''){
                     $(".situacion_class[value=" + val_json.situacion + "]").prop('checked', true);
                 }
 
                 if(ret.n_documento != ""){
-                    var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre;
+                    var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre_persona;
 
                     $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
                     $("#persona_id").select2("val", val_json.persona_id);
@@ -728,13 +758,13 @@
                     $('#auo_id').append('<option value="' + val_json.auo_id + '">' + ret.auo_cargo + '</option>');
                     $("#auo_id").select2("val", val_json.auo_id);
 
-                    $('#cargo_id').append('<option value="' + valor[1] + '">' + ret.cargo + '</option>');
-                    $("#cargo_id").select2("val", valor[1]);
+                    $('#cargo_id_d').append('<option value="' + valor[1] + '">' + ret.cargo + '</option>');
+                    $("#cargo_id_d").select2("val", valor[1]);
                 }
 
                 $("#lugar_dependencia_id_cargo").select2("enable", false);
                 $("#auo_id").select2("enable", false);
-                $("#cargo_id").select2("enable", false);
+                $("#cargo_id_d").select2("enable", false);
 
                 $('#modal_1').modal();
                 break;
@@ -745,6 +775,8 @@
             // === RESETEAR FORMULARIO ===
             case 14:
                 $("#id_funcionario").val('');
+                $("#cargo_id").val('');
+                $("#tipo_cargo_id").val('');
 
                 $('#persona_id').select2("val", "");
                 $('#persona_id option').remove();
@@ -759,31 +791,64 @@
                 $('#auo_id').select2("val", "");
                 $('#auo_id option').remove();
 
-                $('#cargo_id').select2("val", "");
-                $('#cargo_id option').remove();
+                $('#cargo_id_d').select2("val", "");
+                $('#cargo_id_d option').remove();
 
                 $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
             case 15:
                 if($(form_1).valid()){
-                    swal({
-                        title             : "ENVIANDO INFORMACIÓN",
-                        text              : "Espere a que guarde la información.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+                    var tipo_cargo_id = $.trim($("#tipo_cargo_id").val());
 
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = $(form_1).serialize();
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
+                    if(tipo_cargo_id == '1'){
+                        swal({
+                            title             : "ENVIANDO INFORMACIÓN",
+                            text              : "Espere a que guarde la información.",
+                            allowEscapeKey    : false,
+                            showConfirmButton : false,
+                            type              : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = $(form_1).serialize();
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        var f_salida = $.trim($("#f_salida").val());
+                        if(f_salida != ''){
+                            swal({
+                                title             : "ENVIANDO INFORMACIÓN",
+                                text              : "Espere a que guarde la información.",
+                                allowEscapeKey    : false,
+                                showConfirmButton : false,
+                                type              : "info"
+                            });
+                            $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                            var valor1 = new Array();
+                            valor1[0]  = 150;
+                            valor1[1]  = url_controller + '/send_ajax';
+                            valor1[2]  = 'POST';
+                            valor1[3]  = true;
+                            valor1[4]  = $(form_1).serialize();
+                            valor1[5]  = 'json';
+                            utilitarios(valor1);
+                        }
+                        else{
+                            var valor1 = new Array();
+                            valor1[0]  = 101;
+                            valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                            valor1[2]  = "¡El campo FECHA DE SALIDA es obligatorio!";
+                            utilitarios(valor1);
+                        }
+                    }
                 }
                 else{
                     var valor1 = new Array();
@@ -866,6 +931,134 @@
                 var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
                 win.focus();
                 break;
+            // === MODAL SUBIR DOCUMENTO ===
+            case 19:
+                $("#id_funcionario_2").val(valor[1]);
+                $('#modal_2').modal();
+                break;
+            // === DROPZONE 1 ===
+            case 20:
+                $("#dropzoneForm_1").dropzone({
+                    url: url_controller + "/send_ajax",
+                    method:'post',
+                    addRemoveLinks: true,
+                    maxFilesize: 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles:'application/pdf',
+                    paramName: "file", // The name that will be used to transfer the file
+                    maxFiles:1,
+                    clickable:true,
+                    parallelUploads:1,
+                    params: {
+                        tipo: 2,
+                        _token: csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize: 1,
+                    autoProcessQueue:true,
+
+                    dictRemoveFile:'Eliminar',
+                    dictCancelUpload:'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig:'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
+                    init: function(){
+                        // this.on("sending", function(file, xhr, formData){
+                        //     formData.append("usuario_id", $("#usuario_id").val());
+                        //     formData.append("estado", $(".estado_class:checked").val());
+                        //     formData.append("persona_id", $("#persona_id").val());
+                        //     formData.append("email", $("#email").val());
+                        //     formData.append("password", $("#password").val());
+                        //     formData.append("rol_id", $("#rol_id").val());
+                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
+                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
+                        // });
+                    },
+                    success: function(file, response){
+                        var data = $.parseJSON(response);
+                        if(data.sw === 1){
+                            var valor1 = new Array();
+                            valor1[0]  = 100;
+                            valor1[1]  = data.titulo;
+                            valor1[2]  = data.respuesta;
+                            utilitarios(valor1);
+
+                            $(jqgrid1).trigger("reloadGrid");
+                            $('#modal_2').modal('hide');
+                        }
+                        else if(data.sw === 0){
+                            if(data.error_sw === 1){
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = data.respuesta;
+                                utilitarios(valor1);
+                            }
+                            else
+                            {
+                                var respuesta_server = '';
+                                $.each(data.error.response.original, function(index, value) {
+                                    respuesta_server += value + '<br>';
+                                });
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = respuesta_server;
+                                utilitarios(valor1);
+                            }
+                        }
+                        else if(data.sw === 2){
+                            window.location.reload();
+                        }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
+            // === ELIMINAR FUNCIONARIO DEL CARGO ===
+            case 21:
+                swal({
+                    title             : "ELIMINAR FUNCIONARIO DEL CARGO",
+                    text              : "¿Esta seguro de eliminar al FUNCIONARIO del cargo?",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "Eliminar",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        swal.close();
+
+                        swal({
+                            title            : "ELIMINANDO FUNCIONARIO DEL CARGO",
+                            text             : "Espere a que se elimine al FUNCIONARIO del cargo.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=3&id=" + valor[1] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -898,14 +1091,15 @@
                                     utilitarios(valor1);
 
                                     $(jqgrid1).trigger("reloadGrid");
-                                    if(data.iu === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 14;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.iu === 2){
-                                        $('#modal_1').modal('hide');
-                                    }
+                                    $('#modal_1').modal('hide');
+                                    // if(data.iu === 1){
+                                    //     var valor1 = new Array();
+                                    //     valor1[0]  = 14;
+                                    //     utilitarios(valor1);
+                                    // }
+                                    // else if(data.iu === 2){
+                                    //     $('#modal_1').modal('hide');
+                                    // }
                                 }
                                 else if(data.sw === 0){
                                     if(data.error_sw === 1){
@@ -926,6 +1120,32 @@
                                         valor1[2]  = respuesta_server;
                                         utilitarios(valor1);
                                     }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === ELIMINAR FUNCIONARIO DEL CARGO ===
+                            case '3':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
                                 }
                                 else if(data.sw === 2){
                                     window.location.reload();
