@@ -43,6 +43,7 @@ class FuncionarioController extends Controller
     private $public_url;
 
     private $reporte_1;
+    private $reporte_data_1;
 
     public function __construct()
     {
@@ -319,13 +320,15 @@ class FuncionarioController extends Controller
                         'lugar_dependencia_id_funcionario' => $row["lugar_dependencia_id_funcionario"]
                     );
 
+                    $ci_nombre = $row["n_documento"] . ' - ' . trim($row["ap_paterno"] . ' ' . $row["ap_materno"]) . ' ' . $row["nombre_persona"];
+
                     $respuesta['rows'][$i]['id'] = $row["id"];
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
                         $this->utilitarios(array('tipo' => '2', 'acefalia' => $row["acefalia"], 'id' => $row["funcionario_id"])),
                         $row["tipo_cargo"],
                         ($row["situacion"] == '')? '' : $this->situacion[$row["situacion"]],
-                        $this->utilitarios(array('tipo' => '3', 'documento_sw' => $row["documento_sw"], 'id' => $row["funcionario_id"])),
+                        $this->utilitarios(array('tipo' => '3', 'documento_sw' => $row["documento_sw"], 'id' => $row["funcionario_id"], 'ci_nombre' => $ci_nombre)),
                         // ($row["documento_sw"] == '')? '' : $this->documento_sw[$row["documento_sw"]],
                         $row["item_contrato"],
 
@@ -346,6 +349,96 @@ class FuncionarioController extends Controller
                         $row["lugar_dependencia_cargo"],
 
                         $row["observaciones"],
+
+                        //=== VARIABLES OCULTOS ===
+                            json_encode($val_array)
+                    );
+                    $i++;
+                }
+                return json_encode($respuesta);
+                break;
+            case '2':
+                if($request->has('persona_id'))
+                {
+                    $persona_id = $request->input('persona_id');
+                }
+                else
+                {
+                    $respuesta = [
+                        'page'    => 0,
+                        'total'   => 0,
+                        'records' => 0
+                    ];
+                    return json_encode($respuesta);
+                }
+
+                $jqgrid = new JqgridClass($request);
+
+                $tabla1 = "rrhh_log_marcaciones";
+                $tabla2 = "rrhh_biometricos";
+                $tabla3 = "inst_unidades_desconcentradas";
+                $tabla4 = "inst_lugares_dependencia";
+
+                $select = "
+                    $tabla1.id,
+                    $tabla1.biometrico_id,
+                    $tabla1.persona_id,
+                    $tabla1.f_marcacion,
+
+                    a2.unidad_desconcentrada_id,
+                    a2.codigo_af,
+                    a2.ip,
+
+                    a3.lugar_dependencia_id,
+                    a3.nombre AS unidad_desconcentrada,
+
+                    a4.nombre AS lugar_dependencia
+                ";
+
+                $array_where = "$tabla1.persona_id=" . $persona_id . " ";
+
+                $array_where .= $jqgrid->getWhere();
+
+                $count = RrhhLogMarcacion::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->whereRaw($array_where)
+                    ->count();
+
+                $limit_offset = $jqgrid->getLimitOffset($count);
+
+                $query = RrhhLogMarcacion::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->whereRaw($array_where)
+                    ->select(DB::raw($select))
+                    ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                    ->offset($limit_offset['start'])
+                    ->limit($limit_offset['limit'])
+                    ->get()
+                    ->toArray();
+
+                $respuesta = [
+                    'page'    => $limit_offset['page'],
+                    'total'   => $limit_offset['total_pages'],
+                    'records' => $count
+                ];
+
+                $i = 0;
+                foreach ($query as $row)
+                {
+                    $val_array = array(
+                        'biometrico_id'            => $row["biometrico_id"],
+                        'unidad_desconcentrada_id' => $row["unidad_desconcentrada_id"],
+                        'lugar_dependencia_id'     => $row["lugar_dependencia_id"]
+                    );
+
+                    $respuesta['rows'][$i]['id'] = $row["id"];
+                    $respuesta['rows'][$i]['cell'] = array(
+                        $row["f_marcacion"],
+                        "MP-" . $row["codigo_af"],
+                        $row["unidad_desconcentrada"],
+                        $row["lugar_dependencia"],
 
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
@@ -861,6 +954,27 @@ class FuncionarioController extends Controller
                 }
                 return json_encode($respuesta);
                 break;
+            // === SELECT2 UNIDAD DESCONCENTRADA ===
+            case '104':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('lugar_dependencia_id'))
+                {
+                    $lugar_dependencia_id = $request->input('lugar_dependencia_id');
+                    $query = InstUnidadDesconcentrada::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                                ->select('id', 'nombre')
+                                ->get()
+                                ->toArray();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
             default:
                 break;
         }
@@ -911,7 +1025,7 @@ class FuncionarioController extends Controller
                 switch($valor['documento_sw'])
                 {
                     case '1':
-                        $respuesta = '<button class="btn btn-xs btn-danger" onclick="utilitarios([19, ' . $valor['id'] . ']);" title="Clic para subir documento">
+                        $respuesta = '<button class="btn btn-xs btn-danger" onclick="utilitarios([19, ' . $valor['id'] . ', \'' . $valor['ci_nombre'] . '\']);" title="Clic para subir documento">
                             <i class="fa fa-upload"></i>
                             <strong>' . $this->documento_sw[$valor['documento_sw']] . '</strong>
                         </button>';
@@ -975,173 +1089,177 @@ class FuncionarioController extends Controller
         switch($tipo)
         {
             case '1':
-                Excel::create('Cargos_' . date('Y-m-d_H-i-s'), function($excel){
-                    $tabla1 = "inst_cargos";
-                    $tabla2 = "inst_tipos_cargo";
-                    $tabla3 = "inst_auos";
-                    $tabla4 = "inst_lugares_dependencia";
+                if($request->has('persona_id'))
+                {
+                    $this->reporte_data_1 = [
+                        'persona_id'               => trim($request->input('persona_id')),
+                        'f_marcacion_del'          => trim($request->input('f_marcacion_del')),
+                        'f_marcacion_al'           => trim($request->input('f_marcacion_al')),
+                        'lugar_dependencia_id'     => trim($request->input('lugar_dependencia_id')),
+                        'unidad_desconcentrada_id' => trim($request->input('unidad_desconcentrada_id'))
+                    ];
+                    Excel::create('Marcaciones_' . date('Y-m-d_H-i-s'), function($excel){
+                        $tabla1 = "rrhh_log_marcaciones";
+                        $tabla2 = "rrhh_biometricos";
+                        $tabla3 = "inst_unidades_desconcentradas";
+                        $tabla4 = "inst_lugares_dependencia";
 
-                    $select = "
-                        $tabla1.id,
-                        $tabla1.auo_id,
-                        $tabla1.cargo_id,
-                        $tabla1.tipo_cargo_id,
-                        $tabla1.estado,
-                        $tabla1.item_contrato,
-                        $tabla1.acefalia,
-                        $tabla1.nombre,
+                        $select = "
+                            $tabla1.id,
+                            $tabla1.biometrico_id,
+                            $tabla1.persona_id,
+                            $tabla1.f_marcacion,
 
-                        a2.nombre AS tipo_cargo,
+                            a2.unidad_desconcentrada_id,
+                            a2.codigo_af,
+                            a2.ip,
 
-                        a3.nombre AS cargo,
+                            a3.lugar_dependencia_id,
+                            a3.nombre AS unidad_desconcentrada,
 
-                        a4.lugar_dependencia_id,
-                        a4.nombre AS auo,
+                            a4.nombre AS lugar_dependencia
+                        ";
 
-                        a5.nombre AS lugar_dependencia
-                    ";
+                        $array_where = "$tabla1.persona_id=" . $this->reporte_data_1['persona_id'] . "";
 
-                    $array_where = 'TRUE';
-
-                    $user_id = Auth::user()->id;
-
-                    $consulta1 = SegLdUser::where("user_id", "=", $user_id)
-                        ->select('lugar_dependencia_id')
-                        ->get()
-                        ->toArray();
-                    if(count($consulta1) > 0)
-                    {
-                        $c_1_sw        = TRUE;
-                        $c_2_sw        = TRUE;
-                        $array_where_1 = '';
-                        foreach ($consulta1 as $valor)
+                        if($this->reporte_data_1['f_marcacion_del'] != '')
                         {
-                            if($valor['lugar_dependencia_id'] == '1')
-                            {
-                                $c_2_sw = FALSE;
-                                break;
-                            }
-
-                            if($c_1_sw)
-                            {
-                                $array_where_1 .= " AND (a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
-                                $c_1_sw        = FALSE;
-                            }
-                            else
-                            {
-                                $array_where_1 .= " OR a4.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
-                            }
-                        }
-                        $array_where_1 .= ")";
-
-                        if($c_2_sw)
-                        {
-                            $array_where .= $array_where_1;
-                        }
-                    }
-                    else
-                    {
-                        $array_where .= " AND a4.lugar_dependencia_id=0 AND ";
-                    }
-
-                    $this->reporte_1 = InstCargo::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_cargo_id")
-                        ->leftJoin("$tabla1 AS a3", "a3.id", "=", "$tabla1.cargo_id")
-                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.auo_id")
-                        ->leftJoin("$tabla4 AS a5", "a5.id", "=", "a4.lugar_dependencia_id")
-                        ->whereRaw($array_where)
-                        ->select(DB::raw($select))
-                        ->orderBy('a5.nombre', 'ASC')
-                        ->orderBy('a4.nombre', 'ASC')
-                        ->orderBy("$tabla1.tipo_cargo_id", 'ASC')
-                        ->orderBy("$tabla1.item_contrato", 'ASC')
-                        ->orderBy("$tabla1.nombre", 'ASC')
-                        ->get()
-                        ->toArray();
-
-                    $excel->sheet('Cargos Dependencia', function($sheet){
-                        $sheet->row(1, [
-                            'LUGAR DE DEPENDENCIA',
-                            'AREA UNIDAD ORGANIZACIONAL',
-                            'CARGO DE DEPENDENCIA',
-                            'ESTADO',
-                            '¿ACEFALO?',
-                            'TIPO DE CARGO',
-                            'NUMERO',
-                            'CARGO'
-                        ]);
-
-                        $sheet->row(1, function($row){
-                            $row->setBackground('#CCCCCC');
-                            $row->setFontWeight('bold');
-                            $row->setAlignment('center');
-                        });
-
-                        $sheet->freezeFirstRow();
-                        $sheet->setAutoFilter();
-
-                        foreach($this->reporte_1 as $index => $row1)
-                        {
-                            $sheet->row($index+2, [
-                                $row1["lugar_dependencia"],
-                                $row1["auo"],
-                                $row1["cargo"],
-                                $this->estado[$row1["estado"]],
-                                $this->acefalia[$row1["acefalia"]],
-                                $row1["tipo_cargo"],
-                                $row1["item_contrato"],
-                                $row1["nombre"]
-                            ]);
+                            $array_where .= " AND $tabla1.f_marcacion >= '" . $this->reporte_data_1['f_marcacion_del'] . "'";
                         }
 
-                        $sheet->setAutoSize(true);
-                    });
-
-                    $excel->sheet('Cargos', function($sheet){
-                        $sheet->row(1, [
-                            'LUGAR DE DEPENDENCIA',
-                            'AREA UNIDAD ORGANIZACIONAL',
-                            '¿ACEFALO?',
-                            'TIPO DE CARGO',
-                            'NUMERO',
-                            'CARGO'
-                        ]);
-
-                        $sheet->row(1, function($row){
-                            $row->setBackground('#CCCCCC');
-                            $row->setFontWeight('bold');
-                            $row->setAlignment('center');
-                        });
-
-                        $sheet->freezeFirstRow();
-                        $sheet->setAutoFilter();
-
-                        foreach($this->reporte_1 as $index => $row1)
+                        if($this->reporte_data_1['f_marcacion_al'] != '')
                         {
-                            $sheet->row($index+2, [
-                                $row1["lugar_dependencia"],
-                                $row1["auo"],
-                                $this->acefalia[$row1["acefalia"]],
-                                $row1["tipo_cargo"],
-                                $row1["item_contrato"],
-                                $row1["nombre"]
+                            $array_where .= " AND $tabla1.f_marcacion <= '" . $this->reporte_data_1['f_marcacion_al'] . " 23:59:59'";
+                        }
+
+                        if($this->reporte_data_1['lugar_dependencia_id'] != '')
+                        {
+                            $array_where .= " AND a3.lugar_dependencia_id = " . $this->reporte_data_1['lugar_dependencia_id'] . "";
+                        }
+
+                        if($this->reporte_data_1['unidad_desconcentrada_id'] != '')
+                        {
+                            $array_where .= " AND a2.unidad_desconcentrada_id = " . $this->reporte_data_1['unidad_desconcentrada_id'] . "";
+                        }
+
+                        $this->reporte_1 = RrhhLogMarcacion::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
+                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.unidad_desconcentrada_id")
+                            ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                            ->whereRaw($array_where)
+                            ->select(DB::raw($select))
+                            ->orderBy("$tabla1.f_marcacion", 'ASC')
+                            ->get()
+                            ->toArray();
+
+                        $excel->sheet('Marcaciones', function($sheet){
+                            $sheet->row(1, [
+                                'FECHA Y HORA',
+                                'BIOMETRICO',
+                                'UNIDAD DESCONCENTRADA',
+                                'LUGAR DE DEPENDENCIA'
                             ]);
 
-                            if($row1["acefalia"] == 1)
-                            {
-                                $sheet->row($index+2, function($row){
-                                    $row->setBackground('#ffc7ce');
-                                    $row->setFontColor('#9c0006');
-                                });
-                            }
-                        }
+                            $sheet->row(1, function($row){
+                                $row->setBackground('#CCCCCC');
+                                $row->setFontWeight('bold');
+                                $row->setAlignment('center');
+                            });
 
-                        $sheet->cells('C1:D' . ($index + 2), function($cells){
-                            $cells->setAlignment('center');
+                            $sheet->freezeFirstRow();
+                            $sheet->setAutoFilter();
+
+                            $sheet->setColumnFormat([
+                                'A' => 'yyyy-mm-dd hh:mm:ss'
+                            ]);
+
+                            $sw = FALSE;
+
+                            foreach($this->reporte_1 as $index => $row1)
+                            {
+                                $sheet->row($index+2, [
+                                    $row1["f_marcacion"],
+                                    "MP-" . $row1["codigo_af"],
+                                    $row1["unidad_desconcentrada"],
+                                    $row1["lugar_dependencia"]
+                                ]);
+
+                                if($sw)
+                                {
+                                    $sheet->row($index+2, function($row){
+                                        $row->setBackground('#deeaf6');
+                                        // $row->setFontColor('#9c0006');
+                                    });
+
+                                    $sw = FALSE;
+                                }
+                                else
+                                {
+                                    $sw = TRUE;
+                                }
+                            }
+
+                            $sheet->cells('B1:D' . ($index + 2), function($cells){
+                                $cells->setAlignment('center');
+                            });
+
+                            // $sheet->cells('A1:A' . ($index + 2), function($cells){
+                            //     $cells->setAlignment('center');
+                            // });
+
+                            $sheet->setAutoSize(true);
                         });
 
-                        $sheet->setAutoSize(true);
-                    });
-                })->export('xlsx');
+                        // $excel->sheet('Cargos', function($sheet){
+                        //     $sheet->row(1, [
+                        //         'LUGAR DE DEPENDENCIA',
+                        //         'AREA UNIDAD ORGANIZACIONAL',
+                        //         '¿ACEFALO?',
+                        //         'TIPO DE CARGO',
+                        //         'NUMERO',
+                        //         'CARGO'
+                        //     ]);
+
+                        //     $sheet->row(1, function($row){
+                        //         $row->setBackground('#CCCCCC');
+                        //         $row->setFontWeight('bold');
+                        //         $row->setAlignment('center');
+                        //     });
+
+                        //     $sheet->freezeFirstRow();
+                        //     $sheet->setAutoFilter();
+
+                        //     foreach($this->reporte_1 as $index => $row1)
+                        //     {
+                        //         $sheet->row($index+2, [
+                        //             $row1["lugar_dependencia"],
+                        //             $row1["auo"],
+                        //             $this->acefalia[$row1["acefalia"]],
+                        //             $row1["tipo_cargo"],
+                        //             $row1["item_contrato"],
+                        //             $row1["nombre"]
+                        //         ]);
+
+                        //         if($row1["acefalia"] == 1)
+                        //         {
+                        //             $sheet->row($index+2, function($row){
+                        //                 $row->setBackground('#ffc7ce');
+                        //                 $row->setFontColor('#9c0006');
+                        //             });
+                        //         }
+                        //     }
+
+                        //     $sheet->cells('C1:D' . ($index + 2), function($cells){
+                        //         $cells->setAlignment('center');
+                        //     });
+
+                        //     $sheet->setAutoSize(true);
+                        // });
+                    })->export('xlsx');
+                }
+                else
+                {
+                    return "SIN FUNCIONARIO";
+                }
                 break;
             default:
                 break;

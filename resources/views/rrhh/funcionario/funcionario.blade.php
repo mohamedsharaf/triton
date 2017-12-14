@@ -268,6 +268,9 @@
             <h4 class="modal-title">
               Subir documento
             </h4>
+
+            <small class="font-bold" id="modal_2_subtitle">
+            </small>
           </div>
 
           <div class="modal-body">
@@ -282,11 +285,83 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal_3" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog modal-xlg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              Marcaciones registradas
+            </h4>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-12">
+                <div id="div_jqgrid2" class="jqGrid_wrapper">
+                  <table id="jqgrid2"></table>
+                  <div id="pjqgrid2"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <form id="form_3" role="form" action="#">
+                <input type="hidden" id="persona_id_3" name="persona_id" value=""/>
+                <div class="col-sm-12">
+                  <br>
+                  <h3 class="text-success">
+                    <b>FILTRAR PARA GENERAR EL EXCEL</b>
+                  </h3>
+
+                  <div class="row">
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                          <label for="f_marcacion_del_3">Marcación del</label>
+                          <input type="text" class="form-control" id="f_marcacion_del_3" name="f_marcacion_del" placeholder="año-mes-día" data-mask="9999-99-99">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                          <label for="f_marcacion_al_3">Marcación al</label>
+                          <input type="text" class="form-control" id="f_marcacion_al_3" name="f_marcacion_al" placeholder="año-mes-día" data-mask="9999-99-99">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div id="lugar_dependencia_id_3_div" class="form-group">
+                          <label for="lugar_dependencia_id_3">Lugar de dependencia</label>
+                          <select name="lugar_dependencia_id_3" id="lugar_dependencia_id_3" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                          </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div id="unidad_desconcentrada_id_3_div" class="form-group">
+                          <label for="unidad_desconcentrada_id_3">Unidad desconcentrada</label>
+                          <select name="unidad_desconcentrada_id_3" id="unidad_desconcentrada_id_3" data-placeholder="Unidad desconcentrada" multiple="multiple" style="width: 100%;">
+                          </select>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">Salir</button>
+            <button type="button" class="btn btn-info" onclick="utilitarios([25]);">Limpiar formulario</button>
+            <button type="button" class="btn btn-primary" onclick="utilitarios([24]);">Excel</button>
+            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
           </div>
         </div>
       </div>
@@ -308,7 +383,7 @@
 
           <div class="modal-body">
             <div class="row">
-              <form id="form_2" role="form" action="#">
+              <form id="form_10" role="form" action="#">
                 <div class="col-sm-12">
                   <div id="auo_id_div" class="form-group">
                     <label for="auo_id_r">Área o unidad organizacional</label>

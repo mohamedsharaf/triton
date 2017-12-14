@@ -168,8 +168,13 @@
             "center"
         );
 
+    // === JQGRID2 ===
+        var jqgrid2   = "#jqgrid2";
+        var pjqgrid2 = "#pjqgrid2";
+
     // === FORMULARIO 1 ===
         var form_1 = "#form_1";
+        var form_3 = "#form_3";
 
     // === ESTADO ===
         var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
@@ -295,6 +300,25 @@
                 language             : "es"
             });
 
+            $('#lugar_dependencia_id_3').append(lugar_dependencia_select);
+            $("#lugar_dependencia_id_3, #unidad_desconcentrada_id_3").select2({
+                maximumSelectionLength: 1
+            });
+            $("#lugar_dependencia_id_3").appendTo("#lugar_dependencia_id_3_div");
+            $("#unidad_desconcentrada_id_3").appendTo("#unidad_desconcentrada_id_3_div");
+
+            $('#f_marcacion_del_3, #f_marcacion_al_3').datepicker({
+                startView            : 1,
+                // todayBtn          : "linked",
+                // keyboardNavigation: false,
+                // forceParse        : false,
+                autoclose            : true,
+                format               : "yyyy-mm-dd",
+                startDate            : '-20y',
+                endDate              : '+0d',
+                language             : "es"
+            });
+
         // === DROPZONE ===
             var valor1 = new Array();
             valor1[0]  = 20;
@@ -319,9 +343,32 @@
                 }
             });
 
+            $("#lugar_dependencia_id_3").on("change", function(e) {
+                $('#unidad_desconcentrada_id_3').select2('val','');
+                $('#unidad_desconcentrada_id_3 option').remove();
+                switch ($.trim(this.value)){
+                    case '':
+                        break;
+                    default:
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = false;
+                        valor1[4]  = "tipo=104&lugar_dependencia_id=" + this.value + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                }
+            });
+
         // === JQGRID 1 ===
             var valor1 = new Array();
             valor1[0]  = 10;
+            utilitarios(valor1);
+
+        // === JQGRID 2 ===
+            var valor1 = new Array();
+            valor1[0]  = 23;
             utilitarios(valor1);
 
         // === VALIDATE 1 ===
@@ -363,6 +410,7 @@
             // === JQGRID REDIMENCIONAR ===
             case 0:
                 $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
+                $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
                 break;
             // === JQGRID 1 ===
             case 10:
@@ -370,6 +418,10 @@
                 var ancho1     = 5;
                 var ancho_d    = 28;
                 @if(in_array(['codigo' => '0803'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+                @if(in_array(['codigo' => '0806'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
@@ -572,15 +624,30 @@
                     gridComplete : function() {
                         var ids = $(jqgrid1).jqGrid('getDataIDs');
                         for(var i = 0; i < ids.length; i++){
-                            var cl = ids[i];
+                            var cl       = ids[i];
+                            var ret      = $(jqgrid1).jqGrid('getRowData', cl);
+                            var val_json = $.parseJSON(ret.val_json);
+
                             @if(in_array(['codigo' => '0803'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                             @else
                                 ed = '';
                             @endif
 
+                            @if(in_array(['codigo' => '0806'], $permisos))
+                                if(ret.n_documento != ''){
+                                    var ci_nombre = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' + ret.ap_materno) + ' ' + ret.nombre_persona;
+                                    vmb = " <button type='button' class='btn btn-xs btn-primary' title='Ver marcaciones del biométrico' onclick=\"utilitarios([22, " + val_json.persona_id + ", '" + ci_nombre +"']);\"><i class='fa fa-eye'></i></button>";
+                                }
+                                else{
+                                    vmb = '';
+                                }
+                            @else
+                                vmb = '';
+                            @endif
+
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed)
+                                act : $.trim(ed + vmb)
                             });
                         }
                     },
@@ -933,6 +1000,8 @@
                 break;
             // === MODAL SUBIR DOCUMENTO ===
             case 19:
+                $('#modal_2_subtitle').empty();
+                $('#modal_2_subtitle').append(valor[2]);
                 $("#id_funcionario_2").val(valor[1]);
                 $('#modal_2').modal();
                 break;
@@ -1058,6 +1127,180 @@
                         swal.close();
                     }
                 });
+                break;
+            // === MODAL SUBIR DOCUMENTO ===
+            case 22:
+                var valor1 = new Array();
+                valor1[0]  = 25;
+                utilitarios(valor1);
+
+                $(jqgrid2).jqGrid('setGridParam',{
+                    url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&persona_id=' + valor[1],
+                    datatype: 'json'
+                }).trigger('reloadGrid');
+
+                $(jqgrid2).jqGrid('setCaption', "<span class='text-success'>" + valor[2] + "</span>");
+
+                $("#persona_id_3").val(valor[1]);
+
+                $('#modal_3').modal();
+
+                setTimeout(function(){
+                    $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
+                }, 300);
+                break;
+            // === JQGRID 2 ===
+            case 23:
+                $(jqgrid2).jqGrid({
+                    caption     : '',
+                    datatype    : 'local',
+                    mtype       : 'post',
+                    height      : 'auto',
+                    pager       : pjqgrid2,
+                    rowNum      : 10,
+                    rowList     : [10, 20, 30],
+                    sortname    : 'rrhh_log_marcaciones.f_marcacion',
+                    sortorder   : "desc",
+                    viewrecords : true,
+                    shrinkToFit : false,
+                    hidegrid    : false,
+                    multiboxonly: true,
+                    altRows     : true,
+                    rownumbers  : true,
+                    // subGrid     : subgrid_sw,
+                    // multiselect  : true,
+                    //autowidth     : true,
+                    //gridview      :true,
+                    //forceFit      : true,
+                    //toolbarfilter : true,
+                    colNames :[
+                        "FECHA Y HORA",
+                        "BIOMETRICO",
+                        "UNIDAD DESCONCENTRADA",
+                        "LUGAR DE DEPENDENCIA",
+                        ""
+                    ],
+                    colModel : [
+                        {
+                            name  : "f_marcacion",
+                            index : "rrhh_log_marcaciones.f_marcacion::text",
+                            width : "150",
+                            align : "center"
+                        },
+                        {
+                            name  : "codigo_af",
+                            index : "a2.codigo_af",
+                            width : "100",
+                            align : "center"
+                        },
+                        {
+                            name  : "unidad_desconcentrada",
+                            index : "a3.nombre",
+                            width : "700",
+                            align : "center"
+                        },
+                        {
+                            name       : "lugar_dependencia",
+                            index      : "a4.nombre",
+                            width      : "400",
+                            align      : "center",
+                            stype      :'select',
+                            editoptions: {value:lugar_dependencia_jqgrid}
+                        },
+
+                        // === OCULTO ===
+                            {
+                                name: 'val_json',
+                                index: '',
+                                width: 10,
+                                search: false,
+                                hidden: true
+                            }
+                    ],
+                    loadComplete : function(){
+                        $("tr.jqgrow:odd").addClass('myAltRowClass');
+                    }
+                });
+
+                $(jqgrid2).jqGrid('setGroupHeaders', {
+                    useColSpanStyle: true,
+                    groupHeaders   :[
+                        {
+                            startColumnName: 'codigo_af',
+                            numberOfColumns: 3,
+                            titleText      : 'UBICACION DEL BIOMETRICO'
+                        }
+                    ]
+                });
+
+                $(jqgrid2).jqGrid('filterToolbar',{
+                    searchOnEnter : true,
+                    stringResult  : true,
+                    defaultSearch : 'cn'
+                });
+
+                $(jqgrid2).jqGrid('navGrid', pjqgrid2, {
+                    edit  : false,
+                    add   : false,
+                    del   : false,
+                    search: false
+                })
+                .navSeparatorAdd(pjqgrid1,{
+                    sepclass : "ui-separator"
+                })
+                ;
+                break;
+            // === EXCEL MARCACIONES ===
+            case 24:
+                var concatenar_valores = '';
+                concatenar_valores     += '?tipo=1';
+
+                var persona_id               = $("#persona_id_3").val();
+                var f_marcacion_del          = $("#f_marcacion_del_3").val();
+                var f_marcacion_al           = $("#f_marcacion_al_3").val();
+                var lugar_dependencia_id     = $("#lugar_dependencia_id_3").val();
+                var unidad_desconcentrada_id = $("#unidad_desconcentrada_id_3").val();
+
+                if($.trim(persona_id) != ''){
+                    concatenar_valores += '&persona_id=' + persona_id;
+
+                    if($.trim(f_marcacion_del) != ''){
+                        concatenar_valores += '&f_marcacion_del=' + f_marcacion_del;
+                    }
+
+                    if($.trim(f_marcacion_al) != ''){
+                        concatenar_valores += '&f_marcacion_al=' + f_marcacion_al;
+                    }
+
+                    if($.trim(lugar_dependencia_id) != ''){
+                        concatenar_valores += '&lugar_dependencia_id=' + lugar_dependencia_id;
+                    }
+
+                    if($.trim(unidad_desconcentrada_id) != ''){
+                        concatenar_valores += '&unidad_desconcentrada_id=' + unidad_desconcentrada_id;
+                    }
+
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
+                    valor1[2]  = "¡Seleccione un FUNCIONARIO!";
+                    utilitarios(valor1);
+                }
+                break;
+            // === RESETEAR FORMULARIO 3 ===
+            case 25:
+                $("#persona_id_3").val('');
+
+                $('#lugar_dependencia_id_3').select2("val", "");
+
+                $('#unidad_desconcentrada_id_3').select2("val", "");
+                $('#unidad_desconcentrada_id_3 option').remove();
+
+                $(form_3)[0].reset();
                 break;
             // === MENSAJE ERROR ===
             case 100:
@@ -1195,6 +1438,16 @@
                                         unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
                                     });
                                     $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
+                                }
+                                break;
+                            // === SELECT2 UNIDAD DESCONCENTRADA ===
+                            case '104':
+                                if(data.sw === 2){
+                                    var unidad_desconcentrada_select = '';
+                                    $.each(data.consulta, function(index, value) {
+                                        unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                                    });
+                                    $('#unidad_desconcentrada_id_3').append(unidad_desconcentrada_select);
                                 }
                                 break;
                             default:
