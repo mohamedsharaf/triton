@@ -93,6 +93,12 @@
         Route::post('/funcionario/send_ajax', 'Rrhh\FuncionarioController@send_ajax');
         Route::match(["get", "post"], '/funcionario/reportes', 'Rrhh\FuncionarioController@reportes');
 
+//=== TIPOS DE SALIDA ===
+    Route::get('/tipo_salida', 'Rrhh\TipoSalidaController@index')->name('tipo_salida');
+        Route::match(["get", "post"], '/tipo_salida/view_jqgrid', 'Rrhh\TipoSalidaController@view_jqgrid');
+        Route::post('/tipo_salida/send_ajax', 'Rrhh\TipoSalidaController@send_ajax');
+        Route::match(["get", "post"], '/tipo_salida/reportes', 'Rrhh\TipoSalidaController@reportes');
+
 //=== BIOMETRICOS ===
     Route::get('/biometrico', 'Rrhh\BiometricoController@index')->name('biometrico');
         Route::match(["get", "post"], '/biometrico/view_jqgrid', 'Rrhh\BiometricoController@view_jqgrid');

@@ -1204,7 +1204,7 @@
                             index      : "a4.nombre",
                             width      : "400",
                             align      : "center",
-                            stype      :'select',
+                            stype      : 'select',
                             editoptions: {value:lugar_dependencia_jqgrid}
                         },
 

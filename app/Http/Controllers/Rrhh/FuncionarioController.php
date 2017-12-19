@@ -132,7 +132,7 @@ class FuncionarioController extends Controller
                 'permisos'                => $this->permisos,
                 'title'                   => 'Funcionarios',
                 'home'                    => 'Inicio',
-                'sistema'                 => 'REcursos humanos',
+                'sistema'                 => 'Recursos humanos',
                 'modulo'                  => 'Funcionarios',
                 'title_table'             => 'Funcionarios',
                 'public_url'              => $this->public_url,

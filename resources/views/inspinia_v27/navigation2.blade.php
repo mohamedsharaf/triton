@@ -39,15 +39,30 @@
                 <a href="{{ url('/home') }}"><i class="fa fa-home"></i> <span class="nav-label">Inicio</span></a>
             </li>
 
-            @if(in_array(['codigo' => '0501'], $permisos) || in_array(['codigo' => '0801'], $permisos))
-                <li class="{{ isActiveRoute('persona') }}{{ isActiveRoute('funcionario') }}">
+            @if(in_array(['codigo' => '0501'], $permisos) || in_array(['codigo' => '0801'], $permisos) || in_array(['codigo' => '0901'], $permisos) || in_array(['codigo' => '1001'], $permisos) || in_array(['codigo' => '1101'], $permisos) || in_array(['codigo' => '1201'], $permisos) || in_array(['codigo' => '1301'], $permisos))
+                <li class="{{ isActiveRoute('persona') }}{{ isActiveRoute('funcionario') }}{{ isActiveRoute('tipo_salida') }}{{ isActiveRoute('solicitud_salida') }}{{ isActiveRoute('confirmar_salida') }}{{ isActiveRoute('confirmar_salida_rrhh') }}{{ isActiveRoute('salidas') }}">
                     <a href="#"><i class="fa fa-group"></i> <span class="nav-label">Recursos humanos</span> </a>
                     <ul class="nav nav-second-level collapse">
+                        @if(in_array(['codigo' => '1001'], $permisos))
+                            <li class="{{ isActiveRoute('solicitud_salida') }}"><a href="{{ url('/solicitud_salida') }}">Solicitud de salida</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '1101'], $permisos))
+                            <li class="{{ isActiveRoute('confirmar_salida') }}"><a href="{{ url('/confirmar_salida') }}">Confirmar salida</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '1201'], $permisos))
+                            <li class="{{ isActiveRoute('confirmar_salida_rrhh') }}"><a href="{{ url('/confirmar_salida_rrhh') }}">Confirmar salida RRHH</a></li>
+                        @endif
                         @if(in_array(['codigo' => '0501'], $permisos))
                             <li class="{{ isActiveRoute('persona') }}"><a href="{{ url('/persona') }}">Personas</a></li>
                         @endif
                         @if(in_array(['codigo' => '0801'], $permisos))
                             <li class="{{ isActiveRoute('funcionario') }}"><a href="{{ url('/funcionario') }}">Funcionarios</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '1301'], $permisos))
+                            <li class="{{ isActiveRoute('salidas') }}"><a href="{{ url('/salidas') }}">Gestor de salidas</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '0901'], $permisos))
+                            <li class="{{ isActiveRoute('tipo_salida') }}"><a href="{{ url('/tipo_salida') }}">Tipos de salida</a></li>
                         @endif
                     </ul>
                 </li>
