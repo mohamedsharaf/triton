@@ -24,6 +24,7 @@ use App\Models\Rrhh\RrhhFuncionarioExCargo;
 use App\Models\Rrhh\RrhhBiometrico;
 use App\Models\Rrhh\RrhhLogMarcacion;
 use App\Models\Rrhh\RrhhPersonaBiometrico;
+use App\Models\Rrhh\RrhhHorario;
 
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -185,6 +186,7 @@ class FuncionarioController extends Controller
                 $tabla5 = "rrhh_funcionarios";
                 $tabla6 = "rrhh_personas";
                 $tabla7 = "inst_unidades_desconcentradas";
+                $tabla8 = "rrhh_horarios";
 
                 $select = "
                     $tabla1.id,
@@ -205,6 +207,8 @@ class FuncionarioController extends Controller
                     a5.persona_id,
                     a5.cargo_id,
                     a5.unidad_desconcentrada_id,
+                    a5.horario_id_1,
+                    a5.horario_id_2,
                     a5.situacion,
                     a5.documento_sw,
                     a5.f_ingreso,
@@ -221,7 +225,10 @@ class FuncionarioController extends Controller
                     a7.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
                     a7.nombre AS ud_funcionario,
 
-                    a8.nombre AS lugar_dependencia_funcionario
+                    a8.nombre AS lugar_dependencia_funcionario,
+
+                    a9.nombre AS horario_1,
+                    a10.nombre AS horario_2
                 ";
 
                 $array_where = "$tabla1.estado=1";
@@ -277,6 +284,8 @@ class FuncionarioController extends Controller
                     ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.persona_id")
                     ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a5.unidad_desconcentrada_id")
                     ->leftJoin("$tabla4 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
+                    ->leftJoin("$tabla8 AS a9", "a9.id", "=", "a5.horario_id_1")
+                    ->leftJoin("$tabla8 AS a10", "a10.id", "=", "a5.horario_id_2")
                     ->whereRaw($array_where)
                     ->count();
 
@@ -289,6 +298,8 @@ class FuncionarioController extends Controller
                     ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.persona_id")
                     ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a5.unidad_desconcentrada_id")
                     ->leftJoin("$tabla4 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
+                    ->leftJoin("$tabla8 AS a9", "a9.id", "=", "a5.horario_id_1")
+                    ->leftJoin("$tabla8 AS a10", "a10.id", "=", "a5.horario_id_2")
                     ->whereRaw($array_where)
                     ->select(DB::raw($select))
                     ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -317,7 +328,9 @@ class FuncionarioController extends Controller
                         'situacion'                        => $row["situacion"],
                         'documento_sw'                     => $row["documento_sw"],
                         'documento_file'                   => $row["documento_file"],
-                        'lugar_dependencia_id_funcionario' => $row["lugar_dependencia_id_funcionario"]
+                        'lugar_dependencia_id_funcionario' => $row["lugar_dependencia_id_funcionario"],
+                        'horario_id_1'                     => $row["horario_id_1"],
+                        'horario_id_2'                     => $row["horario_id_2"]
                     );
 
                     $ci_nombre = $row["n_documento"] . ' - ' . trim($row["ap_paterno"] . ' ' . $row["ap_materno"]) . ' ' . $row["nombre_persona"];
@@ -343,6 +356,9 @@ class FuncionarioController extends Controller
 
                         $row["ud_funcionario"],
                         $row["lugar_dependencia_funcionario"],
+
+                        $row["horario_1"],
+                        $row["horario_2"],
 
                         $row["cargo"],
                         $row["auo_cargo"],
@@ -529,7 +545,8 @@ class FuncionarioController extends Controller
                                 'f_salida'                         => 'date',
                                 'sueldo'                           => 'required|numeric',
                                 'lugar_dependencia_id_funcionario' => 'required',
-                                'unidad_desconcentrada_id'         => 'required'
+                                'unidad_desconcentrada_id'         => 'required',
+                                'horario_id_1'                     => 'required'
                             ],
                             [
                                 'persona_id.required' => 'El campo FUNCIONARIO es obligatorio.',
@@ -544,7 +561,9 @@ class FuncionarioController extends Controller
 
                                 'lugar_dependencia_id_funcionario.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
 
-                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.'
+                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.',
+
+                                'horario_id_1.required' => 'El campo HORARIO 1 es obligatorio.'
                             ]);
                         }
                         else
@@ -554,7 +573,8 @@ class FuncionarioController extends Controller
                                 'f_ingreso'                        => 'required|date',
                                 'sueldo'                           => 'required|numeric',
                                 'lugar_dependencia_id_funcionario' => 'required',
-                                'unidad_desconcentrada_id'         => 'required'
+                                'unidad_desconcentrada_id'         => 'required',
+                                'horario_id_1'                     => 'required'
                             ],
                             [
                                 'persona_id.required' => 'El campo FUNCIONARIO es obligatorio.',
@@ -567,7 +587,9 @@ class FuncionarioController extends Controller
 
                                 'lugar_dependencia_id_funcionario.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
 
-                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.'
+                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.',
+
+                                'horario_id_1.required' => 'El campo HORARIO 1 es obligatorio.'
                             ]);
                         }
                     }
@@ -582,6 +604,8 @@ class FuncionarioController extends Controller
                     $data1['persona_id']               = trim($request->input('persona_id'));
                     $data1['cargo_id']                 = trim($request->input('cargo_id'));
                     $data1['unidad_desconcentrada_id'] = trim($request->input('unidad_desconcentrada_id'));
+                    $data1['horario_id_1']             = trim($request->input('horario_id_1'));
+                    $data1['horario_id_2']             = trim($request->input('horario_id_2'));
                     $data1['situacion']                = trim($request->input('situacion'));
                     $data1['f_ingreso']                = trim($request->input('f_ingreso'));
                     $data1['f_salida']                 = trim($request->input('f_salida'));
@@ -607,6 +631,8 @@ class FuncionarioController extends Controller
                             $iu->persona_id               = $data1['persona_id'];
                             $iu->cargo_id                 = $data1['cargo_id'];
                             $iu->unidad_desconcentrada_id = $data1['unidad_desconcentrada_id'];
+                            $iu->horario_id_1             = $data1['horario_id_1'];
+                            $iu->horario_id_2             = $data1['horario_id_2'];
                             $iu->situacion                = $data1['situacion'];
                             $iu->f_ingreso                = $data1['f_ingreso'];
                             $iu->f_salida                 = $data1['f_salida'];
@@ -638,6 +664,8 @@ class FuncionarioController extends Controller
                             $iu->persona_id               = $data1['persona_id'];
                             $iu->cargo_id                 = $data1['cargo_id'];
                             $iu->unidad_desconcentrada_id = $data1['unidad_desconcentrada_id'];
+                            $iu->horario_id_1             = $data1['horario_id_1'];
+                            $iu->horario_id_2             = $data1['horario_id_2'];
                             $iu->situacion                = $data1['situacion'];
                             $iu->f_ingreso                = $data1['f_ingreso'];
                             $iu->f_salida                 = $data1['f_salida'];
@@ -946,10 +974,36 @@ class FuncionarioController extends Controller
                                 ->select('id', 'nombre')
                                 ->get()
                                 ->toArray();
+
+                    $horario_1 = RrhhHorario::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                        ->where("tipo_horario", "=", '1')
+                        ->select('id', 'nombre', 'defecto')
+                        ->get()
+                        ->toArray();
+
+                    $horario_2 = RrhhHorario::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                        ->where("tipo_horario", "=", '2')
+                        ->select('id', 'nombre', 'defecto')
+                        ->get()
+                        ->toArray();
                     if(count($query) > 0)
                     {
                         $respuesta['consulta'] = $query;
                         $respuesta['sw']       = 2;
+
+                        $respuesta['sw_horario_1'] = 1;
+                        if(count($horario_1) > 0)
+                        {
+                            $respuesta['horario_1']    = $horario_1;
+                            $respuesta['sw_horario_1'] = 2;
+                        }
+
+                        $respuesta['sw_horario_2'] = 1;
+                        if(count($horario_2) > 0)
+                        {
+                            $respuesta['horario_2']    = $horario_2;
+                            $respuesta['sw_horario_2'] = 2;
+                        }
                     }
                 }
                 return json_encode($respuesta);

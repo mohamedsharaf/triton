@@ -47,6 +47,9 @@
             "UNIDAD DESCONCENTRADA",
             "LUGAR DE DEPENDENCIA",
 
+            "HORARIO 1",
+            "HORARIO 2",
+
             "CARGO",
             "AREA UNIDAD ORGANIZACIONAL",
             "LUGAR DE DEPENDENCIA",
@@ -75,6 +78,9 @@
             "ud_funcionario",
             "lugar_dependencia_funcionario",
 
+            "horario_1",
+            "horario_2",
+
             "cargo",
             "auo_cargo",
             "lugar_dependencia_cargo",
@@ -102,6 +108,9 @@
 
             "a7.nombre",
             "a8.nombre",
+
+            "a9.nombre",
+            "a10.nombre",
 
             "inst_cargos.nombre",
             "a3.nombre",
@@ -133,6 +142,9 @@
 
             300,
             300,
+
+            300,
+            300,
             300,
 
             300,
@@ -155,6 +167,9 @@
             "center",
             "center",
             "right",
+
+            "center",
+            "center",
 
             "center",
             "center",
@@ -267,7 +282,7 @@
             $("#persona_id").appendTo("#persona_id_div");
 
             $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id_d").select2({
+            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id_d, #horario_id_1, #horario_id_2").select2({
                 maximumSelectionLength: 1
             });
             $("#lugar_dependencia_id_funcionario").appendTo("#lugar_dependencia_id_funcionario_div");
@@ -328,6 +343,10 @@
             $("#lugar_dependencia_id_funcionario").on("change", function(e) {
                 $('#unidad_desconcentrada_id').select2('val','');
                 $('#unidad_desconcentrada_id option').remove();
+                $('#horario_id_1').select2('val','');
+                $('#horario_id_1 option').remove();
+                $('#horario_id_2').select2('val','');
+                $('#horario_id_2 option').remove();
                 switch ($.trim(this.value)){
                     case '':
                         break;
@@ -469,7 +488,9 @@
                         col_name_1[16],
                         col_name_1[17],
                         col_name_1[18],
-                        col_name_1[19]
+                        col_name_1[19],
+                        col_name_1[20],
+                        col_name_1[21]
                     ],
                     colModel : [
                         {
@@ -593,27 +614,40 @@
                             width: col_m_width_1[16],
                             align: col_m_align_1[16]
                         },
-                        {
-                            name       : col_m_name_1[17],
-                            index      : col_m_index_1[17],
-                            width      : col_m_width_1[17],
-                            align      : col_m_align_1[17],
-                            stype      :'select',
-                            editoptions: {value:lugar_dependencia_jqgrid}
-                        },
 
+                        {
+                            name : col_m_name_1[17],
+                            index: col_m_index_1[17],
+                            width: col_m_width_1[17],
+                            align: col_m_align_1[17]
+                        },
                         {
                             name : col_m_name_1[18],
                             index: col_m_index_1[18],
                             width: col_m_width_1[18],
                             align: col_m_align_1[18]
                         },
+                        {
+                            name       : col_m_name_1[19],
+                            index      : col_m_index_1[19],
+                            width      : col_m_width_1[19],
+                            align      : col_m_align_1[19],
+                            stype      :'select',
+                            editoptions: {value:lugar_dependencia_jqgrid}
+                        },
+
+                        {
+                            name : col_m_name_1[20],
+                            index: col_m_index_1[20],
+                            width: col_m_width_1[20],
+                            align: col_m_align_1[20]
+                        },
                         // === OCULTO ===
                             {
-                                name  : col_m_name_1[19],
-                                index : col_m_index_1[19],
-                                width : col_m_width_1[19],
-                                align : col_m_align_1[19],
+                                name  : col_m_name_1[21],
+                                index : col_m_index_1[21],
+                                width : col_m_width_1[21],
+                                align : col_m_align_1[21],
                                 search: false,
                                 hidden: true
                             }
@@ -689,6 +723,11 @@
                             startColumnName: 'ud_funcionario',
                             numberOfColumns: 2,
                             titleText      : 'UBICACION DEL FUNCIONARIO'
+                        },
+                        {
+                            startColumnName: 'horario_1',
+                            numberOfColumns: 2,
+                            titleText      : 'CONTROL DE ASISTENCIA'
                         },
                         {
                             startColumnName: 'cargo',
@@ -952,6 +991,10 @@
                             required: true
                         },
                         unidad_desconcentrada_id:{
+                            required: true
+                        },
+
+                        horario_id_1:{
                             required: true
                         }
                     }
@@ -1438,6 +1481,36 @@
                                         unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
                                     });
                                     $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
+
+                                    if(data.sw_horario_1 === 2){
+                                        var horario_1_select = '';
+                                        var horario_1_defecto_id = '';
+                                        $.each(data.horario_1, function(index, value) {
+                                            horario_1_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                                            if(value.defecto == '2'){
+                                                horario_1_defecto_id = value.id;
+                                            }
+                                        });
+                                        $('#horario_id_1').append(horario_1_select);
+                                        if(horario_1_defecto_id != ''){
+                                            $("#horario_id_1").select2("val", horario_1_defecto_id);
+                                        }
+                                    }
+
+                                    if(data.sw_horario_2 === 2){
+                                        var horario_2_select = '';
+                                        var horario_2_defecto_id = '';
+                                        $.each(data.horario_2, function(index, value) {
+                                            horario_2_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                                            if(value.defecto == '2'){
+                                                horario_2_defecto_id = value.id;
+                                            }
+                                        });
+                                        $('#horario_id_2').append(horario_2_select);
+                                        if(horario_2_defecto_id != ''){
+                                            $("#horario_id_2").select2("val", horario_2_defecto_id);
+                                        }
+                                    }
                                 }
                                 break;
                             // === SELECT2 UNIDAD DESCONCENTRADA ===

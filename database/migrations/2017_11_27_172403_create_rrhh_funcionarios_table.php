@@ -18,6 +18,8 @@ class CreateRrhhFuncionariosTable extends Migration
             $table->integer('persona_id')->unsigned()->nullable();
             $table->integer('cargo_id')->unsigned()->nullable();
             $table->integer('unidad_desconcentrada_id')->unsigned()->nullable();
+            $table->integer('horario_id_1')->unsigned()->nullable();
+            $table->integer('horario_id_2')->unsigned()->nullable();
 
             $table->smallInteger('estado')->default('1')->unsigned();
             $table->smallInteger('situacion')->default('1')->unsigned();

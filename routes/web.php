@@ -93,6 +93,12 @@
         Route::post('/funcionario/send_ajax', 'Rrhh\FuncionarioController@send_ajax');
         Route::match(["get", "post"], '/funcionario/reportes', 'Rrhh\FuncionarioController@reportes');
 
+//=== HORARIOS ===
+    Route::get('/horario', 'Rrhh\HorarioController@index')->name('horario');
+        Route::match(["get", "post"], '/horario/view_jqgrid', 'Rrhh\HorarioController@view_jqgrid');
+        Route::post('/horario/send_ajax', 'Rrhh\HorarioController@send_ajax');
+        Route::match(["get", "post"], '/horario/reportes', 'Rrhh\HorarioController@reportes');
+
 //=== TIPOS DE SALIDA ===
     Route::get('/tipo_salida', 'Rrhh\TipoSalidaController@index')->name('tipo_salida');
         Route::match(["get", "post"], '/tipo_salida/view_jqgrid', 'Rrhh\TipoSalidaController@view_jqgrid');
