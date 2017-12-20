@@ -19,7 +19,7 @@
         };
     // === VARIABLES GLOBALES ===
         var base_url       = "{!! url('') !!}";
-        var url_controller = "{!! url('/horario') !!}";
+        var url_controller = "{!! url('/fthc') !!}";
         var csrf_token     = "{!! csrf_token() !!}";
 
     // === JQGRID1 ===
@@ -29,112 +29,68 @@
         var col_name_1    = new Array(
             "",
             "ESTADO",
-            "¿POR DEFECTO?",
-            "TIPO HORARIO",
-            "NOMBRE DEL HORARIO",
+            "FECHA",
+            "NOMBRE",
 
-            "INGRESO",
-            "SALIDA",
-            "TOLERANCIA",
-
-            "DEL ",
-            "AL",
-            "DEL",
-            "AL",
-
-            "LUNES",
-            "MARTES",
-            "MIERCOLES",
-            "JUEVES",
-            "VIERNES",
-            "SABADO",
-            "DOMINGO",
-
+            "TIPO",
             "LUGAR DE DEPENDENCIA",
+            "UNIDAD DESCONCENTRADA",
+
+            "HORARIO ",
+
+            "JORNADA",
+            "SEXO",
 
             ""
         );
         var col_m_name_1  = new Array(
             "act",
             "estado",
-            "defecto",
-            "tipo_horario",
+            "fecha",
             "nombre",
 
-            "h_ingreso",
-            "h_salida",
-            "tolerancia",
-
-            "marcacion_ingreso_del",
-            "marcacion_ingreso_al",
-            "marcacion_salida_del",
-            "marcacion_salida_al",
-
-            "lunes",
-            "martes",
-            "miercoles",
-            "jueves",
-            "viernes",
-            "sabado",
-            "domingo",
-
+            "tipo_fthc",
             "lugar_dependencia",
+            "unidad_desconcentrada",
+
+            "horario",
+
+            "tipo_horario",
+            "sexo",
 
             "val_json"
         );
         var col_m_index_1 = new Array(
             "",
-            "rrhh_horarios.estado",
-            "rrhh_horarios.defecto",
-            "rrhh_horarios.tipo_horario",
-            "rrhh_horarios.nombre",
+            "rrhh_fthc.estado",
+            "rrhh_fthc.fecha::text",
+            "rrhh_fthc.nombre",
 
-            "rrhh_horarios.h_ingreso::text",
-            "rrhh_horarios.h_salida::text",
-            "rrhh_horarios.tolerancia::text",
-
-            "rrhh_horarios.marcacion_ingreso_del::text",
-            "rrhh_horarios.marcacion_ingreso_al::text",
-            "rrhh_horarios.marcacion_salida_del::text",
-            "rrhh_horarios.marcacion_salida_al::text",
-
-            "rrhh_horarios.lunes",
-            "rrhh_horarios.martes",
-            "rrhh_horarios.miercoles",
-            "rrhh_horarios.jueves",
-            "rrhh_horarios.viernes",
-            "rrhh_horarios.sabado",
-            "rrhh_horarios.domingo",
-
+            "rrhh_fthc.tipo_fthc",
             "a2.nombre",
+            "a3.nombre",
+
+            "a4.nombre",
+
+            "rrhh_fthc.tipo_horario",
+            "rrhh_fthc.sexo",
 
             ""
         );
         var col_m_width_1 = new Array(
             33,
             100,
-            110,
+            90,
+            300,
+
             135,
             300,
-
-            80,
-            80,
-            90,
-
-            85,
-            85,
-            85,
-            85,
-
-            100,
-            100,
-            100,
-            100,
-            100,
-            100,
-            100,
+            300,
 
             300,
+
+            100,
+            100,
 
             10
         );
@@ -143,25 +99,14 @@
             "center",
             "center",
             "center",
-            "left",
 
             "center",
             "center",
             "center",
 
             "center",
-            "center",
-            "center",
-            "center",
 
             "center",
-            "center",
-            "center",
-            "center",
-            "center",
-            "center",
-            "center",
-
             "center",
 
             "center"
@@ -180,14 +125,14 @@
             estado_jqgrid += ';' + index + ':' + value;
         });
 
-    // === DEFECTO ===
-        var defecto_json   = $.parseJSON('{!! json_encode($defecto_array) !!}');
-        var defecto_select = '';
-        var defecto_jqgrid = ':Todos';
+    // === FERIADO, TOLERANCIA Y HORARIO CONTINUO ===
+        var fthc_json   = $.parseJSON('{!! json_encode($fthc_array) !!}');
+        var fthc_select = '';
+        var fthc_jqgrid = ':Todos';
 
-        $.each(defecto_json, function(index, value) {
-            defecto_select += '<option value="' + index + '">' + value + '</option>';
-            defecto_jqgrid += ';' + index + ':' + value;
+        $.each(fthc_json, function(index, value) {
+            fthc_select += '<option value="' + index + '">' + value + '</option>';
+            fthc_jqgrid += ';' + index + ':' + value;
         });
 
     // === TIPO DE HORARIO ===
@@ -200,14 +145,14 @@
             tipo_horario_jqgrid += ';' + index + ':' + value;
         });
 
-    // === DIAS ===
-        var dias_json   = $.parseJSON('{!! json_encode($dias_array) !!}');
-        var dias_select = '';
-        var dias_jqgrid = ':Todos';
+    // === SEXO ===
+        var sexo_json   = $.parseJSON('{!! json_encode($sexo_array) !!}');
+        var sexo_select = '';
+        var sexo_jqgrid = ':Todos';
 
-        $.each(dias_json, function(index, value) {
-            dias_select += '<option value="' + index + '">' + value + '</option>';
-            dias_jqgrid += ';' + index + ':' + value;
+        $.each(sexo_json, function(index, value) {
+            sexo_select += '<option value="' + index + '">' + value + '</option>';
+            sexo_jqgrid += ';' + index + ':' + value;
         });
 
     // === LUGAR DE DEPENDENCIA ===
@@ -223,14 +168,58 @@
     $(document).ready(function(){
         //=== INICIALIZAR ===
             $('#lugar_dependencia_id').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id").select2({
+            $("#lugar_dependencia_id, #unidad_desconcentrada_id, #horario_id").select2({
                 maximumSelectionLength: 1
             });
             $("#lugar_dependencia_id").appendTo("#lugar_dependencia_id_div");
+            $("#unidad_desconcentrada_id").appendTo("#unidad_desconcentrada_id_div");
+            $("#horario_id").appendTo("#horario_id_div");
 
-            $('#h_ingreso, #h_salida, #marcacion_ingreso_del, #marcacion_ingreso_al, #marcacion_salida_del, #marcacion_salida_al').clockpicker({
-                autoclose: true,
-                donetext : 'Hecho'
+            $('#fecha').datepicker({
+                // startView            : 2,
+                // todayBtn          : "linked",
+                // keyboardNavigation: false,
+                // forceParse        : false,
+                autoclose            : true,
+                format               : "yyyy-mm-dd",
+                startDate            : '-0y',
+                endDate              : '+5y',
+                language             : "es"
+            });
+
+        // === SELECT CHANGE ===
+            $("#lugar_dependencia_id").on("change", function(e) {
+                $('#unidad_desconcentrada_id').select2('val','');
+                $('#unidad_desconcentrada_id option').remove();
+                $('#horario_id').select2('val','');
+                $('#horario_id option').remove();
+                switch ($.trim(this.value)){
+                    case '':
+                        break;
+                    default:
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = false;
+                        valor1[4]  = "tipo=103&lugar_dependencia_id=" + this.value + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                }
+            });
+
+            $(".fthc_class").on("change", function(e){
+                $(".horario_continuo_div, .tolerancia_div").slideUp('');
+                switch($(".fthc_class:checked").val()){
+                    case '2':
+                        $(".tolerancia_div").slideDown('');
+                        break;
+                    case '3':
+                        $(".horario_continuo_div").slideDown('');
+                        break;
+                    default:
+                        break;
+                }
             });
 
         // === JQGRID 1 ===
@@ -283,7 +272,7 @@
                 var edit1      = true;
                 var ancho1     = 5;
                 var ancho_d    = 28;
-                @if(in_array(['codigo' => '1403'], $permisos))
+                @if(in_array(['codigo' => '1503'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
@@ -297,7 +286,7 @@
                     pager       : pjqgrid1,
                     rowNum      : 10,
                     rowList     : [10, 20, 30],
-                    sortname    : 'rrhh_horarios.id',
+                    sortname    : 'rrhh_fthc.fecha',
                     sortorder   : "desc",
                     viewrecords : true,
                     shrinkToFit : false,
@@ -316,28 +305,17 @@
                         col_name_1[1],
                         col_name_1[2],
                         col_name_1[3],
-                        col_name_1[4],
 
+                        col_name_1[4],
                         col_name_1[5],
                         col_name_1[6],
+
                         col_name_1[7],
 
                         col_name_1[8],
                         col_name_1[9],
-                        col_name_1[10],
-                        col_name_1[11],
 
-                        col_name_1[12],
-                        col_name_1[13],
-                        col_name_1[14],
-                        col_name_1[15],
-                        col_name_1[16],
-                        col_name_1[17],
-                        col_name_1[18],
-
-                        col_name_1[19],
-
-                        col_name_1[20]
+                        col_name_1[10]
                     ],
                     colModel : [
                         {
@@ -360,33 +338,33 @@
                             editoptions: {value:estado_jqgrid}
                         },
                         {
-                            name       : col_m_name_1[2],
-                            index      : col_m_index_1[2],
-                            width      : col_m_width_1[2],
-                            align      : col_m_align_1[2],
-                            stype      :'select',
-                            editoptions: {value:defecto_jqgrid}
+                            name : col_m_name_1[2],
+                            index: col_m_index_1[2],
+                            width: col_m_width_1[2],
+                            align: col_m_align_1[2],
                         },
                         {
-                            name       : col_m_name_1[3],
-                            index      : col_m_index_1[3],
-                            width      : col_m_width_1[3],
-                            align      : col_m_align_1[3],
-                            stype      :'select',
-                            editoptions: {value:tipo_horario_jqgrid}
-                        },
-                        {
-                            name : col_m_name_1[4],
-                            index: col_m_index_1[4],
-                            width: col_m_width_1[4],
-                            align: col_m_align_1[4]
+                            name : col_m_name_1[3],
+                            index: col_m_index_1[3],
+                            width: col_m_width_1[3],
+                            align: col_m_align_1[3]
                         },
 
                         {
-                            name : col_m_name_1[5],
-                            index: col_m_index_1[5],
-                            width: col_m_width_1[5],
-                            align: col_m_align_1[5]
+                            name       : col_m_name_1[4],
+                            index      : col_m_index_1[4],
+                            width      : col_m_width_1[4],
+                            align      : col_m_align_1[4],
+                            stype      :'select',
+                            editoptions: {value:fthc_jqgrid}
+                        },
+                        {
+                            name       : col_m_name_1[5],
+                            index      : col_m_index_1[5],
+                            width      : col_m_width_1[5],
+                            align      : col_m_align_1[5],
+                            stype      :'select',
+                            editoptions: {value:lugar_dependencia_jqgrid}
                         },
                         {
                             name : col_m_name_1[6],
@@ -394,6 +372,7 @@
                             width: col_m_width_1[6],
                             align: col_m_align_1[6]
                         },
+
                         {
                             name : col_m_name_1[7],
                             index: col_m_index_1[7],
@@ -402,102 +381,28 @@
                         },
 
                         {
-                            name : col_m_name_1[8],
-                            index: col_m_index_1[8],
-                            width: col_m_width_1[8],
-                            align: col_m_align_1[8]
-                        },
-                        {
-                            name : col_m_name_1[9],
-                            index: col_m_index_1[9],
-                            width: col_m_width_1[9],
-                            align: col_m_align_1[9]
-                        },
-                        {
-                            name : col_m_name_1[10],
-                            index: col_m_index_1[10],
-                            width: col_m_width_1[10],
-                            align: col_m_align_1[10]
-                        },
-                        {
-                            name : col_m_name_1[11],
-                            index: col_m_index_1[11],
-                            width: col_m_width_1[11],
-                            align: col_m_align_1[11]
-                        },
-
-                        {
-                            name       : col_m_name_1[12],
-                            index      : col_m_index_1[12],
-                            width      : col_m_width_1[12],
-                            align      : col_m_align_1[12],
+                            name       : col_m_name_1[8],
+                            index      : col_m_index_1[8],
+                            width      : col_m_width_1[8],
+                            align      : col_m_align_1[8],
                             stype      :'select',
-                            editoptions: {value:dias_jqgrid}
+                            editoptions: {value:tipo_horario_jqgrid}
                         },
                         {
-                            name       : col_m_name_1[13],
-                            index      : col_m_index_1[13],
-                            width      : col_m_width_1[13],
-                            align      : col_m_align_1[13],
+                            name       : col_m_name_1[9],
+                            index      : col_m_index_1[9],
+                            width      : col_m_width_1[9],
+                            align      : col_m_align_1[9],
                             stype      :'select',
-                            editoptions: {value:dias_jqgrid}
-                        },
-                        {
-                            name       : col_m_name_1[14],
-                            index      : col_m_index_1[14],
-                            width      : col_m_width_1[14],
-                            align      : col_m_align_1[14],
-                            stype      :'select',
-                            editoptions: {value:dias_jqgrid}
-                        },
-                        {
-                            name       : col_m_name_1[15],
-                            index      : col_m_index_1[15],
-                            width      : col_m_width_1[15],
-                            align      : col_m_align_1[15],
-                            stype      :'select',
-                            editoptions: {value:dias_jqgrid}
-                        },
-                        {
-                            name       : col_m_name_1[16],
-                            index      : col_m_index_1[16],
-                            width      : col_m_width_1[16],
-                            align      : col_m_align_1[16],
-                            stype      :'select',
-                            editoptions: {value:dias_jqgrid}
-                        },
-                        {
-                            name       : col_m_name_1[17],
-                            index      : col_m_index_1[17],
-                            width      : col_m_width_1[17],
-                            align      : col_m_align_1[17],
-                            stype      :'select',
-                            editoptions: {value:dias_jqgrid}
-                        },
-                        {
-                            name       : col_m_name_1[18],
-                            index      : col_m_index_1[18],
-                            width      : col_m_width_1[18],
-                            align      : col_m_align_1[18],
-                            stype      :'select',
-                            editoptions: {value:dias_jqgrid}
-                        },
-
-                        {
-                            name       : col_m_name_1[19],
-                            index      : col_m_index_1[19],
-                            width      : col_m_width_1[19],
-                            align      : col_m_align_1[19],
-                            stype      :'select',
-                            editoptions: {value:lugar_dependencia_jqgrid}
+                            editoptions: {value:sexo_jqgrid}
                         },
 
                         // === OCULTO ===
                             {
-                                name  : col_m_name_1[20],
-                                index : col_m_index_1[20],
-                                width : col_m_width_1[20],
-                                align : col_m_align_1[20],
+                                name  : col_m_name_1[10],
+                                index : col_m_index_1[10],
+                                width : col_m_width_1[10],
+                                align : col_m_align_1[10],
                                 search: false,
                                 hidden: true
                             }
@@ -512,7 +417,7 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            @if(in_array(['codigo' => '1403'], $permisos))
+                            @if(in_array(['codigo' => '1503'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                             @else
                                 ed = '';
@@ -529,24 +434,14 @@
                     useColSpanStyle: true,
                     groupHeaders   :[
                         {
-                            startColumnName: 'h_ingreso',
-                            numberOfColumns: 2,
-                            titleText      : 'HORA DE'
+                            startColumnName: 'horario',
+                            numberOfColumns: 1,
+                            titleText      : 'HORARIO CONTINUO'
                         },
                         {
-                            startColumnName: 'marcacion_ingreso_del',
+                            startColumnName: 'tipo_horario',
                             numberOfColumns: 2,
-                            titleText      : 'MARCACION DE INGRESO'
-                        },
-                        {
-                            startColumnName: 'marcacion_salida_del',
-                            numberOfColumns: 2,
-                            titleText      : 'MARCACION DE SALIDA'
-                        },
-                        {
-                            startColumnName: 'lunes',
-                            numberOfColumns: 7,
-                            titleText      : 'DIAS DE LA SEMANA'
+                            titleText      : 'TOLERANCIA'
                         }
                     ]
                 });
@@ -566,7 +461,7 @@
                 .navSeparatorAdd(pjqgrid1,{
                     sepclass : "ui-separator"
                 })
-                @if(in_array(['codigo' => '1402'], $permisos))
+                @if(in_array(['codigo' => '1502'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "add1",
                     caption       : "",
@@ -583,7 +478,7 @@
                     }
                 })
                 @endif
-                @if(in_array(['codigo' => '1403'], $permisos))
+                @if(in_array(['codigo' => '1503'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "edit1",
                     caption       : "",
@@ -606,7 +501,7 @@
                     }
                 })
                 @endif
-                @if(in_array(['codigo' => '1404'], $permisos))
+                @if(in_array(['codigo' => '1504'], $permisos))
                     .navSeparatorAdd(pjqgrid1,{
                       sepclass : "ui-separator"
                     })
@@ -638,45 +533,43 @@
                 var val_json = $.parseJSON(ret.val_json);
 
                 $('#modal_1_title').empty();
-                 $('#modal_1_title').append('Modificar horario');
+                 $('#modal_1_title').append('Modificar feriado o tolerancia o horario continuo');
 
-                $("#id_horario").val(valor[1]);
+                $("#id_fthc").val(valor[1]);
 
                 $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
-                $(".defecto_class[value=" + val_json.defecto + "]").prop('checked', true);
-                $(".tipo_horario_class[value=" + val_json.tipo_horario + "]").prop('checked', true);
-                $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
+                $("#fecha").val(ret.fecha);
                 $("#nombre").val(ret.nombre);
 
-                $("#h_ingreso").val(ret.h_ingreso);
-                $("#h_salida").val(ret.h_salida);
-                $("#tolerancia").val(ret.tolerancia);
+                $(".fthc_class[value=" + val_json.tipo_fthc + "]").prop('checked', true);
 
-                $("#marcacion_ingreso_del").val(ret.marcacion_ingreso_del);
-                $("#marcacion_ingreso_al").val(ret.marcacion_ingreso_al);
-                $("#marcacion_salida_del").val(ret.marcacion_salida_del);
-                $("#marcacion_salida_al").val(ret.marcacion_salida_al);
+                $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
 
-                if(val_json.lunes == '2'){
-                     $("#lunes").prop('checked', true);
+                if(ret.unidad_desconcentrada != ''){
+                    $("#unidad_desconcentrada_id").select2("val", val_json.unidad_desconcentrada_id);
                 }
-                if(val_json.martes == '2'){
-                     $("#martes").prop('checked', true);
-                }
-                if(val_json.miercoles == '2'){
-                     $("#miercoles").prop('checked', true);
-                }
-                if(val_json.jueves == '2'){
-                     $("#jueves").prop('checked', true);
-                }
-                if(val_json.viernes == '2'){
-                     $("#viernes").prop('checked', true);
-                }
-                if(val_json.sabado == '2'){
-                     $("#sabado").prop('checked', true);
-                }
-                if(val_json.domingo == '2'){
-                     $("#domingo").prop('checked', true);
+
+                switch(val_json.tipo_fthc + ''){
+                    case '2':
+                        $(".tolerancia_div").slideDown('');
+
+                        if(ret.tipo_horario != ''){
+                            $(".tipo_horario_class[value=" + val_json.tipo_horario + "]").prop('checked', true);
+                        }
+
+                        if(ret.sexo != ''){
+                            $(".sexo_class[value=" + val_json.sexo + "]").prop('checked', true);
+                        }
+                        break;
+                    case '3':
+                        $(".horario_continuo_div").slideDown('');
+
+                        if(ret.horario != ''){
+                            $("#horario_id").select2("val", val_json.horario_id);
+                        }
+                        break;
+                    default:
+                        break;
                 }
 
                 $('#modal_1').modal();
@@ -688,34 +581,68 @@
             // === RESETEAR FORMULARIO ===
             case 14:
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Agregar nuevo horario');
+                $('#modal_1_title').append('Agregar nuevo feriado o tolerancia o horario continuo');
 
-                $("#id_horario").val('');
+                $("#id_fthc").val('');
 
                 $('#lugar_dependencia_id').select2("val", "");
+
+                $(".horario_continuo_div, .tolerancia_div").slideUp('');
 
                 $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
             case 15:
                 if($(form_1).valid()){
-                    swal({
-                        title             : "ENVIANDO INFORMACIÓN",
-                        text              : "Espere a que guarde la información.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+                    var tipo_fthc = $(".fthc_class:checked").val();
+                    if(tipo_fthc == '3'){
+                        var horario_id = $("#horario_id").val();
+                        if(horario_id != ''){
+                            swal({
+                                title             : "ENVIANDO INFORMACIÓN",
+                                text              : "Espere a que guarde la información.",
+                                allowEscapeKey    : false,
+                                showConfirmButton : false,
+                                type              : "info"
+                            });
+                            $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
 
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = $(form_1).serialize();
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
+                            var valor1 = new Array();
+                            valor1[0]  = 150;
+                            valor1[1]  = url_controller + '/send_ajax';
+                            valor1[2]  = 'POST';
+                            valor1[3]  = true;
+                            valor1[4]  = $(form_1).serialize();
+                            valor1[5]  = 'json';
+                            utilitarios(valor1);
+                        }
+                        else{
+                            var valor1 = new Array();
+                            valor1[0]  = 101;
+                            valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                            valor1[2]  = "El campo HORARIO es obligatorio.";
+                            utilitarios(valor1);
+                        }
+                    }
+                    else{
+                        swal({
+                            title             : "ENVIANDO INFORMACIÓN",
+                            text              : "Espere a que guarde la información.",
+                            allowEscapeKey    : false,
+                            showConfirmButton : false,
+                            type              : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = $(form_1).serialize();
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
                 }
                 else{
                     var valor1 = new Array();
@@ -729,34 +656,15 @@
             case 16:
                 $(form_1).validate({
                     rules: {
-                        lugar_dependencia_id:{
+                        fecha:{
                             required: true
                         },
                         nombre:{
                             required : true,
                             maxlength: 500
                         },
-                        h_ingreso:{
-                            required: true
-                        },
-                        h_salida:{
-                            required: true
-                        },
-                        tolerancia:{
-                            required: true,
-                            number  : true,
-                            min     : 0
-                        },
-                        marcacion_ingreso_del:{
-                            required: true
-                        },
-                        marcacion_ingreso_al:{
-                            required: true
-                        },
-                        marcacion_salida_del:{
-                            required: true
-                        },
-                        marcacion_salida_al:{
+
+                        lugar_dependencia_id:{
                             required: true
                         }
                     }
@@ -877,6 +785,24 @@
                                 }
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === SELECT2 UNIDAD DESCONCENTRADA ===
+                            case '103':
+                                if(data.sw === 2){
+                                    var unidad_desconcentrada_select = '';
+                                    $.each(data.consulta, function(index, value) {
+                                        unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                                    });
+                                    $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
+
+                                    if(data.sw_horario_1 === 2){
+                                        var horario_1_select = '';
+                                        $.each(data.horario_1, function(index, value) {
+                                            horario_1_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                                        });
+                                        $('#horario_id').append(horario_1_select);
+                                    }
+                                }
                                 break;
                             default:
                                 break;

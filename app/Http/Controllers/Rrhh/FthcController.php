@@ -14,18 +14,20 @@ use App\Libraries\UtilClass;
 use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegLdUser;
 use App\Models\Institucion\InstLugarDependencia;
+use App\Models\Institucion\InstUnidadDesconcentrada;
 use App\Models\Rrhh\RrhhHorario;
+use App\Models\Rrhh\RrhhFthc;
 
 use Maatwebsite\Excel\Facades\Excel;
 
 use Exception;
 
-class HorarioController extends Controller
+class FthcController extends Controller
 {
     private $estado;
-    private $defecto;
+    private $fthc;
     private $tipo_horario;
-    private $dias;
+    private $sexo;
 
     private $rol_id;
     private $permisos;
@@ -42,21 +44,20 @@ class HorarioController extends Controller
             '2' => 'INHABILITADO'
         ];
 
-        $this->defecto = [
-            '1' => 'NO',
-            '2' => 'SI'
+        $this->fthc = [
+            '1' => 'FERIADO',
+            '2' => 'TOLERANCIA',
+            '3' => 'HORARIO CONTINUO'
         ];
 
         $this->tipo_horario = [
             '1' => 'MAÑANA',
-            '2' => 'TARDE',
-            '3' => 'NOCHE',
-            '4' => 'HORARIO CONTINUO'
+            '2' => 'TARDE'
         ];
 
-        $this->dias = [
-            '1' => 'NO',
-            '2' => 'SI'
+        $this->sexo = [
+            'F' => 'FEMENINO',
+            'M' => 'MASCULINO'
         ];
     }
 
@@ -69,7 +70,7 @@ class HorarioController extends Controller
             ->get()
             ->toArray();
 
-        if(in_array(['codigo' => '1401'], $this->permisos))
+        if(in_array(['codigo' => '1501'], $this->permisos))
         {
             $user_id = Auth::user()->id;
 
@@ -117,22 +118,22 @@ class HorarioController extends Controller
             $data = [
                 'rol_id'                  => $this->rol_id,
                 'permisos'                => $this->permisos,
-                'title'                   => 'Horarios',
+                'title'                   => 'Feriado, tolerancia y horario continuo',
                 'home'                    => 'Inicio',
                 'sistema'                 => 'Recursos humanos',
-                'modulo'                  => 'Horarios',
-                'title_table'             => 'Horarios',
+                'modulo'                  => 'Feriados, tolerancias y horario continuos',
+                'title_table'             => 'Feriados, tolerancias y horario continuos',
                 'estado_array'            => $this->estado,
-                'defecto_array'           => $this->defecto,
+                'fthc_array'              => $this->fthc,
                 'tipo_horario_array'      => $this->tipo_horario,
-                'dias_array'              => $this->dias,
+                'sexo_array'              => $this->sexo,
                 'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
                                                 ->get()
                                                 ->toArray()
             ];
-            return view('rrhh.horario.horario')->with($data);
+            return view('rrhh.fthc.fthc')->with($data);
         }
         else
         {
@@ -159,32 +160,29 @@ class HorarioController extends Controller
             case '1':
                 $jqgrid = new JqgridClass($request);
 
-                $tabla1 = "rrhh_horarios";
+                $tabla1 = "rrhh_fthc";
                 $tabla2 = "inst_lugares_dependencia";
+                $tabla3 = "inst_unidades_desconcentradas";
+                $tabla4 = "rrhh_horarios";
 
                 $select = "
                     $tabla1.id,
                     $tabla1.lugar_dependencia_id,
-                    $tabla1.estado,
-                    $tabla1.defecto,
-                    $tabla1.tipo_horario,
-                    $tabla1.nombre,
-                    $tabla1.h_ingreso,
-                    $tabla1.h_salida,
-                    $tabla1.tolerancia,
-                    $tabla1.marcacion_ingreso_del,
-                    $tabla1.marcacion_ingreso_al,
-                    $tabla1.marcacion_salida_del,
-                    $tabla1.marcacion_salida_al,
-                    $tabla1.lunes,
-                    $tabla1.martes,
-                    $tabla1.miercoles,
-                    $tabla1.jueves,
-                    $tabla1.viernes,
-                    $tabla1.sabado,
-                    $tabla1.domingo,
+                    $tabla1.unidad_desconcentrada_id,
+                    $tabla1.horario_id,
 
-                    a2.nombre AS lugar_dependencia
+                    $tabla1.estado,
+                    $tabla1.fecha,
+                    $tabla1.nombre,
+                    $tabla1.tipo_fthc,
+                    $tabla1.tipo_horario,
+                    $tabla1.sexo,
+
+                    a2.nombre AS lugar_dependencia,
+
+                    a3.nombre AS unidad_desconcentrada,
+
+                    a4.nombre AS horario
                 ";
 
                 $array_where = "TRUE";
@@ -233,13 +231,17 @@ class HorarioController extends Controller
 
                 $array_where .= $jqgrid->getWhere();
 
-                $count = RrhhHorario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.lugar_dependencia_id")
+                $count = RrhhFthc::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.lugar_dependencia_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.horario_id")
                     ->whereRaw($array_where)
                     ->count();
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
-                $query = RrhhHorario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.lugar_dependencia_id")
+                $query = RrhhFthc::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.lugar_dependencia_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.horario_id")
                     ->whereRaw($array_where)
                     ->select(DB::raw($select))
                     ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -258,17 +260,13 @@ class HorarioController extends Controller
                 foreach ($query as $row)
                 {
                     $val_array = array(
-                        'lugar_dependencia_id' => $row["lugar_dependencia_id"],
-                        'estado'               => $row["estado"],
-                        'defecto'              => $row["defecto"],
-                        'tipo_horario'         => $row["tipo_horario"],
-                        'lunes'                => $row["lunes"],
-                        'martes'               => $row["martes"],
-                        'miercoles'            => $row["miercoles"],
-                        'jueves'               => $row["jueves"],
-                        'viernes'              => $row["viernes"],
-                        'sabado'               => $row["sabado"],
-                        'domingo'              => $row["domingo"]
+                        'lugar_dependencia_id'     => $row["lugar_dependencia_id"],
+                        'unidad_desconcentrada_id' => $row["unidad_desconcentrada_id"],
+                        'horario_id'               => $row["horario_id"],
+                        'estado'                   => $row["estado"],
+                        'tipo_fthc'                => $row["tipo_fthc"],
+                        'tipo_horario'             => $row["tipo_horario"],
+                        'sexo'                     => $row["sexo"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
@@ -276,28 +274,17 @@ class HorarioController extends Controller
                         '',
 
                         $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
-                        ($row["defecto"] == '')? '' : $this->defecto[$row["defecto"]],
-                        ($row["tipo_horario"] == '')? '' : $this->tipo_horario[$row["tipo_horario"]],
+                        $row["fecha"],
                         $row["nombre"],
 
-                        $row["h_ingreso"],
-                        $row["h_salida"],
-                        $row["tolerancia"],
-
-                        $row["marcacion_ingreso_del"],
-                        $row["marcacion_ingreso_al"],
-                        $row["marcacion_salida_del"],
-                        $row["marcacion_salida_al"],
-
-                        $this->utilitarios(array('tipo' => '2', 'dias' => $row["lunes"])),
-                        $this->utilitarios(array('tipo' => '2', 'dias' => $row["martes"])),
-                        $this->utilitarios(array('tipo' => '2', 'dias' => $row["miercoles"])),
-                        $this->utilitarios(array('tipo' => '2', 'dias' => $row["jueves"])),
-                        $this->utilitarios(array('tipo' => '2', 'dias' => $row["viernes"])),
-                        $this->utilitarios(array('tipo' => '2', 'dias' => $row["sabado"])),
-                        $this->utilitarios(array('tipo' => '2', 'dias' => $row["domingo"])),
-
+                        ($row["tipo_fthc"] == '')? '' : $this->fthc[$row["tipo_fthc"]],
                         $row["lugar_dependencia"],
+                        $row["unidad_desconcentrada"],
+
+                        $row["horario"],
+
+                        ($row["tipo_horario"] == '')? '' : $this->tipo_horario[$row["tipo_horario"]],
+                        ($row["sexo"] == '')? '' : $this->sexo[$row["sexo"]],
 
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
@@ -349,7 +336,7 @@ class HorarioController extends Controller
                     $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>Horario</strong></div>',
+                        'titulo'     => '<div class="text-center"><strong>FERIADO, TOLERANCIA Y HORARIO CONTINUO</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
                         'iu'         => 1,
@@ -362,7 +349,7 @@ class HorarioController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '1403'], $this->permisos))
+                        if(!in_array(['codigo' => '1503'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
@@ -370,7 +357,7 @@ class HorarioController extends Controller
                     }
                     else
                     {
-                        if(!in_array(['codigo' => '1402'], $this->permisos))
+                        if(!in_array(['codigo' => '1502'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
                             return json_encode($respuesta);
@@ -381,36 +368,18 @@ class HorarioController extends Controller
                     try
                     {
                         $validator = $this->validate($request,[
-                            'lugar_dependencia_id'  => 'required',
-                            'nombre'                => 'required|max:500',
-                            'h_ingreso'             => 'required',
-                            'h_salida'              => 'required',
-                            'tolerancia'            => 'required|min:0',
-                            'marcacion_ingreso_del' => 'required',
-                            'marcacion_ingreso_al'  => 'required',
-                            'marcacion_salida_del'  => 'required',
-                            'marcacion_salida_al'   => 'required'
+                            'fecha'                => 'required|date',
+                            'nombre'               => 'required|max:500',
+                            'lugar_dependencia_id' => 'required'
                         ],
                         [
-                            'lugar_dependencia_id.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
+                            'fecha.required' => 'El campo FECHA es obligatorio.',
+                            'fecha.max'     => 'El campo FECHA no corresponde con una fecha válida.',
 
                             'nombre.required' => 'El campo NOMBRE es obligatorio.',
-                            'nombre.max'     => 'El campo NOMBRE debe contener :max caracteres como máximo.',
+                            'nombre.max'      => 'El campo NOMBRE debe contener :max caracteres como máximo.',
 
-                            'h_ingreso.required' => 'El campo HORA DE INGRESO es obligatorio.',
-
-                            'h_salida.required' => 'El campo HORA DE SALIDA es obligatorio.',
-
-                            'tolerancia.required' => 'El campo TOLERANCIA es obligatorio.',
-                            'tolerancia.min'      => 'El campo TOLERANCIA debe tener al menos :min.',
-
-                            'marcacion_ingreso_del.required' => 'El campo MARCACION DE INGRESO DEL es obligatorio.',
-
-                            'marcacion_ingreso_al.required' => 'El campo MARCACION DE INGRESO AL es obligatorio.',
-
-                            'marcacion_salida_del.required' => 'El campo MARCACION DE SALIDA DEL es obligatorio.',
-
-                            'marcacion_salida_al.required' => 'El campo MARCACION DE SALIDA AL es obligatorio.'
+                            'lugar_dependencia_id.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.'
                         ]);
                     }
                     catch (Exception $e)
@@ -421,28 +390,18 @@ class HorarioController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $data1['estado']               = trim($request->input('estado'));
-                    $data1['defecto']              = trim($request->input('defecto'));
-                    $data1['tipo_horario']         = trim($request->input('tipo_horario'));
-                    $data1['lugar_dependencia_id'] = trim($request->input('lugar_dependencia_id'));
-                    $data1['nombre']               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                    $data1['estado']    = trim($request->input('estado'));
+                    $data1['fecha']     = trim($request->input('fecha'));
+                    $data1['nombre']    = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                    $data1['tipo_fthc'] = trim($request->input('tipo_fthc'));
 
-                    $data1['h_ingreso']  = trim($request->input('h_ingreso'));
-                    $data1['h_salida']   = trim($request->input('h_salida'));
-                    $data1['tolerancia'] = trim($request->input('tolerancia'));
+                    $data1['lugar_dependencia_id']     = trim($request->input('lugar_dependencia_id'));
+                    $data1['unidad_desconcentrada_id'] = trim($request->input('unidad_desconcentrada_id'));
 
-                    $data1['marcacion_ingreso_del'] = trim($request->input('marcacion_ingreso_del'));
-                    $data1['marcacion_ingreso_al']  = trim($request->input('marcacion_ingreso_al'));
-                    $data1['marcacion_salida_del']  = trim($request->input('marcacion_salida_del'));
-                    $data1['marcacion_salida_al']   = trim($request->input('marcacion_salida_al'));
+                    $data1['horario_id'] = trim($request->input('horario_id'));
 
-                    $data1['lunes']     = trim($request->input('lunes', 1));
-                    $data1['martes']    = trim($request->input('martes', 1));
-                    $data1['miercoles'] = trim($request->input('miercoles', 1));
-                    $data1['jueves']    = trim($request->input('jueves', 1));
-                    $data1['viernes']   = trim($request->input('viernes', 1));
-                    $data1['sabado']    = trim($request->input('sabado', 1));
-                    $data1['domingo']   = trim($request->input('domingo', 1));
+                    $data1['tipo_horario'] = trim($request->input('tipo_horario'));
+                    $data1['sexo']         = trim($request->input('sexo'));
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
                     foreach ($data1 as $llave => $valor)
@@ -452,130 +411,137 @@ class HorarioController extends Controller
                     }
 
                 // === VALIDAR POR CAMPO ===
-                    $sw_dias = TRUE;
+                    switch($data1['tipo_fthc'])
+                    {
+                        case '1':
+                            $data1['horario_id'] = NULL;
 
-                    if($data1['lunes'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['martes'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['miercoles'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['jueves'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['viernes'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['sabado'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['domingo'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
+                            $data1['tipo_horario'] = NULL;
+                            $data1['sexo']         = NULL;
+                            break;
+                        case '2':
+                            $data1['horario_id'] = NULL;
+                            break;
+                        case '3':
+                            $data1['tipo_horario'] = NULL;
+                            $data1['sexo']         = NULL;
 
-                    if($sw_dias)
-                    {
-                        $respuesta['respuesta'] .= "¡Por lo menos seleccione un día!";
-                        return json_encode($respuesta);
+                            if($data1['horario_id'] == '')
+                            {
+                                $respuesta['respuesta'] .= "El campo HORARIO es obligatorio.";
+                                return json_encode($respuesta);
+                            }
+                            break;
+                        default:
+                            $data1['horario_id'] = NULL;
+
+                            $data1['tipo_horario'] = NULL;
+                            $data1['sexo']         = NULL;
+                            break;
                     }
 
                 // === REGISTRAR MODIFICAR VALORES ===
                     if($opcion == 'n')
                     {
-                        $consulta1 = RrhhHorario::where('nombre', '=', $data1['nombre'])
+                        $consulta1 = RrhhFthc::where('nombre', '=', $data1['nombre'])
                             ->where('lugar_dependencia_id', '=', $data1['lugar_dependencia_id'])
                             ->count();
 
                         if($consulta1 < 1)
                         {
-                            $iu                       = new RrhhHorario;
-                            $iu->estado               = $data1['estado'];
-                            $iu->defecto              = $data1['defecto'];
-                            $iu->tipo_horario         = $data1['tipo_horario'];
-                            $iu->lugar_dependencia_id = $data1['lugar_dependencia_id'];
-                            $iu->nombre               = $data1['nombre'];
+                            $iu            = new RrhhFthc;
+                            $iu->estado    = $data1['estado'];
+                            $iu->fecha     = $data1['fecha'];
+                            $iu->nombre    = $data1['nombre'];
+                            $iu->tipo_fthc = $data1['tipo_fthc'];
 
-                            $iu->h_ingreso  = $data1['h_ingreso'];
-                            $iu->h_salida   = $data1['h_salida'];
-                            $iu->tolerancia = $data1['tolerancia'];
+                            $iu->lugar_dependencia_id     = $data1['lugar_dependencia_id'];
+                            $iu->unidad_desconcentrada_id = $data1['unidad_desconcentrada_id'];
 
-                            $iu->marcacion_ingreso_del = $data1['marcacion_ingreso_del'];
-                            $iu->marcacion_ingreso_al  = $data1['marcacion_ingreso_al'];
-                            $iu->marcacion_salida_del  = $data1['marcacion_salida_del'];
-                            $iu->marcacion_salida_al   = $data1['marcacion_salida_al'];
+                            $iu->horario_id = $data1['horario_id'];
 
-                            $iu->lunes     = $data1['lunes'];
-                            $iu->martes    = $data1['martes'];
-                            $iu->miercoles = $data1['miercoles'];
-                            $iu->jueves    = $data1['jueves'];
-                            $iu->viernes   = $data1['viernes'];
-                            $iu->sabado    = $data1['sabado'];
-                            $iu->domingo   = $data1['domingo'];
+                            $iu->tipo_horario = $data1['tipo_horario'];
+                            $iu->sexo         = $data1['sexo'];
 
                             $iu->save();
 
-                            $respuesta['respuesta'] .= "El HORARIO fue registrado con éxito.";
+                            $respuesta['respuesta'] .= "El FERIADO o TOLERANCIA o HORARIO CONTINUO fue registrado con éxito.";
                             $respuesta['sw']         = 1;
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "El NOMBRE del horario ya fue registrado.";
+                            $respuesta['respuesta'] .= "El NOMBRE del FERIADO o TOLERANCIA o HORARIO CONTINUO ya fue registrado.";
                         }
                     }
                     else
                     {
-                        $consulta1 = RrhhHorario::where('nombre', '=', $data1['nombre'])
+                        $consulta1 = RrhhFthc::where('nombre', '=', $data1['nombre'])
                             ->where('lugar_dependencia_id', '=', $data1['lugar_dependencia_id'])
                             ->where('id', '<>', $id)
                             ->count();
 
                         if($consulta1 < 1)
                         {
-                            $iu                       = RrhhHorario::find($id);
-                            $iu->estado               = $data1['estado'];
-                            $iu->defecto              = $data1['defecto'];
-                            $iu->tipo_horario         = $data1['tipo_horario'];
-                            $iu->lugar_dependencia_id = $data1['lugar_dependencia_id'];
-                            $iu->nombre               = $data1['nombre'];
+                            $iu            = RrhhFthc::find($id);
+                            $iu->estado    = $data1['estado'];
+                            $iu->fecha     = $data1['fecha'];
+                            $iu->nombre    = $data1['nombre'];
+                            $iu->tipo_fthc = $data1['tipo_fthc'];
 
-                            $iu->h_ingreso  = $data1['h_ingreso'];
-                            $iu->h_salida   = $data1['h_salida'];
-                            $iu->tolerancia = $data1['tolerancia'];
+                            $iu->lugar_dependencia_id     = $data1['lugar_dependencia_id'];
+                            $iu->unidad_desconcentrada_id = $data1['unidad_desconcentrada_id'];
 
-                            $iu->marcacion_ingreso_del = $data1['marcacion_ingreso_del'];
-                            $iu->marcacion_ingreso_al  = $data1['marcacion_ingreso_al'];
-                            $iu->marcacion_salida_del  = $data1['marcacion_salida_del'];
-                            $iu->marcacion_salida_al   = $data1['marcacion_salida_al'];
+                            $iu->horario_id = $data1['horario_id'];
 
-                            $iu->lunes     = $data1['lunes'];
-                            $iu->martes    = $data1['martes'];
-                            $iu->miercoles = $data1['miercoles'];
-                            $iu->jueves    = $data1['jueves'];
-                            $iu->viernes   = $data1['viernes'];
-                            $iu->sabado    = $data1['sabado'];
-                            $iu->domingo   = $data1['domingo'];
+                            $iu->tipo_horario = $data1['tipo_horario'];
+                            $iu->sexo         = $data1['sexo'];
 
                             $iu->save();
 
-                            $respuesta['respuesta'] .= "El HORARIO se edito con éxito.";
+                            $respuesta['respuesta'] .= "El FERIADO o TOLERANCIA o HORARIO CONTINUO se edito con éxito.";
                             $respuesta['sw']         = 1;
                             $respuesta['iu']         = 2;
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "El NOMBRE del horario ya fue registrado.";
+                            $respuesta['respuesta'] .= "El NOMBRE del FERIADO o TOLERANCIA o HORARIO CONTINUO ya fue registrado.";
                         }
                     }
+                return json_encode($respuesta);
+                break;
+
+            // === SELECT2 UNIDAD DESCONCENTRADA ===
+            case '103':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('lugar_dependencia_id'))
+                {
+                    $lugar_dependencia_id = $request->input('lugar_dependencia_id');
+                    $query = InstUnidadDesconcentrada::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                                ->select('id', 'nombre')
+                                ->get()
+                                ->toArray();
+
+                    $horario_1 = RrhhHorario::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                        ->where("tipo_horario", "=", '4')
+                        ->select('id', 'nombre')
+                        ->get()
+                        ->toArray();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+
+                        $respuesta['sw_horario_1'] = 1;
+                        if(count($horario_1) > 0)
+                        {
+                            $respuesta['horario_1']    = $horario_1;
+                            $respuesta['sw_horario_1'] = 2;
+                        }
+                    }
+                }
                 return json_encode($respuesta);
                 break;
             default:
@@ -596,23 +562,6 @@ class HorarioController extends Controller
                         break;
                     case '2':
                         $respuesta = '<span class="label label-danger font-sm">' . $this->estado[$valor['estado']] . '</span>';
-                        return($respuesta);
-                        break;
-                    default:
-                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
-                        return($respuesta);
-                        break;
-                }
-                break;
-            case '2':
-                switch($valor['dias'])
-                {
-                    case '1':
-                        $respuesta = '<span class="label label-danger font-sm">' . $this->dias[$valor['dias']] . '</span>';
-                        return($respuesta);
-                        break;
-                    case '2':
-                        $respuesta = '<span class="label label-primary font-sm">' . $this->dias[$valor['dias']] . '</span>';
                         return($respuesta);
                         break;
                     default:

@@ -46,6 +46,16 @@ class CreateRrhhFuncionariosTable extends Migration
                 ->references('id')
                 ->on('inst_unidades_desconcentradas')
                 ->onDelete('cascade');
+
+            $table->foreign('horario_id_1')
+                ->references('id')
+                ->on('rrhh_horarios')
+                ->onDelete('cascade');
+
+            $table->foreign('horario_id_2')
+                ->references('id')
+                ->on('rrhh_horarios')
+                ->onDelete('cascade');
         });
     }
 
