@@ -87,7 +87,7 @@ class SolicitudSalidaController extends Controller
 
         $funcionario_sw = FALSE;
         $persona_id     = Auth::user()->persona_id;
-        if($this->persona_id != '')
+        if($persona_id != '')
         {
             $tabla1 = "rrhh_funcionarios";
             $tabla2 = "rrhh_personas";
@@ -155,8 +155,8 @@ class SolicitudSalidaController extends Controller
                 ->leftJoin("$tabla8 AS a9", "a9.id", "=", "$tabla1.horario_id_1")
                 ->leftJoin("$tabla8 AS a10", "a10.id", "=", "$tabla1.horario_id_2")
                 ->where("$tabla1.persona_id", '=', $persona_id)
-                ->first()
-                ->toArray();
+                ->select(DB::raw($select))
+                ->first();
 
             if(count($consulta1) > 0)
             {
@@ -179,7 +179,7 @@ class SolicitudSalidaController extends Controller
                 'tipo_salida_array'           => $this->tipo_salida,
                 'con_sin_retorno_array'       => $this->con_sin_retorno,
                 'periodo_array'               => $this->periodo,
-                'no_si_array'                 => $this->no_si,$consulta1
+                'no_si_array'                 => $this->no_si,
                 'funcionario_array'           => $consulta1,
                 'funcionario_sw'              => $funcionario_sw,
                 'tipo_salida_por_horas_array' => RrhhTipoSalida::where("lugar_dependencia_id", "=", $consulta1['lugar_dependencia_id_funcionario'])
@@ -230,14 +230,13 @@ class SolicitudSalidaController extends Controller
 
                     $tabla1 = "rrhh_salidas";
                     $tabla2 = "rrhh_tipos_salida";
-                    $tabla3 = "rrhh_funcionarios";
-                    $tabla4 = "rrhh_personas";
+                    $tabla3 = "rrhh_personas";
 
                     $select = "
                         $tabla1.id,
-                        $tabla1.funcionario_id,
+                        $tabla1.persona_id,
                         $tabla1.tipo_salida_id,
-                        $tabla1.funcionario_id_superior,
+                        $tabla1.persona_id_superior,
 
                         $tabla1.estado,
                         $tabla1.codigo,
@@ -264,29 +263,25 @@ class SolicitudSalidaController extends Controller
                         a2.tipo_cronograma,
                         a2.tipo_salida,
 
-                        a3.persona_id,
-
-                        a4.n_documento,
-                        a4.nombre AS nombre_persona,
-                        a4.ap_paterno,
-                        a4.ap_materno
+                        a3.n_documento,
+                        a3.nombre AS nombre_persona,
+                        a3.ap_paterno,
+                        a3.ap_materno
                     ";
 
-                    $array_where = "a3.persona_id=" . $persona_id  . " AND a2.tipo_cronograma=1";
+                    $array_where = "$tabla1.persona_id=" . $persona_id  . " AND a2.tipo_cronograma=1";
 
                     $array_where .= $jqgrid->getWhere();
 
                     $count = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
-                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.funcionario_id_superior")
-                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.persona_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id_superior")
                         ->whereRaw($array_where)
                         ->count();
 
                     $limit_offset = $jqgrid->getLimitOffset($count);
 
                     $query = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
-                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.funcionario_id_superior")
-                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.persona_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id_superior")
                         ->whereRaw($array_where)
                         ->select(DB::raw($select))
                         ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -305,20 +300,20 @@ class SolicitudSalidaController extends Controller
                     foreach ($query as $row)
                     {
                         $val_array = array(
-                            'funcionario_id'          => $row["funcionario_id"],
-                            'tipo_salida_id'          => $row["tipo_salida_id"],
-                            'funcionario_id_superior' => $row["funcionario_id_superior"],
-                            'estado'                  => $row["estado"],
-                            'n_horas'                 => $row["n_horas"],
-                            'con_sin_retorno'         => $row["con_sin_retorno"],
-                            'validar_superior'        => $row["validar_superior"],
-                            'f_validar_superior'      => $row["f_validar_superior"],
-                            'validar_rrhh'            => $row["validar_rrhh"],
-                            'f_validar_rrhh'          => $row["f_validar_rrhh"],
-                            'pdf'                     => $row["pdf"],
-                            'papeleta_pdf'            => $row["papeleta_pdf"],
-                            'tipo_cronograma'         => $row["tipo_cronograma"],
-                            'tipo_salida'             => $row["tipo_salida"]
+                            'persona_id'          => $row["persona_id"],
+                            'tipo_salida_id'      => $row["tipo_salida_id"],
+                            'persona_id_superior' => $row["persona_id_superior"],
+                            'estado'              => $row["estado"],
+                            'n_horas'             => $row["n_horas"],
+                            'con_sin_retorno'     => $row["con_sin_retorno"],
+                            'validar_superior'    => $row["validar_superior"],
+                            'f_validar_superior'  => $row["f_validar_superior"],
+                            'validar_rrhh'        => $row["validar_rrhh"],
+                            'f_validar_rrhh'      => $row["f_validar_rrhh"],
+                            'pdf'                 => $row["pdf"],
+                            'papeleta_pdf'        => $row["papeleta_pdf"],
+                            'tipo_cronograma'     => $row["tipo_cronograma"],
+                            'tipo_salida'         => $row["tipo_salida"]
                         );
 
                         $respuesta['rows'][$i]['id'] = $row["id"];
@@ -636,6 +631,46 @@ class SolicitudSalidaController extends Controller
                     }
                 return json_encode($respuesta);
                 break;
+
+            // === SELECT2 PERSONA ===
+            case '100':
+                if($request->has('q'))
+                {
+                    $nombre                           = $request->input('q');
+                    $estado                           = trim($request->input('estado'));
+                    $page_limit                       = trim($request->input('page_limit'));
+                    $lugar_dependencia_id_funcionario = trim($request->input('lugar_dependencia_id_funcionario'));
+                    $persona_id                       = trim($request->input('persona_id'));
+
+                    $tabla1 = "rrhh_funcionarios";
+                    $tabla2 = "rrhh_personas";
+
+                    $tabla3 = "inst_unidades_desconcentradas";
+
+                    $query = RrhhFuncionario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->whereRaw("CONCAT_WS(' - ', a2.n_documento, CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre)) ilike '%$nombre%'")
+                        ->where("$tabla1.estado", "=", $estado)
+                        ->where("a3.lugar_dependencia_id", "=", $lugar_dependencia_id_funcionario)
+                        ->where("$tabla1.persona_id", "<>", $persona_id)
+                        ->select(DB::raw("$tabla1.id, CONCAT_WS(' - ', a2.n_documento, CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre)) AS text"))
+                        ->orderByRaw("CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre) ASC")
+                        ->limit($page_limit)
+                        ->get()
+                        ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
+                break;
             default:
                 break;
         }
@@ -663,14 +698,48 @@ class SolicitudSalidaController extends Controller
                 }
                 break;
             case '2':
-                switch($valor['dias'])
+                switch($valor['validar_superior'])
                 {
                     case '1':
-                        $respuesta = '<span class="label label-danger font-sm">' . $this->dias[$valor['dias']] . '</span>';
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['validar_superior']] . '</span>';
                         return($respuesta);
                         break;
                     case '2':
-                        $respuesta = '<span class="label label-primary font-sm">' . $this->dias[$valor['dias']] . '</span>';
+                        $respuesta = '<span class="label label-primary font-sm">' . $this->no_si[$valor['validar_superior']] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '3':
+                switch($valor['validar_rrhh'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['validar_rrhh']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<span class="label label-primary font-sm">' . $this->no_si[$valor['validar_rrhh']] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '4':
+                switch($valor['pdf'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['pdf']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<span class="label label-primary font-sm">' . $this->no_si[$valor['pdf']] . '</span>';
                         return($respuesta);
                         break;
                     default:

@@ -15,9 +15,9 @@ class CreateRrhhSalidasTable extends Migration
     {
         Schema::create('rrhh_salidas', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('funcionario_id')->unsigned()->nullable();
+            $table->integer('persona_id')->unsigned()->nullable();
             $table->integer('tipo_salida_id')->unsigned()->nullable();
-            $table->integer('funcionario_id_superior')->unsigned()->nullable();
+            $table->integer('persona_id_superior')->unsigned()->nullable();
 
             $table->smallInteger('estado')->default('1')->unsigned();
             $table->string('codigo', 12)->nullable();
@@ -45,9 +45,9 @@ class CreateRrhhSalidasTable extends Migration
 
             $table->timestamps();
 
-            $table->foreign('funcionario_id')
+            $table->foreign('persona_id')
                 ->references('id')
-                ->on('rrhh_funcionarios')
+                ->on('rrhh_personas')
                 ->onDelete('cascade');
 
             $table->foreign('tipo_salida_id')
@@ -55,9 +55,9 @@ class CreateRrhhSalidasTable extends Migration
                 ->on('rrhh_tipos_salida')
                 ->onDelete('cascade');
 
-            $table->foreign('funcionario_id_superior')
+            $table->foreign('persona_id_superior')
                 ->references('id')
-                ->on('rrhh_funcionarios')
+                ->on('rrhh_personas')
                 ->onDelete('cascade');
         });
     }

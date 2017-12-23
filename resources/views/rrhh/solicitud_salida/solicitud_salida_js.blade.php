@@ -89,10 +89,10 @@
             "a2.tipo_salida",
             "rrhh_salidas.codigo",
 
-            "a4.n_documento",
-            "a4.nombre",
-            "a4.ap_paterno",
-            "a4.ap_materno",
+            "a3.n_documento",
+            "a3.nombre",
+            "a3.ap_paterno",
+            "a3.ap_materno",
 
             "rrhh_salidas.f_salida",
             "rrhh_salidas.h_salida",
@@ -205,13 +205,17 @@
         var funcionario_json   = $.parseJSON('{!! json_encode($funcionario_array) !!}');
 
     // === TIPO DE SALIDA POR HORAS ===
-        var tipo_salida_por_horas_json   = $.parseJSON('{!! json_encode($tipo_salida_por_horas_array) !!}');
-        var tipo_salida_por_horas_select = '';
-        var tipo_salida_por_horas_jqgrid = ':Todos';
+        var tipo_salida_por_horas_json        = $.parseJSON('{!! json_encode($tipo_salida_por_horas_array) !!}');
+        var tipo_salida_por_horas_select      = '';
+        var tipo_salida_por_horas_jqgrid      = ':Todos';
+        var tipo_salida_por_horas_tipo_salida = new Array();
+
 
         $.each(tipo_salida_por_horas_json, function(index, value) {
             tipo_salida_por_horas_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
             tipo_salida_por_horas_jqgrid += ';' + value.nombre + ':' + value.nombre;
+
+            tipo_salida_por_horas_tipo_salida[value.id] = value.tipo_salida;
         });
 
     // === TIPO DE SALIDA POR DIAS ===
@@ -226,15 +230,74 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#lugar_dependencia_id').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id").select2({
+            $('#tipo_salida_id').append(tipo_salida_por_horas_select);
+            $("#tipo_salida_id").select2({
                 maximumSelectionLength: 1
             });
-            $("#lugar_dependencia_id").appendTo("#lugar_dependencia_id_div");
+            $("#tipo_salida_id").appendTo("#tipo_salida_id_div");
 
-            $('#h_ingreso, #h_salida, #marcacion_ingreso_del, #marcacion_ingreso_al, #marcacion_salida_del, #marcacion_salida_al').clockpicker({
+            $('#tipo_salida').append(tipo_salida_select);
+            $("#tipo_salida").select2({
+                maximumSelectionLength: 1
+            });
+            $("#tipo_salida").appendTo("#tipo_salida_div");
+
+            $('#persona_id_superior').select2({
+                maximumSelectionLength: 1,
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q                               : params.term,
+                            page_limit                      : 10,
+                            estado                          : 1,
+                            tipo                            : 100,
+                            lugar_dependencia_id_funcionario: funcionario_json.lugar_dependencia_id_funcionario,
+                            persona_id                      : funcionario_json.persona_id,
+                            _token                          : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#persona_id_superior").appendTo("#persona_id_superior_div");
+
+            $('#f_salida').datepicker({
+                // startView            : 2,
+                // todayBtn          : "linked",
+                // keyboardNavigation: false,
+                // forceParse        : false,
                 autoclose: true,
+                format   : "yyyy-mm-dd",
+                startDate: '-2d',
+                endDate  : '+1y',
+                language : "es"
+            });
+
+            $('#h_salida, #h_retorno').clockpicker({
+                autoclose: true,
+                placement: 'top',
+                align    : 'left',
                 donetext : 'Hecho'
+            });
+
+        // === SELECT CHANGE ===
+            $("#tipo_salida_id").on("change", function(e) {
+                $('#tipo_salida').select2('val','');
+                switch ($.trim(this.value)){
+                    case '':
+                        break;
+                    default:
+                        $('#tipo_salida').select2("val", tipo_salida_por_horas_tipo_salida[$.trim(this.value)]);
+                        break;
+                }
             });
 
         // === JQGRID 1 ===
@@ -664,7 +727,10 @@
 
                 $('#tipo_salida_id').select2("val", "");
                 $('#tipo_salida').select2("val", "");
-                $('#funcionario_id_superior').select2("val", "");
+                $('#persona_id_superior').select2("val", "");
+                $('#persona_id_superior option').remove();
+
+                $("#tipo_salida").select2("enable", false);
 
                 $(form_1)[0].reset();
                 break;
@@ -701,34 +767,22 @@
             case 16:
                 $(form_1).validate({
                     rules: {
-                        lugar_dependencia_id:{
+                        tipo_salida_id:{
                             required: true
                         },
-                        nombre:{
-                            required : true,
+                        persona_id_superior:{
+                            required: true
+                        },
+                        destino:{
                             maxlength: 500
                         },
-                        h_ingreso:{
+                        motivo:{
+                            maxlength: 500
+                        },
+                        f_salida:{
                             required: true
                         },
                         h_salida:{
-                            required: true
-                        },
-                        tolerancia:{
-                            required: true,
-                            number  : true,
-                            min     : 0
-                        },
-                        marcacion_ingreso_del:{
-                            required: true
-                        },
-                        marcacion_ingreso_al:{
-                            required: true
-                        },
-                        marcacion_salida_del:{
-                            required: true
-                        },
-                        marcacion_salida_al:{
                             required: true
                         }
                     }

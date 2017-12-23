@@ -173,12 +173,17 @@
             <h4 class="modal-title">
               <span id="modal_1_title"></span>
             </h4>
+
+            <small class="font-bold">
+              {{ $funcionario_array['n_documento'] . ' - ' . trim($funcionario_array['ap_paterno'] . ' ' . $funcionario_array['ap_materno']) . ' ' . $funcionario_array['nombre_persona'] }}
+            </small>
           </div>
 
           <div class="modal-body">
             <div class="row">
               <form id="form_1" role="form" action="#">
                 <input type="hidden" id="id_salida" name="id" value=""/>
+                <input type="hidden" id="persona_id" name="persona_id" value="{{ $funcionario_array['id'] }}"/>
                 <input type="hidden" id="tipo1" name="tipo" value="1"/>
                 {{ csrf_field() }}
                 <div class="col-sm-12">
@@ -200,14 +205,14 @@
                     <div class="col-sm-6">
                       <div class="form-group">
                         <label for="codigo">Código</label>
-                        <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Código">
+                        <input type="text" class="form-control" id="codigo" name="codigo" placeholder="Código" disabled="disabled">
                       </div>
                     </div>
                   </div>
 
-                  <div id="funcionario_id_superior_div" class="form-group">
-                    <label for="funcionario_id_superior">Inmediato superior</label>
-                    <select name="funcionario_id_superior" id="funcionario_id_superior" data-placeholder="Inmediato superior" multiple="multiple" style="width: 100%;">
+                  <div id="persona_id_superior_div" class="form-group">
+                    <label for="persona_id_superior">Inmediato superior</label>
+                    <select name="persona_id_superior" id="persona_id_superior" data-placeholder="Inmediato superior" multiple="multiple" style="width: 100%;">
                     </select>
                   </div>
 
@@ -225,14 +230,14 @@
                     <div class="col-sm-3">
                       <div class="form-group">
                         <label for="f_salida">Fecha de salida</label>
-                        <input type="text" class="form-control" id="f_salida" name="f_salida" placeholder="año-mes-día" data-mask="9999-99-99">
+                        <input type="text" class="form-control" id="f_salida" name="f_salida" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date("Y-m-d") }}">
                       </div>
                     </div>
 
                     <div class="col-sm-3">
                       <div class="form-group">
                         <label for="h_salida">Hora de salida</label>
-                        <input type="text" class="form-control" id="h_salida" name="h_salida" placeholder="Hora de salida" data-mask="99:99">
+                        <input type="text" class="form-control" id="h_salida" name="h_salida" placeholder="Hora de salida" data-mask="99:99" value="{{ date("H:i") }}">
                       </div>
                     </div>
 
@@ -247,13 +252,13 @@
                       <div class="form-group">
                         <label>Salida</label>
                         <div>
-                          <div class="radio radio-primary radio-inline">
+                          <div class="radio radio-primary">
                             <input type="radio" id="con_sin_retorno_1_id" class="con_sin_retorno_class" name="con_sin_retorno" value="1" checked="checked">
-                            <label class="text-success" for="con_sin_retorno_1_id"> {{ $con_sin_retorno['1'] }} </label>
+                            <label class="text-success" for="con_sin_retorno_1_id"> {{ $con_sin_retorno_array['1'] }} </label>
                           </div>
-                          <div class="radio radio-danger radio-inline">
+                          <div class="radio radio-danger">
                             <input type="radio" id="con_sin_retorno_2_id" class="con_sin_retorno_class" name="con_sin_retorno" value="2">
-                            <label class="text-danger" for="con_sin_retorno_2_id"> {{ $con_sin_retorno['2'] }} </label>
+                            <label class="text-danger" for="con_sin_retorno_2_id"> {{ $con_sin_retorno_array['2'] }} </label>
                           </div>
                         </div>
                       </div>
