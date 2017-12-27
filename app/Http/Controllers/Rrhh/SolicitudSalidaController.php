@@ -340,7 +340,7 @@ class SolicitudSalidaController extends Controller
                             $row["f_salida"],
                             $row["h_salida"],
                             $row["h_retorno"],
-                            $row["con_sin_retorno"],
+                            ($row["con_sin_retorno"] == '')? '' : $this->con_sin_retorno[$row["con_sin_retorno"]],
 
                             //=== VARIABLES OCULTOS ===
                                 json_encode($val_array)
@@ -402,7 +402,7 @@ class SolicitudSalidaController extends Controller
                     $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>Horario</strong></div>',
+                        'titulo'     => '<div class="text-center"><strong>Solicitud de salida</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
                         'iu'         => 1,
@@ -415,7 +415,7 @@ class SolicitudSalidaController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '1403'], $this->permisos))
+                        if(!in_array(['codigo' => '1003'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
@@ -423,7 +423,7 @@ class SolicitudSalidaController extends Controller
                     }
                     else
                     {
-                        if(!in_array(['codigo' => '1402'], $this->permisos))
+                        if(!in_array(['codigo' => '1002'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
                             return json_encode($respuesta);
@@ -434,36 +434,26 @@ class SolicitudSalidaController extends Controller
                     try
                     {
                         $validator = $this->validate($request,[
-                            'lugar_dependencia_id'  => 'required',
-                            'nombre'                => 'required|max:500',
-                            'h_ingreso'             => 'required',
-                            'h_salida'              => 'required',
-                            'tolerancia'            => 'required|min:0',
-                            'marcacion_ingreso_del' => 'required',
-                            'marcacion_ingreso_al'  => 'required',
-                            'marcacion_salida_del'  => 'required',
-                            'marcacion_salida_al'   => 'required'
+                            'tipo_salida_id'      => 'required',
+                            'persona_id_superior' => 'required',
+                            'destino'             => 'max:500',
+                            'motivo'              => 'max:500',
+                            'f_salida'            => 'required|date',
+                            'h_salida'            => 'required'
                         ],
                         [
-                            'lugar_dependencia_id.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
+                            'tipo_salida_id.required' => 'El campo TIPO DE PAPELETA es obligatorio.',
 
-                            'nombre.required' => 'El campo NOMBRE es obligatorio.',
-                            'nombre.max'     => 'El campo NOMBRE debe contener :max caracteres como máximo.',
+                            'persona_id_superior.required' => 'El campo INMEDIATO SUPERIOR es obligatorio.',
 
-                            'h_ingreso.required' => 'El campo HORA DE INGRESO es obligatorio.',
+                            'destino.max' => 'El campo DESTINATARIO debe contener :max caracteres como máximo.',
 
-                            'h_salida.required' => 'El campo HORA DE SALIDA es obligatorio.',
+                            'motivo.max'     => 'El campo MOTIVO debe contener :max caracteres como máximo.',
 
-                            'tolerancia.required' => 'El campo TOLERANCIA es obligatorio.',
-                            'tolerancia.min'      => 'El campo TOLERANCIA debe tener al menos :min.',
+                            'f_salida.required' => 'El campo FECHA DE SALIDA es obligatorio.',
+                            'f_salida.date'     => 'El campo FECHA DE SALIDA no corresponde con una fecha válida.',
 
-                            'marcacion_ingreso_del.required' => 'El campo MARCACION DE INGRESO DEL es obligatorio.',
-
-                            'marcacion_ingreso_al.required' => 'El campo MARCACION DE INGRESO AL es obligatorio.',
-
-                            'marcacion_salida_del.required' => 'El campo MARCACION DE SALIDA DEL es obligatorio.',
-
-                            'marcacion_salida_al.required' => 'El campo MARCACION DE SALIDA AL es obligatorio.'
+                            'h_salida.required' => 'El campo HORA DE SALIDA es obligatorio.'
                         ]);
                     }
                     catch (Exception $e)
@@ -474,28 +464,16 @@ class SolicitudSalidaController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $data1['estado']               = trim($request->input('estado'));
-                    $data1['defecto']              = trim($request->input('defecto'));
-                    $data1['tipo_horario']         = trim($request->input('tipo_horario'));
-                    $data1['lugar_dependencia_id'] = trim($request->input('lugar_dependencia_id'));
-                    $data1['nombre']               = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
-
-                    $data1['h_ingreso']  = trim($request->input('h_ingreso'));
-                    $data1['h_salida']   = trim($request->input('h_salida'));
-                    $data1['tolerancia'] = trim($request->input('tolerancia'));
-
-                    $data1['marcacion_ingreso_del'] = trim($request->input('marcacion_ingreso_del'));
-                    $data1['marcacion_ingreso_al']  = trim($request->input('marcacion_ingreso_al'));
-                    $data1['marcacion_salida_del']  = trim($request->input('marcacion_salida_del'));
-                    $data1['marcacion_salida_al']   = trim($request->input('marcacion_salida_al'));
-
-                    $data1['lunes']     = trim($request->input('lunes', 1));
-                    $data1['martes']    = trim($request->input('martes', 1));
-                    $data1['miercoles'] = trim($request->input('miercoles', 1));
-                    $data1['jueves']    = trim($request->input('jueves', 1));
-                    $data1['viernes']   = trim($request->input('viernes', 1));
-                    $data1['sabado']    = trim($request->input('sabado', 1));
-                    $data1['domingo']   = trim($request->input('domingo', 1));
+                    $data1['persona_id']          = trim($request->input('persona_id'));
+                    $data1['tipo_salida_id']      = trim($request->input('tipo_salida_id'));
+                    $data1['persona_id_superior'] = trim($request->input('persona_id_superior'));
+                    $data1['destino']             = strtoupper($util->getNoAcentoNoComilla(trim($request->input('destino'))));
+                    $data1['motivo']              = strtoupper($util->getNoAcentoNoComilla(trim($request->input('motivo'))));
+                    $data1['f_salida']            = trim($request->input('f_salida'));
+                    $data1['h_salida']            = trim($request->input('h_salida'));
+                    $data1['h_retorno']           = trim($request->input('h_retorno'));
+                    $data1['con_sin_retorno']     = trim($request->input('con_sin_retorno'));
+                    $data1['n_horas']             = '';
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
                     foreach ($data1 as $llave => $valor)
@@ -505,128 +483,493 @@ class SolicitudSalidaController extends Controller
                     }
 
                 // === VALIDAR POR CAMPO ===
-                    $sw_dias = TRUE;
+                    $persona_id = Auth::user()->persona_id;
 
-                    if($data1['lunes'] == '2')
+                    if($persona_id != $data1['persona_id'])
                     {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['martes'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['miercoles'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['jueves'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['viernes'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['sabado'] == '2')
-                    {
-                        $sw_dias = FALSE;
-                    }
-                    if($data1['domingo'] == '2')
-                    {
-                        $sw_dias = FALSE;
+                        $respuesta['respuesta'] .= "No se puede procesar su SOLICITUD DE SALIDA porque los datos corresponde a otra persona.";
+                        return json_encode($respuesta);
                     }
 
-                    if($sw_dias)
+                    $consulta1 = RrhhTipoSalida::where('id', '=', $data1['tipo_salida_id'])
+                        ->select('lugar_dependencia_id', 'nombre', 'tipo_salida', 'tipo_cronograma', 'hd_mes')
+                        ->first();
+
+                    switch($consulta1['tipo_salida'])
                     {
-                        $respuesta['respuesta'] .= "¡Por lo menos seleccione un día!";
+                        case '1':
+                            if($data1['destino'] == '')
+                            {
+                                $respuesta['respuesta'] .= "El campo DESTINO es obligatorio para tipo de salida OFICIAL.";
+                                return json_encode($respuesta);
+                            }
+
+                            if($data1['motivo'] == '')
+                            {
+                                $respuesta['respuesta'] .= "El campo MOTIVO es obligatorio para tipo de salida OFICIAL.";
+                                return json_encode($respuesta);
+                            }
+                            break;
+                        case '2':
+                            if($data1['h_retorno'] == '')
+                            {
+                                $respuesta['respuesta'] .= "El campo HORA DE RETORNO es obligatorio para tipo de salida PARTICULAR.";
+                                return json_encode($respuesta);
+                            }
+
+                            // === PRIMER DIA DEL MES Y ULTIMO DIA DEL MES ===
+                                $fecha_salida = new \DateTime($data1['f_salida']);
+                                $fecha_salida->modify('first day of this month');
+                                $primer_dia_mes_salida = $fecha_salida->format('Y-m-d');
+
+                                $fecha_salida = new \DateTime($data1['f_salida']);
+                                $fecha_salida->modify('last day of this month');
+                                $ultimo_dia_mes_salida = $fecha_salida->format('Y-m-d');
+
+                                if($opcion == 'n')
+                                {
+                                    $consulta2 = RrhhSalida::where('persona_id', '=', $data1['persona_id'])
+                                        ->where('f_salida', '>=', $primer_dia_mes_salida)
+                                        ->where('f_salida', '<=', $ultimo_dia_mes_salida)
+                                        ->where('tipo_salida_id', '=', $data1['tipo_salida_id'])
+                                        ->where('estado', '=', 1)
+                                        ->sum('n_horas');
+                                }
+                                else
+                                {
+                                    $consulta2 = RrhhSalida::where('persona_id', '=', $data1['persona_id'])
+                                        ->where('f_salida', '>=', $primer_dia_mes_salida)
+                                        ->where('f_salida', '<=', $ultimo_dia_mes_salida)
+                                        ->where('tipo_salida_id', '=', $data1['tipo_salida_id'])
+                                        ->where('estado', '=', 1)
+                                        ->where('id', '<>', $id)
+                                        ->sum('n_horas');
+                                }
+
+                                if($consulta2 == '')
+                                {
+                                    $consulta2 = 0;
+                                }
+
+                            // === CALCULO DE HORAS SOLICITADO ===
+                                $h_salida            = new \DateTime($data1['h_salida']);
+                                $h_retorno           = new \DateTime($data1['h_retorno']);
+                                $diferencia          = $h_salida->diff($h_retorno);
+                                $hm_solicitados      = $diferencia->format("%H:%I");
+                                $n_horas_solicitadas = $diferencia->format("%h") + $diferencia->format("%i")/60;
+
+                            // === VERFIFICAR CANTIDAD DE HORAS DISPONIBLE Y LAS SOLICITADAS ===
+                                if($consulta1['hd_mes'] >= round(($consulta2 + $n_horas_solicitadas), 2))
+                                {
+                                    $data1['n_horas'] = $n_horas_solicitadas;
+                                }
+                                else
+                                {
+                                    $respuesta['respuesta'] .= "Se sobrepasó " . round((($n_horas_solicitadas + $consulta2 - $consulta1['hd_mes']) * 60), 0) . " minutos. Recordarle que tiene " . ($consulta1['hd_mes'] * 60) . " minutos al mes.";
+                                    return json_encode($respuesta);
+                                }
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    $consulta3 = RrhhFuncionario::where('persona_id', '=', $data1['persona_id'])
+                        ->select('horario_id_1', 'horario_id_2')
+                        ->first();
+
+                    if(count($consulta3) > 0)
+                    {
+                        $sw_horario  = FALSE;
+                        $dia_horario = FALSE;
+
+                        $respuesta_horario     = '';
+                        $respuesta_dia_horario = '';
+
+                        $fh_salida  = $data1['f_salida'] . ' ' . $data1['h_salida'];
+                        $fh_retorno = $data1['f_salida'] . ' ' . $data1['h_retorno'];
+
+                        if($consulta3['horario_id_1'] != '')
+                        {
+                            $consulta4 = RrhhHorario::where('id', '=', $consulta3['horario_id_1'])
+                                ->select('h_ingreso', 'h_salida', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo')
+                                ->first();
+
+                            if($data1['h_retorno'] != '')
+                            {
+                                $fh_horario_1_ingreso = $data1['f_salida'] . ' ' . $consulta4['h_ingreso'];
+                                $fh_horario_1_salida  = $data1['f_salida'] . ' ' . $consulta4['h_salida'];
+
+                                if((strtotime($fh_salida) >= strtotime($fh_horario_1_ingreso)) && (strtotime($fh_salida) <= strtotime($fh_horario_1_salida)))
+                                {
+                                    $sw_horario = TRUE;
+                                }
+                                else
+                                {
+                                    $respuesta_horario .= "PRIMER HORARIO: La hora de salida y retorno debe de estar compredido entre " . $consulta4['h_ingreso'] . " y " . $consulta4['h_salida'] . ".";
+                                }
+                            }
+                            else
+                            {
+                                $sw_horario = TRUE;
+                            }
+
+                            switch(date('w', strtotime($data1['f_salida'])))
+                            {
+                                // === DOMINGO ===
+                                case '0':
+                                    if($consulta4['domingo'] == '2')
+                                    {
+                                        $dia_horario = TRUE;
+                                    }
+                                    else
+                                    {
+                                        $respuesta_dia_horario .= 'PRIMER HORARIO: En los DOMINGOS no se puede generar PAPELETA DE SALIDA.';
+                                    }
+                                    break;
+                                // === LUNES ===
+                                case '1':
+                                    if($consulta4['lunes'] == '2')
+                                    {
+                                        $dia_horario = TRUE;
+                                    }
+                                    else
+                                    {
+                                        $respuesta_dia_horario .= 'PRIMER HORARIO: En los LUNES no se puede generar PAPELETA DE SALIDA.';
+                                    }
+                                    break;
+                                // === MARTES ===
+                                case '2':
+                                    if($consulta4['martes'] == '2')
+                                    {
+                                        $dia_horario = TRUE;
+                                    }
+                                    else
+                                    {
+                                        $respuesta_dia_horario .= 'PRIMER HORARIO: En los MARTES no se puede generar PAPELETA DE SALIDA.';
+                                    }
+                                    break;
+                                // === MIERCOLES ===
+                                case '3':
+                                    if($consulta4['miercoles'] == '2')
+                                    {
+                                        $dia_horario = TRUE;
+                                    }
+                                    else
+                                    {
+                                        $respuesta_dia_horario .= 'PRIMER HORARIO: En los MIERCOLES no se puede generar PAPELETA DE SALIDA.';
+                                    }
+                                    break;
+                                // === JUEVES ===
+                                case '4':
+                                    if($consulta4['jueves'] == '2')
+                                    {
+                                        $dia_horario = TRUE;
+                                    }
+                                    else
+                                    {
+                                        $respuesta_dia_horario .= 'PRIMER HORARIO: En los JUEVES no se puede generar PAPELETA DE SALIDA.';
+                                    }
+                                    break;
+                                // === VIERNES ===
+                                case '5':
+                                    if($consulta4['viernes'] == '2')
+                                    {
+                                        $dia_horario = TRUE;
+                                    }
+                                    else
+                                    {
+                                        $respuesta_dia_horario .= 'PRIMER HORARIO: En los VIERNES no se puede generar PAPELETA DE SALIDA.';
+                                    }
+                                    break;
+                                // === SABADO ===
+                                case '6':
+                                    if($consulta4['sabado'] == '2')
+                                    {
+                                        $dia_horario = TRUE;
+                                    }
+                                    else
+                                    {
+                                        $respuesta_dia_horario .= 'PRIMER HORARIO: En los SABADOS no se puede generar PAPELETA DE SALIDA.';
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                        if(!($sw_horario && $dia_horario))
+                        {
+                            if($consulta3['horario_id_2'] != '')
+                            {
+                                $consulta5 = RrhhHorario::where('id', '=', $consulta3['horario_id_2'])
+                                    ->select('h_ingreso', 'h_salida', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo')
+                                    ->first();
+
+                                if($data1['h_retorno'] != '')
+                                {
+                                    $fh_horario_2_ingreso = $data1['f_salida'] . ' ' . $consulta5['h_ingreso'];
+                                    $fh_horario_2_salida  = $data1['f_salida'] . ' ' . $consulta5['h_salida'];
+
+                                    if((strtotime($fh_salida) >= strtotime($fh_horario_2_ingreso)) && (strtotime($fh_salida) <= strtotime($fh_horario_2_salida)))
+                                    {
+                                        $sw_horario = TRUE;
+                                    }
+                                    else
+                                    {
+                                        if($respuesta_horario == '')
+                                        {
+                                            $respuesta_horario .= "SEGUNDO HORARIO: La hora de salida y retorno debe de estar compredido entre " . $consulta5['h_ingreso'] . " y " . $consulta5['h_salida'] . ".";
+                                        }
+                                        else
+                                        {
+                                            $respuesta_horario .= "<br>SEGUNDO HORARIO: La hora de salida y retorno debe de estar compredido entre " . $consulta5['h_ingreso'] . " y " . $consulta5['h_salida'] . ".";
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    $sw_horario = TRUE;
+                                }
+
+                                switch(date('w', strtotime($data1['f_salida'])))
+                                {
+                                    // === DOMINGO ===
+                                    case '0':
+                                        if($consulta5['domingo'] == '2')
+                                        {
+                                            $dia_horario = TRUE;
+                                        }
+                                        else
+                                        {
+                                            if($respuesta_dia_horario == '')
+                                            {
+                                                $respuesta_dia_horario .= "SEGUNDO HORARIO: En los DOMINGOS no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                            else
+                                            {
+                                                $respuesta_dia_horario .= "<br>SEGUNDO HORARIO: En los DOMINGOS no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                        }
+                                        break;
+                                    // === LUNES ===
+                                    case '1':
+                                        if($consulta5['lunes'] == '2')
+                                        {
+                                            $dia_horario = TRUE;
+                                        }
+                                        else
+                                        {
+                                            if($respuesta_dia_horario == '')
+                                            {
+                                                $respuesta_dia_horario .= "SEGUNDO HORARIO: En los LUNES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                            else
+                                            {
+                                                $respuesta_dia_horario .= "<br>SEGUNDO HORARIO: En los LUNES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                        }
+                                        break;
+                                    // === MARTES ===
+                                    case '2':
+                                        if($consulta5['martes'] == '2')
+                                        {
+                                            $dia_horario = TRUE;
+                                        }
+                                        else
+                                        {
+                                            if($respuesta_dia_horario == '')
+                                            {
+                                                $respuesta_dia_horario .= "SEGUNDO HORARIO: En los MARTES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                            else
+                                            {
+                                                $respuesta_dia_horario .= "<br>SEGUNDO HORARIO: En los MARTES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                        }
+                                        break;
+                                    // === MIERCOLES ===
+                                    case '3':
+                                        if($consulta5['miercoles'] == '2')
+                                        {
+                                            $dia_horario = TRUE;
+                                        }
+                                        else
+                                        {
+                                            if($respuesta_dia_horario == '')
+                                            {
+                                                $respuesta_dia_horario .= "SEGUNDO HORARIO: En los MIERCOLES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                            else
+                                            {
+                                                $respuesta_dia_horario .= "<br>SEGUNDO HORARIO: En los MIERCOLES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                        }
+                                        break;
+                                    // === JUEVES ===
+                                    case '4':
+                                        if($consulta5['jueves'] == '2')
+                                        {
+                                            $dia_horario = TRUE;
+                                        }
+                                        else
+                                        {
+                                            if($respuesta_dia_horario == '')
+                                            {
+                                                $respuesta_dia_horario .= "SEGUNDO HORARIO: En los JUEVES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                            else
+                                            {
+                                                $respuesta_dia_horario .= "<br>SEGUNDO HORARIO: En los JUEVES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                        }
+                                        break;
+                                    // === VIERNES ===
+                                    case '5':
+                                        if($consulta5['viernes'] == '2')
+                                        {
+                                            $dia_horario = TRUE;
+                                        }
+                                        else
+                                        {
+                                            if($respuesta_dia_horario == '')
+                                            {
+                                                $respuesta_dia_horario .= "SEGUNDO HORARIO: En los VIERNES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                            else
+                                            {
+                                                $respuesta_dia_horario .= "<br>SEGUNDO HORARIO: En los VIERNES no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                        }
+                                        break;
+                                    // === SABADO ===
+                                    case '6':
+                                        if($consulta5['sabado'] == '2')
+                                        {
+                                            $dia_horario = TRUE;
+                                        }
+                                        else
+                                        {
+                                            if($respuesta_dia_horario == '')
+                                            {
+                                                $respuesta_dia_horario .= "SEGUNDO HORARIO: En los SABADO no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                            else
+                                            {
+                                                $respuesta_dia_horario .= "<br>SEGUNDO HORARIO: En los SABADO no se puede generar PAPELETA DE SALIDA.";
+                                            }
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                if( ! ($sw_horario && $dia_horario))
+                                {
+                                    if($respuesta_horario != '' && $respuesta_dia_horario != '')
+                                    {
+                                        $respuesta['respuesta'] .= $respuesta_horario . "<br>" . $respuesta_dia_horario;
+                                    }
+                                    else if($respuesta_horario != '')
+                                    {
+                                        $respuesta['respuesta'] .= $respuesta_horario;
+                                    }
+                                    else
+                                    {
+                                        $respuesta['respuesta'] .= $respuesta_dia_horario;
+                                    }
+
+                                    return json_encode($respuesta);
+                                }
+                            }
+                            else
+                            {
+                                if($respuesta_horario != '' && $respuesta_dia_horario != '')
+                                {
+                                    $respuesta['respuesta'] .= $respuesta_horario . "<br>" . $respuesta_dia_horario;
+                                }
+                                else if($respuesta_horario != '')
+                                {
+                                    $respuesta['respuesta'] .= $respuesta_horario;
+                                }
+                                else
+                                {
+                                    $respuesta['respuesta'] .= $respuesta_dia_horario;
+                                }
+
+                                return json_encode($respuesta);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "Usted no es funcionario del MINISTERIO PUBLICO.";
                         return json_encode($respuesta);
                     }
 
                 // === REGISTRAR MODIFICAR VALORES ===
                     if($opcion == 'n')
                     {
-                        $consulta1 = RrhhHorario::where('nombre', '=', $data1['nombre'])
-                            ->where('lugar_dependencia_id', '=', $data1['lugar_dependencia_id'])
-                            ->count();
+                        $iu                      = new RrhhSalida;
+                        $iu->persona_id          = $data1['persona_id'];
+                        $iu->tipo_salida_id      = $data1['tipo_salida_id'];
+                        $iu->persona_id_superior = $data1['persona_id_superior'];
 
-                        if($consulta1 < 1)
-                        {
-                            $iu                       = new RrhhHorario;
-                            $iu->estado               = $data1['estado'];
-                            $iu->defecto              = $data1['defecto'];
-                            $iu->tipo_horario         = $data1['tipo_horario'];
-                            $iu->lugar_dependencia_id = $data1['lugar_dependencia_id'];
-                            $iu->nombre               = $data1['nombre'];
+                        $año = date('Y', strtotime($data1['f_salida']));
 
-                            $iu->h_ingreso  = $data1['h_ingreso'];
-                            $iu->h_salida   = $data1['h_salida'];
-                            $iu->tolerancia = $data1['tolerancia'];
+                        $iu->codigo = str_pad((RrhhSalida::whereRaw("date_part('year', f_salida)='" . $año . "'")->count())+1, 5, "0", STR_PAD_LEFT) . "/" . $año;
 
-                            $iu->marcacion_ingreso_del = $data1['marcacion_ingreso_del'];
-                            $iu->marcacion_ingreso_al  = $data1['marcacion_ingreso_al'];
-                            $iu->marcacion_salida_del  = $data1['marcacion_salida_del'];
-                            $iu->marcacion_salida_al   = $data1['marcacion_salida_al'];
+                        $iu->destino   = $data1['destino'];
+                        $iu->motivo    = $data1['motivo'];
+                        $iu->f_salida  = $data1['f_salida'];
+                        $iu->h_salida  = $data1['h_salida'];
+                        $iu->h_retorno = $data1['h_retorno'];
 
-                            $iu->lunes     = $data1['lunes'];
-                            $iu->martes    = $data1['martes'];
-                            $iu->miercoles = $data1['miercoles'];
-                            $iu->jueves    = $data1['jueves'];
-                            $iu->viernes   = $data1['viernes'];
-                            $iu->sabado    = $data1['sabado'];
-                            $iu->domingo   = $data1['domingo'];
+                        $iu->n_horas         = $data1['n_horas'];
+                        $iu->con_sin_retorno = $data1['con_sin_retorno'];
 
-                            $iu->save();
+                        $iu->save();
 
-                            $respuesta['respuesta'] .= "El HORARIO fue registrado con éxito.";
-                            $respuesta['sw']         = 1;
-                        }
-                        else
-                        {
-                            $respuesta['respuesta'] .= "El NOMBRE del horario ya fue registrado.";
-                        }
+                        $respuesta['respuesta'] .= "La SALIDA fue registrada y enviada para su validación.";
+                        $respuesta['sw']         = 1;
                     }
                     else
                     {
-                        $consulta1 = RrhhHorario::where('nombre', '=', $data1['nombre'])
-                            ->where('lugar_dependencia_id', '=', $data1['lugar_dependencia_id'])
-                            ->where('id', '<>', $id)
-                            ->count();
+                        $consulta6 = RrhhSalida::where('id', '=', $id)
+                            ->first();
 
-                        if($consulta1 < 1)
+                        if(date('Y', strtotime($consulta6['f_salida'])) == date('Y', strtotime($data1['f_salida'])))
                         {
-                            $iu                       = RrhhHorario::find($id);
-                            $iu->estado               = $data1['estado'];
-                            $iu->defecto              = $data1['defecto'];
-                            $iu->tipo_horario         = $data1['tipo_horario'];
-                            $iu->lugar_dependencia_id = $data1['lugar_dependencia_id'];
-                            $iu->nombre               = $data1['nombre'];
+                            if(($consulta6['validar_superior'] == '1') && ($consulta6['validar_rrhh'] == '1'))
+                            {
+                                $iu                       = RrhhSalida::find($id);
+                                $iu->persona_id          = $data1['persona_id'];
+                                $iu->tipo_salida_id      = $data1['tipo_salida_id'];
+                                $iu->persona_id_superior = $data1['persona_id_superior'];
 
-                            $iu->h_ingreso  = $data1['h_ingreso'];
-                            $iu->h_salida   = $data1['h_salida'];
-                            $iu->tolerancia = $data1['tolerancia'];
+                                $iu->destino   = $data1['destino'];
+                                $iu->motivo    = $data1['motivo'];
+                                $iu->f_salida  = $data1['f_salida'];
+                                $iu->h_salida  = $data1['h_salida'];
+                                $iu->h_retorno = $data1['h_retorno'];
 
-                            $iu->marcacion_ingreso_del = $data1['marcacion_ingreso_del'];
-                            $iu->marcacion_ingreso_al  = $data1['marcacion_ingreso_al'];
-                            $iu->marcacion_salida_del  = $data1['marcacion_salida_del'];
-                            $iu->marcacion_salida_al   = $data1['marcacion_salida_al'];
+                                $iu->n_horas         = $data1['n_horas'];
+                                $iu->con_sin_retorno = $data1['con_sin_retorno'];
 
-                            $iu->lunes     = $data1['lunes'];
-                            $iu->martes    = $data1['martes'];
-                            $iu->miercoles = $data1['miercoles'];
-                            $iu->jueves    = $data1['jueves'];
-                            $iu->viernes   = $data1['viernes'];
-                            $iu->sabado    = $data1['sabado'];
-                            $iu->domingo   = $data1['domingo'];
+                                $iu->save();
 
-                            $iu->save();
-
-                            $respuesta['respuesta'] .= "El HORARIO se edito con éxito.";
-                            $respuesta['sw']         = 1;
-                            $respuesta['iu']         = 2;
+                                $respuesta['respuesta'] .= "La SALIDA se edito con éxito.";
+                                $respuesta['sw']         = 1;
+                                $respuesta['iu']         = 2;
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "No se puede editar porque ya fue validado. Favor consulte con el personal de Recursos Humanos.";
+                            }
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "El NOMBRE del horario ya fue registrado.";
+                            $respuesta['respuesta'] .= "No se puede cambiar el AÑO de la FECHA DE SALIDA.";
                         }
                     }
                 return json_encode($respuesta);
@@ -653,7 +996,7 @@ class SolicitudSalidaController extends Controller
                         ->where("$tabla1.estado", "=", $estado)
                         ->where("a3.lugar_dependencia_id", "=", $lugar_dependencia_id_funcionario)
                         ->where("$tabla1.persona_id", "<>", $persona_id)
-                        ->select(DB::raw("$tabla1.id, CONCAT_WS(' - ', a2.n_documento, CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre)) AS text"))
+                        ->select(DB::raw("$tabla1.persona_id AS id, CONCAT_WS(' - ', a2.n_documento, CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre)) AS text"))
                         ->orderByRaw("CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre) ASC")
                         ->limit($page_limit)
                         ->get()

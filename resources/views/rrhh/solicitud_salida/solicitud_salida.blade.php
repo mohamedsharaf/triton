@@ -183,7 +183,7 @@
             <div class="row">
               <form id="form_1" role="form" action="#">
                 <input type="hidden" id="id_salida" name="id" value=""/>
-                <input type="hidden" id="persona_id" name="persona_id" value="{{ $funcionario_array['id'] }}"/>
+                <input type="hidden" id="persona_id" name="persona_id" value="{{ $funcionario_array['persona_id'] }}"/>
                 <input type="hidden" id="tipo1" name="tipo" value="1"/>
                 {{ csrf_field() }}
                 <div class="col-sm-12">

@@ -94,32 +94,38 @@
             "a3.ap_paterno",
             "a3.ap_materno",
 
-            "rrhh_salidas.f_salida",
-            "rrhh_salidas.h_salida",
-            "rrhh_salidas.h_retorno",
+            "rrhh_salidas.destino",
+            "rrhh_salidas.motivo",
+
+            "rrhh_salidas.f_salida::text",
+            "rrhh_salidas.h_salida::text",
+            "rrhh_salidas.h_retorno::text",
             "rrhh_salidas.con_sin_retorno",
 
             ""
         );
         var col_m_width_1 = new Array(
             33,
-            100,
-            100,
-            100,
-            100,
+            90,
+            160,
+            70,
+            80,
 
-            300,
-            100,
-            100,
-
-            100,
-            100,
-            100,
+            400,
+            120,
             100,
 
             100,
             100,
             100,
+            100,
+
+            400,
+            400,
+
+            125,
+            110,
+            110,
             100,
 
             10
@@ -291,11 +297,18 @@
         // === SELECT CHANGE ===
             $("#tipo_salida_id").on("change", function(e) {
                 $('#tipo_salida').select2('val','');
+                $('#destino').prop('disabled', false);
+                $('#motivo').prop('disabled', false);
                 switch ($.trim(this.value)){
                     case '':
                         break;
                     default:
                         $('#tipo_salida').select2("val", tipo_salida_por_horas_tipo_salida[$.trim(this.value)]);
+
+                        if(tipo_salida_por_horas_tipo_salida[$.trim(this.value)] == '2'){
+                            $('#destino').prop('disabled', true);
+                            $('#motivo').prop('disabled', true);
+                        }
                         break;
                 }
             });
@@ -364,7 +377,7 @@
                     pager       : pjqgrid1,
                     rowNum      : 10,
                     rowList     : [10, 20, 30],
-                    sortname    : 'rrhh_salidas.id',
+                    sortname    : 'rrhh_salidas.codigo',
                     sortorder   : "desc",
                     viewrecords : true,
                     shrinkToFit : false,
@@ -430,7 +443,7 @@
                             width      : col_m_width_1[2],
                             align      : col_m_align_1[2],
                             stype      :'select',
-                            editoptions: {value:no_si_json}
+                            editoptions: {value:no_si_jqgrid}
                         },
                         {
                             name       : col_m_name_1[3],
@@ -438,7 +451,7 @@
                             width      : col_m_width_1[3],
                             align      : col_m_align_1[3],
                             stype      :'select',
-                            editoptions: {value:no_si_json}
+                            editoptions: {value:no_si_jqgrid}
                         },
                         {
                             name       : col_m_name_1[4],
@@ -446,7 +459,7 @@
                             width      : col_m_width_1[4],
                             align      : col_m_align_1[4],
                             stype      :'select',
-                            editoptions: {value:no_si_json}
+                            editoptions: {value:no_si_jqgrid}
                         },
 
                         {
@@ -532,7 +545,7 @@
                             width      : col_m_width_1[17],
                             align      : col_m_align_1[17],
                             stype      :'select',
-                            editoptions: {value:no_si_jqgrid}
+                            editoptions: {value:con_sin_retorno_jqgrid}
                         },
 
                         // === OCULTO ===
@@ -555,7 +568,7 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            @if(in_array(['codigo' => '1403'], $permisos))
+                            @if(in_array(['codigo' => '1003'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                             @else
                                 ed = '';
@@ -671,46 +684,28 @@
                 var val_json = $.parseJSON(ret.val_json);
 
                 $('#modal_1_title').empty();
-                 $('#modal_1_title').append('Modificar horario');
+                $('#modal_1_title').append('Modificar solicitud de salida');
 
-                $("#id_horario").val(valor[1]);
+                $("#id_salida").val(valor[1]);
 
-                $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
-                $(".defecto_class[value=" + val_json.defecto + "]").prop('checked', true);
-                $(".tipo_horario_class[value=" + val_json.tipo_horario + "]").prop('checked', true);
-                $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
-                $("#nombre").val(ret.nombre);
+                $("#tipo_salida_id").select2("val", val_json.tipo_salida_id);
+                $("#codigo").val(ret.codigo);
 
-                $("#h_ingreso").val(ret.h_ingreso);
+                if(ret.n_documento != ""){
+                    var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre_persona;
+
+                    $('#persona_id_superior').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
+                    $("#persona_id_superior").select2("val", val_json.persona_id);
+                }
+
+                $("#destino").val(ret.destino);
+                $("#motivo").val(ret.motivo);
+
+                $("#f_salida").val(ret.f_salida);
                 $("#h_salida").val(ret.h_salida);
-                $("#tolerancia").val(ret.tolerancia);
+                $("#h_retorno").val(ret.h_retorno);
 
-                $("#marcacion_ingreso_del").val(ret.marcacion_ingreso_del);
-                $("#marcacion_ingreso_al").val(ret.marcacion_ingreso_al);
-                $("#marcacion_salida_del").val(ret.marcacion_salida_del);
-                $("#marcacion_salida_al").val(ret.marcacion_salida_al);
-
-                if(val_json.lunes == '2'){
-                     $("#lunes").prop('checked', true);
-                }
-                if(val_json.martes == '2'){
-                     $("#martes").prop('checked', true);
-                }
-                if(val_json.miercoles == '2'){
-                     $("#miercoles").prop('checked', true);
-                }
-                if(val_json.jueves == '2'){
-                     $("#jueves").prop('checked', true);
-                }
-                if(val_json.viernes == '2'){
-                     $("#viernes").prop('checked', true);
-                }
-                if(val_json.sabado == '2'){
-                     $("#sabado").prop('checked', true);
-                }
-                if(val_json.domingo == '2'){
-                     $("#domingo").prop('checked', true);
-                }
+                $(".con_sin_retorno_class[value=" + val_json.con_sin_retorno + "]").prop('checked', true);
 
                 $('#modal_1').modal();
                 break;
@@ -774,9 +769,11 @@
                             required: true
                         },
                         destino:{
+                            required : true,
                             maxlength: 500
                         },
                         motivo:{
+                            required : true,
                             maxlength: 500
                         },
                         f_salida:{

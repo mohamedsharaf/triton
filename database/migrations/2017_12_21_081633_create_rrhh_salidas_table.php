@@ -28,17 +28,17 @@ class CreateRrhhSalidasTable extends Migration
             $table->time('h_salida')->nullable();
             $table->time('h_retorno')->nullable();
 
-            $table->smallInteger('n_horas')->unsigned();
-            $table->smallInteger('con_sin_retorno')->unsigned();
+            $table->double('n_horas')->nullable();
+            $table->smallInteger('con_sin_retorno')->unsigned()->nullable();
 
             $table->double('n_dias')->nullable();
-            $table->smallInteger('periodo')->unsigned();
+            $table->smallInteger('periodo')->unsigned()->nullable();
 
             $table->smallInteger('validar_superior')->default('1')->unsigned();
-            $table->dateTime('f_validar_superior');
+            $table->dateTime('f_validar_superior')->nullable();
 
             $table->smallInteger('validar_rrhh')->default('1')->unsigned();
-            $table->dateTime('f_validar_rrhh');
+            $table->dateTime('f_validar_rrhh')->nullable();
 
             $table->smallInteger('pdf')->default('1')->unsigned();
             $table->string('papeleta_pdf', 250)->nullable();
