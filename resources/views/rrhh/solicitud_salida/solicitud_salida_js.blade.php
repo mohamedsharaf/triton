@@ -45,7 +45,7 @@
             "DESTINO",
             "MOTIVO",
 
-            "FECHA DE SALIDA ",
+            "FECHA DE SALIDA",
             "HORA SALIDA",
             "HORA RETORNO",
             "RETORNO",
@@ -154,8 +154,143 @@
             "center"
         );
 
+    // === JQGRID2 ===
+        var title_table_2 = "{!! $title_table_1 !!}";
+        var jqgrid2       = "#jqgrid2";
+        var pjqgrid2      = "#pjqgrid2";
+        var col_name_2    = new Array(
+            "",
+            "ESTADO",
+            "INMEDIATO SUPERIOR?",
+            "RRHH?",
+            "¿CON PDF?",
+
+            "TIPO DE PAPELETA",
+            "TIPO DE SALIDA",
+            "CODIGO",
+
+            "C.I.",
+            "NOMBRE(S)",
+            "AP. PATERNO",
+            "AP. MATERNO",
+
+            "DESTINO",
+            "MOTIVO",
+
+            "FECHA DE SALIDA",
+            "FECHA DE RETORNO",
+            "N° DIAS",
+            "PERIODO",
+
+            ""
+        );
+        var col_m_name_2 = new Array(
+            "act",
+            "estado",
+            "validar_superior",
+            "validar_rrhh",
+            "pdf",
+
+            "papeleta_salida",
+            "tipo_salida",
+            "codigo",
+
+            "n_documento",
+            "nombre_persona",
+            "ap_paterno",
+            "ap_materno",
+
+            "destino",
+            "motivo",
+
+            "f_salida",
+            "f_retorno",
+            "n_dias",
+            "periodo",
+
+            "val_json"
+        );
+        var col_m_index_2 = new Array(
+            "",
+            "rrhh_salidas.estado",
+            "rrhh_salidas.validar_superior",
+            "rrhh_salidas.validar_rrhh",
+            "rrhh_salidas.pdf",
+
+            "a2.nombre",
+            "a2.tipo_salida",
+            "rrhh_salidas.codigo",
+
+            "a3.n_documento",
+            "a3.nombre",
+            "a3.ap_paterno",
+            "a3.ap_materno",
+
+            "rrhh_salidas.destino",
+            "rrhh_salidas.motivo",
+
+            "rrhh_salidas.f_salida::text",
+            "rrhh_salidas.f_retorno::text",
+            "rrhh_salidas.n_dias::text",
+            "rrhh_salidas.periodo",
+
+            ""
+        );
+        var col_m_width_2 = new Array(
+            33,
+            90,
+            160,
+            70,
+            80,
+
+            400,
+            120,
+            100,
+
+            100,
+            100,
+            100,
+            100,
+
+            400,
+            400,
+
+            125,
+            125,
+            100,
+            100,
+
+            10
+        );
+        var col_m_align_2 = new Array(
+            "center",
+            "center",
+            "center",
+            "center",
+            "center",
+
+            "center",
+            "center",
+            "center",
+
+            "center",
+            "center",
+            "center",
+            "center",
+
+            "center",
+            "center",
+            "center",
+            "center",
+
+            "center"
+        );
+
     // === FORMULARIO 1 ===
         var form_1 = "#form_1";
+
+    // === FORMULARIO 2 ===
+        var form_2 = "#form_2";
 
     // === ESTADO ===
         var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
@@ -225,30 +360,36 @@
         });
 
     // === TIPO DE SALIDA POR DIAS ===
-        var tipo_salida_por_dias_json   = $.parseJSON('{!! json_encode($tipo_salida_por_dias_array) !!}');
-        var tipo_salida_por_dias_select = '';
-        var tipo_salida_por_dias_jqgrid = ':Todos';
+        var tipo_salida_por_dias_json        = $.parseJSON('{!! json_encode($tipo_salida_por_dias_array) !!}');
+        var tipo_salida_por_dias_select      = '';
+        var tipo_salida_por_dias_jqgrid      = ':Todos';
+        var tipo_salida_por_dias_tipo_salida = new Array();
 
         $.each(tipo_salida_por_dias_json, function(index, value) {
             tipo_salida_por_dias_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
             tipo_salida_por_dias_jqgrid += ';' + value.nombre + ':' + value.nombre;
+
+            tipo_salida_por_dias_tipo_salida[value.id] = value.tipo_salida;
         });
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
             $('#tipo_salida_id').append(tipo_salida_por_horas_select);
-            $("#tipo_salida_id").select2({
+            $('#tipo_salida_id_2').append(tipo_salida_por_dias_select);
+            $("#tipo_salida_id, #tipo_salida_id_2").select2({
                 maximumSelectionLength: 1
             });
             $("#tipo_salida_id").appendTo("#tipo_salida_id_div");
+            $("#tipo_salida_id_2").appendTo("#tipo_salida_id_2_div");
 
-            $('#tipo_salida').append(tipo_salida_select);
-            $("#tipo_salida").select2({
+            $('#tipo_salida, #tipo_salida_2').append(tipo_salida_select);
+            $("#tipo_salida, #tipo_salida_2").select2({
                 maximumSelectionLength: 1
             });
             $("#tipo_salida").appendTo("#tipo_salida_div");
+            $("#tipo_salida_2").appendTo("#tipo_salida_2_div");
 
-            $('#persona_id_superior').select2({
+            $('#persona_id_superior, #persona_id_superior_2').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -274,6 +415,7 @@
                 }
             });
             $("#persona_id_superior").appendTo("#persona_id_superior_div");
+            $("#persona_id_superior_2").appendTo("#persona_id_superior_2_div");
 
             $('#f_salida').datepicker({
                 // startView            : 2,
@@ -292,6 +434,18 @@
                 placement: 'top',
                 align    : 'left',
                 donetext : 'Hecho'
+            });
+
+            $('#f_salida_2, #f_retorno_2').datepicker({
+                // startView            : 2,
+                // todayBtn          : "linked",
+                // keyboardNavigation: false,
+                // forceParse        : false,
+                autoclose: true,
+                format   : "yyyy-mm-dd",
+                startDate: '-0d',
+                endDate  : '+1y',
+                language : "es"
             });
 
         // === SELECT CHANGE ===
@@ -313,9 +467,70 @@
                 }
             });
 
+            $("#tipo_salida_id_2").on("change", function(e) {
+                $('#tipo_salida_2').select2('val','');
+                $('#destino_2').prop('disabled', false);
+                $('#motivo_2').prop('disabled', false);
+                $('#f_salida_2').prop('disabled', false);
+                $('#f_retorno_2').prop('disabled', false);
+                $('#n_dias_2').prop('disabled', false);
+                $(".con_sin_retorno_class").prop('checked', false);
+                $("#n_dias_2").val('');
+                switch ($.trim(this.value)){
+                    case '':
+                        break;
+                    default:
+                        $('#tipo_salida_2').select2("val", tipo_salida_por_dias_tipo_salida[$.trim(this.value)]);
+
+                        if(tipo_salida_por_dias_tipo_salida[$.trim(this.value)] == '4'){
+                            if(funcionario_json.f_nacimiento != ''){
+                                $('#destino_2').prop('disabled', true);
+                                $('#motivo_2').prop('disabled', true);
+                                $('#f_salida_2').prop('disabled', true);
+                                $('#f_retorno_2').prop('disabled', true);
+                                $('#n_dias_2').prop('disabled', true);
+
+                                $(".con_sin_retorno_class[value=" + 2 + "]").prop('checked', true);
+
+                                var f_nacimiento = funcionario_json.f_nacimiento;
+                                var f_nacimiento_array = f_nacimiento.split("-");
+                                var anio_actual = "{!! date("Y") !!}";
+
+                                var f_cumple = anio_actual + "-" + f_nacimiento_array[1] + "-" + f_nacimiento_array[2];
+
+                                $("#f_salida_2").val(f_cumple);
+                                $("#f_retorno_2").val(f_cumple);
+                                $("#n_dias_2").val('0.5');
+                            }
+                            else{
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = "FECHA DE NACIMIENTO";
+                                valor1[2]  = "No registro su fecha de nacimiento.";
+                                utilitarios(valor1);
+
+                                var valor1 = new Array();
+                                valor1[0]  = 54;
+                                utilitarios(valor1);
+                            }
+                        }
+
+                        if(tipo_salida_por_dias_tipo_salida[$.trim(this.value)] == '3' || tipo_salida_por_dias_tipo_salida[$.trim(this.value)] == '5'){
+                            $('#destino_2').prop('disabled', true);
+                            $('#motivo_2').prop('disabled', true);
+                        }
+                        break;
+                }
+            });
+
         // === JQGRID 1 ===
             var valor1 = new Array();
             valor1[0]  = 10;
+            utilitarios(valor1);
+
+        // === JQGRID 2 ===
+            var valor1 = new Array();
+            valor1[0]  = 50;
             utilitarios(valor1);
 
         // === VALIDATE 1 ===
@@ -323,10 +538,16 @@
             valor1[0]  = 16;
             utilitarios(valor1);
 
+        // === VALIDATE 2 ===
+            var valor1 = new Array();
+            valor1[0]  = 56;
+            utilitarios(valor1);
+
         // Add responsive to jqGrid
             $(window).bind('resize', function () {
-            var width = $('.jqGrid_wrapper').width();
+                var width = $('.tab-content').width() - 35;
                 $(jqgrid1).setGridWidth(width);
+                $(jqgrid2).setGridWidth(width);
             });
 
             setTimeout(function(){
@@ -334,7 +555,7 @@
                 var valor1 = new Array();
                 valor1[0]  = 0;
                 utilitarios(valor1);
-            },0);
+            },300);
 
             $("#navbar-minimalize-button" ).on( "click", function() {
                 setTimeout(function(){
@@ -356,7 +577,8 @@
         switch(valor[0]){
             // === JQGRID REDIMENCIONAR ===
             case 0:
-                $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
+                $(jqgrid1).jqGrid('setGridWidth', $(".tab-content").width() - 30);
+                $(jqgrid2).jqGrid('setGridWidth', $(".tab-content").width() - 30);
                 break;
             // === JQGRID 1 ===
             case 10:
@@ -684,7 +906,7 @@
                 var val_json = $.parseJSON(ret.val_json);
 
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Modificar solicitud de salida');
+                $('#modal_1_title').append('Modificar solicitud de salida por horas');
 
                 $("#id_salida").val(valor[1]);
 
@@ -716,7 +938,7 @@
             // === RESETEAR FORMULARIO ===
             case 14:
                 $('#modal_1_title').empty();
-                $('#modal_1_title').append('Nueva solicitud de salida');
+                $('#modal_1_title').append('Nueva solicitud de salida por horas');
 
                 $("#id_salida").val('');
 
@@ -726,6 +948,9 @@
                 $('#persona_id_superior option').remove();
 
                 $("#tipo_salida").select2("enable", false);
+
+                $('#destino').prop('disabled', false);
+                $('#motivo').prop('disabled', false);
 
                 $(form_1)[0].reset();
                 break;
@@ -834,6 +1059,403 @@
                     utilitarios(valor1);
                 }
                 break;
+
+            // === JQGRID 2 ===
+            case 50:
+                var edit1      = true;
+                var ancho1     = 5;
+                var ancho_d    = 28;
+                @if(in_array(['codigo' => '1003'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
+                $(jqgrid2).jqGrid({
+                    caption     : title_table_2,
+                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2',
+                    datatype    : 'json',
+                    mtype       : 'post',
+                    height      : 'auto',
+                    pager       : pjqgrid2,
+                    rowNum      : 10,
+                    rowList     : [10, 20, 30],
+                    sortname    : 'rrhh_salidas.codigo',
+                    sortorder   : "desc",
+                    viewrecords : true,
+                    shrinkToFit : false,
+                    hidegrid    : false,
+                    multiboxonly: true,
+                    altRows     : true,
+                    rownumbers  : true,
+                    // subGrid     : subgrid_sw,
+                    // multiselect  : true,
+                    //autowidth     : true,
+                    //gridview      :true,
+                    //forceFit      : true,
+                    //toolbarfilter : true,
+                    colNames : [
+                        col_name_2[0],
+                        col_name_2[1],
+                        col_name_2[2],
+                        col_name_2[3],
+                        col_name_2[4],
+
+                        col_name_2[5],
+                        col_name_2[6],
+                        col_name_2[7],
+
+                        col_name_2[8],
+                        col_name_2[9],
+                        col_name_2[10],
+                        col_name_2[11],
+
+                        col_name_2[12],
+                        col_name_2[13],
+
+                        col_name_2[14],
+                        col_name_2[15],
+                        col_name_2[16],
+                        col_name_2[17],
+
+                        col_name_2[18]
+                    ],
+                    colModel : [
+                        {
+                            name    : col_m_name_2[0],
+                            index   : col_m_index_2[0],
+                            width   : ancho1,
+                            align   : col_m_align_2[0],
+                            fixed   : true,
+                            sortable: false,
+                            resize  : false,
+                            search  : false,
+                            hidden  : edit1
+                        },
+                        {
+                            name       : col_m_name_2[1],
+                            index      : col_m_index_2[1],
+                            width      : col_m_width_2[1],
+                            align      : col_m_align_2[1],
+                            stype      :'select',
+                            editoptions: {value:estado_jqgrid}
+                        },
+                        {
+                            name       : col_m_name_2[2],
+                            index      : col_m_index_2[2],
+                            width      : col_m_width_2[2],
+                            align      : col_m_align_2[2],
+                            stype      :'select',
+                            editoptions: {value:no_si_jqgrid}
+                        },
+                        {
+                            name       : col_m_name_2[3],
+                            index      : col_m_index_2[3],
+                            width      : col_m_width_2[3],
+                            align      : col_m_align_2[3],
+                            stype      :'select',
+                            editoptions: {value:no_si_jqgrid}
+                        },
+                        {
+                            name       : col_m_name_2[4],
+                            index      : col_m_index_2[4],
+                            width      : col_m_width_2[4],
+                            align      : col_m_align_2[4],
+                            stype      :'select',
+                            editoptions: {value:no_si_jqgrid}
+                        },
+
+                        {
+                            name : col_m_name_2[5],
+                            index: col_m_index_2[5],
+                            width: col_m_width_2[5],
+                            align: col_m_align_2[5]
+                        },
+                        {
+                            name       : col_m_name_2[6],
+                            index      : col_m_index_2[6],
+                            width      : col_m_width_2[6],
+                            align      : col_m_align_2[6],
+                            stype      :'select',
+                            editoptions: {value:tipo_salida_jqgrid}
+                        },
+                        {
+                            name : col_m_name_2[7],
+                            index: col_m_index_2[7],
+                            width: col_m_width_2[7],
+                            align: col_m_align_2[7]
+                        },
+
+                        {
+                            name : col_m_name_2[8],
+                            index: col_m_index_2[8],
+                            width: col_m_width_2[8],
+                            align: col_m_align_2[8]
+                        },
+                        {
+                            name : col_m_name_2[9],
+                            index: col_m_index_2[9],
+                            width: col_m_width_2[9],
+                            align: col_m_align_2[9]
+                        },
+                        {
+                            name : col_m_name_2[10],
+                            index: col_m_index_2[10],
+                            width: col_m_width_2[10],
+                            align: col_m_align_2[10]
+                        },
+                        {
+                            name : col_m_name_2[11],
+                            index: col_m_index_2[11],
+                            width: col_m_width_2[11],
+                            align: col_m_align_2[11]
+                        },
+
+                        {
+                            name : col_m_name_2[12],
+                            index: col_m_index_2[12],
+                            width: col_m_width_2[12],
+                            align: col_m_align_2[12]
+                        },
+                        {
+                            name : col_m_name_2[13],
+                            index: col_m_index_2[13],
+                            width: col_m_width_2[13],
+                            align: col_m_align_2[13]
+                        },
+
+                        {
+                            name : col_m_name_2[14],
+                            index: col_m_index_2[14],
+                            width: col_m_width_2[14],
+                            align: col_m_align_2[14]
+                        },
+                        {
+                            name : col_m_name_2[15],
+                            index: col_m_index_2[15],
+                            width: col_m_width_2[15],
+                            align: col_m_align_2[15]
+                        },
+                        {
+                            name : col_m_name_2[16],
+                            index: col_m_index_2[16],
+                            width: col_m_width_2[16],
+                            align: col_m_align_2[16]
+                        },
+                        {
+                            name       : col_m_name_2[17],
+                            index      : col_m_index_2[17],
+                            width      : col_m_width_2[17],
+                            align      : col_m_align_2[17],
+                            stype      :'select',
+                            editoptions: {value:periodo_jqgrid}
+                        },
+
+                        // === OCULTO ===
+                            {
+                                name  : col_m_name_2[18],
+                                index : col_m_index_2[18],
+                                width : col_m_width_2[18],
+                                align : col_m_align_2[18],
+                                search: false,
+                                hidden: true
+                            }
+                    ],
+                    loadComplete : function(){
+                        $("tr.jqgrow:odd").addClass('myAltRowClass');
+                    },
+                    gridComplete : function() {
+                        var ids = $(jqgrid2).jqGrid('getDataIDs');
+                        for(var i = 0; i < ids.length; i++){
+                            var cl       = ids[i];
+                            var ret      = $(jqgrid2).jqGrid('getRowData', cl);
+                            var val_json = $.parseJSON(ret.val_json);
+
+                            @if(in_array(['codigo' => '1003'], $permisos))
+                                ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([52, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                            @else
+                                ed = '';
+                            @endif
+
+                            $(jqgrid2).jqGrid('setRowData', ids[i], {
+                                act : $.trim(ed)
+                            });
+                        }
+                    }
+                });
+
+                $(jqgrid2).jqGrid('setGroupHeaders', {
+                    useColSpanStyle: true,
+                    groupHeaders   :[
+                        {
+                            startColumnName: 'validar_superior',
+                            numberOfColumns: 2,
+                            titleText      : '¿VALIDADO'
+                        },
+                        {
+                            startColumnName: 'n_documento',
+                            numberOfColumns: 4,
+                            titleText      : 'INMEDIATO SUPERIOR'
+                        }
+                    ]
+                });
+
+                $(jqgrid2).jqGrid('filterToolbar',{
+                    searchOnEnter : true,
+                    stringResult  : true,
+                    defaultSearch : 'cn'
+                });
+
+                $(jqgrid2).jqGrid('navGrid', pjqgrid2, {
+                    edit  : false,
+                    add   : false,
+                    del   : false,
+                    search: false
+                })
+                .navSeparatorAdd(pjqgrid2,{
+                    sepclass : "ui-separator"
+                })
+                @if(in_array(['codigo' => '1002'], $permisos))
+                    .navButtonAdd(pjqgrid2,{
+                    "id"          : "add2",
+                    caption       : "",
+                    title         : 'Agregar nueva fila',
+                    buttonicon    : "ui-icon ui-icon-plusthick",
+                    onClickButton : function(){
+                        var valor1 = new Array();
+                        valor1[0]  = 54;
+                        utilitarios(valor1);
+
+                        var valor1 = new Array();
+                        valor1[0]  = 51;
+                        utilitarios(valor1);
+                    }
+                })
+                @endif
+                @if(in_array(['codigo' => '1003'], $permisos))
+                    .navButtonAdd(pjqgrid2,{
+                    "id"          : "edit2",
+                    caption       : "",
+                    title         : 'Editar fila',
+                    buttonicon    : "ui-icon ui-icon-pencil",
+                    onClickButton : function(){
+                        var id = $(jqgrid1).jqGrid('getGridParam','selrow');
+                        if(id == null)
+                        {
+                            var valor1 = new Array();
+                            valor1[0]  = 101;
+                            valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
+                            valor1[2]  = "¡Favor seleccione una fila!";
+                            utilitarios(valor1);
+                        }
+                        else
+                        {
+                            utilitarios([52, id]);
+                        }
+                    }
+                })
+                @endif
+                @if(in_array(['codigo' => '1004'], $permisos))
+                    .navSeparatorAdd(pjqgrid2,{
+                      sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid2,{
+                      "id"          : "print2",
+                      caption       : "",
+                      title         : 'Reportes',
+                      buttonicon    : "ui-icon ui-icon-print",
+                      onClickButton : function(){
+                          var valor1 = new Array();
+                          valor1[0]  = 53;
+                          utilitarios(valor1);
+                      }
+                    })
+                @endif
+                ;
+                break;
+            // === ABRIR MODAL ===
+            case 51:
+                $('#modal_2').modal();
+                break;
+
+            // === RESETEAR FORMULARIO ===
+            case 54:
+                $('#modal_2_title').empty();
+                $('#modal_2_title').append('Nueva solicitud de salida por días');
+
+                $("#id_salida_2").val('');
+
+                $('#tipo_salida_id_2').select2("val", "");
+                $('#tipo_salida_2').select2("val", "");
+                $('#persona_id_superior_2').select2("val", "");
+                $('#persona_id_superior_2 option').remove();
+
+                $("#tipo_salida_2").select2("enable", false);
+
+                $('#destino_2').prop('disabled', false);
+                $('#motivo_2').prop('disabled', false);
+                $('#f_salida_2').prop('disabled', false);
+                $('#f_retorno_2').prop('disabled', false);
+                $('#n_dias_2').prop('disabled', false);
+
+                $(form_1)[0].reset();
+                break;
+            // === GUARDAR REGISTRO ===
+            case 55:
+                if($(form_2).valid()){
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = $(form_2).serialize();
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = "¡Favor complete o corrija los datos solicitados!";
+                    utilitarios(valor1);
+                }
+                break;
+            // === VALIDACION ===
+            case 56:
+                $(form_2).validate({
+                    rules: {
+                        tipo_salida_id:{
+                            required: true
+                        },
+                        persona_id_superior:{
+                            required: true
+                        },
+                        destino:{
+                            required : true,
+                            maxlength: 500
+                        },
+                        motivo:{
+                            required : true,
+                            maxlength: 500
+                        },
+                        f_salida:{
+                            required: true
+                        },
+                        f_retorno:{
+                            required: true
+                        }
+                    }
+                });
+                break;
+
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);

@@ -277,6 +277,123 @@
         </div>
       </div>
     </div>
+
+    <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              <span id="modal_2_title"></span>
+            </h4>
+
+            <small class="font-bold">
+              {{ $funcionario_array['n_documento'] . ' - ' . trim($funcionario_array['ap_paterno'] . ' ' . $funcionario_array['ap_materno']) . ' ' . $funcionario_array['nombre_persona'] }}
+            </small>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <form id="form_2" role="form" action="#">
+                <input type="hidden" id="id_salida_2" name="id" value=""/>
+                <input type="hidden" id="persona_id_2" name="persona_id" value="{{ $funcionario_array['persona_id'] }}"/>
+                <input type="hidden" id="tipo1_2" name="tipo" value="2"/>
+                {{ csrf_field() }}
+                <div class="col-sm-12">
+                  <div id="tipo_salida_id_2_div" class="form-group">
+                    <label for="tipo_salida_id_2">Tipo de papeleta</label>
+                    <select name="tipo_salida_id" id="tipo_salida_id_2" data-placeholder="Tipo de papeleta" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <div id="tipo_salida_2_div" class="form-group">
+                        <label for="tipo_salida_2">Tipo de salida</label>
+                        <select name="tipo_salida" id="tipo_salida_2" data-placeholder="Tipo de salida" multiple="multiple" style="width: 100%;">
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label for="codigo_2">Código</label>
+                        <input type="text" class="form-control" id="codigo_2" name="codigo" placeholder="Código" disabled="disabled">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="persona_id_superior_2_div" class="form-group">
+                    <label for="persona_id_superior_2">Inmediato superior</label>
+                    <select name="persona_id_superior" id="persona_id_superior_2" data-placeholder="Inmediato superior" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="destino_2">Destino</label>
+                    <input type="text" class="form-control" id="destino_2" name="destino" placeholder="Destino">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="motivo_2">Motivo</label>
+                    <input type="text" class="form-control" id="motivo_2" name="motivo" placeholder="Motivo">
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <div class="form-group">
+                        <label for="f_salida_2">Fecha de salida</label>
+                        <input type="text" class="form-control" id="f_salida_2" name="f_salida" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date("Y-m-d") }}">
+                      </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <div class="form-group">
+                        <label for="f_retorno_2">Fecha de retorno</label>
+                        <input type="text" class="form-control" id="f_retorno_2" name="f_retorno" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date("Y-m-d") }}">
+                      </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <div class="form-group">
+                        <label for="n_dias_2">Número de días</label>
+                        <input type="text" class="form-control" id="n_dias_2" name="n_dias" placeholder="Se calculara automaticamente" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <div class="form-group">
+                        <label>Periodo</label>
+                        <div>
+                          <div class="radio radio-primary">
+                            <input type="radio" id="periodo_1_id" class="con_sin_retorno_class" name="periodo" value="1">
+                            <label class="text-success" for="periodo_1_id"> {{ $periodo_array['1'] }} </label>
+                          </div>
+                          <div class="radio radio-danger">
+                            <input type="radio" id="periodo_2_id" class="con_sin_retorno_class" name="periodo" value="2">
+                            <label class="text-danger" for="periodo_2_id"> {{ $periodo_array['2'] }} </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info" onclick="utilitarios([54]);">Limpiar formulario</button>
+            <button type="button" class="btn btn-primary" onclick="utilitarios([55]);">Guardar</button>
+            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+          </div>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @section('js_plugins')

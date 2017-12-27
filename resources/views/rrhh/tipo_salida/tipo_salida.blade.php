@@ -197,6 +197,10 @@
                         <input type="radio" id="tipo_salida_4_id" class="tipo_salida_class" name="tipo_salida" value="4">
                         <label class="text-info" for="tipo_salida_4_id"> {{ $tipo_salida_array['4'] }} </label>
                       </div>
+                      <div class="radio radio-primary radio-inline">
+                        <input type="radio" id="tipo_salida_5_id" class="tipo_salida_class" name="tipo_salida" value="5">
+                        <label class="text-success" for="tipo_salida_5_id"> {{ $tipo_salida_array['5'] }} </label>
+                      </div>
                     </div>
                   </div>
 
