@@ -80,6 +80,7 @@ class SolicitudSalidaController extends Controller
         ];
 
         $this->public_dir = '/image/logo';
+        $this->public_url = 'storage/rrhh/salidas/solicitud_salida/';
     }
 
     public function index()
@@ -202,6 +203,7 @@ class SolicitudSalidaController extends Controller
                 'modulo'                      => 'Solicitud de salida',
                 'title_table'                 => 'Solicitudes de salida por hora',
                 'title_table_1'               => 'Solicitudes de salida por días',
+                'public_url'                  => $this->public_url,
                 'estado_array'                => $this->estado,
                 'tipo_salida_array'           => $this->tipo_salida,
                 'con_sin_retorno_array'       => $this->con_sin_retorno,
@@ -351,7 +353,7 @@ class SolicitudSalidaController extends Controller
                             $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
                             $this->utilitarios(array('tipo' => '2', 'validar_superior' => $row["validar_superior"])),
                             $this->utilitarios(array('tipo' => '3', 'validar_rrhh' => $row["validar_rrhh"])),
-                            $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"])),
+                            $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"], 'id' => $row["id"], 'dia_hora' => 1)),
 
                             $row["papeleta_salida"],
                             ($row["tipo_salida"] == '')? '' : $this->tipo_salida[$row["tipo_salida"]],
@@ -1733,6 +1735,198 @@ class SolicitudSalidaController extends Controller
                 return json_encode($respuesta);
                 break;
 
+            // === HABILITAR / ANULAR PAPELETA DE SALIDA ===
+            case '3':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>Papeleta de Salida</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+                    $opcion      = 'n';
+                    $anio_actual = date('Y');
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1003'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1002'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                //=== OPERACION ===
+                    $data1['estado']   = trim($request->input('estado'));
+                    $data1['dia_hora'] = trim($request->input('dia_hora'));
+
+                // === MODIFICAR VALORES ===
+                    $consulta1 = RrhhSalida::where('id', '=', $id)
+                        ->where('estado', '=', $data1['estado'])
+                        ->first();
+
+                    if(!(($consulta1['validar_superior'] == '1') && ($consulta1['validar_rrhh'] == '1')))
+                    {
+                        if(!(count($consulta1) > 0))
+                        {
+                            $iu         = RrhhSalida::find($id);
+                            $iu->estado = $data1['estado'];
+
+                            $iu->save();
+
+                            if($data1['estado'] == '1')
+                            {
+                                $respuesta['respuesta'] .= "La PAPELETA DE SALIDA fue HABILITADA.";
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "La PAPELETA DE SALIDA fue ANULO.";
+                            }
+                            $respuesta['sw']        = 1;
+                        }
+                        else
+                        {
+                            if($data1['estado'] == '1')
+                            {
+                                $respuesta['respuesta'] .= "La PAPELETA DE SALIDA ya fue HABILITADA.";
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "La PAPELETA DE SALIDA ya fue ANULADA.";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if($data1['estado'] == '1')
+                        {
+                            $respuesta['respuesta'] .= "La PAPELETA DE SALIDA ya no se puede HABILITADA.<br>Porque se VALIDO la PAPELETA DE SALIDA.";
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "La PAPELETA DE SALIDA ya no se puede ANULADA.<br>Porque se VALIDO la PAPELETA DE SALIDA.";
+                        }
+                    }
+
+                    $respuesta['dia_hora']  = $data1['dia_hora'];
+                return json_encode($respuesta);
+                break;
+
+            // === UPLOAD IMAGE ===
+            case '4':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SUBIR DOCUMENTO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'error_sw'   => 1
+                    );
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id       = trim($request->input('id'));
+                    $dia_hora = trim($request->input('dia_hora'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '0803'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "La ID del FUNCIONARIO es obligatorio.";
+                        return json_encode($respuesta);
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                       $validator = $this->validate($request,[
+                            'file' => 'mimes:pdf|max:5120'
+                        ],
+                        [
+                            'file.mimes' => 'El archivo subido debe de ser de tipo :values.',
+                            'file.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $consulta1 = RrhhSalida::where('id', '=', $id)
+                        ->select('papeleta_pdf')
+                        ->first();
+
+                    $dir_doc = "storage/rrhh/salidas/solicitud_salida";
+
+                    if($consulta1['papeleta_pdf'] != '')
+                    {
+                        if(file_exists(public_path($dir_doc) . '/' . $consulta1['papeleta_pdf']))
+                        {
+                            unlink(public_path($dir_doc) . '/' . $consulta1['papeleta_pdf']);
+                        }
+                    }
+
+                    if($request->hasFile('file'))
+                    {
+                        $archivo           = $request->file('file');
+                        $nombre_archivo    = uniqid('solicitud_salida_', true) . '.' . $archivo->getClientOriginalExtension();
+                        $direccion_archivo = public_path($dir_doc);
+
+                        $archivo->move($direccion_archivo, $nombre_archivo);
+                    }
+
+                    $iu               = RrhhSalida::find($id);
+                    $iu->pdf          = 2;
+                    $iu->papeleta_pdf = $nombre_archivo;
+                    $iu->save();
+
+                    $respuesta['respuesta'] .= "El DOCUMENTO se subio con éxito.";
+                    $respuesta['sw']        = 1;
+                    $respuesta['dia_hora']  = $dia_hora;
+
+                return json_encode($respuesta);
+                break;
+
             // === SELECT2 PERSONA ===
             case '100':
                 if($request->has('q'))
@@ -1840,7 +2034,10 @@ class SolicitudSalidaController extends Controller
                         return($respuesta);
                         break;
                     case '2':
-                        $respuesta = '<span class="label label-primary font-sm">' . $this->no_si[$valor['pdf']] . '</span>';
+                        $respuesta = '<button class="btn btn-xs btn-primary" onclick="utilitarios([21, ' . $valor['id'] . ', ' . $valor['dia_hora'] . ']);" title="Clic ver el documento">
+                            <i class="fa fa-cloud-download"></i>
+                            <strong>' . $this->no_si[$valor['pdf']] . '</strong>
+                        </button>';
                         return($respuesta);
                         break;
                     default:
@@ -1917,7 +2114,6 @@ class SolicitudSalidaController extends Controller
                     $valor['firstline'],// Si es verdadero imprime solo la primera línea y devuelve la cadena restante.
                     $valor['firstblock'],// Si es verdadero, la cadena es el comienzo de una línea.
                     $valor['maxh']      // Altura máxima. El texto restante no impreso será devuelto. Debe se > = $ h y menos espacio restante en la parte inferior de la página, o 0 para desactivar esta función.
-
                 );
                 break;
             case '111':
@@ -2001,6 +2197,11 @@ class SolicitudSalidaController extends Controller
                         if( ! (count($consulta1) > 0))
                         {
                             return "No existe la PAPELETA DE SALIDA";
+                        }
+
+                        if($consulta1['estado'] == '2')
+                        {
+                            return "La de PAPELETA DE SALIDA fue ANULADA";
                         }
 
                         $tabla1 = "rrhh_personas";
@@ -2116,6 +2317,10 @@ class SolicitudSalidaController extends Controller
                             'consulta5'            => $consulta5
                         );
 
+                        $data3 = array(
+                            'consulta1' => $consulta1
+                        );
+
                         $style_qrcode = array(
                             'border'        => 0,
                             'vpadding'      => 'auto',
@@ -2129,14 +2334,14 @@ class SolicitudSalidaController extends Controller
                     set_time_limit(3600);
                     ini_set('memory_limit','-1');
 
-                    // == CABECERA ==
+                    // == HEADER ==
                         PDF::setHeaderCallback(function($pdf) use($data2){
                             $this->utilitarios(array(
                                 'tipo'         => '101',
                                 'x'            => 7,
                                 'y'            => 7,
                                 'w'            => 202,
-                                'h'            => 125,
+                                'h'            => 126,
                                 'style'        => '',
                                 'border_style' => array(),
                                 'fill_color'   => array()
@@ -2197,7 +2402,7 @@ class SolicitudSalidaController extends Controller
                                 'tipo'      => '100',
                                 'file'      => $data2['dir_marca_agua'],
                                 'x'         => 63,
-                                'y'         => 38,
+                                'y'         => 39,
                                 'w'         => 0,
                                 'h'         => 90,
                                 'type'      => '',
@@ -2214,7 +2419,7 @@ class SolicitudSalidaController extends Controller
                                 'fitonpage' => FALSE
                             ));
 
-                            $pdf->Ln(13);
+                            $pdf->Ln(10);
                             // $pdf->SetFont('times', 'B', 14);
                             // $this->utilitarios(array(
                             //     'tipo'       => '110',
@@ -2260,6 +2465,8 @@ class SolicitudSalidaController extends Controller
                                 'maxh'       => 0
                             ));
 
+                            $pdf->Ln(4);
+
                             $pdf->SetFont('times', 'B', 12);
                             $this->utilitarios(array(
                                 'tipo'       => '110',
@@ -2276,14 +2483,156 @@ class SolicitudSalidaController extends Controller
                             ));
                         });
 
-                    // Custom Footer
-                        PDF::setFooterCallback(function($pdf){
-                            // Position at 15 mm from bottom
-                            // $pdf->SetY(-15);
-                            // Set font
-                            // $pdf->SetFont('helvetica', 'I', 8);
-                            // Page number
-                            // $pdf->Cell(0, 10, 'Page '.$pdf->getAliasNumPage().'/'.$pdf->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
+                    // == FOOTER ==
+                        PDF::setFooterCallback(function($pdf) use($data3){
+                            $y_n = 139.7;
+                            // == FIRMAS ==
+                                $pdf->SetY(-(43.5 + $y_n));
+
+                                $fill = FALSE;
+                                $x1   = 65;
+                                $x2   = 66;
+                                $y1   = 4;
+
+                                $pdf->SetFont('times', 'B', 7);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "SOLICITANTE",
+                                    'border'  => 'LRTB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "INMEDIATO SUPERIOR",
+                                    'border'  => 'LRTB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x2,
+                                    'y1'      => $y1,
+                                    'txt'     => "AUTORIZADO POR R.R.H.H.",
+                                    'border'  => 'LRTB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $pdf->Ln();
+
+                                $fill = FALSE;
+                                $y1   = 29;
+
+                                $pdf->SetFont('times', 'B', 7);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "",
+                                    'border'  => 'LRTB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "",
+                                    'border'  => 'LRTB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x2,
+                                    'y1'      => $y1,
+                                    'txt'     => "",
+                                    'border'  => 'LRTB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $pdf->Ln();
+
+                            // == LEYENDA ==
+                                $pdf->SetY(-(10.5 + $y_n));
+
+                                $fill = FALSE;
+                                $x1   = 98;
+                                $y1   = 4;
+
+                                $pdf->SetFont('times', 'I', 7);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "NOTA: El presente formulario no debe tener borrones, enmiendas y/o correcciones.",
+                                    'border'  => '',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Fecha de solicitud: " . date("d/m/Y H:i", strtotime($data3['consulta1']['created_at'])),
+                                    'border'  => '',
+                                    'align'   => 'R',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
                         });
 
                     PDF::setPageUnit('mm');
@@ -2302,6 +2651,7 @@ class SolicitudSalidaController extends Controller
                     // PDF::SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
 
                     // === BODY ===
+                        // PDF::AddPage('L', 'MEMO');
                         PDF::AddPage('P', 'LETTER');
 
                         // === FUNCIONARIO E INMEDIATO SUPERIOR ===
@@ -2317,7 +2667,7 @@ class SolicitudSalidaController extends Controller
                                 'tipo'    => '111',
                                 'x1'      => $x1,
                                 'y1'      => $y1,
-                                'txt'     => "Nombre del funcionario",
+                                'txt'     => "Nombre del funcionario:",
                                 'border'  => 'LRT',
                                 'align'   => 'L',
                                 'fill'    => $fill,
@@ -2332,7 +2682,7 @@ class SolicitudSalidaController extends Controller
                                 'tipo'    => '111',
                                 'x1'      => $x1,
                                 'y1'      => $y1,
-                                'txt'     => "Inmediato superior",
+                                'txt'     => "Inmediato superior:",
                                 'border'  => 'LRT',
                                 'align'   => 'L',
                                 'fill'    => $fill,
@@ -2414,35 +2764,623 @@ class SolicitudSalidaController extends Controller
 
                             PDF::Ln();
 
-                        $this->utilitarios(array(
-                            'tipo'    => '112',
-                            'code'    => $consulta1['codigo'],
-                            'type'    => 'QRCODE,L',
-                            'x'       => 180.5,
-                            'y'       => 35,
-                            'w'       => 25,
-                            'h'       => 25,
-                            'style'   => $style_qrcode,
-                            'align'   => '',
-                            'distort' => FALSE
-                        ));
+                        if($consulta5['tipo_cronograma'] == '1')
+                        {
+                            // === FECHA DE SALIDA, HORA DE SALIDA, HORA DE RETORNO Y SU SALIDA ES CON ===
+                                $fill = FALSE;
+                                $tt2  = 10;
+                                $x1   = 42.5;
+                                $x2   = 26;
+                                $y1   = 4;
 
+                                PDF::SetFont('times', 'B', 8);
 
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Fecha de salida:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
 
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Hora de salida:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
 
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Hora de retorno:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
 
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Su salida es:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
 
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x2,
+                                    'y1'      => $y1,
+                                    'txt'     => "",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                PDF::Ln();
+
+                                $fill = FALSE;
+                                $x1   = 42.5;
+                                $x2   = 26;
+                                $y1   = 8;
+
+                                PDF::SetFont('times', '', 9);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => date("d/m/Y", strtotime($consulta1["f_salida"])),
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => date("H:i", strtotime($consulta1["h_salida"])),
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                if($consulta1["h_retorno"] == '')
+                                {
+                                    $h_retorno = '';
+                                }
+                                else
+                                {
+                                    $h_retorno = date("H:i", strtotime($consulta1["h_retorno"]));
+                                }
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => $h_retorno,
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => ($consulta1["con_sin_retorno"] == '')? '' : $this->con_sin_retorno[$consulta1["con_sin_retorno"]],
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'      => '111',
+                                    'x1'        => $x2,
+                                    'y1'        => $y1,
+                                    'txt'       => "",
+                                    'border'    => 'LR',
+                                    'align'     => 'C',
+                                    'fill'      => $fill,
+                                    'ln'        => 0,
+                                    'stretch'   => 0,
+                                    'ishtml'    => FALSE,
+                                    'fitcell'   => FALSE,
+                                    'valign'    => 'M'
+                                ));
+
+                                PDF::Ln();
+                        }
+                        else
+                        {
+                            // === FECHA DE SALIDA, PERIODO, FECHA DE RETORNO Y PERIODO ===
+                                $fill = FALSE;
+                                $tt2  = 10;
+                                $x1   = 42.5;
+                                $x2   = 26;
+                                $y1   = 4;
+
+                                PDF::SetFont('times', 'B', 8);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Fecha de salida:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Periodo:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Fecha de retorno:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Periodo:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x2,
+                                    'y1'      => $y1,
+                                    'txt'     => "",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                PDF::Ln();
+
+                                $fill = FALSE;
+                                $x1   = 42.5;
+                                $x2   = 26;
+                                $y1   = 8;
+
+                                PDF::SetFont('times', '', 9);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => date("d/m/Y", strtotime($consulta1["f_salida"])),
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => ($consulta1["periodo_salida"] == '')? '' : $this->periodo[$consulta1["periodo_salida"]],
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => date("d/m/Y", strtotime($consulta1["f_retorno"])),
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => ($consulta1["periodo_retorno"] == '')? '' : $this->periodo[$consulta1["periodo_retorno"]],
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                $this->utilitarios(array(
+                                    'tipo'      => '111',
+                                    'x1'        => $x2,
+                                    'y1'        => $y1,
+                                    'txt'       => "",
+                                    'border'    => 'LR',
+                                    'align'     => 'C',
+                                    'fill'      => $fill,
+                                    'ln'        => 0,
+                                    'stretch'   => 0,
+                                    'ishtml'    => FALSE,
+                                    'fitcell'   => FALSE,
+                                    'valign'    => 'M'
+                                ));
+
+                                PDF::Ln();
+                        }
+
+                        // === TIPO DE SALIDA, MINUTOS O MINUTOS DE SALIDA Y CODIGO ===
+                            $fill = FALSE;
+                            $tt2  = 10;
+                            $x1   = 85;
+                            $x2   = 26;
+                            $y1   = 4;
+
+                            PDF::SetFont('times', 'B', 8);
+
+                            $this->utilitarios(array(
+                                'tipo'    => '111',
+                                'x1'      => $x1,
+                                'y1'      => $y1,
+                                'txt'     => "Tipo de salida:",
+                                'border'  => 'LR',
+                                'align'   => 'L',
+                                'fill'    => $fill,
+                                'ln'      => 0,
+                                'stretch' => 0,
+                                'ishtml'  => FALSE,
+                                'fitcell' => FALSE,
+                                'valign'  => 'M'
+                            ));
+
+                            if($consulta5['tipo_cronograma'] == '1')
+                            {
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Minutos de salida:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+                            }
+                            else
+                            {
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Número de días:",
+                                    'border'  => 'LR',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+                            }
+
+                            if($consulta1['pdf'] == '1')
+                            {
+                                $txt     = $consulta1['codigo'];
+                                $ishtml  = FALSE;
+                            }
+                            else
+                            {
+                                $url_pdf = url("storage/rrhh/salidas/solicitud_salida/" . $consulta1['papeleta_pdf']);
+                                $txt    = '<a href="' . $url_pdf . '" style="text-decoration: none;" target="_blank">' . $consulta1['codigo'] . "</a>";
+                                $ishtml = TRUE;
+                            }
+
+                            PDF::SetFont('times', 'B', 9);
+
+                            $this->utilitarios(array(
+                                'tipo'    => '111',
+                                'x1'      => $x2,
+                                'y1'      => $y1,
+                                'txt'     => $txt,
+                                'border'  => 'LRB',
+                                'align'   => 'C',
+                                'fill'    => $fill,
+                                'ln'      => 0,
+                                'stretch' => 0,
+                                'ishtml'  => $ishtml,
+                                'fitcell' => FALSE,
+                                'valign'  => 'M'
+                            ));
+
+                            PDF::Ln();
+
+                            $fill = FALSE;
+                            $x1   = 85;
+                            $x2   = 111;
+                            $y1   = 8;
+
+                            PDF::SetFont('times', '', 9);
+
+                            $this->utilitarios(array(
+                                'tipo'    => '111',
+                                'x1'      => $x1,
+                                'y1'      => $y1,
+                                'txt'     => ($consulta5["tipo_salida"] == '')? '' : $this->tipo_salida[$consulta5["tipo_salida"]],
+                                'border'  => 'LRB',
+                                'align'   => 'C',
+                                'fill'    => $fill,
+                                'ln'      => 0,
+                                'stretch' => 0,
+                                'ishtml'  => FALSE,
+                                'fitcell' => FALSE,
+                                'valign'  => 'M'
+                            ));
+
+                            if($consulta5['tipo_cronograma'] == '1')
+                            {
+                                $txt = '';
+
+                                if($consulta5['tipo_salida'] == '2')
+                                {
+                                    $txt = round($consulta1['n_horas'] * 60, 0);
+                                }
+                            }
+                            else
+                            {
+                                $txt = $consulta1['n_dias'];
+                            }
+
+                            $this->utilitarios(array(
+                                'tipo'    => '111',
+                                'x1'      => $x2,
+                                'y1'      => $y1,
+                                'txt'     => $txt,
+                                'border'  => 'LRB',
+                                'align'   => 'C',
+                                'fill'    => $fill,
+                                'ln'      => 0,
+                                'stretch' => 0,
+                                'ishtml'  => FALSE,
+                                'fitcell' => FALSE,
+                                'valign'  => 'M'
+                            ));
+
+                            PDF::Ln();
+
+                        // === DESTINO ===
+                            if($consulta1['destino'] != '')
+                            {
+                                $fill = FALSE;
+                                $tt2  = 10;
+                                $x1   = 196;
+                                $y1   = 4;
+
+                                PDF::SetFont('times', 'B', 8);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Destino:",
+                                    'border'  => 'LRT',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                PDF::Ln();
+
+                                $fill = FALSE;
+                                $x1   = 196;
+                                $y1   = 8;
+
+                                PDF::SetFont('times', '', 9);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => $consulta1['destino'],
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                PDF::Ln();
+                            }
+
+                        // === MOTIVO ===
+                            if($consulta1['destino'] != '')
+                            {
+                                $fill = FALSE;
+                                $tt2  = 10;
+                                $x1   = 196;
+                                $y1   = 4;
+
+                                PDF::SetFont('times', 'B', 8);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => "Motivo:",
+                                    'border'  => 'LRT',
+                                    'align'   => 'L',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                PDF::Ln();
+
+                                $fill = FALSE;
+                                $x1   = 196;
+                                $y1   = 8;
+
+                                PDF::SetFont('times', '', 9);
+
+                                $this->utilitarios(array(
+                                    'tipo'    => '111',
+                                    'x1'      => $x1,
+                                    'y1'      => $y1,
+                                    'txt'     => $consulta1['motivo'],
+                                    'border'  => 'LRB',
+                                    'align'   => 'C',
+                                    'fill'    => $fill,
+                                    'ln'      => 0,
+                                    'stretch' => 0,
+                                    'ishtml'  => FALSE,
+                                    'fitcell' => FALSE,
+                                    'valign'  => 'M'
+                                ));
+
+                                PDF::Ln();
+                            }
+
+                        // === CODIGO QR ===
+                            $url_reporte = url("solicitud_salida/reportes?tipo=1&salida_id=" . $salida_id);
+                            $this->utilitarios(array(
+                                'tipo'    => '112',
+                                'code'    => $url_reporte,
+                                'type'    => 'QRCODE,L',
+                                'x'       => 180.5,
+                                'y'       => 35.5,
+                                'w'       => 25,
+                                'h'       => 25,
+                                'style'   => $style_qrcode,
+                                'align'   => '',
+                                'distort' => FALSE
+                            ));
 
                         // PDF::lastPage();
 
-
-
-                    PDF::Output('papeleta_salida_' . date("YmdHis") . '.pdf', 'I');
-
-
-                    // $pdf->SetAutoPageBreak(TRUE, 0);
-                    // $pdf->Cuerpo();
-                    // $pdf->Output('papeleta_salida_' . date("YmdHis") . '.pdf', 'I');
+                    PDF::Output('papeleta_salida_' . date("YmdHis") . '.pdf', 'I');;
                 }
                 else
                 {

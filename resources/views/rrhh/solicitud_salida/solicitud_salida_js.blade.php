@@ -21,6 +21,7 @@
         var base_url       = "{!! url('') !!}";
         var url_controller = "{!! url('/solicitud_salida') !!}";
         var csrf_token     = "{!! csrf_token() !!}";
+        var public_url     = "{!! asset($public_url) !!}";
 
     // === JQGRID1 ===
         var title_table   = "{!! $title_table !!}";
@@ -250,7 +251,7 @@
             80,
 
             400,
-            120,
+            220,
             100,
             100,
 
@@ -384,6 +385,9 @@
 
             tipo_salida_por_dias_tipo_salida[value.id] = value.tipo_salida;
         });
+
+    // === DROPZONE ===
+        Dropzone.autoDiscover = false;
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
@@ -542,6 +546,11 @@
                 }
             });
 
+        // === DROPZONE ===
+            var valor1 = new Array();
+            valor1[0]  = 20;
+            utilitarios(valor1);
+
         // === JQGRID 1 ===
             var valor1 = new Array();
             valor1[0]  = 10;
@@ -604,6 +613,16 @@
                 var edit1      = true;
                 var ancho1     = 5;
                 var ancho_d    = 29;
+                @if(in_array(['codigo' => '1003'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
+                @if(in_array(['codigo' => '1003'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
                 @if(in_array(['codigo' => '1003'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
@@ -814,20 +833,56 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            @if(in_array(['codigo' => '1003'], $permisos))
-                                ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                            @else
-                                ed = '';
-                            @endif
-
-                            @if(in_array(['codigo' => '1003'], $permisos))
-                                pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
-                            @else
+                            if(val_json.estado == '1'){
+                                @if(in_array(['codigo' => '1003'], $permisos))
+                                    pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
+                                @else
+                                    pdf1 = '';
+                                @endif
+                            }
+                            else{
                                 pdf1 = '';
-                            @endif
+                            }
+
+
+                            if((val_json.validar_superior == '1') && (val_json.validar_rrhh == '1') && (val_json.estado == '1')){
+                                @if(in_array(['codigo' => '1003'], $permisos))
+                                    ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                                @else
+                                    ed = '';
+                                @endif
+
+                                @if(in_array(['codigo' => '1003'], $permisos))
+                                    up1 = " <button type='button' class='btn btn-xs btn-info' title='Suber documentación' onclick=\"utilitarios([19, " + cl + ", '" + ret.codigo + "', 1]);\"><i class='fa fa-cloud-upload'></i></button>";
+                                @else
+                                    up1 = '';
+                                @endif
+
+                                @if(in_array(['codigo' => '1003'], $permisos))
+                                    del1 = " <button type='button' class='btn btn-xs btn-danger' title='Anular PAPELETA DE SALIDA' onclick=\"utilitarios([17, " + cl + ", 2, 1]);\"><i class='fa fa-trash'></i></button>";
+                                @else
+                                    del1 = '';
+                                @endif
+                            }
+                            else{
+                                ed   = '';
+                                del1 = '';
+                                up1 = '';
+                            }
+
+                            if((val_json.validar_superior == '1') && (val_json.validar_rrhh == '1') && (val_json.estado == '2')){
+                                @if(in_array(['codigo' => '1003'], $permisos))
+                                    del2 = " <button type='button' class='btn btn-xs btn-warning' title='Habilitar PAPELETA DE SALIDA' onclick=\"utilitarios([18, " + cl + ", 1, 1]);\"><i class='fa fa-check'></i></button>";
+                                @else
+                                    del2 = '';
+                                @endif
+                            }
+                            else{
+                                del2 = '';
+                            }
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed + pdf1)
+                                act : $.trim(ed + up1 + pdf1 + del1 + del2)
                             });
                         }
                     }
@@ -882,42 +937,42 @@
                 })
                 @endif
                 @if(in_array(['codigo' => '1003'], $permisos))
-                    .navButtonAdd(pjqgrid1,{
-                    "id"          : "edit1",
-                    caption       : "",
-                    title         : 'Editar fila',
-                    buttonicon    : "ui-icon ui-icon-pencil",
-                    onClickButton : function(){
-                        var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                        if(id == null)
-                        {
-                            var valor1 = new Array();
-                            valor1[0]  = 101;
-                            valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                            valor1[2]  = "¡Favor seleccione una fila!";
-                            utilitarios(valor1);
-                        }
-                        else
-                        {
-                            utilitarios([12, id]);
-                        }
-                    }
-                })
+                    // .navButtonAdd(pjqgrid1,{
+                    //     "id"          : "edit1",
+                    //     caption       : "",
+                    //     title         : 'Editar fila',
+                    //     buttonicon    : "ui-icon ui-icon-pencil",
+                    //     onClickButton : function(){
+                    //         var id = $(jqgrid1).jqGrid('getGridParam','selrow');
+                    //         if(id == null)
+                    //         {
+                    //             var valor1 = new Array();
+                    //             valor1[0]  = 101;
+                    //             valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
+                    //             valor1[2]  = "¡Favor seleccione una fila!";
+                    //             utilitarios(valor1);
+                    //         }
+                    //         else
+                    //         {
+                    //             utilitarios([12, id]);
+                    //         }
+                    //     }
+                    // })
                 @endif
                 @if(in_array(['codigo' => '1004'], $permisos))
                     .navSeparatorAdd(pjqgrid1,{
-                      sepclass : "ui-separator"
+                        sepclass : "ui-separator"
                     })
                     .navButtonAdd(pjqgrid1,{
-                      "id"          : "print1",
-                      caption       : "",
-                      title         : 'Reportes',
-                      buttonicon    : "ui-icon ui-icon-print",
-                      onClickButton : function(){
-                          var valor1 = new Array();
-                          valor1[0]  = 13;
-                          utilitarios(valor1);
-                      }
+                        "id"          : "print1",
+                        caption       : "",
+                        title         : 'Reportes',
+                        buttonicon    : "ui-icon ui-icon-print",
+                        onClickButton : function(){
+                            var valor1 = new Array();
+                            valor1[0]  = 13;
+                            utilitarios(valor1);
+                        }
                     })
                 @endif
                 ;
@@ -1044,16 +1099,212 @@
                     }
                 });
                 break;
-            // === EXCEL CARGOS ===
+            // === ANULAR PAPELETA DE SALIDA ===
             case 17:
-                var concatenar_valores = '';
-                concatenar_valores     += '?tipo=1';
+                if(valor[3] == 1){
+                    var ret = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                }
+                else{
+                    var ret = $(jqgrid2).jqGrid('getRowData', valor[1]);
+                }
 
-                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
-                win.focus();
+                swal({
+                    title             : "ANULAR PAPELETA DE SALIDA",
+                    text              : "¿Esta seguro de ANULAR la PAPELETA DE SALIDA con el código " + ret.codigo + "?",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "Anular",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        swal.close();
+
+                        swal({
+                            title            : "ANULANDO PAPELETA DE SALIDA",
+                            text             : "Espere a que se anule la papeleta de salida.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=3&id=" + valor[1] + "&estado=" + valor[2] + "&dia_hora=" + valor[3] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
                 break;
-            // === EXCEL MARCACIONES ===
+            // === HABILITAR PAPELETA DE SALIDA ===
             case 18:
+                if(valor[3] == 1){
+                    var ret = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                }
+                else{
+                    var ret = $(jqgrid2).jqGrid('getRowData', valor[1]);
+                }
+
+                swal({
+                    title             : "HABILITAR PAPELETA DE SALIDA",
+                    text              : "¿Esta seguro de HABILITAR la PAPELETA DE SALIDA con el código " + ret.codigo + "?",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#1A7bb9",
+                    confirmButtonText : "Habilitar",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        swal.close();
+
+                        swal({
+                            title            : "HABILITANDO PAPELETA DE SALIDA",
+                            text             : "Espere a que se habilite la papeleta de salida.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=3&id=" + valor[1] + "&estado=" + valor[2] + "&dia_hora=" + valor[3] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
+                break;
+            // === MODAL SUBIR DOCUMENTO ===
+            case 19:
+                $('#modal_3_subtitle').empty();
+                $('#modal_3_subtitle').append('Código de la PAPELETA DE SALIDA: <b>' + valor[2] + '</b>');
+                $("#id_salida_3").val(valor[1]);
+                $("#dia_hora_3").val(valor[3]);
+                $('#modal_3').modal();
+                break;
+            // === DROPZONE 1 ===
+            case 20:
+                $("#dropzoneForm_1").dropzone({
+                    url              : url_controller + "/send_ajax",
+                    method           :'post',
+                    addRemoveLinks   : true,
+                    maxFilesize      : 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles    : 'application/pdf',
+                    paramName        : "file", // The name that will be used to transfer the file
+                    maxFiles         : 1,
+                    clickable        : true,
+                    parallelUploads  : 1,
+                    params           : {
+                        tipo  : 4,
+                        _token: csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize : 1,
+                    autoProcessQueue     :true,
+
+                    dictRemoveFile              :'Eliminar',
+                    dictCancelUpload            :'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage          : "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage         :'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText            :'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType         :'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig              :'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded        :'Número máximo de archivos superado.',
+                    init                        : function(){
+                        // this.on("sending", function(file, xhr, formData){
+                        //     formData.append("usuario_id", $("#usuario_id").val());
+                        //     formData.append("estado", $(".estado_class:checked").val());
+                        //     formData.append("persona_id", $("#persona_id").val());
+                        //     formData.append("email", $("#email").val());
+                        //     formData.append("password", $("#password").val());
+                        //     formData.append("rol_id", $("#rol_id").val());
+                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
+                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
+                        // });
+                    },
+                    success: function(file, response){
+                        var data = $.parseJSON(response);
+                        if(data.sw === 1){
+                            var valor1 = new Array();
+                            valor1[0]  = 100;
+                            valor1[1]  = data.titulo;
+                            valor1[2]  = data.respuesta;
+                            utilitarios(valor1);
+
+                            if(data.dia_hora == "1"){
+                                $(jqgrid1).trigger("reloadGrid");
+                            }
+                            else{
+                                $(jqgrid2).trigger("reloadGrid");
+                            }
+                            $('#modal_3').modal('hide');
+                        }
+                        else if(data.sw === 0){
+                            if(data.error_sw === 1){
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = data.respuesta;
+                                utilitarios(valor1);
+                            }
+                            else
+                            {
+                                var respuesta_server = '';
+                                $.each(data.error.response.original, function(index, value) {
+                                    respuesta_server += value + '<br>';
+                                });
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = respuesta_server;
+                                utilitarios(valor1);
+                            }
+                        }
+                        else if(data.sw === 2){
+                            window.location.reload();
+                        }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
+            // === MOSTRAR DOCUMENTO ===
+            case 21:
+                if(valor[2] == 1){
+                    var ret = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                }
+                else{
+                    var ret = $(jqgrid2).jqGrid('getRowData', valor[1]);
+                }
+                var val_json = $.parseJSON(ret.val_json);
+
+                if(val_json.pdf == '2'){
+                    var win = window.open(public_url + '/' + val_json.papeleta_pdf,  '_blank');
+                    win.focus();
+                }
+                break;
+            case 22:
                 var concatenar_valores = '';
                 concatenar_valores     += '?tipo=1';
 
@@ -1099,6 +1350,16 @@
                 var edit1      = true;
                 var ancho1     = 5;
                 var ancho_d    = 28;
+                @if(in_array(['codigo' => '1003'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
+                @if(in_array(['codigo' => '1003'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
                 @if(in_array(['codigo' => '1003'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
@@ -1316,14 +1577,48 @@
                             var ret      = $(jqgrid2).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            @if(in_array(['codigo' => '1003'], $permisos))
-                                ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([52, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                            @else
-                                ed = '';
-                            @endif
+                            if(val_json.estado == '1'){
+                                @if(in_array(['codigo' => '1003'], $permisos))
+                                    pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
+                                @else
+                                    pdf1 = '';
+                                @endif
+                            }
+                            else{
+                                pdf1 = '';
+                            }
+
+                            if((val_json.validar_superior == '1') && (val_json.validar_rrhh == '1') && (val_json.estado == '1')){
+                                @if(in_array(['codigo' => '1003'], $permisos))
+                                    ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([52, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                                @else
+                                    ed = '';
+                                @endif
+
+                                @if(in_array(['codigo' => '1003'], $permisos))
+                                    del1 = " <button type='button' class='btn btn-xs btn-danger' title='Anular PAPELETA DE SALIDA' onclick=\"utilitarios([17, " + cl + ", 2, 2]);\"><i class='fa fa-trash'></i></button>";
+                                @else
+                                    del1 = '';
+                                @endif
+                            }
+                            else{
+                                ed   = '';
+                                del1 = '';
+                            }
+
+                            if((val_json.validar_superior == '1') && (val_json.validar_rrhh == '1') && (val_json.estado == '2')){
+                                @if(in_array(['codigo' => '1003'], $permisos))
+                                    del2 = " <button type='button' class='btn btn-xs btn-warning' title='Habilitar PAPELETA DE SALIDA' onclick=\"utilitarios([18, " + cl + ", 1, 2]);\"><i class='fa fa-check'></i></button>";
+                                @else
+                                    del2 = '';
+                                @endif
+                            }
+                            else{
+                                del2 = '';
+                            }
 
                             $(jqgrid2).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed)
+                                act : $.trim(ed + pdf1 + del1 + del2)
                             });
                         }
                     }
@@ -1388,27 +1683,27 @@
                 })
                 @endif
                 @if(in_array(['codigo' => '1003'], $permisos))
-                    .navButtonAdd(pjqgrid2,{
-                    "id"          : "edit2",
-                    caption       : "",
-                    title         : 'Editar fila',
-                    buttonicon    : "ui-icon ui-icon-pencil",
-                    onClickButton : function(){
-                        var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                        if(id == null)
-                        {
-                            var valor1 = new Array();
-                            valor1[0]  = 101;
-                            valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                            valor1[2]  = "¡Favor seleccione una fila!";
-                            utilitarios(valor1);
-                        }
-                        else
-                        {
-                            utilitarios([52, id]);
-                        }
-                    }
-                })
+                    // .navButtonAdd(pjqgrid2,{
+                    //     "id"          : "edit2",
+                    //     caption       : "",
+                    //     title         : 'Editar fila',
+                    //     buttonicon    : "ui-icon ui-icon-pencil",
+                    //     onClickButton : function(){
+                    //         var id = $(jqgrid1).jqGrid('getGridParam','selrow');
+                    //         if(id == null)
+                    //         {
+                    //             var valor1 = new Array();
+                    //             valor1[0]  = 101;
+                    //             valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
+                    //             valor1[2]  = "¡Favor seleccione una fila!";
+                    //             utilitarios(valor1);
+                    //         }
+                    //         else
+                    //         {
+                    //             utilitarios([52, id]);
+                    //         }
+                    //     }
+                    // })
                 @endif
                 @if(in_array(['codigo' => '1004'], $permisos))
                     .navSeparatorAdd(pjqgrid2,{
@@ -1659,6 +1954,42 @@
                                         valor1[1]  = data.titulo;
                                         valor1[2]  = respuesta_server;
                                         utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === ANULAR / HABILITAR PAPELETA DE SALIDA ===
+                            case '3':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    if(data.dia_hora == "1"){
+                                        $(jqgrid1).trigger("reloadGrid");
+                                    }
+                                    else{
+                                        $(jqgrid2).trigger("reloadGrid");
+                                    }
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    if(data.dia_hora == "1"){
+                                        $(jqgrid1).trigger("reloadGrid");
+                                    }
+                                    else{
+                                        $(jqgrid2).trigger("reloadGrid");
                                     }
                                 }
                                 else if(data.sw === 2){

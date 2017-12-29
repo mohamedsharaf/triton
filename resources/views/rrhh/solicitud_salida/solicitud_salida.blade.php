@@ -174,8 +174,6 @@
                       </div>
                     </div>
                   </div>
-
-
                 </div>
 
                 <div id="tab-2" class="tab-pane">
@@ -430,6 +428,40 @@
             <button type="button" class="btn btn-info" onclick="utilitarios([54]);">Limpiar formulario</button>
             <button type="button" class="btn btn-primary" onclick="utilitarios([55]);">Guardar</button>
             <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal_3" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              Subir documento
+            </h4>
+
+            <small class="font-bold" id="modal_3_subtitle">
+            </small>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-12">
+                <form action="#" class="dropzone" id="dropzoneForm_1">
+                  <input type="hidden" id="id_salida_3" name="id" value=""/>
+                  <input type="hidden" id="dia_hora_3" name="dia_hora" value=""/>
+                  <div class="fallback">
+                    <input name="file" type="file"/>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>

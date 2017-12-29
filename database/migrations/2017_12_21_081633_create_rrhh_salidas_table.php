@@ -18,6 +18,7 @@ class CreateRrhhSalidasTable extends Migration
             $table->integer('persona_id')->unsigned()->nullable();
             $table->integer('tipo_salida_id')->unsigned()->nullable();
             $table->integer('persona_id_superior')->unsigned()->nullable();
+            $table->integer('persona_id_rrhh')->unsigned()->nullable();
 
             $table->smallInteger('estado')->default('1')->unsigned();
             $table->string('codigo', 12)->nullable();
@@ -57,6 +58,11 @@ class CreateRrhhSalidasTable extends Migration
                 ->onDelete('cascade');
 
             $table->foreign('persona_id_superior')
+                ->references('id')
+                ->on('rrhh_personas')
+                ->onDelete('cascade');
+
+            $table->foreign('persona_id_rrhh')
                 ->references('id')
                 ->on('rrhh_personas')
                 ->onDelete('cascade');
