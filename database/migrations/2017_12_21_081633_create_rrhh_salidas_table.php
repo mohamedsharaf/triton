@@ -32,7 +32,8 @@ class CreateRrhhSalidasTable extends Migration
             $table->smallInteger('con_sin_retorno')->unsigned()->nullable();
 
             $table->double('n_dias')->nullable();
-            $table->smallInteger('periodo')->unsigned()->nullable();
+            $table->smallInteger('periodo_salida')->unsigned()->nullable();
+            $table->smallInteger('periodo_retorno')->unsigned()->nullable();
 
             $table->smallInteger('validar_superior')->default('1')->unsigned();
             $table->dateTime('f_validar_superior')->nullable();

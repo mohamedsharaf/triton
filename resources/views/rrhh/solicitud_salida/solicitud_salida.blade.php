@@ -144,8 +144,40 @@
                       <table id="jqgrid1"></table>
                       <div id="pjqgrid1"></div>
                     </div>
+
+                    <br>
+
+                    <div id="" class="row">
+                      <div class="col-lg-12">
+                        <div class="alert alert-info">
+                          <h3>SALIDAS PARTICULARES</h3>
+                          <ul>
+                            <li>De sus <span class="badge badge-danger">120</span> minutos (2 horas) al mes, ya uso <span class="badge badge-danger">{{ round($n_horas * 60, 0) }}</span> minutos, le quedan <span class="badge badge-danger">{{ round(120 - $n_horas * 60, 0) }}</span> minutos.</li>
+                          </ul>
+                        </div>
+
+                        <div class="alert alert-success">
+                          <h3>Obligatoriedad en el Registro de Ingreso y Salida para SALIDAS PARTICULARES</h3>
+                          La omisión en el registro de entrada y/o salida será sancionado con el descuento de medio día de haber o según corresponda.
+                        </div>
+
+                        <div class="alert alert-warning">
+                          <h3>Atrasos y Multas (Art. 23 a).)</h3>
+                          <p>De <span class="badge badge-danger">21</span> a <span class="badge badge-danger">30</span> minutos al mes: <b>Medio día de haber</b>.</p>
+                          <p>De <span class="badge badge-danger">31</span> a <span class="badge badge-danger">50</span> minutos al mes: <b>Un día de haber</b>.</p>
+                          <p>De <span class="badge badge-danger">51</span> a <span class="badge badge-danger">70</span> minutos al mes: <b>Dos días de haber</b>.</p>
+                          <p>De <span class="badge badge-danger">71</span> a <span class="badge badge-danger">90</span> minutos al mes: <b>Tres días de haber</b>.</p>
+                          <p>De <span class="badge badge-danger">91</span> a <span class="badge badge-danger">120</span> minutos al mes: <b>Cuatro días de haber</b>.</p>
+                          <p>Más de <span class="badge badge-danger">120</span> minutos al mes: <b>Cinco días de haber y llamada de atención por escrito</b>.</p>
+                          <p><i class="fa fa-eye"></i> Tres llamadas de atención por escrito durante una misma gestión, se remitirán antecedentes para inicio de proceso interno.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
+
+
                 </div>
+
                 <div id="tab-2" class="tab-pane">
                   <div class="panel-body">
                     <div class="jqGrid_wrapper">
@@ -319,7 +351,14 @@
                       </div>
                     </div>
 
-                    <div class="col-sm-6">
+                    <div class="col-sm-3">
+                      <div class="form-group">
+                        <label for="n_dias_2">Número de días</label>
+                        <input type="text" class="form-control" id="n_dias_2" name="n_dias" placeholder="Se calculara automaticamente" disabled="disabled">
+                      </div>
+                    </div>
+
+                    <div class="col-sm-3">
                       <div class="form-group">
                         <label for="codigo_2">Código</label>
                         <input type="text" class="form-control" id="codigo_2" name="codigo" placeholder="Código" disabled="disabled">
@@ -353,6 +392,18 @@
 
                     <div class="col-sm-3">
                       <div class="form-group">
+                        <label>Periodo</label>
+                        <div>
+                          <div class="checkbox checkbox-primary">
+                            <input type="checkbox" id="periodo_salida_2_id" name="periodo_salida" value="2">
+                            <label class="text-success" for="periodo_salida_2_id"> {{ $periodo_array['2'] }} </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-3">
+                      <div class="form-group">
                         <label for="f_retorno_2">Fecha de retorno</label>
                         <input type="text" class="form-control" id="f_retorno_2" name="f_retorno" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date("Y-m-d") }}">
                       </div>
@@ -360,22 +411,11 @@
 
                     <div class="col-sm-3">
                       <div class="form-group">
-                        <label for="n_dias_2">Número de días</label>
-                        <input type="text" class="form-control" id="n_dias_2" name="n_dias" placeholder="Se calculara automaticamente" disabled="disabled">
-                      </div>
-                    </div>
-
-                    <div class="col-sm-3">
-                      <div class="form-group">
                         <label>Periodo</label>
                         <div>
-                          <div class="radio radio-primary">
-                            <input type="radio" id="periodo_1_id" class="con_sin_retorno_class" name="periodo" value="1">
-                            <label class="text-success" for="periodo_1_id"> {{ $periodo_array['1'] }} </label>
-                          </div>
-                          <div class="radio radio-danger">
-                            <input type="radio" id="periodo_2_id" class="con_sin_retorno_class" name="periodo" value="2">
-                            <label class="text-danger" for="periodo_2_id"> {{ $periodo_array['2'] }} </label>
+                          <div class="checkbox checkbox-danger">
+                            <input type="checkbox" id="periodo_retorno_1_id" class="periodo_retorno_class" name="periodo_retorno" value="1">
+                            <label class="text-danger" for="periodo_retorno_1_id"> {{ $periodo_array['1'] }} </label>
                           </div>
                         </div>
                       </div>

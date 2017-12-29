@@ -168,6 +168,7 @@
             "TIPO DE PAPELETA",
             "TIPO DE SALIDA",
             "CODIGO",
+            "N° DIAS",
 
             "C.I.",
             "NOMBRE(S)",
@@ -177,9 +178,10 @@
             "DESTINO",
             "MOTIVO",
 
-            "FECHA DE SALIDA",
-            "FECHA DE RETORNO",
-            "N° DIAS",
+            "FECHA",
+            "PERIODO",
+
+            "FECHA",
             "PERIODO",
 
             ""
@@ -194,6 +196,7 @@
             "papeleta_salida",
             "tipo_salida",
             "codigo",
+            "n_dias",
 
             "n_documento",
             "nombre_persona",
@@ -204,9 +207,10 @@
             "motivo",
 
             "f_salida",
+            "periodo_salida",
+
             "f_retorno",
-            "n_dias",
-            "periodo",
+            "periodo_retorno",
 
             "val_json"
         );
@@ -220,6 +224,7 @@
             "a2.nombre",
             "a2.tipo_salida",
             "rrhh_salidas.codigo",
+            "rrhh_salidas.n_dias::text",
 
             "a3.n_documento",
             "a3.nombre",
@@ -230,9 +235,10 @@
             "rrhh_salidas.motivo",
 
             "rrhh_salidas.f_salida::text",
+            "rrhh_salidas.periodo_salida",
+
             "rrhh_salidas.f_retorno::text",
-            "rrhh_salidas.n_dias::text",
-            "rrhh_salidas.periodo",
+            "rrhh_salidas.periodo_retorno",
 
             ""
         );
@@ -246,6 +252,7 @@
             400,
             120,
             100,
+            100,
 
             100,
             100,
@@ -255,8 +262,9 @@
             400,
             400,
 
-            125,
-            125,
+            100,
+            100,
+
             100,
             100,
 
@@ -272,14 +280,19 @@
             "center",
             "center",
             "center",
-
-            "center",
-            "center",
-            "center",
             "center",
 
             "center",
             "center",
+            "center",
+            "center",
+
+            "center",
+            "center",
+
+            "center",
+            "center",
+
             "center",
             "center",
 
@@ -474,7 +487,10 @@
                 $('#f_salida_2').prop('disabled', false);
                 $('#f_retorno_2').prop('disabled', false);
                 $('#n_dias_2').prop('disabled', false);
-                $(".con_sin_retorno_class").prop('checked', false);
+                $("#periodo_retorno_1_id").prop('checked', false);
+                $("#periodo_salida_2_id").prop('checked', false);
+                $('#periodo_retorno_1_id').prop('disabled', false);
+                $('#periodo_salida_2_id').prop('disabled', false);
                 $("#n_dias_2").val('');
                 switch ($.trim(this.value)){
                     case '':
@@ -490,7 +506,10 @@
                                 $('#f_retorno_2').prop('disabled', true);
                                 $('#n_dias_2').prop('disabled', true);
 
-                                $(".con_sin_retorno_class[value=" + 2 + "]").prop('checked', true);
+                                $("#periodo_salida_2_id").prop('checked', true);
+
+                                $('#periodo_retorno_1_id').prop('disabled', true);
+                                $('#periodo_salida_2_id').prop('disabled', true);
 
                                 var f_nacimiento = funcionario_json.f_nacimiento;
                                 var f_nacimiento_array = f_nacimiento.split("-");
@@ -584,7 +603,12 @@
             case 10:
                 var edit1      = true;
                 var ancho1     = 5;
-                var ancho_d    = 28;
+                var ancho_d    = 29;
+                @if(in_array(['codigo' => '1003'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
                 @if(in_array(['codigo' => '1003'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
@@ -796,8 +820,14 @@
                                 ed = '';
                             @endif
 
+                            @if(in_array(['codigo' => '1003'], $permisos))
+                                pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
+                            @else
+                                pdf1 = '';
+                            @endif
+
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed)
+                                act : $.trim(ed + pdf1)
                             });
                         }
                     }
@@ -916,8 +946,8 @@
                 if(ret.n_documento != ""){
                     var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre_persona;
 
-                    $('#persona_id_superior').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
-                    $("#persona_id_superior").select2("val", val_json.persona_id);
+                    $('#persona_id_superior').append('<option value="' + val_json.persona_id_superior + '">' + persona + '</option>');
+                    $("#persona_id_superior").select2("val", val_json.persona_id_superior);
                 }
 
                 $("#destino").val(ret.destino);
@@ -933,7 +963,11 @@
                 break;
             // === REPORTES MODAL ===
             case 13:
-                $('#modal_2').modal();
+                var concatenar_valores = '';
+                concatenar_valores     += '?tipo=1&salida_id=' + valor[1];
+
+                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                win.focus();
                 break;
             // === RESETEAR FORMULARIO ===
             case 14:
@@ -1103,21 +1137,23 @@
                         col_name_2[5],
                         col_name_2[6],
                         col_name_2[7],
-
                         col_name_2[8],
+
                         col_name_2[9],
                         col_name_2[10],
                         col_name_2[11],
-
                         col_name_2[12],
-                        col_name_2[13],
 
+                        col_name_2[13],
                         col_name_2[14],
+
                         col_name_2[15],
                         col_name_2[16],
-                        col_name_2[17],
 
-                        col_name_2[18]
+                        col_name_2[17],
+                        col_name_2[18],
+
+                        col_name_2[19]
                     ],
                     colModel : [
                         {
@@ -1184,13 +1220,13 @@
                             width: col_m_width_2[7],
                             align: col_m_align_2[7]
                         },
-
                         {
                             name : col_m_name_2[8],
                             index: col_m_index_2[8],
                             width: col_m_width_2[8],
                             align: col_m_align_2[8]
                         },
+
                         {
                             name : col_m_name_2[9],
                             index: col_m_index_2[9],
@@ -1209,26 +1245,26 @@
                             width: col_m_width_2[11],
                             align: col_m_align_2[11]
                         },
-
                         {
                             name : col_m_name_2[12],
                             index: col_m_index_2[12],
                             width: col_m_width_2[12],
                             align: col_m_align_2[12]
                         },
+
                         {
                             name : col_m_name_2[13],
                             index: col_m_index_2[13],
                             width: col_m_width_2[13],
                             align: col_m_align_2[13]
                         },
-
                         {
                             name : col_m_name_2[14],
                             index: col_m_index_2[14],
                             width: col_m_width_2[14],
                             align: col_m_align_2[14]
                         },
+
                         {
                             name : col_m_name_2[15],
                             index: col_m_index_2[15],
@@ -1236,26 +1272,36 @@
                             align: col_m_align_2[15]
                         },
                         {
-                            name : col_m_name_2[16],
-                            index: col_m_index_2[16],
-                            width: col_m_width_2[16],
-                            align: col_m_align_2[16]
+                            name       : col_m_name_2[16],
+                            index      : col_m_index_2[16],
+                            width      : col_m_width_2[16],
+                            align      : col_m_align_2[16],
+                            stype      :'select',
+                            editoptions: {value:periodo_jqgrid}
+                        },
+
+
+                        {
+                            name : col_m_name_2[17],
+                            index: col_m_index_2[17],
+                            width: col_m_width_2[17],
+                            align: col_m_align_2[17]
                         },
                         {
-                            name       : col_m_name_2[17],
-                            index      : col_m_index_2[17],
-                            width      : col_m_width_2[17],
-                            align      : col_m_align_2[17],
+                            name       : col_m_name_2[18],
+                            index      : col_m_index_2[18],
+                            width      : col_m_width_2[18],
+                            align      : col_m_align_2[18],
                             stype      :'select',
                             editoptions: {value:periodo_jqgrid}
                         },
 
                         // === OCULTO ===
                             {
-                                name  : col_m_name_2[18],
-                                index : col_m_index_2[18],
-                                width : col_m_width_2[18],
-                                align : col_m_align_2[18],
+                                name  : col_m_name_2[19],
+                                index : col_m_index_2[19],
+                                width : col_m_width_2[19],
+                                align : col_m_align_2[19],
                                 search: false,
                                 hidden: true
                             }
@@ -1295,6 +1341,16 @@
                             startColumnName: 'n_documento',
                             numberOfColumns: 4,
                             titleText      : 'INMEDIATO SUPERIOR'
+                        },
+                        {
+                            startColumnName: 'f_salida',
+                            numberOfColumns: 2,
+                            titleText      : 'SALIDA'
+                        },
+                        {
+                            startColumnName: 'f_retorno',
+                            numberOfColumns: 2,
+                            titleText      : 'RETORNO'
                         }
                     ]
                 });
@@ -1376,6 +1432,46 @@
             case 51:
                 $('#modal_2').modal();
                 break;
+            // === EDICION MODAL ===
+            case 52:
+                var valor1 = new Array();
+                valor1[0]  = 54;
+                utilitarios(valor1);
+
+                var ret      = $(jqgrid2).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                $('#modal_1_title').empty();
+                $('#modal_1_title').append('Modificar solicitud de salida por días');
+
+                $("#id_salida_2").val(valor[1]);
+
+                $("#tipo_salida_id_2").select2("val", val_json.tipo_salida_id);
+                $("#n_dias_2").val(ret.n_dias);
+                $("#codigo_2").val(ret.codigo);
+
+                if(ret.n_documento != ""){
+                    var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre_persona;
+
+                    $('#persona_id_superior_2').append('<option value="' + val_json.persona_id_superior + '">' + persona + '</option>');
+                    $("#persona_id_superior_2").select2("val", val_json.persona_id_superior);
+                }
+
+                $("#destino_2").val(ret.destino);
+                $("#motivo_2").val(ret.motivo);
+
+                $("#f_salida_2").val(ret.f_salida);
+                if(val_json.periodo_salida != null){
+                    $("#periodo_salida_2_id").prop('checked', true);
+                }
+
+                $("#f_retorno_2").val(ret.f_retorno);
+                if(val_json.periodo_retorno != null){
+                    $("#periodo_retorno_1_id").prop('checked', true);
+                }
+
+                $('#modal_2').modal();
+                break;
 
             // === RESETEAR FORMULARIO ===
             case 54:
@@ -1397,7 +1493,10 @@
                 $('#f_retorno_2').prop('disabled', false);
                 $('#n_dias_2').prop('disabled', false);
 
-                $(form_1)[0].reset();
+                $('#periodo_retorno_1_id').prop('disabled', false);
+                $('#periodo_salida_2_id').prop('disabled', false);
+
+                $(form_2)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
             case 55:
@@ -1495,6 +1594,51 @@
                                     }
                                     else if(data.iu === 2){
                                         $('#modal_1').modal('hide');
+                                    }
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === INSERT UPDATE ===
+                            case '2':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid2).trigger("reloadGrid");
+                                    if(data.iu === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 54;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.iu === 2){
+                                        $('#modal_2').modal('hide');
                                     }
                                 }
                                 else if(data.sw === 0){

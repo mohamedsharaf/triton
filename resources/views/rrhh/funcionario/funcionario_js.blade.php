@@ -435,7 +435,7 @@
             case 10:
                 var edit1      = true;
                 var ancho1     = 5;
-                var ancho_d    = 28;
+                var ancho_d    = 29;
                 @if(in_array(['codigo' => '0803'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
