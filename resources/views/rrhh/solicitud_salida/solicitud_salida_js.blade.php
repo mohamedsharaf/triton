@@ -844,7 +844,6 @@
                                 pdf1 = '';
                             }
 
-
                             if((val_json.validar_superior == '1') && (val_json.validar_rrhh == '1') && (val_json.estado == '1')){
                                 @if(in_array(['codigo' => '1003'], $permisos))
                                     ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
@@ -1365,6 +1364,11 @@
                     ancho1 += ancho_d;
                 @endif
 
+                @if(in_array(['codigo' => '1003'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
                 $(jqgrid2).jqGrid({
                     caption     : title_table_2,
                     url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2',
@@ -1596,6 +1600,12 @@
                                 @endif
 
                                 @if(in_array(['codigo' => '1003'], $permisos))
+                                    up1 = " <button type='button' class='btn btn-xs btn-info' title='Suber documentación' onclick=\"utilitarios([19, " + cl + ", '" + ret.codigo + "', 2]);\"><i class='fa fa-cloud-upload'></i></button>";
+                                @else
+                                    up1 = '';
+                                @endif
+
+                                @if(in_array(['codigo' => '1003'], $permisos))
                                     del1 = " <button type='button' class='btn btn-xs btn-danger' title='Anular PAPELETA DE SALIDA' onclick=\"utilitarios([17, " + cl + ", 2, 2]);\"><i class='fa fa-trash'></i></button>";
                                 @else
                                     del1 = '';
@@ -1604,6 +1614,7 @@
                             else{
                                 ed   = '';
                                 del1 = '';
+                                up1 = '';
                             }
 
                             if((val_json.validar_superior == '1') && (val_json.validar_rrhh == '1') && (val_json.estado == '2')){
@@ -1618,7 +1629,7 @@
                             }
 
                             $(jqgrid2).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed + pdf1 + del1 + del2)
+                                act : $.trim(ed + up1 + pdf1 + del1 + del2)
                             });
                         }
                     }

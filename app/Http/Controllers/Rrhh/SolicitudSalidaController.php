@@ -491,7 +491,7 @@ class SolicitudSalidaController extends Controller
                             $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
                             $this->utilitarios(array('tipo' => '2', 'validar_superior' => $row["validar_superior"])),
                             $this->utilitarios(array('tipo' => '3', 'validar_rrhh' => $row["validar_rrhh"])),
-                            $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"])),
+                            $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"], 'id' => $row["id"], 'dia_hora' => 2)),
 
                             $row["papeleta_salida"],
                             ($row["tipo_salida"] == '')? '' : $this->tipo_salida[$row["tipo_salida"]],
