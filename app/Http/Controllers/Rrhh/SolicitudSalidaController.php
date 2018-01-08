@@ -3185,7 +3185,7 @@ class SolicitudSalidaController extends Controller
                             else
                             {
                                 $url_pdf = url("storage/rrhh/salidas/solicitud_salida/" . $consulta1['papeleta_pdf']);
-                                $txt    = '<a href="' . $url_pdf . '" style="text-decoration: none;" target="_blank">' . $consulta1['codigo'] . "</a>";
+                                $txt    = '&nbsp;<a href="' . $url_pdf . '" style="text-decoration: none;" target="_blank">' . $consulta1['codigo'] . "</a>";
                                 $ishtml = TRUE;
                             }
 

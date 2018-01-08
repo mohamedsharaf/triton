@@ -642,7 +642,7 @@
                     pager       : pjqgrid1,
                     rowNum      : 10,
                     rowList     : [10, 20, 30],
-                    sortname    : 'rrhh_salidas.codigo',
+                    sortname    : 'rrhh_salidas.f_salida',
                     sortorder   : "desc",
                     viewrecords : true,
                     shrinkToFit : false,
@@ -968,9 +968,19 @@
                         title         : 'Reportes',
                         buttonicon    : "ui-icon ui-icon-print",
                         onClickButton : function(){
-                            var valor1 = new Array();
-                            valor1[0]  = 13;
-                            utilitarios(valor1);
+                            var id = $(jqgrid1).jqGrid('getGridParam','selrow');
+                            if(id == null)
+                            {
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
+                                valor1[2]  = "¡Favor seleccione una fila!";
+                                utilitarios(valor1);
+                            }
+                            else
+                            {
+                                utilitarios([13, id]);
+                            }
                         }
                     })
                 @endif
@@ -1378,7 +1388,7 @@
                     pager       : pjqgrid2,
                     rowNum      : 10,
                     rowList     : [10, 20, 30],
-                    sortname    : 'rrhh_salidas.codigo',
+                    sortname    : 'rrhh_salidas.f_salida',
                     sortorder   : "desc",
                     viewrecords : true,
                     shrinkToFit : false,
@@ -1726,9 +1736,19 @@
                       title         : 'Reportes',
                       buttonicon    : "ui-icon ui-icon-print",
                       onClickButton : function(){
-                          var valor1 = new Array();
-                          valor1[0]  = 53;
-                          utilitarios(valor1);
+                        var id = $(jqgrid2).jqGrid('getGridParam','selrow');
+                        if(id == null)
+                        {
+                            var valor1 = new Array();
+                            valor1[0]  = 101;
+                            valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
+                            valor1[2]  = "¡Favor seleccione una fila!";
+                            utilitarios(valor1);
+                        }
+                        else
+                        {
+                            utilitarios([13, id]);
+                        }
                       }
                     })
                 @endif
@@ -1876,12 +1896,12 @@
             // === AJAX ===
             case 150:
                 $.ajax({
-                    url: valor[1],
-                    type: valor[2],
-                    async: valor[3],
-                    data: valor[4],
+                    url     : valor[1],
+                    type    : valor[2],
+                    async   : valor[3],
+                    data    : valor[4],
                     dataType: valor[5],
-                    success: function(data){
+                    success : function(data){
                         switch(data.tipo){
                             // === INSERT UPDATE ===
                             case '1':
