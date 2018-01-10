@@ -171,7 +171,7 @@ class ConfirmarSalidaController extends Controller
             }
         }
 
-        if(in_array(['codigo' => '1001'], $this->permisos) && ($funcionario_sw))
+        if(in_array(['codigo' => '1101'], $this->permisos) && ($funcionario_sw))
         {
             $data = [
                 'rol_id'                      => $this->rol_id,
