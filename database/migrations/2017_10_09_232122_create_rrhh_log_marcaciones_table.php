@@ -18,6 +18,7 @@ class CreateRrhhLogMarcacionesTable extends Migration
           $table->integer('biometrico_id')->unsigned()->nullable();
           $table->integer('persona_id')->unsigned()->nullable();
 
+          $table->smallInteger('estado')->default('1')->unsigned()->nullable();
           $table->smallInteger('tipo_marcacion')->default('1')->unsigned();
           $table->integer('n_documento_biometrico')->unsigned()->nullable();
           $table->dateTime('f_marcacion')->nullable();

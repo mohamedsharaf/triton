@@ -17,12 +17,10 @@ class CreateRrhhLogMarcacionesBackupTable extends Migration
           $table->increments('id');
           $table->integer('biometrico_id')->unsigned();
 
+          $table->smallInteger('estado')->default('1')->unsigned()->nullable();
           $table->smallInteger('tipo_marcacion')->default('1')->unsigned();
           $table->integer('n_documento_biometrico')->unsigned()->nullable();
           $table->dateTime('f_marcacion')->nullable();
-          $table->smallInteger('verified')->unsigned()->nullable();
-          $table->smallInteger('status')->unsigned()->nullable();
-          $table->smallInteger('workcode')->unsigned()->nullable();
 
           $table->timestamps();
 

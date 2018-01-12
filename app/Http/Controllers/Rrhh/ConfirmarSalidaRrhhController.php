@@ -694,7 +694,7 @@ class ConfirmarSalidaRrhhController extends Controller
                             }
                             $iu                     = RrhhSalida::find($id);
                             $iu->validar_rrhh   = $data1['validar_rrhh'];
-                            $iu->f_validar_rrhh = $data1['f_validar_superior'];
+                            $iu->f_validar_rrhh = $data1['validar_rrhh'];
 
                             $iu->save();
 
