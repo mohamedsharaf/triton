@@ -29,8 +29,10 @@
         var pjqgrid1      = "#pjqgrid1";
         var col_name_1    = new Array(
             "",
-            "¿VALIDADO?",
-            "¿CON DOCUMENTO DE RESPALDO?",
+            "ESTADO",
+            "INMEDIATO SUPERIOR?",
+            "RRHH?",
+            "¿CON PDF?",
 
             "TIPO DE PAPELETA",
             "TIPO DE SALIDA",
@@ -49,11 +51,28 @@
             "HORA RETORNO",
             "RETORNO",
 
+            "F. VALIDACION",
+            "C.I.",
+            "NOMBRE(S)",
+            "AP. PATERNO",
+            "AP. MATERNO",
+
+            "F. VALIDACION",
+            "C.I.",
+            "NOMBRE(S)",
+            "AP. PATERNO",
+            "AP. MATERNO",
+
+            "UNIDAD DESCONCENTRADA",
+            "LUGAR DE DEPENDENCIA",
+
             ""
         );
         var col_m_name_1  = new Array(
             "act",
+            "estado",
             "validar_superior",
+            "validar_rrhh",
             "pdf",
 
             "papeleta_salida",
@@ -73,11 +92,28 @@
             "h_retorno",
             "con_sin_retorno",
 
+            "f_validar_superior",
+            "n_documento_superior",
+            "nombre_superior",
+            "ap_paterno_superior",
+            "ap_materno_superior",
+
+            "f_validar_rrhh",
+            "n_documento_rrhh",
+            "nombre_rrhh",
+            "ap_paterno_rrhh",
+            "ap_materno_rrhh",
+
+            "ud_funcionario",
+            "lugar_dependencia_funcionario",
+
             "val_json"
         );
         var col_m_index_1 = new Array(
             "",
+            "rrhh_salidas.estado",
             "rrhh_salidas.validar_superior",
+            "rrhh_salidas.validar_rrhh",
             "rrhh_salidas.pdf",
 
             "a2.nombre",
@@ -97,12 +133,29 @@
             "rrhh_salidas.h_retorno::text",
             "rrhh_salidas.con_sin_retorno",
 
+            "rrhh_salidas.f_validar_superior",
+            "a4.n_documento",
+            "a4.nombre",
+            "a4.ap_paterno",
+            "a4.ap_materno",
+
+            "rrhh_salidas.f_validar_rrhh",
+            "a5.n_documento",
+            "a5.nombre",
+            "a5.ap_paterno",
+            "a5.ap_materno",
+
+            "a7.nombre",
+            "a8.nombre",
+
             ""
         );
         var col_m_width_1 = new Array(
             33,
             90,
-            220,
+            160,
+            70,
+            80,
 
             400,
             120,
@@ -121,24 +174,59 @@
             110,
             100,
 
+            135,
+            100,
+            100,
+            100,
+            100,
+
+            135,
+            100,
+            100,
+            100,
+            100,
+
+            300,
+            300,
+
             10
         );
         var col_m_align_1 = new Array(
             "center",
             "center",
             "center",
-
-            "center",
-            "center",
-            "center",
-
-            "center",
-            "center",
             "center",
             "center",
 
             "center",
             "center",
+            "center",
+
+            "center",
+            "center",
+            "center",
+            "center",
+
+            "center",
+            "center",
+
+            "center",
+            "center",
+            "center",
+            "center",
+
+            "center",
+            "center",
+            "center",
+            "center",
+            "center",
+
+            "center",
+            "center",
+            "center",
+            "center",
+            "center",
+
             "center",
             "center",
 
@@ -575,12 +663,12 @@
                 var edit1      = true;
                 var ancho1     = 5;
                 var ancho_d    = 29;
-                @if(in_array(['codigo' => '1103'], $permisos))
+                @if(in_array(['codigo' => '1203'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
 
-                @if(in_array(['codigo' => '1104'], $permisos))
+                @if(in_array(['codigo' => '1204'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
@@ -612,25 +700,42 @@
                         col_name_1[0],
                         col_name_1[1],
                         col_name_1[2],
-
                         col_name_1[3],
                         col_name_1[4],
-                        col_name_1[5],
 
+                        col_name_1[5],
                         col_name_1[6],
                         col_name_1[7],
+
                         col_name_1[8],
                         col_name_1[9],
-
                         col_name_1[10],
                         col_name_1[11],
 
                         col_name_1[12],
                         col_name_1[13],
+
                         col_name_1[14],
                         col_name_1[15],
+                        col_name_1[16],
+                        col_name_1[17],
 
-                        col_name_1[16]
+                        col_name_1[18],
+                        col_name_1[19],
+                        col_name_1[20],
+                        col_name_1[21],
+                        col_name_1[22],
+
+                        col_name_1[23],
+                        col_name_1[24],
+                        col_name_1[25],
+                        col_name_1[26],
+                        col_name_1[27],
+
+                        col_name_1[28],
+                        col_name_1[29],
+
+                        col_name_1[30]
                     ],
                     colModel : [
                         {
@@ -650,7 +755,7 @@
                             width      : col_m_width_1[1],
                             align      : col_m_align_1[1],
                             stype      :'select',
-                            editoptions: {value:no_si_jqgrid}
+                            editoptions: {value:estado_jqgrid}
                         },
                         {
                             name       : col_m_name_1[2],
@@ -660,12 +765,13 @@
                             stype      :'select',
                             editoptions: {value:no_si_jqgrid}
                         },
-
                         {
-                            name : col_m_name_1[3],
-                            index: col_m_index_1[3],
-                            width: col_m_width_1[3],
-                            align: col_m_align_1[3]
+                            name       : col_m_name_1[3],
+                            index      : col_m_index_1[3],
+                            width      : col_m_width_1[3],
+                            align      : col_m_align_1[3],
+                            stype      :'select',
+                            editoptions: {value:no_si_jqgrid}
                         },
                         {
                             name       : col_m_name_1[4],
@@ -673,20 +779,22 @@
                             width      : col_m_width_1[4],
                             align      : col_m_align_1[4],
                             stype      :'select',
-                            editoptions: {value:tipo_salida_jqgrid}
+                            editoptions: {value:no_si_jqgrid}
                         },
+
                         {
                             name : col_m_name_1[5],
                             index: col_m_index_1[5],
                             width: col_m_width_1[5],
                             align: col_m_align_1[5]
                         },
-
                         {
-                            name : col_m_name_1[6],
-                            index: col_m_index_1[6],
-                            width: col_m_width_1[6],
-                            align: col_m_align_1[6]
+                            name       : col_m_name_1[6],
+                            index      : col_m_index_1[6],
+                            width      : col_m_width_1[6],
+                            align      : col_m_align_1[6],
+                            stype      :'select',
+                            editoptions: {value:tipo_salida_jqgrid}
                         },
                         {
                             name : col_m_name_1[7],
@@ -694,6 +802,7 @@
                             width: col_m_width_1[7],
                             align: col_m_align_1[7]
                         },
+
                         {
                             name : col_m_name_1[8],
                             index: col_m_index_1[8],
@@ -706,7 +815,6 @@
                             width: col_m_width_1[9],
                             align: col_m_align_1[9]
                         },
-
                         {
                             name : col_m_name_1[10],
                             index: col_m_index_1[10],
@@ -732,6 +840,7 @@
                             width: col_m_width_1[13],
                             align: col_m_align_1[13]
                         },
+
                         {
                             name : col_m_name_1[14],
                             index: col_m_index_1[14],
@@ -739,20 +848,107 @@
                             align: col_m_align_1[14]
                         },
                         {
-                            name       : col_m_name_1[15],
-                            index      : col_m_index_1[15],
-                            width      : col_m_width_1[15],
-                            align      : col_m_align_1[15],
+                            name : col_m_name_1[15],
+                            index: col_m_index_1[15],
+                            width: col_m_width_1[15],
+                            align: col_m_align_1[15]
+                        },
+                        {
+                            name : col_m_name_1[16],
+                            index: col_m_index_1[16],
+                            width: col_m_width_1[16],
+                            align: col_m_align_1[16]
+                        },
+                        {
+                            name       : col_m_name_1[17],
+                            index      : col_m_index_1[17],
+                            width      : col_m_width_1[17],
+                            align      : col_m_align_1[17],
                             stype      :'select',
                             editoptions: {value:con_sin_retorno_jqgrid}
                         },
 
+                        {
+                            name : col_m_name_1[18],
+                            index: col_m_index_1[18],
+                            width: col_m_width_1[18],
+                            align: col_m_align_1[18]
+                        },
+                        {
+                            name : col_m_name_1[19],
+                            index: col_m_index_1[19],
+                            width: col_m_width_1[19],
+                            align: col_m_align_1[19]
+                        },
+                        {
+                            name : col_m_name_1[20],
+                            index: col_m_index_1[20],
+                            width: col_m_width_1[20],
+                            align: col_m_align_1[20]
+                        },
+                        {
+                            name : col_m_name_1[21],
+                            index: col_m_index_1[21],
+                            width: col_m_width_1[21],
+                            align: col_m_align_1[21]
+                        },
+                        {
+                            name : col_m_name_1[22],
+                            index: col_m_index_1[22],
+                            width: col_m_width_1[22],
+                            align: col_m_align_1[22]
+                        },
+
+                        {
+                            name : col_m_name_1[23],
+                            index: col_m_index_1[23],
+                            width: col_m_width_1[23],
+                            align: col_m_align_1[23]
+                        },
+                        {
+                            name : col_m_name_1[24],
+                            index: col_m_index_1[24],
+                            width: col_m_width_1[24],
+                            align: col_m_align_1[24]
+                        },
+                        {
+                            name : col_m_name_1[25],
+                            index: col_m_index_1[25],
+                            width: col_m_width_1[25],
+                            align: col_m_align_1[25]
+                        },
+                        {
+                            name : col_m_name_1[26],
+                            index: col_m_index_1[26],
+                            width: col_m_width_1[26],
+                            align: col_m_align_1[26]
+                        },
+                        {
+                            name : col_m_name_1[27],
+                            index: col_m_index_1[27],
+                            width: col_m_width_1[27],
+                            align: col_m_align_1[27]
+                        },
+
+                        {
+                            name : col_m_name_1[28],
+                            index: col_m_index_1[28],
+                            width: col_m_width_1[28],
+                            align: col_m_align_1[28]
+                        },
+                        {
+                            name : col_m_name_1[29],
+                            index: col_m_index_1[29],
+                            width: col_m_width_1[29],
+                            align: col_m_align_1[29]
+                        },
+
                         // === OCULTO ===
                             {
-                                name  : col_m_name_1[16],
-                                index : col_m_index_1[16],
-                                width : col_m_width_1[16],
-                                align : col_m_align_1[16],
+                                name  : col_m_name_1[30],
+                                index : col_m_index_1[30],
+                                width : col_m_width_1[30],
+                                align : col_m_align_1[30],
                                 search: false,
                                 hidden: true
                             }
@@ -767,14 +963,14 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            @if(in_array(['codigo' => '1104'], $permisos))
+                            @if(in_array(['codigo' => '1204'], $permisos))
                                 pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
                             @else
                                 pdf1 = '';
                             @endif
 
-                            if((val_json.validar_superior == '1')){
-                                @if(in_array(['codigo' => '1103'], $permisos))
+                            if((val_json.validar_rrhh == '1' && val_json.validar_superior == '2' && val_json.pdf == '2')){
+                                @if(in_array(['codigo' => '1203'], $permisos))
                                     val1 = " <button type='button' class='btn btn-xs btn-success' title='Validar PAPELETA DE SALIDA' onclick=\"utilitarios([11, " + cl + ", 2, 1]);\"><i class='fa fa-check'></i></button>";
                                 @else
                                     val1 = '';
@@ -784,8 +980,8 @@
                                 val1 = '';
                             }
 
-                            if(val_json.validar_superior == '2' && val_json.validar_rrhh == '1'){
-                                @if(in_array(['codigo' => '1103'], $permisos))
+                            if(val_json.validar_rrhh == '2'){
+                                @if(in_array(['codigo' => '1203'], $permisos))
                                     val2 = " <button type='button' class='btn btn-xs btn-danger' title='Invalidar PAPELETA DE SALIDA' onclick=\"utilitarios([12, " + cl + ", 1, 1]);\"><i class='fa fa-times'></i></button>";
                                 @else
                                     val2 = '';
@@ -806,9 +1002,24 @@
                     useColSpanStyle: true,
                     groupHeaders   :[
                         {
+                            startColumnName: 'validar_superior',
+                            numberOfColumns: 2,
+                            titleText      : '¿VALIDADO'
+                        },
+                        {
                             startColumnName: 'n_documento',
                             numberOfColumns: 4,
                             titleText      : 'FUNCIONARIO SOLICITANTE'
+                        },
+                        {
+                            startColumnName: 'f_validar_superior',
+                            numberOfColumns: 5,
+                            titleText      : 'INMEDIATO SUPERIOR'
+                        },
+                        {
+                            startColumnName: 'f_validar_rrhh',
+                            numberOfColumns: 5,
+                            titleText      : 'PESONAL DE RECURSOS HUMANOS'
                         }
                     ]
                 });
@@ -828,7 +1039,7 @@
                 .navSeparatorAdd(pjqgrid1,{
                     sepclass : "ui-separator"
                 })
-                @if(in_array(['codigo' => '1102'], $permisos))
+                @if(in_array(['codigo' => '1202'], $permisos))
                     // .navButtonAdd(pjqgrid1,{
                     //     "id"          : "add1",
                     //     caption       : "",
@@ -845,7 +1056,7 @@
                     //     }
                     // })
                 @endif
-                @if(in_array(['codigo' => '1103'], $permisos))
+                @if(in_array(['codigo' => '1203'], $permisos))
                     // .navButtonAdd(pjqgrid1,{
                     //     "id"          : "edit1",
                     //     caption       : "",
@@ -868,7 +1079,7 @@
                     //     }
                     // })
                 @endif
-                @if(in_array(['codigo' => '1104'], $permisos))
+                @if(in_array(['codigo' => '1204'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                         "id"          : "print1",
                         caption       : "",
@@ -931,7 +1142,7 @@
                         valor1[1]  = url_controller + '/send_ajax';
                         valor1[2]  = 'POST';
                         valor1[3]  = true;
-                        valor1[4]  = "tipo=1&id=" + valor[1] + "&validar_superior=" + valor[2] + "&dia_hora=" + valor[3] + "&_token=" + csrf_token;
+                        valor1[4]  = "tipo=1&id=" + valor[1] + "&validar_rrhh=" + valor[2] + "&dia_hora=" + valor[3] + "&_token=" + csrf_token;
                         valor1[5]  = 'json';
                         utilitarios(valor1);
                     }
@@ -978,7 +1189,7 @@
                         valor1[1]  = url_controller + '/send_ajax';
                         valor1[2]  = 'POST';
                         valor1[3]  = true;
-                        valor1[4]  = "tipo=1&id=" + valor[1] + "&validar_superior=" + valor[2] + "&dia_hora=" + valor[3] + "&_token=" + csrf_token;
+                        valor1[4]  = "tipo=1&id=" + valor[1] + "&validar_rrhh=" + valor[2] + "&dia_hora=" + valor[3] + "&_token=" + csrf_token;
                         valor1[5]  = 'json';
                         utilitarios(valor1);
                     }

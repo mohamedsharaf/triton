@@ -773,7 +773,7 @@
                                 pdf1 = '';
                             @endif
 
-                            if((val_json.validar_superior == '1')){
+                            if((val_json.validar_superior == '1'  && val_json.pdf == '2')){
                                 @if(in_array(['codigo' => '1103'], $permisos))
                                     val1 = " <button type='button' class='btn btn-xs btn-success' title='Validar PAPELETA DE SALIDA' onclick=\"utilitarios([11, " + cl + ", 2, 1]);\"><i class='fa fa-check'></i></button>";
                                 @else
@@ -1226,7 +1226,7 @@
                                 pdf1 = '';
                             @endif
 
-                            if((val_json.validar_superior == '1')){
+                            if(val_json.validar_superior == '1' && val_json.pdf == '2'){
                                 @if(in_array(['codigo' => '1103'], $permisos))
                                     val1 = " <button type='button' class='btn btn-xs btn-success' title='Validar PAPELETA DE SALIDA' onclick=\"utilitarios([11, " + cl + ", 2, 2]);\"><i class='fa fa-check'></i></button>";
                                 @else
