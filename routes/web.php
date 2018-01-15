@@ -111,11 +111,11 @@
         Route::post('/funcionario/send_ajax', 'Rrhh\FuncionarioController@send_ajax');
         Route::match(["get", "post"], '/funcionario/reportes', 'Rrhh\FuncionarioController@reportes');
 
-//=== GESTOR DE SALIDAS ===
-    Route::get('/salida', 'Rrhh\SalidaController@index')->name('salida');
-        Route::match(["get", "post"], '/salida/view_jqgrid', 'Rrhh\SalidaController@view_jqgrid');
-        Route::post('/salida/send_ajax', 'Rrhh\SalidaController@send_ajax');
-        Route::match(["get", "post"], '/salida/reportes', 'Rrhh\SalidaController@reportes');
+//=== GESTOR DE Asistencias ===
+    Route::get('/asistencia', 'Rrhh\AsistenciaController@index')->name('asistencia');
+        Route::match(["get", "post"], '/asistencia/view_jqgrid', 'Rrhh\AsistenciaController@view_jqgrid');
+        Route::post('/asistencia/send_ajax', 'Rrhh\AsistenciaController@send_ajax');
+        Route::match(["get", "post"], '/asistencia/reportes', 'Rrhh\AsistenciaController@reportes');
 
 //=== HORARIOS ===
     Route::get('/horario', 'Rrhh\HorarioController@index')->name('horario');

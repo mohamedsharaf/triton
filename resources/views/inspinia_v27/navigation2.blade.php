@@ -59,7 +59,7 @@
                             <li class="{{ isActiveRoute('funcionario') }}"><a href="{{ url('/funcionario') }}">Funcionarios</a></li>
                         @endif
                         @if(in_array(['codigo' => '1301'], $permisos))
-                            <li class="{{ isActiveRoute('salida') }}"><a href="{{ url('/salida') }}">Gestor de salidas</a></li>
+                            <li class="{{ isActiveRoute('asistencia') }}"><a href="{{ url('/asistencia') }}">Gestor de asistencias</a></li>
                         @endif
                         @if(in_array(['codigo' => '1401'], $permisos))
                             <li class="{{ isActiveRoute('horario') }}"><a href="{{ url('/horario') }}">Horarios</a></li>

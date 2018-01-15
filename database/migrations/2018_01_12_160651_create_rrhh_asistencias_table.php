@@ -31,10 +31,13 @@ class CreateRrhhAsistenciasTable extends Migration
             $table->integer('salida_id_s2')->unsigned()->nullable();
 
             $table->smallInteger('estado')->default('1')->unsigned()->nullable();
+            $table->date('fecha')->nullable();
             $table->smallInteger('h1_min_retrasos')->default('0')->unsigned();
             $table->smallInteger('h2_min_retrasos')->default('0')->unsigned();
-            $table->smallInteger('h1_omision_registro')->default('1')->unsigned();
-            $table->smallInteger('h2_omision_registro')->default('1')->unsigned();
+            $table->smallInteger('h1_i_omision_registro')->default('1')->unsigned();
+            $table->smallInteger('h1_s_omision_registro')->default('1')->unsigned();
+            $table->smallInteger('h2_i_omision_registro')->default('1')->unsigned();
+            $table->smallInteger('h2_s_omision_registro')->default('1')->unsigned();
             $table->smallInteger('h1_falta')->default('1')->unsigned();
             $table->smallInteger('h2_falta')->default('1')->unsigned();
 
