@@ -61,7 +61,7 @@ class ConfirmarSalidaRrhhController extends Controller
             '2' => 'PARTICULAR',
             '3' => 'VACACIONES',
             '4' => 'CUMPLEAÑOS',
-            '5' => 'VACACIONES SIN GOCE DE HABER'
+            '5' => 'SIN GOCE DE HABER'
         ];
 
         $this->con_sin_retorno = [

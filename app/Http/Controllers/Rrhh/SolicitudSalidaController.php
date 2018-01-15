@@ -61,7 +61,7 @@ class SolicitudSalidaController extends Controller
             '2' => 'PARTICULAR',
             '3' => 'VACACIONES',
             '4' => 'CUMPLEAÑOS',
-            '5' => 'VACACIONES SIN GOCE DE HABER'
+            '5' => 'SIN GOCE DE HABER'
         ];
 
         $this->con_sin_retorno = [
@@ -2470,7 +2470,7 @@ class SolicitudSalidaController extends Controller
 
                             $pdf->Ln(4);
 
-                            $pdf->SetFont('times', 'B', 12);
+                            $pdf->SetFont('times', 'B', 11);
                             $this->utilitarios(array(
                                 'tipo'       => '110',
                                 'h'          => 0,
