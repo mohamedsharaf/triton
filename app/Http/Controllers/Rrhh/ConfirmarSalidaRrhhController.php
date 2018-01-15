@@ -1080,7 +1080,8 @@ class ConfirmarSalidaRrhhController extends Controller
                         );
 
                         $data3 = array(
-                            'consulta1' => $consulta1
+                            'consulta1' => $consulta1,
+                            'consulta2' => $consulta2
                         );
 
                         $style_qrcode = array(
@@ -1251,111 +1252,252 @@ class ConfirmarSalidaRrhhController extends Controller
                             // == FIRMAS ==
                                 $pdf->SetY(-(43.5 + $y_n));
 
-                                $fill = FALSE;
-                                $x1   = 65;
-                                $x2   = 66;
-                                $y1   = 4;
+                                if($data3['consulta2']['lugar_dependencia_id_funcionario'] == '6')
+                                {
+                                    $fill = FALSE;
+                                    $x1   = 49;
+                                    $x2   = 49;
+                                    $y1   = 4;
 
-                                $pdf->SetFont('times', 'B', 7);
+                                    $pdf->SetFont('times', 'B', 6);
 
-                                $this->utilitarios(array(
-                                    'tipo'    => '111',
-                                    'x1'      => $x1,
-                                    'y1'      => $y1,
-                                    'txt'     => "SOLICITANTE",
-                                    'border'  => 'LRTB',
-                                    'align'   => 'C',
-                                    'fill'    => $fill,
-                                    'ln'      => 0,
-                                    'stretch' => 0,
-                                    'ishtml'  => FALSE,
-                                    'fitcell' => FALSE,
-                                    'valign'  => 'M'
-                                ));
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "SOLICITANTE",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
 
-                                $this->utilitarios(array(
-                                    'tipo'    => '111',
-                                    'x1'      => $x1,
-                                    'y1'      => $y1,
-                                    'txt'     => "INMEDIATO SUPERIOR",
-                                    'border'  => 'LRTB',
-                                    'align'   => 'C',
-                                    'fill'    => $fill,
-                                    'ln'      => 0,
-                                    'stretch' => 0,
-                                    'ishtml'  => FALSE,
-                                    'fitcell' => FALSE,
-                                    'valign'  => 'M'
-                                ));
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "INMEDIATO SUPERIOR",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
 
-                                $this->utilitarios(array(
-                                    'tipo'    => '111',
-                                    'x1'      => $x2,
-                                    'y1'      => $y1,
-                                    'txt'     => "AUTORIZADO POR R.R.H.H.",
-                                    'border'  => 'LRTB',
-                                    'align'   => 'C',
-                                    'fill'    => $fill,
-                                    'ln'      => 0,
-                                    'stretch' => 0,
-                                    'ishtml'  => FALSE,
-                                    'fitcell' => FALSE,
-                                    'valign'  => 'M'
-                                ));
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "AUTORIZADO POR FISCAL DEPARAMETAL",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
 
-                                $pdf->Ln();
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x2,
+                                        'y1'      => $y1,
+                                        'txt'     => "AUTORIZADO POR R.R.H.H.",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
 
-                                $fill = FALSE;
-                                $y1   = 29;
+                                    $pdf->Ln();
 
-                                $pdf->SetFont('times', 'B', 7);
+                                    $fill = FALSE;
+                                    $y1   = 29;
 
-                                $this->utilitarios(array(
-                                    'tipo'    => '111',
-                                    'x1'      => $x1,
-                                    'y1'      => $y1,
-                                    'txt'     => "",
-                                    'border'  => 'LRTB',
-                                    'align'   => 'C',
-                                    'fill'    => $fill,
-                                    'ln'      => 0,
-                                    'stretch' => 0,
-                                    'ishtml'  => FALSE,
-                                    'fitcell' => FALSE,
-                                    'valign'  => 'M'
-                                ));
+                                    $pdf->SetFont('times', 'B', 7);
 
-                                $this->utilitarios(array(
-                                    'tipo'    => '111',
-                                    'x1'      => $x1,
-                                    'y1'      => $y1,
-                                    'txt'     => "",
-                                    'border'  => 'LRTB',
-                                    'align'   => 'C',
-                                    'fill'    => $fill,
-                                    'ln'      => 0,
-                                    'stretch' => 0,
-                                    'ishtml'  => FALSE,
-                                    'fitcell' => FALSE,
-                                    'valign'  => 'M'
-                                ));
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
 
-                                $this->utilitarios(array(
-                                    'tipo'    => '111',
-                                    'x1'      => $x2,
-                                    'y1'      => $y1,
-                                    'txt'     => "",
-                                    'border'  => 'LRTB',
-                                    'align'   => 'C',
-                                    'fill'    => $fill,
-                                    'ln'      => 0,
-                                    'stretch' => 0,
-                                    'ishtml'  => FALSE,
-                                    'fitcell' => FALSE,
-                                    'valign'  => 'M'
-                                ));
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
 
-                                $pdf->Ln();
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
+
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x2,
+                                        'y1'      => $y1,
+                                        'txt'     => "",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
+
+                                    $pdf->Ln();
+                                }
+                                else
+                                {
+                                    $fill = FALSE;
+                                    $x1   = 65;
+                                    $x2   = 66;
+                                    $y1   = 4;
+
+                                    $pdf->SetFont('times', 'B', 7);
+
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "SOLICITANTE",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
+
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "INMEDIATO SUPERIOR",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
+
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x2,
+                                        'y1'      => $y1,
+                                        'txt'     => "AUTORIZADO POR R.R.H.H.",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
+
+                                    $pdf->Ln();
+
+                                    $fill = FALSE;
+                                    $y1   = 29;
+
+                                    $pdf->SetFont('times', 'B', 7);
+
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
+
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x1,
+                                        'y1'      => $y1,
+                                        'txt'     => "",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
+
+                                    $this->utilitarios(array(
+                                        'tipo'    => '111',
+                                        'x1'      => $x2,
+                                        'y1'      => $y1,
+                                        'txt'     => "",
+                                        'border'  => 'LRTB',
+                                        'align'   => 'C',
+                                        'fill'    => $fill,
+                                        'ln'      => 0,
+                                        'stretch' => 0,
+                                        'ishtml'  => FALSE,
+                                        'fitcell' => FALSE,
+                                        'valign'  => 'M'
+                                    ));
+
+                                    $pdf->Ln();
+                                }
 
                             // == LEYENDA ==
                                 $pdf->SetY(-(10.5 + $y_n));
