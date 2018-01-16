@@ -75,15 +75,6 @@
             "ud_funcionario",
             "lugar_dependencia_funcionario",
 
-            "horario_1",
-            "horario_2",
-
-            "cargo",
-            "auo_cargo",
-            "lugar_dependencia_cargo",
-
-            "observaciones",
-
             "val_json"
         );
         var col_m_index_1 = new Array(
@@ -107,21 +98,21 @@
             "rrhh_asistencias.h2_min_retrasos::text",
 
             "a3.nombre",
-            "a4.lugar_dependencia_funcionario",
+            "a4.nombre",
 
             ""
         );
         var col_m_width_1 = new Array(
             33,
 
-            80,
+            90,
 
             80,
 
             80,
-            100,
-            100,
-            100,
+            150,
+            120,
+            120,
 
             150,
             150,
@@ -144,17 +135,17 @@
             "center",
 
             "right",
-            "left",
-            "left",
-            "left",
+            "center",
+            "center",
+            "center",
 
             "center",
             "center",
-            "right",
+            "center",
 
             "center",
             "center",
-            "right",
+            "center",
 
             "center",
             "center",
@@ -789,7 +780,7 @@
             // === GUARDAR REGISTRO ===
             case 15:
             	var concatenar_valores = '';
-                concatenar_valores     += 'tipo=1';
+                concatenar_valores     += 'tipo=1&_token=' + csrf_token;
 
 				var fecha_del = $("#fecha_del").val();
 				var fecha_al  = $("#fecha_al").val();

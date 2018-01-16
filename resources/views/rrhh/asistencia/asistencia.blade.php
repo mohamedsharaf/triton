@@ -157,7 +157,7 @@
 
   <!-- === MODAL === -->
 	<div id="modal_1" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">

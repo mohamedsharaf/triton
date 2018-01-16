@@ -1864,7 +1864,7 @@ class SolicitudSalidaController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '0803'], $this->permisos))
+                        if(!in_array(['codigo' => '1003'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
