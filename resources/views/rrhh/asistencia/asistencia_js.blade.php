@@ -244,7 +244,7 @@
             $("#persona_id").appendTo("#persona_id_div");
 
             $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id").select2({
+            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id, #horario_id_1, #horario_id_2").select2({
                 maximumSelectionLength: 1
             });
             $("#lugar_dependencia_id_funcionario").appendTo("#lugar_dependencia_id_funcionario_div");
@@ -262,6 +262,12 @@
         	$("#lugar_dependencia_id_funcionario").on("change", function(e) {
                 $('#unidad_desconcentrada_id').select2('val','');
                 $('#unidad_desconcentrada_id option').remove();
+
+                $('#horario_id_1').select2('val','');
+                $('#horario_id_1 option').remove();
+
+                $('#horario_id_2').select2('val','');
+                $('#horario_id_2 option').remove();
                 switch ($.trim(this.value)){
                     case '':
                         break;
@@ -790,6 +796,9 @@
 				var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario").val();
 				var unidad_desconcentrada_id         = $("#unidad_desconcentrada_id").val();
 
+                var horario_id_1 = $("#horario_id_1").val();
+                var horario_id_2 = $("#horario_id_2").val();
+
 				var lugar_dependencia_id_cargo = $("#lugar_dependencia_id_cargo").val();
 				var auo_id                     = $("#auo_id").val();
 				var cargo_id                   = $("#cargo_id").val();
@@ -860,6 +869,22 @@
                     else{
 						valor_sw    = false;
 						valor_error += '<br>El campo CARGO es obligatorio.';
+                    }
+
+                    if($.trim(horario_id_1) != ''){
+                        concatenar_valores += '&horario_id_1=' + horario_id_1;
+                    }
+                    else{
+                        valor_sw    = false;
+                        valor_error += '<br>El campo HORARIO 1 es obligatorio.';
+                    }
+
+                    if($.trim(horario_id_2) != ''){
+                        concatenar_valores += '&horario_id_2=' + horario_id_2;
+                    }
+                    else{
+                        valor_sw    = false;
+                        valor_error += '<br>El campo HORARIO 2 es obligatorio.';
                     }
                 }
 
@@ -1395,6 +1420,36 @@
                                         unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
                                     });
                                     $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
+
+                                    if(data.sw_horario_1 === 2){
+                                        var horario_1_select = '';
+                                        var horario_1_defecto_id = '';
+                                        $.each(data.horario_1, function(index, value) {
+                                            horario_1_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                                            if(value.defecto == '2'){
+                                                horario_1_defecto_id = value.id;
+                                            }
+                                        });
+                                        $('#horario_id_1').append(horario_1_select);
+                                        if(horario_1_defecto_id != ''){
+                                            $("#horario_id_1").select2("val", horario_1_defecto_id);
+                                        }
+                                    }
+
+                                    if(data.sw_horario_2 === 2){
+                                        var horario_2_select = '';
+                                        var horario_2_defecto_id = '';
+                                        $.each(data.horario_2, function(index, value) {
+                                            horario_2_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+                                            if(value.defecto == '2'){
+                                                horario_2_defecto_id = value.id;
+                                            }
+                                        });
+                                        $('#horario_id_2').append(horario_2_select);
+                                        if(horario_2_defecto_id != ''){
+                                            $("#horario_id_2").select2("val", horario_2_defecto_id);
+                                        }
+                                    }
                                 }
                                 break;
                             default:

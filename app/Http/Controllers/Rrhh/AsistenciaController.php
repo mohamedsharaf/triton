@@ -623,6 +623,10 @@ class AsistenciaController extends Controller
 
                     $data1['persona_id']                 = trim($request->input('persona_id'));
                     $data1['unidad_desconcentrada_id']   = trim($request->input('unidad_desconcentrada_id'));
+
+                    $data1['horario_id_1'] = trim($request->input('horario_id_1'));
+                    $data1['horario_id_2'] = trim($request->input('horario_id_2'));
+
                     $data1['lugar_dependencia_id_cargo'] = trim($request->input('lugar_dependencia_id_cargo'));
                     $data1['auo_id']                     = trim($request->input('auo_id'));
                     $data1['cargo_id']                   = trim($request->input('cargo_id'));
@@ -636,7 +640,228 @@ class AsistenciaController extends Controller
 
                     if($request->has('persona_id'))
                     {
+                        $numero_dias = (strtotime($data1['fecha_al']) - strtotime($data1['fecha_del']))/86400 +1;
 
+                        $cantidad_registros = 0;
+
+                        $fecha_acu = $data1['fecha_del'];
+                        for($i=0; $i < $numero_dias; $i++)
+                        {
+                            $array_where = "fecha='" . $fecha_acu . "' AND persona_id=" . $data1['persona_id'];
+
+                            $consulta2 = RrhhAsistencia::whereRaw($array_where)
+                                ->count();
+
+                            if($consulta2 < 1)
+                            {
+                                $consulta3 = RrhhHorario::where("id", "=", $data1['horario_id_1'])
+                                    ->first();
+
+                                $sw_asistencia_registra = FALSE;
+                                switch(date('w', strtotime($fecha_acu)))
+                                {
+                                    // === DOMINGO ===
+                                    case '0':
+                                        if($consulta3['domingo'] == '2')
+                                        {
+                                            $sw_asistencia_registra = TRUE;
+                                        }
+                                        break;
+                                    // === LUNES ===
+                                    case '1':
+                                        if($consulta3['lunes'] == '2')
+                                        {
+                                            $sw_asistencia_registra = TRUE;
+                                        }
+                                        break;
+                                    // === MARTES ===
+                                    case '2':
+                                        if($consulta3['martes'] == '2')
+                                        {
+                                            $sw_asistencia_registra = TRUE;
+                                        }
+                                        break;
+                                    // === MIERCOLES ===
+                                    case '3':
+                                        if($consulta3['miercoles'] == '2')
+                                        {
+                                            $sw_asistencia_registra = TRUE;
+                                        }
+                                        break;
+                                    // === JUEVES ===
+                                    case '4':
+                                        if($consulta3['jueves'] == '2')
+                                        {
+                                            $sw_asistencia_registra = TRUE;
+                                        }
+                                        break;
+                                    // === VIERNES ===
+                                    case '5':
+                                        if($consulta3['viernes'] == '2')
+                                        {
+                                            $sw_asistencia_registra = TRUE;
+                                        }
+                                        break;
+                                    // === SABADO ===
+                                    case '6':
+                                        if($consulta3['sabado'] == '2')
+                                        {
+                                            $sw_asistencia_registra = TRUE;
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                if($sw_asistencia_registra)
+                                {
+                                    $iu             = new RrhhAsistencia;
+                                    $iu->persona_id = $data1['persona_id'];
+
+                                    $iu->cargo_id                 = $data1['cargo_id'];
+                                    $iu->unidad_desconcentrada_id = $data1['unidad_desconcentrada_id'];
+
+                                    $iu->horario_id_1 = $data1['horario_id_1'];
+                                    $iu->horario_id_2 = $data1['horario_id_2'];
+
+                                    $iu->fecha = $fecha_acu;
+
+                                    $iu->horario_1_e = $this->falta['1'];
+                                    $iu->horario_1_s = $this->falta['1'];
+
+                                    $iu->horario_2_e = $this->falta['1'];
+                                    $iu->horario_2_s = $this->falta['1'];
+
+                                    $iu->save();
+
+                                    $id = $iu->id;
+
+                                    $cantidad_registros++;
+
+                                    $array_where = "fecha='" . $fecha_acu . "' AND lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
+
+                                    $consulta4 = RrhhFthc::whereRaw($array_where)
+                                        ->get()
+                                        ->toArray();
+                                    if(count($consulta4) > 0)
+                                    {
+                                        foreach($consulta4 as $row4)
+                                        {
+                                            switch($row4['tipo_fthc'])
+                                            {
+                                                case '1':
+                                                    $sw_1 = TRUE;
+                                                    if($row4['unidad_desconcentrada_id'] != '')
+                                                    {
+                                                        if($data1['unidad_desconcentrada_id'] != $row4['unidad_desconcentrada_id'])
+                                                        {
+                                                            $sw_1 = FALSE;
+                                                        }
+                                                    }
+
+                                                    if($sw_1)
+                                                    {
+                                                        $iu = RrhhAsistencia::find($id);
+
+                                                        $iu->fthc_id_h1 = $row4['id'];
+                                                        $iu->fthc_id_h2 = $row4['id'];
+
+                                                        $iu->horario_1_e = $this->fthc['1'];
+                                                        $iu->horario_1_s = $this->fthc['1'];
+
+                                                        $iu->horario_2_e = $this->fthc['1'];
+                                                        $iu->horario_2_s = $this->fthc['1'];
+
+                                                        $iu->save();
+                                                    }
+                                                    break;
+                                                case '2':
+                                                    $sw_1 = TRUE;
+                                                    if($row4['unidad_desconcentrada_id'] != '')
+                                                    {
+                                                        if($data1['unidad_desconcentrada_id'] != $row4['unidad_desconcentrada_id'])
+                                                        {
+                                                            $sw_1 = FALSE;
+                                                        }
+                                                    }
+
+                                                    if($sw_1)
+                                                    {
+                                                        $sw_2 = TRUE;
+                                                        if($row4['sexo'] != '')
+                                                        {
+                                                            $consulta5 = RrhhPersona::where('id', '=', $data1['persona_id'])->first();
+                                                            if($consulta5['sexo'] != $row4['sexo'])
+                                                            {
+                                                                $sw_2 = FALSE;
+                                                            }
+                                                        }
+                                                        if($sw_2)
+                                                        {
+                                                            switch($row4['tipo_horario']) {
+                                                                case '1':
+                                                                    $iu = RrhhAsistencia::find($id);
+
+                                                                    $iu->fthc_id_h1 = $row4['id'];
+
+                                                                    $iu->horario_1_e = $this->fthc['2'];
+                                                                    $iu->horario_1_s = $this->fthc['2'];
+
+                                                                    $iu->save();
+                                                                    break;
+                                                                case '2':
+                                                                    $iu = RrhhAsistencia::find($id);
+
+                                                                    $iu->fthc_id_h2 = $row4['id'];
+
+                                                                    $iu->horario_2_e = $this->fthc['2'];
+                                                                    $iu->horario_2_s = $this->fthc['2'];
+
+                                                                    $iu->save();
+                                                                    break;
+                                                                default:
+                                                                    break;
+                                                            }
+                                                        }
+                                                    }
+                                                    break;
+                                                case '3':
+                                                    $sw_1 = TRUE;
+                                                    if($row4['unidad_desconcentrada_id'] != '')
+                                                    {
+                                                        if($data1['unidad_desconcentrada_id'] != $row4['unidad_desconcentrada_id'])
+                                                        {
+                                                            $sw_1 = FALSE;
+                                                        }
+                                                    }
+
+                                                    if($sw_1)
+                                                    {
+                                                        $iu = RrhhAsistencia::find($id);
+
+                                                        $iu->horario_id_1 = $row4['horario_id'];
+
+                                                        $iu->fthc_id_h2 = $row4['id'];
+
+                                                        $iu->horario_2_e = $this->fthc['3'];
+                                                        $iu->horario_2_s = $this->fthc['3'];
+
+                                                        $iu->save();
+                                                    }
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            $fecha_acu = date("Y-m-d", strtotime($fecha_acu . "+ 1 days"));
+                        }
+
+                        $respuesta['respuesta'] .= "Se registraron " . $cantidad_registros . " asistencias.";
+                        $respuesta['sw']         = 1;
                     }
                     else
                     {
@@ -1028,10 +1253,36 @@ class AsistenciaController extends Controller
                         ->select('id', 'nombre')
                         ->get()
                         ->toArray();
+
+                    $horario_1 = RrhhHorario::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                        ->where("tipo_horario", "=", '1')
+                        ->select('id', 'nombre', 'defecto')
+                        ->get()
+                        ->toArray();
+
+                    $horario_2 = RrhhHorario::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                        ->where("tipo_horario", "=", '2')
+                        ->select('id', 'nombre', 'defecto')
+                        ->get()
+                        ->toArray();
                     if(count($query) > 0)
                     {
                         $respuesta['consulta'] = $query;
                         $respuesta['sw']       = 2;
+
+                        $respuesta['sw_horario_1'] = 1;
+                        if(count($horario_1) > 0)
+                        {
+                            $respuesta['horario_1']    = $horario_1;
+                            $respuesta['sw_horario_1'] = 2;
+                        }
+
+                        $respuesta['sw_horario_2'] = 1;
+                        if(count($horario_2) > 0)
+                        {
+                            $respuesta['horario_2']    = $horario_2;
+                            $respuesta['sw_horario_2'] = 2;
+                        }
                     }
                 }
                 return json_encode($respuesta);

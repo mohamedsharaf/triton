@@ -213,6 +213,22 @@
                   </div>
 
                   <h3 class="text-success">
+                    <b>CONTROL DE ASISTENCIA</b>
+                  </h3>
+
+                  <div id="horario_id_1_div" class="form-group">
+                    <label for="horario_id_1">Horario 1</label>
+                    <select name="horario_id_1" id="horario_id_1" data-placeholder="Horario 1" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <div id="horario_id_2_div" class="form-group">
+                    <label for="horario_id_2">Horario 2</label>
+                    <select name="horario_id_2" id="horario_id_2" data-placeholder="Horario 2" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <h3 class="text-success">
                     <b>UBICACION DEL CARGO</b>
                   </h3>
 
