@@ -215,18 +215,52 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#fecha_jqgrid').datepicker({
+            $('#fecha_jqgrid, #fecha_del, #fecha_al').datepicker({
                 // startView            : 0,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
                 // forceParse        : false,
                 autoclose            : true,
                 format               : "yyyy-mm-dd",
-                startDate            : '-100y',
-                endDate              : '-1d',
+                startDate            : '-20y',
+                endDate              : '0d',
                 language             : "es"
             });
 
+            $('#persona_id').select2({
+                maximumSelectionLength: 1,
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 10,
+                            estado    : 1,
+                            tipo      : 100,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#persona_id").appendTo("#persona_id_div");
+
+            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo').append(lugar_dependencia_select);
+            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id").select2({
+                maximumSelectionLength: 1
+            });
+            $("#lugar_dependencia_id_funcionario").appendTo("#lugar_dependencia_id_funcionario_div");
+            $("#lugar_dependencia_id_cargo").appendTo("#lugar_dependencia_id_cargo_div");
+            $("#unidad_desconcentrada_id").appendTo("#unidad_desconcentrada_id_div");
+            $("#auo_id").appendTo("#auo_id_div");
+            $("#cargo_id").appendTo("#cargo_id_div");
 
         // === DROPZONE ===
             // var valor1 = new Array();
@@ -234,6 +268,64 @@
             // utilitarios(valor1);
 
         // === SELECT CHANGE ===
+        	$("#lugar_dependencia_id_funcionario").on("change", function(e) {
+                $('#unidad_desconcentrada_id').select2('val','');
+                $('#unidad_desconcentrada_id option').remove();
+                switch ($.trim(this.value)){
+                    case '':
+                        break;
+                    default:
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = false;
+                        valor1[4]  = "tipo=103&lugar_dependencia_id=" + this.value + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                }
+            });
+
+            $("#lugar_dependencia_id_cargo").on("change", function(e) {
+                $('#auo_id').select2('val','');
+                $('#auo_id option').remove();
+
+                $('#cargo_id').select2('val','');
+                $('#cargo_id option').remove();
+                switch ($.trim(this.value)){
+                    case '':
+                        break;
+                    default:
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = false;
+                        valor1[4]  = "tipo=101&lugar_dependencia_id=" + this.value + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                }
+            });
+
+            $("#auo_id").on("change", function(e) {
+                $('#cargo_id').select2('val','');
+                $('#cargo_id option').remove();
+                switch ($.trim(this.value)){
+                    case '':
+                        break;
+                    default:
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = false;
+                        valor1[4]  = "tipo=102&auo_id=" + this.value + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                }
+            });
+
+        // === SELECT CHANGE JQGRID 1 ===
             $('#fecha_jqgrid').datepicker().on('changeDate', function(e){
                 switch(e.format("yyyy-mm-dd")){
                     case '':
@@ -549,7 +641,7 @@
                     .navButtonAdd(pjqgrid1,{
                     "id"          : "add1",
                     caption       : "",
-                    title         : 'Agregar nueva fila',
+                    title         : 'Agregar fechas',
                     buttonicon    : "ui-icon ui-icon-plusthick",
                     onClickButton : function(){
                         var valor1 = new Array();
@@ -673,9 +765,8 @@
                 break;
             // === RESETEAR FORMULARIO ===
             case 14:
-                $("#id_funcionario").val('');
-                $("#cargo_id").val('');
-                $("#tipo_cargo_id").val('');
+            	$('#modal_1_title').empty();
+                $('#modal_1_title').append('Agregar fechas para controlar asistencia');
 
                 $('#persona_id').select2("val", "");
                 $('#persona_id option').remove();
@@ -690,72 +781,124 @@
                 $('#auo_id').select2("val", "");
                 $('#auo_id option').remove();
 
-                $('#cargo_id_d').select2("val", "");
-                $('#cargo_id_d option').remove();
+                $('#cargo_id').select2("val", "");
+                $('#cargo_id option').remove();
 
                 $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
             case 15:
-                if($(form_1).valid()){
-                    var tipo_cargo_id = $.trim($("#tipo_cargo_id").val());
+            	var concatenar_valores = '';
+                concatenar_valores     += 'tipo=1';
 
-                    if(tipo_cargo_id == '1'){
-                        swal({
-                            title             : "ENVIANDO INFORMACIÓN",
-                            text              : "Espere a que guarde la información.",
-                            allowEscapeKey    : false,
-                            showConfirmButton : false,
-                            type              : "info"
-                        });
-                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+				var fecha_del = $("#fecha_del").val();
+				var fecha_al  = $("#fecha_al").val();
 
-                        var valor1 = new Array();
-                        valor1[0]  = 150;
-                        valor1[1]  = url_controller + '/send_ajax';
-                        valor1[2]  = 'POST';
-                        valor1[3]  = true;
-                        valor1[4]  = $(form_1).serialize();
-                        valor1[5]  = 'json';
-                        utilitarios(valor1);
-                    }
-                    else{
-                        var f_salida = $.trim($("#f_salida").val());
-                        if(f_salida != ''){
-                            swal({
-                                title             : "ENVIANDO INFORMACIÓN",
-                                text              : "Espere a que guarde la información.",
-                                allowEscapeKey    : false,
-                                showConfirmButton : false,
-                                type              : "info"
-                            });
-                            $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+				var persona_id = $("#persona_id").val();
 
-                            var valor1 = new Array();
-                            valor1[0]  = 150;
-                            valor1[1]  = url_controller + '/send_ajax';
-                            valor1[2]  = 'POST';
-                            valor1[3]  = true;
-                            valor1[4]  = $(form_1).serialize();
-                            valor1[5]  = 'json';
-                            utilitarios(valor1);
-                        }
-                        else{
-                            var valor1 = new Array();
-                            valor1[0]  = 101;
-                            valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                            valor1[2]  = "¡El campo FECHA DE SALIDA es obligatorio!";
-                            utilitarios(valor1);
-                        }
-                    }
+				var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario").val();
+				var unidad_desconcentrada_id         = $("#unidad_desconcentrada_id").val();
+
+				var lugar_dependencia_id_cargo = $("#lugar_dependencia_id_cargo").val();
+				var auo_id                     = $("#auo_id").val();
+				var cargo_id                   = $("#cargo_id").val();
+
+				var valor_sw    = true;
+				var valor_error = '';
+
+				if($.trim(fecha_del) != ''){
+                    concatenar_valores += '&fecha_del=' + fecha_del;
                 }
                 else{
+					valor_sw    = false;
+					valor_error += '<br>El campo FECHA DEL es obligatorio.';
+                }
+
+                if($.trim(fecha_al) != ''){
+                    concatenar_valores += '&fecha_al=' + fecha_al;
+                }
+                else{
+					valor_sw    = false;
+					valor_error += '<br>El campo FECHA AL es obligatorio.';
+                }
+
+                if($.trim(lugar_dependencia_id_funcionario) != ''){
+                    concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
+                }
+                else{
+					valor_sw    = false;
+					valor_error += '<br>El campo LUGAR DE DEPENDENCIA DEL FUNCIONARIO es obligatorio.';
+                }
+
+				if($.trim(persona_id) != ''){
+                    if($.trim(persona_id) != ''){
+                        concatenar_valores += '&persona_id=' + persona_id;
+                    }
+                    else{
+						valor_sw    = false;
+						valor_error += '<br>El campo FUNCIONARIO es obligatorio.';
+                    }
+
+                    if($.trim(unidad_desconcentrada_id) != ''){
+                        concatenar_valores += '&unidad_desconcentrada_id=' + unidad_desconcentrada_id;
+                    }
+                    else{
+						valor_sw    = false;
+						valor_error += '<br>El campo UNIDAD DESCONCENTRADA es obligatorio.';
+                    }
+
+                    if($.trim(lugar_dependencia_id_cargo) != ''){
+                        concatenar_valores += '&lugar_dependencia_id_cargo=' + lugar_dependencia_id_cargo;
+                    }
+                    else{
+						valor_sw    = false;
+						valor_error += '<br>El campo LUGAR DE DEPENDENCIA DEL CARGO es obligatorio.';
+                    }
+
+                    if($.trim(auo_id) != ''){
+                        concatenar_valores += '&auo_id=' + auo_id;
+                    }
+                    else{
+						valor_sw    = false;
+						valor_error += '<br>El campo AREA O UNIDAD ORGANIZACIONAL es obligatorio.';
+                    }
+
+                    if($.trim(cargo_id) != ''){
+                        concatenar_valores += '&cargo_id=' + cargo_id;
+                    }
+                    else{
+						valor_sw    = false;
+						valor_error += '<br>El campo CARGO es obligatorio.';
+                    }
+                }
+
+                if(valor_sw){
+                	swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que se creen las fechas.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
                     var valor1 = new Array();
-                    valor1[0]  = 101;
-                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                    valor1[2]  = "¡Favor complete o corrija los datos solicitados!";
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = concatenar_valores;
+                    valor1[5]  = 'json';
                     utilitarios(valor1);
                 }
+                else{
+                	var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
+
                 break;
             // === VALIDACION ===
             case 16:
@@ -1232,31 +1375,18 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === SELECT2 ORGANIGRAMA CARGOS POR AREA O UNIDAD DESCONCENTRADA ===
+
+                            // === SELECT2 AUO POR LUGAR DE DEPENDENCIA ===
                             case '101':
-                                if(data.sw === 1){
-                                    $('#chart-container-1').orgchart({
-                                        'data'               : data.respuesta,
-                                        // 'depth'           : 2,
-                                        'nodeContent'        : 'title',
-                                        'exportButton'       : true,
-                                        'exportFilename'     : 'organigrama_por_auo'
+                                if(data.sw === 2){
+                                    var auo_select = '';
+                                    $.each(data.consulta, function(index, value) {
+                                        auo_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
                                     });
+                                    $('#auo_id').append(auo_select);
                                 }
-                                else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === SELECT2 CARGOS POR UNIDAD DESCONCENTRADA ===
+                            // === SELECT2 CARGOS POR AUO ===
                             case '102':
                                 if(data.sw === 2){
                                     var cargo_select = '';
@@ -1266,7 +1396,7 @@
                                     $('#cargo_id').append(cargo_select);
                                 }
                                 break;
-                            // === SELECT2 UNIDAD DESCONCENTRADA ===
+                            // === SELECT2 UNIDAD DESCONCENTRADA POR LUGAR DE DEPENDENCIA ===
                             case '103':
                                 if(data.sw === 2){
                                     var unidad_desconcentrada_select = '';
@@ -1274,46 +1404,6 @@
                                         unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
                                     });
                                     $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
-
-                                    if(data.sw_horario_1 === 2){
-                                        var horario_1_select = '';
-                                        var horario_1_defecto_id = '';
-                                        $.each(data.horario_1, function(index, value) {
-                                            horario_1_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-                                            if(value.defecto == '2'){
-                                                horario_1_defecto_id = value.id;
-                                            }
-                                        });
-                                        $('#horario_id_1').append(horario_1_select);
-                                        if(horario_1_defecto_id != ''){
-                                            $("#horario_id_1").select2("val", horario_1_defecto_id);
-                                        }
-                                    }
-
-                                    if(data.sw_horario_2 === 2){
-                                        var horario_2_select = '';
-                                        var horario_2_defecto_id = '';
-                                        $.each(data.horario_2, function(index, value) {
-                                            horario_2_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-                                            if(value.defecto == '2'){
-                                                horario_2_defecto_id = value.id;
-                                            }
-                                        });
-                                        $('#horario_id_2').append(horario_2_select);
-                                        if(horario_2_defecto_id != ''){
-                                            $("#horario_id_2").select2("val", horario_2_defecto_id);
-                                        }
-                                    }
-                                }
-                                break;
-                            // === SELECT2 UNIDAD DESCONCENTRADA ===
-                            case '104':
-                                if(data.sw === 2){
-                                    var unidad_desconcentrada_select = '';
-                                    $.each(data.consulta, function(index, value) {
-                                        unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-                                    });
-                                    $('#unidad_desconcentrada_id_3').append(unidad_desconcentrada_select);
                                 }
                                 break;
                             default:

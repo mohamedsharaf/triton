@@ -34,6 +34,9 @@ class CreateRrhhAsistenciasTable extends Migration
             $table->integer('salida_id_i2')->unsigned()->nullable();
             $table->integer('salida_id_s2')->unsigned()->nullable();
 
+            $table->integer('fthc_id_h1')->unsigned()->nullable();
+            $table->integer('fthc_id_h2')->unsigned()->nullable();
+
             $table->smallInteger('estado')->default('1')->unsigned()->nullable();
             $table->date('fecha')->nullable();
 
@@ -46,6 +49,7 @@ class CreateRrhhAsistenciasTable extends Migration
             $table->smallInteger('h2_s_omision_registro')->default('1')->unsigned();
 
             $table->date('f_omision_registro')->nullable();
+            $table->smallInteger('e_omision_registro')->default('1')->unsigned()->nullable();
 
             $table->smallInteger('h1_falta')->default('1')->unsigned();
             $table->smallInteger('h2_falta')->default('1')->unsigned();
@@ -129,6 +133,16 @@ class CreateRrhhAsistenciasTable extends Migration
             $table->foreign('salida_id_s2')
                 ->references('id')
                 ->on('rrhh_salidas')
+                ->onDelete('cascade');
+
+            $table->foreign('fthc_id_h1')
+                ->references('id')
+                ->on('rrhh_fthc')
+                ->onDelete('cascade');
+
+            $table->foreign('fthc_id_h2')
+                ->references('id')
+                ->on('rrhh_fthc')
                 ->onDelete('cascade');
         });
     }

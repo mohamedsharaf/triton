@@ -138,18 +138,6 @@
                 </div>
               </span>
 
-              {{-- <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="fa fa-wrench"></i>
-              </a>
-              <ul class="dropdown-menu dropdown-user">
-                <li>
-                  <a href="#">Config option 1</a>
-                </li>
-                <li>
-                  <a href="#">Config option 2</a>
-                </li>
-              </ul> --}}
-
               <a class="collapse-link">
                 <i class="fa fa-chevron-up"></i>
               </a>
@@ -168,7 +156,96 @@
   </div>
 
   <!-- === MODAL === -->
+	<div id="modal_1" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
 
+            <h4 class="modal-title">
+              <span id="modal_1_title"></span>
+            </h4>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <form id="form_1" role="form" action="#">
+                <div class="col-sm-12">
+                  <div class="row">
+                  	<div class="col-sm-6">
+                      <div class="form-group">
+                        <label for="fecha_del">Fecha del</label>
+                        <input type="text" class="form-control" id="fecha_del" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;" value="{{ date("Y-m-d") }}">
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label for="fecha_al">Fecha al</label>
+                        <input type="text" class="form-control" id="fecha_al" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;" value="{{ date("Y-m-d") }}">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="persona_id_div" class="form-group">
+                    <label for="persona_id">Funcionario</label>
+                    <select name="persona_id" id="persona_id" data-placeholder="Funcionario" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <h3 class="text-success">
+                    <b>UBICACION DEL FUNCIONARIO</b>
+                  </h3>
+
+                  <div id="lugar_dependencia_id_funcionario_div" class="form-group">
+                    <label for="lugar_dependencia_id_funcionario">Lugar de dependencia</label>
+                    <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <div id="unidad_desconcentrada_id_div" class="form-group">
+                    <label for="unidad_desconcentrada_id">Unidad desconcentrada</label>
+                    <select name="unidad_desconcentrada_id" id="unidad_desconcentrada_id" data-placeholder="Unidad desconcentrada" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <h3 class="text-success">
+                    <b>UBICACION DEL CARGO</b>
+                  </h3>
+
+                  <div id="lugar_dependencia_id_cargo_div" class="form-group">
+                    <label for="lugar_dependencia_id_cargo">Lugar de dependencia</label>
+                    <select name="lugar_dependencia_id_cargo" id="lugar_dependencia_id_cargo" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <div id="auo_id_div" class="form-group">
+                    <label for="auo_id">Área o unidad organizacional</label>
+                    <select name="auo_id" id="auo_id" data-placeholder="Área o unidad organizacional" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <div id="cargo_id_div" class="form-group">
+                    <label for="cargo_id">Cargo</label>
+                    <select name="cargo_id" id="cargo_id" data-placeholder="Cargo" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
+            <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
+            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+          </div>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @section('js_plugins')

@@ -210,6 +210,9 @@ class AsistenciaController extends Controller
                     $tabla1.salida_id_i2,
                     $tabla1.salida_id_s2,
 
+                    $tabla1.fthc_id_h1,
+                    $tabla1.fthc_id_h2,
+
                     $tabla1.estado,
                     $tabla1.fecha,
 
@@ -222,6 +225,7 @@ class AsistenciaController extends Controller
                     $tabla1.h2_s_omision_registro,
 
                     $tabla1.f_omision_registro,
+                    $tabla1.e_omision_registro,
 
                     $tabla1.h1_falta,
                     $tabla1.h2_falta,
@@ -321,20 +325,27 @@ class AsistenciaController extends Controller
                 foreach ($query as $row)
                 {
                     $val_array = array(
-                        'persona_id'               => $row["persona_id"],
-                        'persona_id_rrhh'          => $row["persona_id_rrhh"],
+                        'persona_id'      => $row["persona_id"],
+                        'persona_id_rrhh' => $row["persona_id_rrhh"],
+
                         'cargo_id'                 => $row["cargo_id"],
                         'unidad_desconcentrada_id' => $row["unidad_desconcentrada_id"],
-                        'log_marcaciones_id_i1'    => $row["log_marcaciones_id_i1"],
-                        'log_marcaciones_id_s1'    => $row["log_marcaciones_id_s1"],
-                        'log_marcaciones_id_i2'    => $row["log_marcaciones_id_i2"],
-                        'log_marcaciones_id_s2'    => $row["log_marcaciones_id_s2"],
-                        'horario_id_1'             => $row["horario_id_1"],
-                        'horario_id_2'             => $row["horario_id_2"],
-                        'salida_id_i1'             => $row["salida_id_i1"],
-                        'salida_id_s1'             => $row["salida_id_s1"],
-                        'salida_id_i2'             => $row["salida_id_i2"],
-                        'salida_id_s2'             => $row["salida_id_s2"],
+
+                        'log_marcaciones_id_i1' => $row["log_marcaciones_id_i1"],
+                        'log_marcaciones_id_s1' => $row["log_marcaciones_id_s1"],
+                        'log_marcaciones_id_i2' => $row["log_marcaciones_id_i2"],
+                        'log_marcaciones_id_s2' => $row["log_marcaciones_id_s2"],
+
+                        'horario_id_1' => $row["horario_id_1"],
+                        'horario_id_2' => $row["horario_id_2"],
+
+                        'salida_id_i1' => $row["salida_id_i1"],
+                        'salida_id_s1' => $row["salida_id_s1"],
+                        'salida_id_i2' => $row["salida_id_i2"],
+                        'salida_id_s2' => $row["salida_id_s2"],
+
+                        'fthc_id_h1' => $row["fthc_id_h1"],
+                        'fthc_id_h2' => $row["fthc_id_h2"],
 
                         'estado' => $row["estado"],
 
@@ -347,6 +358,7 @@ class AsistenciaController extends Controller
                         'h2_s_omision_registro' => $row["h2_s_omision_registro"],
 
                         'f_omision_registro' => $row["f_omision_registro"],
+                        'e_omision_registro' => $row["e_omision_registro"],
 
                         'h1_falta' => $row["h1_falta"],
                         'h2_falta' => $row["h2_falta"],
@@ -1934,28 +1946,17 @@ class AsistenciaController extends Controller
             case '100':
                 if($request->has('q'))
                 {
-                    $nombre                           = $request->input('q');
-                    $estado                           = trim($request->input('estado'));
-                    $page_limit                       = trim($request->input('page_limit'));
-                    $lugar_dependencia_id_funcionario = trim($request->input('lugar_dependencia_id_funcionario'));
-                    $persona_id                       = trim($request->input('persona_id'));
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
 
-                    $tabla1 = "rrhh_funcionarios";
-                    $tabla2 = "rrhh_personas";
-
-                    $tabla3 = "inst_unidades_desconcentradas";
-
-                    $query = RrhhFuncionario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
-                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
-                        ->whereRaw("CONCAT_WS(' - ', a2.n_documento, CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre)) ilike '%$nombre%'")
-                        ->where("$tabla1.estado", "=", $estado)
-                        ->where("a3.lugar_dependencia_id", "=", $lugar_dependencia_id_funcionario)
-                        ->where("$tabla1.persona_id", "<>", $persona_id)
-                        ->select(DB::raw("$tabla1.persona_id AS id, CONCAT_WS(' - ', a2.n_documento, CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre)) AS text"))
-                        ->orderByRaw("CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre) ASC")
-                        ->limit($page_limit)
-                        ->get()
-                        ->toArray();
+                    $query = RrhhPersona::whereRaw("CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) ilike '%$nombre%'")
+                                ->where("estado", "=", $estado)
+                                ->select(DB::raw("id, CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) AS text"))
+                                ->orderByRaw("CONCAT_WS(' ', ap_paterno, ap_materno, nombre) ASC")
+                                ->limit($page_limit)
+                                ->get()
+                                ->toArray();
 
                     if(count($query) > 0)
                     {
@@ -1968,6 +1969,77 @@ class AsistenciaController extends Controller
                         return json_encode($respuesta);
                     }
                 }
+                break;
+
+            // === SELECT2 AUO POR LUGAR DE DEPENDENCIA ===
+            case '101':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('lugar_dependencia_id'))
+                {
+                    $lugar_dependencia_id  = $request->input('lugar_dependencia_id');
+
+                    $query = InstAuo::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                        ->where("estado", "=", 1)
+                        ->select('id', 'nombre')
+                        ->get()
+                        ->toArray();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
+
+            // === SELECT2 CARGOS POR AUO ===
+            case '102':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('auo_id'))
+                {
+                    $auo_id = $request->input('auo_id');
+
+                    $query = InstCargo::where("auo_id", "=", $auo_id)
+                        ->where("estado", "=", 1)
+                        ->select('id', 'nombre')
+                        ->get()
+                        ->toArray();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
+
+            // === SELECT2 UNIDAD DESCONCENTRADA POR LUGAR DE DEPENDENCIA ===
+            case '103':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('lugar_dependencia_id'))
+                {
+                    $lugar_dependencia_id = $request->input('lugar_dependencia_id');
+
+                    $query = InstUnidadDesconcentrada::where("lugar_dependencia_id", "=", $lugar_dependencia_id)
+                        ->select('id', 'nombre')
+                        ->get()
+                        ->toArray();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
                 break;
             default:
                 break;

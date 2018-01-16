@@ -178,7 +178,7 @@
 
                     <div class="col-sm-6">
                       <div class="form-group">
-                        <label for="nombre">Fecha</label>
+                        <label for="fecha">Fecha</label>
                         <input type="text" class="form-control" id="fecha" name="fecha" placeholder="año-mes-día" data-mask="9999-99-99">
                       </div>
                     </div>
