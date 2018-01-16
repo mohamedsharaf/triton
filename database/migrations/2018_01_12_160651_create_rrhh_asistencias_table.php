@@ -17,14 +17,18 @@ class CreateRrhhAsistenciasTable extends Migration
             $table->increments('id');
             $table->integer('persona_id')->unsigned()->nullable();
             $table->integer('persona_id_rrhh')->unsigned()->nullable();
+
             $table->integer('cargo_id')->unsigned()->nullable();
             $table->integer('unidad_desconcentrada_id')->unsigned()->nullable();
+
             $table->integer('log_marcaciones_id_i1')->unsigned()->nullable();
             $table->integer('log_marcaciones_id_s1')->unsigned()->nullable();
             $table->integer('log_marcaciones_id_i2')->unsigned()->nullable();
             $table->integer('log_marcaciones_id_s2')->unsigned()->nullable();
+
             $table->integer('horario_id_1')->unsigned()->nullable();
             $table->integer('horario_id_2')->unsigned()->nullable();
+
             $table->integer('salida_id_i1')->unsigned()->nullable();
             $table->integer('salida_id_s1')->unsigned()->nullable();
             $table->integer('salida_id_i2')->unsigned()->nullable();
@@ -32,12 +36,17 @@ class CreateRrhhAsistenciasTable extends Migration
 
             $table->smallInteger('estado')->default('1')->unsigned()->nullable();
             $table->date('fecha')->nullable();
+
             $table->smallInteger('h1_min_retrasos')->default('0')->unsigned();
             $table->smallInteger('h2_min_retrasos')->default('0')->unsigned();
+
             $table->smallInteger('h1_i_omision_registro')->default('1')->unsigned();
             $table->smallInteger('h1_s_omision_registro')->default('1')->unsigned();
             $table->smallInteger('h2_i_omision_registro')->default('1')->unsigned();
             $table->smallInteger('h2_s_omision_registro')->default('1')->unsigned();
+
+            $table->date('f_omision_registro')->nullable();
+
             $table->smallInteger('h1_falta')->default('1')->unsigned();
             $table->smallInteger('h2_falta')->default('1')->unsigned();
 
