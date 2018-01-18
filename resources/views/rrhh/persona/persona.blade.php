@@ -119,7 +119,7 @@
                         <div class="col-sm-6">
                             <div class="form-group">
                               <label>Complemento</label>
-                              <input type="text" class="form-control" id="n_documento_1" name="n_documento_1" placeholder="Complemento">
+                              <input type="text" class="form-control" id="n_documento_1" name="n_documento_1" placeholder="Complemento" disabled="disabled">
                             </div>
                         </div>
                     </div>
