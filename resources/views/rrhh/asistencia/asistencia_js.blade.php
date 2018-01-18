@@ -936,39 +936,62 @@
                     utilitarios(valor1);
                 }
                 break;
-            // === SELECT2 ORGANIGRAMA AREA O UNIDAD DESCONCENTRADA ===
+            // === REPORTE SALIDA ===
             case 17:
-                $('#chart-container-1').empty();
+                var concatenar_valores = '';
+                concatenar_valores     += '?tipo=1&salida_id=' + valor[1];
 
-                var auo_id=$.trim($("#auo_id_r").val());
-
-                if(auo_id != ''){
-                    swal({
-                        title             : "ENVIANDO INFORMACIÓN",
-                        text              : "Espere a que guarde la información.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = "tipo=101&auo_id=" + $("#auo_id_r").val() + "&_token=" + csrf_token;
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 101;
-                    valor1[1]  = "ALERTA";
-                    valor1[2]  = "¡Favor seleccione un ÁREA O UNIDAD ORGANIZACIONAL!";
-                    utilitarios(valor1);
-                }
+                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                win.focus();
                 break;
+            // === DONDE ASISTIO ===
+            case 18:
+                $('#modal_3_title, #modal_3_subtitle, #td_ud, #td_ld').empty();
+                $('#modal_3_title').append('DONDE ASISTIO');
+
+                var ret = $(jqgrid1).jqGrid('getRowData', valor[2]);
+
+                var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
+
+                $('#modal_3_subtitle').append(persona);
+
+                var valor1 = new Array();
+                valor1[0]  = 150;
+                valor1[1]  = url_controller + '/send_ajax';
+                valor1[2]  = 'POST';
+                valor1[3]  = false;
+                valor1[4]  = "tipo=50&id=" + valor[1] + "&_token=" + csrf_token;
+                valor1[5]  = 'json';
+                utilitarios(valor1);
+
+                $('#modal_3').modal();
+                break;
+            // === FERIADO, TOLERANCIA, HORARIO CONTINUO ===
+            case 19:
+                $('#modal_3_title, #modal_3_subtitle, #td_ud, #td_ld').empty();
+                $('#modal_3_title').append('DONDE ASISTIO');
+
+                var ret = $(jqgrid1).jqGrid('getRowData', valor[2]);
+
+                var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
+
+                $('#modal_3_subtitle').append(persona);
+
+                var valor1 = new Array();
+                valor1[0]  = 150;
+                valor1[1]  = url_controller + '/send_ajax';
+                valor1[2]  = 'POST';
+                valor1[3]  = false;
+                valor1[4]  = "tipo=50&id=" + valor[1] + "&_token=" + csrf_token;
+                valor1[5]  = 'json';
+                utilitarios(valor1);
+
+                $('#modal_3').modal();
+                break;
+
+
+
+
             // === EXCEL CARGOS ===
             case 18:
                 var concatenar_valores = '';
@@ -977,6 +1000,9 @@
                 var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
                 win.focus();
                 break;
+
+
+
             // === MODAL SUBIR DOCUMENTO ===
             case 19:
                 $('#modal_2_subtitle').empty();
@@ -1414,6 +1440,14 @@
                                 }
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
+                            // === DONDE ASISTIO ===
+                            case '50':
+                                if(data.sw === 2){
+                                    $('#td_ud').append(data.consulta.unidad_desconcentrada);
+                                    $('#td_ld').append(data.consulta.lugar_dependencia);
+                                }
                                 break;
 
                             // === SELECT2 AUO POR LUGAR DE DEPENDENCIA ===

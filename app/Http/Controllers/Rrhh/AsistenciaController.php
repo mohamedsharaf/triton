@@ -88,6 +88,16 @@ class AsistenciaController extends Controller
             '5' => 'LICENCIA SIN GOCE DE HABER'
         ];
 
+        $this->con_sin_retorno = [
+            '1' => 'CON RETORNO',
+            '2' => 'SIN RETORNO'
+        ];
+
+        $this->periodo = [
+            '1' => 'MAÑANA',
+            '2' => 'TARDE'
+        ];
+
         $this->public_dir = '/image/logo';
         $this->public_url = 'storage/rrhh/salidas/solicitud_salida/';
     }
@@ -415,16 +425,13 @@ class AsistenciaController extends Controller
                         $row["ap_paterno"],
                         $row["ap_materno"],
 
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_e"], 'valor' => $val_array)),
-                        // $row["horario_1_e"],
-                        $row["horario_1_s"],
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_e"], 'log_marcaciones_id' => $row["log_marcaciones_id_i1"], 'salida_id' => $row["salida_id_i1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s1"], 'salida_id' => $row["salida_id_s1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"])),
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h1_min_retrasos"])),
-                        // $row["h1_min_retrasos"],
 
-                        $row["horario_2_e"],
-                        $row["horario_2_s"],
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_e"], 'log_marcaciones_id' => $row["log_marcaciones_id_i2"], 'salida_id' => $row["salida_id_i2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s2"], 'salida_id' => $row["salida_id_s2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"])),
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h2_min_retrasos"])),
-                        // $row["h2_min_retrasos"],
 
                         $row["ud_funcionario"],
                         $row["lugar_dependencia_funcionario"],
@@ -2289,7 +2296,7 @@ class AsistenciaController extends Controller
                                                                     $iu->horario_2_e = $this->omision['1'];
                                                                 }
 
-                                                                $iu->horario_2_s = date("H:i:s", strtotime($consulta3['f_marcacion']));
+                                                                $iu->horario_2_s = $this->tipo_salida[$row4['tipo_salida']];;
 
                                                                 $iu->save();
 
@@ -2316,6 +2323,54 @@ class AsistenciaController extends Controller
                         $respuesta['respuesta'] .= "No existe ASISTENCIAS.";
                     }
 
+                return json_encode($respuesta);
+                break;
+
+            // === DONDE ASISTIO ===
+            case '50':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('id'))
+                {
+                    $id = $request->input('id');
+
+                    $tabla1 = "rrhh_log_marcaciones";
+                    $tabla2 = "rrhh_biometricos";
+                    $tabla3 = "inst_unidades_desconcentradas";
+                    $tabla4 = "inst_lugares_dependencia";
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.biometrico_id,
+                        $tabla1.persona_id,
+                        $tabla1.f_marcacion,
+
+                        a2.unidad_desconcentrada_id,
+                        a2.codigo_af,
+                        a2.ip,
+
+                        a3.lugar_dependencia_id,
+                        a3.nombre AS unidad_desconcentrada,
+
+                        a4.nombre AS lugar_dependencia
+                    ";
+
+                    $array_where = "$tabla1.id=" . $id;
+
+                    $query = RrhhLogMarcacion::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->first();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
                 return json_encode($respuesta);
                 break;
 
@@ -2488,20 +2543,40 @@ class AsistenciaController extends Controller
                 break;
             case '3':
                 $respuesta = "";
-                if($valor['valor']['log_marcaciones_id_i1'] != '')
+                if($valor['log_marcaciones_id'] != '')
                 {
-                    $respuesta = '<span class="label label-success font-sm">' . $valor['horario'] . '</span>';
+                    $respuesta = '<button class="btn btn-xs btn-success" onclick="utilitarios([18, ' . $valor['log_marcaciones_id'] . ', ' . $valor['id'] . ']);" title="Ver donde asistio" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                            <i class="fa fa-eye"></i>
+                            <strong>' . $valor['horario'] . '</strong>
+                        </button>';
+                }
+                elseif($valor['salida_id'] != '')
+                {
+                    $respuesta = '<button class="btn btn-xs btn-primary" onclick="utilitarios([17, ' . $valor['salida_id'] . ', ' . $valor['id'] . ']);" title="Ver licencia o salida" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                            <i class="fa fa-eye"></i>
+                            <strong>' . $valor['horario'] . '</strong>
+                        </button>';
+                }
+                elseif($valor['fthc_id'] != '')
+                {
+                    $respuesta = '<button class="btn btn-xs btn-info" onclick="utilitarios([19, ' . $valor['fthc_id'] . ', ' . $valor['id'] . ']);" title="Ver ' . $valor['horario'] . '" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                            <i class="fa fa-eye"></i>
+                            <strong>' . $valor['horario'] . '</strong>
+                        </button>';
                 }
                 else
                 {
-                    $respuesta = $valor['horario'];
+                    if($this->falta['1'] == $valor['horario'])
+                    {
+                        $respuesta = '<span class="label label-danger font-sm">' . $valor['horario'] . '</span>';
+                    }
+                    else
+                    {
+                        $respuesta = '<span class="label label-warning font-sm">' . $valor['horario'] . '</span>';
+                    }
                 }
                 return($respuesta);
                 break;
-
-
-
-
 
             case '4':
                 switch($valor['pdf'])

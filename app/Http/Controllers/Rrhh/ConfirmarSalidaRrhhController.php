@@ -52,16 +52,17 @@ class ConfirmarSalidaRrhhController extends Controller
         $this->middleware('auth');
 
         $this->estado = [
-            '1' => 'HABILITADO',
-            '2' => 'ANULADO'
+            '1' => 'HABILITADA',
+            '2' => 'ANULADA',
+            '3' => 'CERRADA'
         ];
 
         $this->tipo_salida = [
-            '1' => 'OFICIAL',
-            '2' => 'PARTICULAR',
+            '1' => 'LICENCIA OFICIAL',
+            '2' => 'LICENCIA PARTICULAR',
             '3' => 'VACACIONES',
             '4' => 'CUMPLEAÑOS',
-            '5' => 'SIN GOCE DE HABER'
+            '5' => 'LICENCIA SIN GOCE DE HABER'
         ];
 
         $this->con_sin_retorno = [
