@@ -114,12 +114,12 @@
             120,
             120,
 
-            150,
-            150,
+            250,
+            250,
             65,
 
-            150,
-            150,
+            250,
+            250,
             65,
 
             400,
@@ -157,9 +157,9 @@
         var jqgrid2   = "#jqgrid2";
         var pjqgrid2 = "#pjqgrid2";
 
-    // === FORMULARIO 1 ===
+    // === FORMULARIOS ===
         var form_1 = "#form_1";
-        var form_3 = "#form_3";
+        var form_2 = "#form_2";
 
     // === ESTADO ===
         var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
@@ -206,7 +206,7 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#fecha_jqgrid, #fecha_del, #fecha_al').datepicker({
+            $('#fecha_jqgrid, #fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2').datepicker({
                 // startView            : 0,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -218,7 +218,7 @@
                 language             : "es"
             });
 
-            $('#persona_id').select2({
+            $('#persona_id, #persona_id_2').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -242,9 +242,10 @@
                 }
             });
             $("#persona_id").appendTo("#persona_id_div");
+            $("#persona_id_2").appendTo("#persona_id_div_2");
 
-            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id, #horario_id_1, #horario_id_2").select2({
+            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #lugar_dependencia_id_funcionario_2').append(lugar_dependencia_select);
+            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id, #horario_id_1, #horario_id_2, #lugar_dependencia_id_funcionario_2").select2({
                 maximumSelectionLength: 1
             });
             $("#lugar_dependencia_id_funcionario").appendTo("#lugar_dependencia_id_funcionario_div");
@@ -252,6 +253,8 @@
             $("#unidad_desconcentrada_id").appendTo("#unidad_desconcentrada_id_div");
             $("#auo_id").appendTo("#auo_id_div");
             $("#cargo_id").appendTo("#cargo_id_div");
+
+            $("#lugar_dependencia_id_funcionario_2").appendTo("#lugar_dependencia_id_funcionario_div_2");
 
         // === DROPZONE ===
             // var valor1 = new Array();
@@ -397,12 +400,12 @@
                 var ancho1     = 5;
                 var ancho_d    = 29;
                 @if(in_array(['codigo' => '1303'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
+                    // edit1  = false;
+                    // ancho1 += ancho_d;
                 @endif
                 @if(in_array(['codigo' => '1304'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
+                    // edit1  = false;
+                    // ancho1 += ancho_d;
                 @endif
 
                 $(jqgrid1).jqGrid({
@@ -653,24 +656,18 @@
                 @endif
                 @if(in_array(['codigo' => '1303'], $permisos))
                     .navButtonAdd(pjqgrid1,{
-                    "id"          : "edit1",
+                    "id"          : "add2",
                     caption       : "",
-                    title         : 'Editar fila',
-                    buttonicon    : "ui-icon ui-icon-pencil",
+                    title         : 'Sincronizar asistencias',
+                    buttonicon    : "ui-icon ui-icon-arrowrefresh-1-w",
                     onClickButton : function(){
-                        var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                        if(id == null)
-                        {
-                            var valor1 = new Array();
-                            valor1[0]  = 101;
-                            valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                            valor1[2]  = "¡Favor seleccione una fila!";
-                            utilitarios(valor1);
-                        }
-                        else
-                        {
-                            utilitarios([12, id]);
-                        }
+                        var valor1 = new Array();
+                        valor1[0]  = 13;
+                        utilitarios(valor1);
+
+                        var valor1 = new Array();
+                        valor1[0]  = 12;
+                        utilitarios(valor1);
                     }
                 })
                 @endif
@@ -692,78 +689,30 @@
                 @endif
                 ;
                 break;
-            // === ABRIR MODAL ===
+            // === AGREGAR FECHA MODAL ===
             case 11:
                 $('#modal_1').modal();
                 break;
-            // === EDICION MODAL ===
+            // === SINCRONIZAR ASISTENCIAS MODAL ===
             case 12:
-                var valor1 = new Array();
-                valor1[0]  = 14;
-                utilitarios(valor1);
-
-                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
-                var val_json = $.parseJSON(ret.val_json);
-
-                $('#modal_1_title').empty();
-
-                if(val_json.funcionario_id == null){
-                    $('#modal_1_title').append('Agregar información del funcionario con ' + ret.tipo_cargo);
-                }
-                else{
-                    $('#modal_1_title').append('Modificar información del funcionario con ' + ret.tipo_cargo);
-                }
-
-                $("#id_funcionario").val(val_json.funcionario_id);
-                $("#cargo_id").val(valor[1]);
-                $("#tipo_cargo_id").val(val_json.tipo_cargo_id);
-
-                if(val_json.situacion != ''){
-                    $(".situacion_class[value=" + val_json.situacion + "]").prop('checked', true);
-                }
-
-                if(ret.n_documento != ""){
-                    var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre_persona;
-
-                    $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
-                    $("#persona_id").select2("val", val_json.persona_id);
-                }
-
-                $("#f_ingreso").val(ret.f_ingreso);
-                $("#f_salida").val(ret.f_salida);
-                $("#sueldo").val(ret.sueldo);
-                $("#observaciones").val(ret.observaciones);
-
-                if(ret.lugar_dependencia_funcionario != ""){
-                    $("#lugar_dependencia_id_funcionario").select2("val", val_json.lugar_dependencia_id_funcionario);
-
-                    $("#unidad_desconcentrada_id").select2("val", val_json.unidad_desconcentrada_id);
-                }
-
-                if(ret.cargo != ""){
-                    $("#lugar_dependencia_id_cargo").select2("val", val_json.lugar_dependencia_id_cargo);
-
-                    $('#auo_id').append('<option value="' + val_json.auo_id + '">' + ret.auo_cargo + '</option>');
-                    $("#auo_id").select2("val", val_json.auo_id);
-
-                    $('#cargo_id_d').append('<option value="' + valor[1] + '">' + ret.cargo + '</option>');
-                    $("#cargo_id_d").select2("val", valor[1]);
-                }
-
-                $("#lugar_dependencia_id_cargo").select2("enable", false);
-                $("#auo_id").select2("enable", false);
-                $("#cargo_id_d").select2("enable", false);
-
-                $('#modal_1').modal();
-                break;
-            // === REPORTES MODAL ===
-            case 13:
                 $('#modal_2').modal();
                 break;
-            // === RESETEAR FORMULARIO ===
+            // === RESETEAR FORMULARIO DE SINCRONIZAR ASISTENCIAS ===
+            case 13:
+                $('#modal_2_title').empty();
+                $('#modal_2_title').append('Sincronizar asistencia');
+
+                $('#persona_id_2').select2("val", "");
+                $('#persona_id_2 option').remove();
+
+                $('#lugar_dependencia_id_funcionario_2').select2("val", "");
+
+                $(form_2)[0].reset();
+                break;
+            // === RESETEAR FORMULARIO DE AGREGAR FECHA ===
             case 14:
             	$('#modal_1_title').empty();
-                $('#modal_1_title').append('Agregar fechas para controlar asistencia');
+                $('#modal_1_title').append('Agregar fechas para el controlar asistencia');
 
                 $('#persona_id').select2("val", "");
                 $('#persona_id option').remove();
@@ -783,7 +732,7 @@
 
                 $(form_1)[0].reset();
                 break;
-            // === GUARDAR REGISTRO ===
+            // === GUARDAR FECHA DE ASISTENCIAS ===
             case 15:
             	var concatenar_valores = '';
                 concatenar_valores     += 'tipo=1&_token=' + csrf_token;
@@ -914,43 +863,78 @@
                     valor1[2]  = valor_error;
                     utilitarios(valor1);
                 }
-
                 break;
-            // === VALIDACION ===
+            // === SINCRONIZAR ASISTENCIAS ===
             case 16:
-                $(form_1).validate({
-                    rules: {
-                        persona_id:{
-                            required: true
-                        },
-                        f_ingreso:{
-                            required: true,
-                            date    :true
-                        },
-                        f_salida:{
-                            date:true
-                        },
-                        sueldo:{
-                            required: true,
-                            number  : true,
-                            min     : 0
-                        },
-                        observaciones:{
-                            maxlength: 500
-                        },
+                var concatenar_valores = '';
+                concatenar_valores     += 'tipo=2&_token=' + csrf_token;
 
-                        lugar_dependencia_id_funcionario:{
-                            required: true
-                        },
-                        unidad_desconcentrada_id:{
-                            required: true
-                        },
+                var fecha_del = $("#fecha_del_2").val();
+                var fecha_al  = $("#fecha_al_2").val();
 
-                        horario_id_1:{
-                            required: true
-                        }
+                var persona_id = $("#persona_id_2").val();
+
+                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_2").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(fecha_del) != ''){
+                    concatenar_valores += '&fecha_del=' + fecha_del;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
+                }
+
+                if($.trim(fecha_al) != ''){
+                    concatenar_valores += '&fecha_al=' + fecha_al;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA AL es obligatorio.';
+                }
+
+                if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
+                    if($.trim(persona_id) != ''){
+                        concatenar_valores += '&persona_id=' + persona_id;
                     }
-                });
+
+                    if($.trim(lugar_dependencia_id_funcionario) != ''){
+                        concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
+                    }
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
+                }
+
+                if(valor_sw){
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que se creen las fechas.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = concatenar_valores;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
                 break;
             // === SELECT2 ORGANIGRAMA AREA O UNIDAD DESCONCENTRADA ===
             case 17:
@@ -1319,7 +1303,7 @@
                     dataType: valor[5],
                     success: function(data){
                         switch(data.tipo){
-                            // === INSERT UPDATE ===
+                            // === INSERT FECHAS PARA LAS ASISTENCIAS ===
                             case '1':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
@@ -1365,6 +1349,54 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
+
+                            // === SINCRONIZAR ASISTENCIAS ===
+                            case '2':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                    $('#modal_1').modal('hide');
+                                    // if(data.iu === 1){
+                                    //     var valor1 = new Array();
+                                    //     valor1[0]  = 14;
+                                    //     utilitarios(valor1);
+                                    // }
+                                    // else if(data.iu === 2){
+                                    //     $('#modal_1').modal('hide');
+                                    // }
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
                             // === ELIMINAR FUNCIONARIO DEL CARGO ===
                             case '3':
                                 if(data.sw === 1){

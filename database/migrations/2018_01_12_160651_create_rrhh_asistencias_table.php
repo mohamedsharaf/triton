@@ -40,8 +40,16 @@ class CreateRrhhAsistenciasTable extends Migration
             $table->smallInteger('estado')->default('1')->unsigned()->nullable();
             $table->date('fecha')->nullable();
 
+            $table->smallInteger('h1_i_omitir')->default('1')->unsigned()->nullable();
+            $table->smallInteger('h1_s_omitir')->default('1')->unsigned()->nullable();
+            $table->smallInteger('h2_i_omitir')->default('1')->unsigned()->nullable();
+            $table->smallInteger('h2_s_omitir')->default('1')->unsigned()->nullable();
+
             $table->smallInteger('h1_min_retrasos')->default('0')->unsigned();
             $table->smallInteger('h2_min_retrasos')->default('0')->unsigned();
+
+            $table->double('h1_descuento')->default('0')->unsigned();
+            $table->double('h2_descuento')->default('0')->unsigned();
 
             $table->smallInteger('h1_i_omision_registro')->default('1')->unsigned();
             $table->smallInteger('h1_s_omision_registro')->default('1')->unsigned();

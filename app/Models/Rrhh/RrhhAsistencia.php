@@ -31,8 +31,16 @@ class RrhhAsistencia extends Model
         'fthc_id_h1',
         'fthc_id_h2',
 
+        'h1_descuento',
+        'h2_descuento',
+
         'estado',
         'fecha',
+
+        'h1_i_omitir',
+        'h1_s_omitir',
+        'h2_i_omitir',
+        'h2_s_omitir',
 
         'h1_min_retrasos',
         'h2_min_retrasos',
