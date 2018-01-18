@@ -1360,15 +1360,7 @@
                                     utilitarios(valor1);
 
                                     $(jqgrid1).trigger("reloadGrid");
-                                    $('#modal_1').modal('hide');
-                                    // if(data.iu === 1){
-                                    //     var valor1 = new Array();
-                                    //     valor1[0]  = 14;
-                                    //     utilitarios(valor1);
-                                    // }
-                                    // else if(data.iu === 2){
-                                    //     $('#modal_1').modal('hide');
-                                    // }
+                                    $('#modal_2').modal('hide');
                                 }
                                 else if(data.sw === 0){
                                     if(data.error_sw === 1){

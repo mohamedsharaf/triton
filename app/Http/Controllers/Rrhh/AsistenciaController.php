@@ -379,6 +379,11 @@ class AsistenciaController extends Controller
                         'h1_min_retrasos' => $row["h1_min_retrasos"],
                         'h2_min_retrasos' => $row["h2_min_retrasos"],
 
+                        'h1_i_omitir' => $row["h1_i_omitir"],
+                        'h1_s_omitir' => $row["h1_s_omitir"],
+                        'h2_i_omitir' => $row["h2_i_omitir"],
+                        'h2_s_omitir' => $row["h2_s_omitir"],
+
                         'h1_i_omision_registro' => $row["h1_i_omision_registro"],
                         'h1_s_omision_registro' => $row["h1_s_omision_registro"],
                         'h2_i_omision_registro' => $row["h2_i_omision_registro"],
@@ -410,13 +415,16 @@ class AsistenciaController extends Controller
                         $row["ap_paterno"],
                         $row["ap_materno"],
 
-                        $row["horario_1_e"],
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_e"], 'valor' => $val_array)),
+                        // $row["horario_1_e"],
                         $row["horario_1_s"],
-                        $row["h1_min_retrasos"],
+                        $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h1_min_retrasos"])),
+                        // $row["h1_min_retrasos"],
 
                         $row["horario_2_e"],
                         $row["horario_2_s"],
-                        $row["h2_min_retrasos"],
+                        $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h2_min_retrasos"])),
+                        // $row["h2_min_retrasos"],
 
                         $row["ud_funcionario"],
                         $row["lugar_dependencia_funcionario"],
@@ -1249,9 +1257,9 @@ class AsistenciaController extends Controller
                         $tabla1.fecha,
 
                         $tabla1.h1_i_omitir,
-                        $tabla1.h1_i_omitir,
-                        $tabla1.h1_i_omitir,
-                        $tabla1.h1_i_omitir,
+                        $tabla1.h1_s_omitir,
+                        $tabla1.h2_i_omitir,
+                        $tabla1.h2_s_omitir,
 
                         $tabla1.h1_min_retrasos,
                         $tabla1.h2_min_retrasos,
@@ -1283,7 +1291,7 @@ class AsistenciaController extends Controller
                         a2.nombre AS ud_funcionario
                     ";
 
-                    $array_where = "$tabla1.fecha <= '" . $data1['fecha_al'] . "' AND $tabla1.fecha >= '"  . $data1['fecha_del'] . "'";
+                    $array_where = "$tabla1.estado = '1' AND $tabla1.fecha <= '" . $data1['fecha_al'] . "' AND $tabla1.fecha >= '"  . $data1['fecha_del'] . "'";
 
                     if($request->has('lugar_dependencia_id_funcionario'))
                     {
@@ -1306,15 +1314,9 @@ class AsistenciaController extends Controller
                         foreach ($consulta1 as $row1)
                         {
                             $horario_1_sw = FALSE;
-                            $horario_2_sw = FALSE;
                             if($row1['fthc_id_h1'] == '')
                             {
                                 $horario_1_sw = TRUE;
-                            }
-
-                            if($row1['fthc_id_h2'] == '')
-                            {
-                                $horario_2_sw = TRUE;
                             }
 
                             if($horario_1_sw)
@@ -1345,7 +1347,7 @@ class AsistenciaController extends Controller
                                             ->orderBy('f_marcacion', 'asc')
                                             ->first();
 
-                                        if(count($consulta3))
+                                        if(count($consulta3) > 0)
                                         {
                                             if($consulta3['f_marcacion'] < $fh_ingreso_tolerancia)
                                             {
@@ -1369,6 +1371,8 @@ class AsistenciaController extends Controller
                                                     $iu->estado = '2';
 
                                                     $iu->save();
+
+                                                $marcacion_e_o_sw = FALSE;
                                             }
                                             else
                                             {
@@ -1560,7 +1564,6 @@ class AsistenciaController extends Controller
                                         {
                                             // === SALIDAS POR HORAS ===
                                                 $salida_sw_1 = TRUE;
-                                                $salida_sw_3 = TRUE;
 
                                                 $tabla1 = "rrhh_salidas";
                                                 $tabla2 = "rrhh_tipos_salida";
@@ -1711,20 +1714,602 @@ class AsistenciaController extends Controller
                                     }
 
                                 // === HORARIO 1 SALIDA ===
-                                    $fh_salida = $row1['fecha'] . " " . $consulta2['h_salida'];
+                                    if($row1['h1_s_omitir'] == '1')
+                                    {
+                                        $fh_salida = $row1['fecha'] . " " . $consulta2['h_salida'];
 
-                                    $salida_del = $row1['fecha'] . " " . $consulta2['marcacion_salida_del'];
+                                        $salida_del = $row1['fecha'] . " " . $consulta2['marcacion_salida_del'];
 
-                                    $salida_al = $row1['fecha'] . " " . $consulta2['marcacion_salida_al'];
+                                        $salida_al = $row1['fecha'] . " " . $consulta2['marcacion_salida_al'];
 
-                                return json_encode($respuesta);
+                                        $consulta3 = RrhhLogMarcacion::where("persona_id", "=", $row1['persona_id'])
+                                            ->whereBetween('f_marcacion', [$salida_del, $salida_al])
+                                            ->select('id', 'f_marcacion')
+                                            ->orderBy('f_marcacion', 'asc')
+                                            ->first();
+
+                                        if(count($consulta3) > 0)
+                                        {
+                                            // === MODIFICACION A ASISTENCIA ===
+                                                $iu = RrhhAsistencia::find($row1['id']);
+
+                                                $iu->log_marcaciones_id_s1 = $consulta3['id'];
+                                                $iu->salida_id_s1          = NULL;
+                                                $iu->h1_descuento          = '0';
+                                                $iu->h1_s_omision_registro = '2';
+
+                                                if($marcacion_e_o_sw)
+                                                {
+                                                    $iu->horario_1_e = $this->omision['1'];
+                                                }
+
+                                                $iu->horario_1_s = date("H:i:s", strtotime($consulta3['f_marcacion']));
+
+                                                $iu->save();
+
+                                            // === MODIFICACION A LOG DE MARCACIONES ===
+                                                $iu = RrhhLogMarcacion::find($consulta3['id']);
+
+                                                $iu->estado = '2';
+
+                                                $iu->save();
+                                        }
+                                        else
+                                        {
+                                            // === SALIDAS POR HORAS ===
+                                                $tabla1 = "rrhh_salidas";
+                                                $tabla2 = "rrhh_tipos_salida";
+
+                                                $consulta4 = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                                                    ->where("$tabla1.persona_id", "=", $row1['persona_id'])
+                                                    ->where("$tabla1.f_salida", "=", $row1['fecha'])
+                                                    ->where("$tabla1.estado", "<>", '2')
+                                                    ->where("$tabla1.validar_superior", "=", '2')
+                                                    ->where("$tabla1.validar_rrhh", "=", '2')
+                                                    ->where("a2.tipo_cronograma", "=", '1')
+                                                    ->select("$tabla1.id", "$tabla1.h_salida", "$tabla1.h_retorno", "a2.tipo_salida")
+                                                    ->get()
+                                                    ->toArray();
+
+                                                if(count($consulta4) > 0)
+                                                {
+                                                    foreach ($consulta4 as $row4)
+                                                    {
+                                                        $fh_r = $row1['fecha'] . " " . $row4['h_retorno'];
+
+                                                        if($fh_r >= $fh_salida)
+                                                        {
+                                                            // === MODIFICACION A ASISTENCIA ===
+                                                                $iu = RrhhAsistencia::find($row1['id']);
+
+                                                                $iu->salida_id_s1          = $row4['id'];
+                                                                $iu->log_marcaciones_id_s1 = NULL;
+                                                                $iu->h1_descuento          = '0';
+                                                                $iu->h1_s_omision_registro = '2';
+
+                                                                if($marcacion_e_o_sw)
+                                                                {
+                                                                    $iu->horario_1_e = $this->omision['1'];
+                                                                }
+
+                                                                $iu->horario_1_s = date("H:i:s", strtotime($consulta3['f_marcacion']));
+
+                                                                $iu->save();
+
+                                                            // === MODIFICACION A LOG DE MARCACIONES ===
+                                                                $iu = RrhhSalida::find($row4['id']);
+
+                                                                $iu->estado = '3';
+
+                                                                $iu->save();
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                        }
+                                    }
                             }
 
+                            $horario_2_sw = FALSE;
 
+                            if($row1['fthc_id_h2'] == '')
+                            {
+                                $horario_2_sw = TRUE;
+                            }
 
-                            $horario_2 = RrhhHorario::where("id", "=", $row1['horario_id_2'])
-                                ->first();
+                            if($horario_1_sw)
+                            {
+                                $consulta2 = RrhhHorario::where("id", "=", $row1['horario_id_2'])
+                                    ->first();
+
+                                // === HORARIO 2 ENTRADA ===
+                                    if($row1['h2_i_omitir'] == '1')
+                                    {
+                                        $fh_ingreso = $row1['fecha'] . " " . $consulta2['h_ingreso'];
+
+                                        $fh_ingreso_tolerancia = date("Y-m-d H:i:s", strtotime('+' . ($consulta2['tolerancia'] + 1) . ' minute', strtotime($fh_ingreso)));
+
+                                        $ingreso_del = $row1['fecha'] . " " . $consulta2['marcacion_ingreso_del'];
+
+                                        $ingreso_al = $row1['fecha'] . " " . $consulta2['marcacion_ingreso_al'];
+
+                                        $marcacion_e_o_sw = TRUE;
+
+                                        $consulta3 = RrhhLogMarcacion::where("persona_id", "=", $row1['persona_id'])
+                                            ->whereBetween('f_marcacion', [$ingreso_del, $ingreso_al])
+                                            ->select('id', 'f_marcacion')
+                                            ->orderBy('f_marcacion', 'asc')
+                                            ->first();
+
+                                        if(count($consulta3) > 0)
+                                        {
+                                            if($consulta3['f_marcacion'] < $fh_ingreso_tolerancia)
+                                            {
+                                                // === MODIFICACION A ASISTENCIA ===
+                                                    $iu = RrhhAsistencia::find($row1['id']);
+
+                                                    $iu->log_marcaciones_id_i2 = $consulta3['id'];
+                                                    $iu->salida_id_i2          = NULL;
+                                                    $iu->h2_min_retrasos       = '0';
+                                                    $iu->h2_descuento          = '0';
+                                                    $iu->h2_i_omision_registro = '2';
+
+                                                    $iu->horario_2_e = date("H:i:s", strtotime($consulta3['f_marcacion']));
+                                                    $iu->horario_2_s = $this->omision['1'];
+
+                                                    $iu->save();
+
+                                                // === MODIFICACION A LOG DE MARCACIONES ===
+                                                    $iu = RrhhLogMarcacion::find($consulta3['id']);
+
+                                                    $iu->estado = '2';
+
+                                                    $iu->save();
+
+                                                $marcacion_e_o_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                // === SALIDAS POR HORAS ===
+                                                    $salida_sw_1 = TRUE;
+                                                    $salida_sw_3 = TRUE;
+
+                                                    $tabla1 = "rrhh_salidas";
+                                                    $tabla2 = "rrhh_tipos_salida";
+
+                                                    $consulta4 = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                                                        ->where("$tabla1.persona_id", "=", $row1['persona_id'])
+                                                        ->where("$tabla1.f_salida", "=", $row1['fecha'])
+                                                        ->where("$tabla1.estado", "<>", '2')
+                                                        ->where("$tabla1.validar_superior", "=", '2')
+                                                        ->where("$tabla1.validar_rrhh", "=", '2')
+                                                        ->where("a2.tipo_cronograma", "=", '1')
+                                                        ->select("$tabla1.id", "$tabla1.h_salida", "$tabla1.h_retorno", "a2.tipo_salida")
+                                                        ->get()
+                                                        ->toArray();
+
+                                                    if(count($consulta4) > 0)
+                                                    {
+                                                        foreach ($consulta4 as $row4)
+                                                        {
+                                                            $fh_s = $row1['fecha'] . " " . $row4['h_salida'];
+
+                                                            if($fh_s <= $fh_ingreso)
+                                                            {
+                                                                // === MODIFICACION A ASISTENCIA ===
+                                                                    $iu = RrhhAsistencia::find($row1['id']);
+
+                                                                    $iu->salida_id_i2          = $row4['id'];
+                                                                    $iu->log_marcaciones_id_i2 = NULL;
+                                                                    $iu->h2_min_retrasos       = '0';
+                                                                    $iu->h2_descuento          = '0';
+                                                                    $iu->h2_i_omision_registro = '2';
+
+                                                                    $iu->horario_2_e = $this->tipo_salida[$row4['tipo_salida']];
+                                                                    $iu->horario_2_s = $this->omision['1'];
+
+                                                                    $iu->save();
+
+                                                                // === MODIFICACION A LOG DE MARCACIONES ===
+                                                                    $iu = RrhhSalida::find($row4['id']);
+
+                                                                    $iu->estado = '3';
+
+                                                                    $iu->save();
+
+                                                                $salida_sw_1 = FALSE;
+                                                                $salida_sw_3 = FALSE;
+
+                                                                $marcacion_e_o_sw = FALSE;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                // === SALIDAS POR DIAS ===
+                                                    if($salida_sw_1)
+                                                    {
+                                                        $tabla1 = "rrhh_salidas";
+                                                        $tabla2 = "rrhh_tipos_salida";
+
+                                                        $consulta5 = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                                                            ->where("$tabla1.persona_id", "=", $row1['persona_id'])
+                                                            ->where("$tabla1.f_salida", "<=", $row1['fecha'])
+                                                            ->where("$tabla1.f_retorno", ">=", $row1['fecha'])
+                                                            ->where("$tabla1.estado", "<>", '2')
+                                                            ->where("$tabla1.validar_superior", "=", '2')
+                                                            ->where("$tabla1.validar_rrhh", "=", '2')
+                                                            ->where("a2.tipo_cronograma", "=", '2')
+                                                            ->select("$tabla1.id", "$tabla1.f_salida", "$tabla1.f_retorno", "$tabla1.periodo_salida", "$tabla1.periodo_retorno", "a2.tipo_salida")
+                                                            ->orderBy("$tabla1.f_salida", 'asc')
+                                                            ->get()
+                                                            ->toArray();
+
+                                                        if(count($consulta5) > 0)
+                                                        {
+                                                            $salida_sw_2 = FALSE;
+                                                            foreach($consulta5 as $row5)
+                                                            {
+                                                                if(($row5['f_salida'] == $row1['fecha']) && ($row5['f_retorno'] == $row1['fecha']))
+                                                                {
+                                                                    if($row5['periodo_salida'] == '2')
+                                                                    {
+                                                                        $salida_sw_2 = TRUE;
+                                                                    }
+                                                                    elseif(($row5['periodo_salida'] != '2') && ($row5['periodo_retorno'] != '1'))
+                                                                    {
+                                                                        $salida_sw_2 = TRUE;
+                                                                    }
+                                                                }
+                                                                elseif(($row5['f_salida'] == $row1['fecha']))
+                                                                {
+                                                                    if($row5['periodo_salida'] == '2')
+                                                                    {
+                                                                        $salida_sw_2 = TRUE;
+                                                                    }
+                                                                }
+                                                                elseif(($row5['f_retorno'] == $row1['fecha']))
+                                                                {
+                                                                    if( ! ($row5['periodo_retorno'] == '1'))
+                                                                    {
+                                                                        $salida_sw_2 = TRUE;
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    $salida_sw_2 = TRUE;
+                                                                }
+
+                                                                if($salida_sw_2)
+                                                                {
+                                                                    // === MODIFICACION A ASISTENCIA ===
+                                                                        $iu = RrhhAsistencia::find($row1['id']);
+
+                                                                        $iu->salida_id_i2          = $row5['id'];
+                                                                        $iu->salida_id_s2          = $row5['id'];
+                                                                        $iu->log_marcaciones_id_i2 = NULL;
+                                                                        $iu->log_marcaciones_id_s2 = NULL;
+                                                                        $iu->h2_min_retrasos       = '0';
+
+                                                                        $descuento = 0;
+                                                                        if($row5['tipo_salida'] == '5')
+                                                                        {
+                                                                            $descuento = 0.5;
+                                                                        }
+
+                                                                        $iu->h1_descuento = $descuento;
+
+                                                                        $iu->h2_i_omision_registro = '2';
+                                                                        $iu->h2_s_omision_registro = '2';
+
+                                                                        $iu->horario_2_e = $this->tipo_salida[$row5['tipo_salida']];
+                                                                        $iu->horario_2_s = $this->tipo_salida[$row5['tipo_salida']];
+
+                                                                        $iu->save();
+
+                                                                    // === MODIFICACION A LOG DE MARCACIONES ===
+                                                                        $iu = RrhhSalida::find($row5['id']);
+
+                                                                        $iu->estado = '3';
+
+                                                                        $iu->save();
+
+                                                                    $salida_sw_3 = FALSE;
+
+                                                                    $marcacion_e_o_sw = FALSE;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                // === RETRASO MINUTOS ===
+                                                    if($salida_sw_3)
+                                                    {
+                                                        // === OJO REDONDEO HACIA ABAJO O USAR ESTE OTRO A CONSULTA CEIL ===
+                                                        $min_retrasos = floor((strtotime($consulta3['f_marcacion']) - strtotime($fh_ingreso)) / 60);
+
+                                                        // === MODIFICACION A ASISTENCIA ===
+                                                            $iu = RrhhAsistencia::find($row1['id']);
+
+                                                            $iu->log_marcaciones_id_i2 = $consulta3['id'];
+                                                            $iu->salida_id_i2          = NULL;
+                                                            $iu->h2_min_retrasos       = $min_retrasos;
+                                                            $iu->h2_descuento          = '0';
+                                                            $iu->h2_i_omision_registro = '2';
+
+                                                            $iu->horario_2_e = date("H:i:s", strtotime($consulta3['f_marcacion']));
+                                                            $iu->horario_2_s = $this->omision['1'];
+
+                                                            $iu->save();
+
+                                                        // === MODIFICACION A LOG DE MARCACIONES ===
+                                                            $iu = RrhhLogMarcacion::find($consulta3['id']);
+
+                                                            $iu->estado = '2';
+
+                                                            $iu->save();
+
+                                                        $marcacion_e_o_sw = FALSE;
+                                                    }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // === SALIDAS POR HORAS ===
+                                                $salida_sw_1 = TRUE;
+
+                                                $tabla1 = "rrhh_salidas";
+                                                $tabla2 = "rrhh_tipos_salida";
+
+                                                $consulta4 = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                                                    ->where("$tabla1.persona_id", "=", $row1['persona_id'])
+                                                    ->where("$tabla1.f_salida", "=", $row1['fecha'])
+                                                    ->where("$tabla1.estado", "<>", '2')
+                                                    ->where("$tabla1.validar_superior", "=", '2')
+                                                    ->where("$tabla1.validar_rrhh", "=", '2')
+                                                    ->where("a2.tipo_cronograma", "=", '1')
+                                                    ->select("$tabla1.id", "$tabla1.h_salida", "$tabla1.h_retorno", "a2.tipo_salida")
+                                                    ->get()
+                                                    ->toArray();
+
+                                                if(count($consulta4) > 0)
+                                                {
+                                                    foreach ($consulta4 as $row4)
+                                                    {
+                                                        $fh_s = $row1['fecha'] . " " . $row4['h_salida'];
+
+                                                        if($fh_s <= $fh_ingreso)
+                                                        {
+                                                            // === MODIFICACION A ASISTENCIA ===
+                                                                $iu = RrhhAsistencia::find($row1['id']);
+
+                                                                $iu->salida_id_i2          = $row4['id'];
+                                                                $iu->log_marcaciones_id_i2 = NULL;
+                                                                $iu->h2_min_retrasos       = '0';
+                                                                $iu->h2_descuento          = '0';
+                                                                $iu->h2_i_omision_registro = '2';
+
+                                                                $iu->horario_2_e = $this->tipo_salida[$row4['tipo_salida']];
+                                                                $iu->horario_2_s = $this->omision['1'];
+
+                                                                $iu->save();
+
+                                                            // === MODIFICACION A LOG DE MARCACIONES ===
+                                                                $iu = RrhhSalida::find($row4['id']);
+
+                                                                $iu->estado = '3';
+
+                                                                $iu->save();
+
+                                                            $salida_sw_1 = FALSE;
+                                                            $salida_sw_3 = FALSE;
+
+                                                            $marcacion_e_o_sw = FALSE;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+
+                                            // === SALIDAS POR DIAS ===
+                                                if($salida_sw_1)
+                                                {
+                                                    $tabla1 = "rrhh_salidas";
+                                                    $tabla2 = "rrhh_tipos_salida";
+
+                                                    $consulta5 = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                                                        ->where("$tabla1.persona_id", "=", $row1['persona_id'])
+                                                        ->where("$tabla1.f_salida", "<=", $row1['fecha'])
+                                                        ->where("$tabla1.f_retorno", ">=", $row1['fecha'])
+                                                        ->where("$tabla1.estado", "<>", '2')
+                                                        ->where("$tabla1.validar_superior", "=", '2')
+                                                        ->where("$tabla1.validar_rrhh", "=", '2')
+                                                        ->where("a2.tipo_cronograma", "=", '2')
+                                                        ->select("$tabla1.id", "$tabla1.f_salida", "$tabla1.f_retorno", "$tabla1.periodo_salida", "$tabla1.periodo_retorno", "a2.tipo_salida")
+                                                        ->orderBy("$tabla1.f_salida", 'asc')
+                                                        ->get()
+                                                        ->toArray();
+
+                                                    if(count($consulta5) > 0)
+                                                    {
+                                                        $salida_sw_2 = FALSE;
+                                                        foreach($consulta5 as $row5)
+                                                        {
+                                                            if(($row5['f_salida'] == $row1['fecha']) && ($row5['f_retorno'] == $row1['fecha']))
+                                                            {
+                                                                if($row5['periodo_salida'] == '2')
+                                                                {
+                                                                    $salida_sw_2 = TRUE;
+                                                                }
+                                                                elseif(($row5['periodo_salida'] != '2') && ($row5['periodo_retorno'] != '1'))
+                                                                {
+                                                                    $salida_sw_2 = TRUE;
+                                                                }
+                                                            }
+                                                            elseif(($row5['f_salida'] == $row1['fecha']))
+                                                            {
+                                                                if($row5['periodo_salida'] == '2')
+                                                                {
+                                                                    $salida_sw_2 = TRUE;
+                                                                }
+                                                            }
+                                                            elseif(($row5['f_retorno'] == $row1['fecha']))
+                                                            {
+                                                                if( ! ($row5['periodo_retorno'] == '1'))
+                                                                {
+                                                                    $salida_sw_2 = TRUE;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                $salida_sw_2 = TRUE;
+                                                            }
+
+                                                            if($salida_sw_2)
+                                                            {
+                                                                // === MODIFICACION A ASISTENCIA ===
+                                                                    $iu = RrhhAsistencia::find($row1['id']);
+
+                                                                    $iu->salida_id_i2          = $row5['id'];
+                                                                    $iu->salida_id_s2          = $row5['id'];
+                                                                    $iu->log_marcaciones_id_i2 = NULL;
+                                                                    $iu->log_marcaciones_id_s2 = NULL;
+                                                                    $iu->h2_min_retrasos       = '0';
+
+                                                                    $descuento = 0;
+                                                                    if($row5['tipo_salida'] == '5')
+                                                                    {
+                                                                        $descuento = 0.5;
+                                                                    }
+
+                                                                    $iu->h1_descuento = $descuento;
+
+                                                                    $iu->h2_i_omision_registro = '2';
+                                                                    $iu->h2_s_omision_registro = '2';
+
+                                                                    $iu->horario_2_e = $this->tipo_salida[$row5['tipo_salida']];
+                                                                    $iu->horario_2_s = $this->tipo_salida[$row5['tipo_salida']];
+
+                                                                    $iu->save();
+
+                                                                // === MODIFICACION A LOG DE MARCACIONES ===
+                                                                    $iu = RrhhSalida::find($row5['id']);
+
+                                                                    $iu->estado = '3';
+
+                                                                    $iu->save();
+
+                                                                $salida_sw_3 = FALSE;
+
+                                                                $marcacion_e_o_sw = FALSE;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                        }
+                                    }
+
+                                // === HORARIO 2 SALIDA ===
+                                    if($row1['h2_s_omitir'] == '1')
+                                    {
+                                        $fh_salida = $row1['fecha'] . " " . $consulta2['h_salida'];
+
+                                        $salida_del = $row1['fecha'] . " " . $consulta2['marcacion_salida_del'];
+
+                                        $salida_al = $row1['fecha'] . " " . $consulta2['marcacion_salida_al'];
+
+                                        $consulta3 = RrhhLogMarcacion::where("persona_id", "=", $row1['persona_id'])
+                                            ->whereBetween('f_marcacion', [$salida_del, $salida_al])
+                                            ->select('id', 'f_marcacion')
+                                            ->orderBy('f_marcacion', 'asc')
+                                            ->first();
+
+                                        if(count($consulta3) > 0)
+                                        {
+                                            // === MODIFICACION A ASISTENCIA ===
+                                                $iu = RrhhAsistencia::find($row1['id']);
+
+                                                $iu->log_marcaciones_id_s2 = $consulta3['id'];
+                                                $iu->salida_id_s2          = NULL;
+                                                $iu->h2_descuento          = '0';
+                                                $iu->h2_s_omision_registro = '2';
+
+                                                if($marcacion_e_o_sw)
+                                                {
+                                                    $iu->horario_2_e = $this->omision['1'];
+                                                }
+
+                                                $iu->horario_2_s = date("H:i:s", strtotime($consulta3['f_marcacion']));
+
+                                                $iu->save();
+
+                                            // === MODIFICACION A LOG DE MARCACIONES ===
+                                                $iu = RrhhLogMarcacion::find($consulta3['id']);
+
+                                                $iu->estado = '2';
+
+                                                $iu->save();
+                                        }
+                                        else
+                                        {
+                                            // === SALIDAS POR HORAS ===
+                                                $tabla1 = "rrhh_salidas";
+                                                $tabla2 = "rrhh_tipos_salida";
+
+                                                $consulta4 = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                                                    ->where("$tabla1.persona_id", "=", $row1['persona_id'])
+                                                    ->where("$tabla1.f_salida", "=", $row1['fecha'])
+                                                    ->where("$tabla1.estado", "<>", '2')
+                                                    ->where("$tabla1.validar_superior", "=", '2')
+                                                    ->where("$tabla1.validar_rrhh", "=", '2')
+                                                    ->where("a2.tipo_cronograma", "=", '1')
+                                                    ->select("$tabla1.id", "$tabla1.h_salida", "$tabla1.h_retorno", "a2.tipo_salida")
+                                                    ->get()
+                                                    ->toArray();
+
+                                                if(count($consulta4) > 0)
+                                                {
+                                                    foreach ($consulta4 as $row4)
+                                                    {
+                                                        $fh_r = $row1['fecha'] . " " . $row4['h_retorno'];
+
+                                                        if($fh_r >= $fh_salida)
+                                                        {
+                                                            // === MODIFICACION A ASISTENCIA ===
+                                                                $iu = RrhhAsistencia::find($row1['id']);
+
+                                                                $iu->salida_id_s2          = $row4['id'];
+                                                                $iu->log_marcaciones_id_s2 = NULL;
+                                                                $iu->h2_descuento          = '0';
+                                                                $iu->h2_s_omision_registro = '2';
+
+                                                                if($marcacion_e_o_sw)
+                                                                {
+                                                                    $iu->horario_2_e = $this->omision['1'];
+                                                                }
+
+                                                                $iu->horario_2_s = date("H:i:s", strtotime($consulta3['f_marcacion']));
+
+                                                                $iu->save();
+
+                                                            // === MODIFICACION A LOG DE MARCACIONES ===
+                                                                $iu = RrhhSalida::find($row4['id']);
+
+                                                                $iu->estado = '3';
+
+                                                                $iu->save();
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                        }
+                                    }
+                            }
                         }
+
+                        $respuesta['respuesta'] .= "Se logró sincronizar las asistencias.";
+                        $respuesta['sw']         = 1;
                     }
                     else
                     {
@@ -1890,39 +2475,34 @@ class AsistenciaController extends Controller
                 }
                 break;
             case '2':
-                switch($valor['validar_superior'])
+                if($valor['min_retrasos'] > 0)
                 {
-                    case '1':
-                        $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['validar_superior']] . '</span>';
-                        return($respuesta);
-                        break;
-                    case '2':
-                        $respuesta = '<span class="label label-primary font-sm">' . $this->no_si[$valor['validar_superior']] . '</span>';
-                        return($respuesta);
-                        break;
-                    default:
-                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
-                        return($respuesta);
-                        break;
+                    $respuesta = '<span class="label label-danger font-sm">' . $valor['min_retrasos'] . '</span>';
                 }
+                else
+                {
+                    $respuesta = '<span class="label label-primary font-sm">' . $valor['min_retrasos'] . '</span>';
+                }
+
+                return($respuesta);
                 break;
             case '3':
-                switch($valor['validar_rrhh'])
+                $respuesta = "";
+                if($valor['valor']['log_marcaciones_id_i1'] != '')
                 {
-                    case '1':
-                        $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['validar_rrhh']] . '</span>';
-                        return($respuesta);
-                        break;
-                    case '2':
-                        $respuesta = '<span class="label label-primary font-sm">' . $this->no_si[$valor['validar_rrhh']] . '</span>';
-                        return($respuesta);
-                        break;
-                    default:
-                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
-                        return($respuesta);
-                        break;
+                    $respuesta = '<span class="label label-success font-sm">' . $valor['horario'] . '</span>';
                 }
+                else
+                {
+                    $respuesta = $valor['horario'];
+                }
+                return($respuesta);
                 break;
+
+
+
+
+
             case '4':
                 switch($valor['pdf'])
                 {
@@ -1942,66 +2522,6 @@ class AsistenciaController extends Controller
                         return($respuesta);
                         break;
                 }
-                break;
-
-            case '50':
-                $sw_asistencia_registra = FALSE;
-                switch(date('w', strtotime($valor['fecha'])))
-                {
-                    // === DOMINGO ===
-                    case '0':
-                        if($valor['domingo'] == '2')
-                        {
-                            $sw_asistencia_registra = TRUE;
-                        }
-                        break;
-                    // === LUNES ===
-                    case '1':
-                        if($valor['lunes'] == '2')
-                        {
-                            $sw_asistencia_registra = TRUE;
-                        }
-                        break;
-                    // === MARTES ===
-                    case '2':
-                        if($valor['martes'] == '2')
-                        {
-                            $sw_asistencia_registra = TRUE;
-                        }
-                        break;
-                    // === MIERCOLES ===
-                    case '3':
-                        if($valor['miercoles'] == '2')
-                        {
-                            $sw_asistencia_registra = TRUE;
-                        }
-                        break;
-                    // === JUEVES ===
-                    case '4':
-                        if($valor['jueves'] == '2')
-                        {
-                            $sw_asistencia_registra = TRUE;
-                        }
-                        break;
-                    // === VIERNES ===
-                    case '5':
-                        if($valor['viernes'] == '2')
-                        {
-                            $sw_asistencia_registra = TRUE;
-                        }
-                        break;
-                    // === SABADO ===
-                    case '6':
-                        if($valor['sabado'] == '2')
-                        {
-                            $sw_asistencia_registra = TRUE;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-                return $sw_asistencia_registra;
                 break;
 
             case '100':
