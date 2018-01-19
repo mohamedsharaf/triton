@@ -71,10 +71,69 @@
         Route::match(["get", "post"], '/unidad_desconcentrada/view_jqgrid', 'Institucion\UnidadDesconcentradaController@view_jqgrid');
         Route::post('/unidad_desconcentrada/send_ajax', 'Institucion\UnidadDesconcentradaController@send_ajax');
 
+//=== AUO ===
+    Route::get('/auo', 'Institucion\AuoController@index')->name('auo');
+        Route::match(["get", "post"], '/auo/view_jqgrid', 'Institucion\AuoController@view_jqgrid');
+        Route::post('/auo/send_ajax', 'Institucion\AuoController@send_ajax');
+
+//=== CARGOS ===
+    Route::get('/cargo', 'Institucion\CargoController@index')->name('cargo');
+        Route::match(["get", "post"], '/cargo/view_jqgrid', 'Institucion\CargoController@view_jqgrid');
+        Route::post('/cargo/send_ajax', 'Institucion\CargoController@send_ajax');
+        Route::match(["get", "post"], '/cargo/reportes', 'Institucion\CargoController@reportes');
+
 //=== PERSONA ===
     Route::get('/persona', 'Rrhh\PersonaController@index')->name('persona');
         Route::match(["get", "post"], '/persona/view_jqgrid', 'Rrhh\PersonaController@view_jqgrid');
         Route::post('/persona/send_ajax', 'Rrhh\PersonaController@send_ajax');
+
+//=== SOLICITUD DE SALIDA ===
+    Route::get('/solicitud_salida', 'Rrhh\SolicitudSalidaController@index')->name('solicitud_salida');
+        Route::match(["get", "post"], '/solicitud_salida/view_jqgrid', 'Rrhh\SolicitudSalidaController@view_jqgrid');
+        Route::post('/solicitud_salida/send_ajax', 'Rrhh\SolicitudSalidaController@send_ajax');
+        Route::match(["get", "post"], '/solicitud_salida/reportes', 'Rrhh\SolicitudSalidaController@reportes');
+
+//=== CONFIRMAR SALIDA ===
+    Route::get('/confirmar_salida', 'Rrhh\ConfirmarSalidaController@index')->name('confirmar_salida');
+        Route::match(["get", "post"], '/confirmar_salida/view_jqgrid', 'Rrhh\ConfirmarSalidaController@view_jqgrid');
+        Route::post('/confirmar_salida/send_ajax', 'Rrhh\ConfirmarSalidaController@send_ajax');
+        Route::match(["get", "post"], '/confirmar_salida/reportes', 'Rrhh\ConfirmarSalidaController@reportes');
+
+//=== CONFIRMAR SALIDA RRHH ===
+    Route::get('/confirmar_salida_rrhh', 'Rrhh\ConfirmarSalidaRrhhController@index')->name('confirmar_salida_rrhh');
+        Route::match(["get", "post"], '/confirmar_salida_rrhh/view_jqgrid', 'Rrhh\ConfirmarSalidaRrhhController@view_jqgrid');
+        Route::post('/confirmar_salida_rrhh/send_ajax', 'Rrhh\ConfirmarSalidaRrhhController@send_ajax');
+        Route::match(["get", "post"], '/confirmar_salida_rrhh/reportes', 'Rrhh\ConfirmarSalidaRrhhController@reportes');
+
+//=== FUNCIONARIOS ===
+    Route::get('/funcionario', 'Rrhh\FuncionarioController@index')->name('funcionario');
+        Route::match(["get", "post"], '/funcionario/view_jqgrid', 'Rrhh\FuncionarioController@view_jqgrid');
+        Route::post('/funcionario/send_ajax', 'Rrhh\FuncionarioController@send_ajax');
+        Route::match(["get", "post"], '/funcionario/reportes', 'Rrhh\FuncionarioController@reportes');
+
+//=== GESTOR DE Asistencias ===
+    Route::get('/asistencia', 'Rrhh\AsistenciaController@index')->name('asistencia');
+        Route::match(["get", "post"], '/asistencia/view_jqgrid', 'Rrhh\AsistenciaController@view_jqgrid');
+        Route::post('/asistencia/send_ajax', 'Rrhh\AsistenciaController@send_ajax');
+        Route::match(["get", "post"], '/asistencia/reportes', 'Rrhh\AsistenciaController@reportes');
+
+//=== HORARIOS ===
+    Route::get('/horario', 'Rrhh\HorarioController@index')->name('horario');
+        Route::match(["get", "post"], '/horario/view_jqgrid', 'Rrhh\HorarioController@view_jqgrid');
+        Route::post('/horario/send_ajax', 'Rrhh\HorarioController@send_ajax');
+        Route::match(["get", "post"], '/horario/reportes', 'Rrhh\HorarioController@reportes');
+
+//=== FERIADO, TOLERANCIA Y HORARIO CONTINUO ===
+    Route::get('/fthc', 'Rrhh\FthcController@index')->name('fthc');
+        Route::match(["get", "post"], '/fthc/view_jqgrid', 'Rrhh\FthcController@view_jqgrid');
+        Route::post('/fthc/send_ajax', 'Rrhh\FthcController@send_ajax');
+        Route::match(["get", "post"], '/fthc/reportes', 'Rrhh\FthcController@reportes');
+
+//=== TIPOS DE SALIDA ===
+    Route::get('/tipo_salida', 'Rrhh\TipoSalidaController@index')->name('tipo_salida');
+        Route::match(["get", "post"], '/tipo_salida/view_jqgrid', 'Rrhh\TipoSalidaController@view_jqgrid');
+        Route::post('/tipo_salida/send_ajax', 'Rrhh\TipoSalidaController@send_ajax');
+        Route::match(["get", "post"], '/tipo_salida/reportes', 'Rrhh\TipoSalidaController@reportes');
 
 //=== BIOMETRICOS ===
     Route::get('/biometrico', 'Rrhh\BiometricoController@index')->name('biometrico');

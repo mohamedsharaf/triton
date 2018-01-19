@@ -509,7 +509,7 @@
                             rowNum : 10,
                             rowList: [10, 20, 30],
 
-                            sortname : 'f_marcacion',
+                            sortname : 'f_marcacion::text',
                             sortorder: "desc",
 
                             shrinkToFit: false,
@@ -651,7 +651,7 @@
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
 
-                var persona = val_json.n_documento + ' - ' + $.trim(val_json.ap_paterno + ' ' +  val_json.ap_materno) + val_json.nombre_persona;
+                var persona = val_json.n_documento + ' - ' + $.trim(val_json.ap_paterno + ' ' +  val_json.ap_materno) + ' ' + val_json.nombre_persona;
 
                 $('#persona_id option').remove();
                 $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');

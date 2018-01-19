@@ -644,7 +644,7 @@ class UsuarioController extends Controller
                             ],
                             [
                                 'file.image' => 'El archivo subido debe de ser imagen.',
-                                'file.image' => 'El archivo subido debe de ser de tipo jpeg,png,jpg.',
+                                'file.mimes' => 'El archivo subido debe de ser de tipo jpeg,png,jpg.',
                                 'file.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.',
 
                                 'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
@@ -668,7 +668,7 @@ class UsuarioController extends Controller
                             ],
                             [
                                 'file.image' => 'El archivo subido debe de ser imagen.',
-                                'file.image' => 'El archivo subido debe de ser de tipo jpeg,png,jpg.',
+                                'file.mimes' => 'El archivo subido debe de ser de tipo jpeg,png,jpg.',
                                 'file.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.',
 
                                 'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
@@ -846,7 +846,10 @@ class UsuarioController extends Controller
                                     ->toArray();
                                 if($user_imagen['imagen'] != '')
                                 {
-                                    unlink(public_path($this->public_dir) . '/' . $user_imagen['imagen']);
+                                    if(file_exists(public_path($this->public_dir) . '/' . $user_imagen['imagen']))
+                                    {
+                                        unlink(public_path($this->public_dir) . '/' . $user_imagen['imagen']);
+                                    }
                                 }
 
                                 if($request->hasFile('file'))

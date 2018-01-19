@@ -42,6 +42,8 @@ class JqgridClass
     if($this->request->has('sidx'))
     {
       $sidx  = $this->request->input('sidx');
+      $sidx_array = explode('::', $sidx);
+      $sidx  = $sidx_array[0];
     }
     else
     {

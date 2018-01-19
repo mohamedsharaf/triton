@@ -3,7 +3,11 @@ node_modules/
 npm-debug.log
 
 # Laravel 5 & Lumen specific
-public/storage/seguridad/user/image/*
+public/storage/seguridad/user/image/*.jpg
+public/storage/seguridad/user/image/*.png
+public/storage/seguridad/user/image/*.gif
+public/storage/rrhh/funcionario/documentos/designacion/*.pdf
+public/storage/rrhh/salidas/solicitud_salida/*.pdf
 public/hot
 storage/*.key
 .env.*.php

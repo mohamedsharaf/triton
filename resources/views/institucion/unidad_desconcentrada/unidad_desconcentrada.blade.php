@@ -3,31 +3,31 @@
 @section('title', $title)
 
 @section('css_plugins')
-  <link href="{!! asset('inspinia_v27/css/plugins/jQueryUI/jquery-ui-1.10.4.custom.min.css') !!}" rel="stylesheet">
-  <link href="{!! asset('inspinia_v27/css/plugins/jqGrid/ui.jqgrid.css') !!}" rel="stylesheet">
+    <link href="{!! asset('inspinia_v27/css/plugins/jQueryUI/jquery-ui-1.10.4.custom.min.css') !!}" rel="stylesheet">
+    <link href="{!! asset('inspinia_v27/css/plugins/jqGrid/ui.jqgrid.css') !!}" rel="stylesheet">
 
-  <!-- Toastr style -->
+    <!-- Toastr style -->
     <link href="{!! asset('inspinia_v27/css/plugins/toastr/toastr.min.css') !!}" rel="stylesheet">
 
-  <!-- Sweet Alert -->
+    <!-- Sweet Alert -->
     <link href="{!! asset('inspinia_v27/css/plugins/sweetalert/sweetalert.css') !!}" rel="stylesheet">
 
     <link href="{!! asset('inspinia_v27/css/plugins/select2/select2.min.css') !!}" rel="stylesheet">
 @endsection
 
 @section('css')
-  <style type="text/css">
-    #alertmod_table_list_2 {
-        top: 900px !important;
-    }
+    <style type="text/css">
+        #alertmod_table_list_2 {
+            top: 900px !important;
+        }
 
-    .select2-close-mask{
-      z-index: 2099;
-    }
-    .select2-dropdown{
-      z-index: 3051;
-    }
-  </style>
+        .select2-close-mask{
+            z-index: 2099;
+        }
+        .select2-dropdown{
+            z-index: 3051;
+        }
+    </style>
 @endsection
 
 @section('content')

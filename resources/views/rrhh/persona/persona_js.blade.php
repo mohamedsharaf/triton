@@ -693,7 +693,7 @@
                     rules: {
                         n_documento:{
                             required : true,
-                            minlength: 6,
+                            minlength: 5,
                             maxlength: 8,
                             digits   : true
                         },

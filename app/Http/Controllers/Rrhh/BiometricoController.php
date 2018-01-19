@@ -807,7 +807,7 @@ class BiometricoController extends Controller
                             'com_key'       => $biometrico['com_key'],
                             'soap_port'     => $biometrico['soap_port'],
                             'udp_port'      => $biometrico['udp_port'],
-                            'encoding'      => $this->encoding['1']
+                            'encoding'      => $biometrico['encoding']
                         ];
 
                         $tad_factory = new TADFactory($data_conexion);
@@ -1158,7 +1158,7 @@ class BiometricoController extends Controller
                             $e_conexion             = 2;
                             $fb_conexion            = null;
 
-                            $error = '' . $e;
+                            $error       = '' . $e;
                             $error_array = explode("Stack trace:", $error);
 
                             $iu                = new RrhhLogAlerta;
