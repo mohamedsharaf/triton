@@ -839,8 +839,8 @@
 
                 if(valor_sw){
                 	swal({
-                        title             : "ENVIANDO INFORMACIÓN",
-                        text              : "Espere a que se creen las fechas.",
+                        title             : "CREANDO FECHAS",
+                        text              : "Espere a que se creen las fechas para el control de las asistencias.",
                         allowEscapeKey    : false,
                         showConfirmButton : false,
                         type              : "info"
@@ -911,8 +911,8 @@
 
                 if(valor_sw){
                     swal({
-                        title             : "ENVIANDO INFORMACIÓN",
-                        text              : "Espere a que se creen las fechas.",
+                        title             : "SINCRONIZANDO ASISTENCIAS",
+                        text              : "Espere a que se sincronicen las asistencias.",
                         allowEscapeKey    : false,
                         showConfirmButton : false,
                         type              : "info"
@@ -968,25 +968,26 @@
                 break;
             // === FERIADO, TOLERANCIA, HORARIO CONTINUO ===
             case 19:
-                $('#modal_3_title, #modal_3_subtitle, #td_ud, #td_ld').empty();
-                $('#modal_3_title').append('DONDE ASISTIO');
+                $('#modal_4_title, #modal_4_subtitle, #th_nombre_4, #td_nombre_4, #td_ud_4, #td_ld_4').empty();
+                $('#modal_4_title').append(valor[3]);
 
                 var ret = $(jqgrid1).jqGrid('getRowData', valor[2]);
 
                 var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
 
-                $('#modal_3_subtitle').append(persona);
+                $('#modal_4_subtitle').append(persona);
+                $('#th_nombre_4').append(valor[3]);
 
                 var valor1 = new Array();
                 valor1[0]  = 150;
                 valor1[1]  = url_controller + '/send_ajax';
                 valor1[2]  = 'POST';
                 valor1[3]  = false;
-                valor1[4]  = "tipo=50&id=" + valor[1] + "&_token=" + csrf_token;
+                valor1[4]  = "tipo=51&id=" + valor[1] + "&_token=" + csrf_token;
                 valor1[5]  = 'json';
                 utilitarios(valor1);
 
-                $('#modal_3').modal();
+                $('#modal_4').modal();
                 break;
 
 
@@ -1447,6 +1448,15 @@
                                 if(data.sw === 2){
                                     $('#td_ud').append(data.consulta.unidad_desconcentrada);
                                     $('#td_ld').append(data.consulta.lugar_dependencia);
+                                }
+                                break;
+
+                            // === FERIADO, TOLERANCIA, HORARIO CONTINUO ===
+                            case '51':
+                                if(data.sw === 2){
+                                    $('#td_nombre_4').append(data.consulta.nombre);
+                                    $('#td_ld_4').append(data.consulta.lugar_dependencia);
+                                    $('#td_ud_4').append(data.consulta.unidad_desconcentrada);
                                 }
                                 break;
 

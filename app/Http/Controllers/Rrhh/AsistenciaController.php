@@ -763,7 +763,7 @@ class AsistenciaController extends Controller
 
                                     $cantidad_registros++;
 
-                                    $array_where = "fecha='" . $fecha_acu . "' AND lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
+                                    $array_where = "estado='1' AND fecha='" . $fecha_acu . "' AND lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
 
                                     $consulta4 = RrhhFthc::whereRaw($array_where)
                                         ->get()
@@ -1053,7 +1053,7 @@ class AsistenciaController extends Controller
 
                                             $cantidad_registros++;
 
-                                            $array_where = "fecha='" . $fecha_acu . "' AND lugar_dependencia_id=" . $row1['lugar_dependencia_id_funcionario'];
+                                            $array_where = "estado='1' AND fecha='" . $fecha_acu . "' AND lugar_dependencia_id=" . $row1['lugar_dependencia_id_funcionario'];
 
                                             $consulta3 = RrhhFthc::whereRaw($array_where)
                                                 ->get()
@@ -2373,6 +2373,53 @@ class AsistenciaController extends Controller
                 }
                 return json_encode($respuesta);
                 break;
+            // === FERIADO, TOLERANCIA, HORARIO CONTINUO ===
+            case '51':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('id'))
+                {
+                    $id = $request->input('id');
+
+                    $tabla1 = "rrhh_fthc";
+                    $tabla2 = "inst_lugares_dependencia";
+                    $tabla3 = "inst_unidades_desconcentradas";
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.lugar_dependencia_id,
+                        $tabla1.unidad_desconcentrada_id,
+                        $tabla1.horario_id,
+
+                        $tabla1.estado,
+                        $tabla1.fecha,
+                        $tabla1.nombre,
+                        $tabla1.tipo_fthc,
+                        $tabla1.tipo_horario,
+                        $tabla1.sexo,
+
+                        a2.nombre AS lugar_dependencia,
+
+                        a3.nombre AS unidad_desconcentrada
+                    ";
+
+                    $array_where = "$tabla1.id=" . $id;
+
+                    $query = RrhhFthc::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.lugar_dependencia_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->first();
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
 
             // === SELECT2 PERSONA ===
             case '100':
@@ -2559,7 +2606,7 @@ class AsistenciaController extends Controller
                 }
                 elseif($valor['fthc_id'] != '')
                 {
-                    $respuesta = '<button class="btn btn-xs btn-info" onclick="utilitarios([19, ' . $valor['fthc_id'] . ', ' . $valor['id'] . ']);" title="Ver ' . $valor['horario'] . '" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                    $respuesta = '<button class="btn btn-xs btn-info" onclick="utilitarios([19, ' . $valor['fthc_id'] . ', ' . $valor['id'] . ', ' . "'" .  $valor['horario'] . "'" . ']);" title="Ver ' . $valor['horario'] . '" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
                             <i class="fa fa-eye"></i>
                             <strong>' . $valor['horario'] . '</strong>
                         </button>';

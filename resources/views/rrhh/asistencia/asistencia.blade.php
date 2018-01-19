@@ -354,7 +354,46 @@
               <tbody>
                 <tr>
                   <td id="td_ud" class="text-center">1</td>
-                  <td id="td_ld" class="text-center">Mark</td>
+                  <td id="td_ld" class="text-center">1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal_4" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              <span id="modal_4_title"></span>
+            </h4>
+
+            <small class="font-bold" id="modal_4_subtitle">
+            </small>
+          </div>
+
+          <div class="modal-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th id="th_nombre_4" class="text-center"></th>
+                  <th class="text-center">LUGAR DE DEPENDENCIA</th>
+                  <th class="text-center">UNIDAD DESCONCENTRADA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td id="td_nombre_4" class="text-center">1</td>
+                  <td id="td_ld_4" class="text-center">1</td>
+                  <td id="td_ud_4" class="text-center">1</td>
                 </tr>
               </tbody>
             </table>
