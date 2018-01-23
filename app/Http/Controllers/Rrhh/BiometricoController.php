@@ -1141,7 +1141,7 @@ class BiometricoController extends Controller
 
                                 RrhhLogMarcacion::insert($data1);
 
-                                $tad->delete_data(['value' => 3]);
+                                // $tad->delete_data(['value' => 3]);
 
                                 $respuesta['respuesta'] .= "Se obtuvo los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . ".";
                                 $respuesta['sw']        = 1;

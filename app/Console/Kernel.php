@@ -174,7 +174,7 @@ class Kernel extends ConsoleKernel
 
                             RrhhLogMarcacion::insert($data1);
 
-                            $tad->delete_data(['value' => 3]);
+                            // $tad->delete_data(['value' => 3]);
                         }
                         else
                         {

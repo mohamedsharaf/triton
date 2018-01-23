@@ -30,7 +30,7 @@ class Dashboard1Controller extends Controller
     public function index()
     {
           $opciones = array(
-              'ip'            => '192.168.30.30', // '192.168.30.30' '200.107.241.111' by default (totally useless!!!).
+              'ip'            => '200.87.102.108', // '192.168.30.30' '200.107.241.111' by default (totally useless!!!).
               'internal_id'   => 1,         // 1 by default.
               'com_key'       => 0,            // 0 by default.
               //'description' => '',              // 'N/A' by default.
@@ -161,7 +161,15 @@ class Dashboard1Controller extends Controller
               // echo("<br>");
               // echo("<br>");
               // $logs1 = json_encode($logs1);
-            $logs1 = $tad->get_att_log()->to_array();
+            // $logs1 = $tad->get_att_log()->to_array();
+            $att_logs = $tad->get_att_log();
+
+            $f_actual = date("Y-m-d");
+
+            $logs1 = $att_logs->filter_by_date([
+              'start' => $f_actual,
+              'end'   => $f_actual
+            ])->to_array();
 
             // echo count($logs1);
 
