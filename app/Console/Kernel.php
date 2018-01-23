@@ -153,14 +153,14 @@ class Kernel extends ConsoleKernel
                             {
                                 if(isset($row['PIN']))
                                 {
-                                    $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
+                                    $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $row1['id'])
                                         ->where("n_documento_biometrico", "=",  $row['PIN'])
                                         ->select('persona_id')
                                         ->first();
 
                                     if(count($consulta1) > 0)
                                     {
-                                        $consulta2 = RrhhLogMarcacion::where("biometrico_id", "=", $id)
+                                        $consulta2 = RrhhLogMarcacion::where("biometrico_id", "=", $row1['id'])
                                             ->where("persona_id", "=", $consulta1['persona_id'])
                                             ->where("f_marcacion", "=", $row['DateTime'])
                                             ->select('persona_id')
@@ -169,7 +169,7 @@ class Kernel extends ConsoleKernel
                                         if(count($consulta2) < 1)
                                         {
                                             $data1[] = [
-                                                'biometrico_id'          => $id,
+                                                'biometrico_id'          => $row1['id'],
                                                 'persona_id'             => $consulta1['persona_id'],
                                                 'tipo_marcacion'         => 2,
                                                 'n_documento_biometrico' => $row['PIN'],
@@ -184,14 +184,14 @@ class Kernel extends ConsoleKernel
                                 {
                                     foreach($row as $valor1)
                                     {
-                                        $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
+                                        $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $row1['id'])
                                             ->where("n_documento_biometrico", "=",  $valor1['PIN'])
                                             ->select('persona_id')
                                             ->first();
 
                                         if(count($consulta1) > 0)
                                         {
-                                            $consulta2 = RrhhLogMarcacion::where("biometrico_id", "=", $id)
+                                            $consulta2 = RrhhLogMarcacion::where("biometrico_id", "=", $row1['id'])
                                                 ->where("persona_id", "=", $consulta1['persona_id'])
                                                 ->where("f_marcacion", "=", $valor1['DateTime'])
                                                 ->select('persona_id')
@@ -200,7 +200,7 @@ class Kernel extends ConsoleKernel
                                             if(count($consulta2) < 1)
                                             {
                                                 $data1[] = [
-                                                    'biometrico_id'          => $id,
+                                                    'biometrico_id'          => $row1['id'],
                                                     'persona_id'             => $consulta1['persona_id'],
                                                     'tipo_marcacion'         => 2,
                                                     'n_documento_biometrico' => $valor1['PIN'],
