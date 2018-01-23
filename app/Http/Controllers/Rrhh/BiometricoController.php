@@ -1054,6 +1054,7 @@ class BiometricoController extends Controller
                     );
 
                     $fs_conexion = date("Y-m-d H:i:s");
+                    $f_actual    = date("Y-m-d");
 
                 // === PERMISOS ===
                     $id = trim($request->input('id'));
@@ -1091,11 +1092,27 @@ class BiometricoController extends Controller
 
                             $e_conexion = 1;
 
-                            $log_marcacion = $tad->get_att_log()->to_array();
+                            $att_logs = $tad->get_att_log();
+
+                            if($f_actual <= '2018-01-24')
+                            {
+                                $log_marcacion = $att_logs->filter_by_date([
+                                    'start' => '2018-01-18',
+                                    'end'   => $f_actual
+                                ])->to_array();
+                            }
+                            else
+                            {
+                                $log_marcacion = $att_logs->filter_by_date([
+                                    'start' => $f_actual,
+                                    'end'   => $f_actual
+                                ])->to_array();
+                            }
 
                             if(count($log_marcacion))
                             {
-                                $data1  = [];
+                                $data1     = [];
+                                $sw_insert = FALSE;
                                 foreach($log_marcacion as $row)
                                 {
                                     if(isset($row['PIN']))
@@ -1107,13 +1124,24 @@ class BiometricoController extends Controller
 
                                         if(count($consulta1) > 0)
                                         {
-                                            $data1[] = [
-                                                'biometrico_id'          => $id,
-                                                'persona_id'             => $consulta1['persona_id'],
-                                                'tipo_marcacion'         => 2,
-                                                'n_documento_biometrico' => $row['PIN'],
-                                                'f_marcacion'            => $row['DateTime']
-                                            ];
+                                            $consulta2 = RrhhLogMarcacion::where("biometrico_id", "=", $id)
+                                                ->where("persona_id", "=", $consulta1['persona_id'])
+                                                ->where("f_marcacion", "=", $row['DateTime'])
+                                                ->select('persona_id')
+                                                ->first();
+
+                                            if(count($consulta2) < 1)
+                                            {
+                                                $data1[] = [
+                                                    'biometrico_id'          => $id,
+                                                    'persona_id'             => $consulta1['persona_id'],
+                                                    'tipo_marcacion'         => 2,
+                                                    'n_documento_biometrico' => $row['PIN'],
+                                                    'f_marcacion'            => $row['DateTime']
+                                                ];
+
+                                                $sw_insert = TRUE;
+                                            }
                                         }
                                     }
                                     else
@@ -1127,30 +1155,108 @@ class BiometricoController extends Controller
 
                                             if(count($consulta1) > 0)
                                             {
-                                                $data1[] = [
-                                                    'biometrico_id'          => $id,
-                                                    'persona_id'             => $consulta1['persona_id'],
-                                                    'tipo_marcacion'         => 2,
-                                                    'n_documento_biometrico' => $valor1['PIN'],
-                                                    'f_marcacion'            => $valor1['DateTime']
-                                                ];
+                                                $consulta2 = RrhhLogMarcacion::where("biometrico_id", "=", $id)
+                                                    ->where("persona_id", "=", $consulta1['persona_id'])
+                                                    ->where("f_marcacion", "=", $valor1['DateTime'])
+                                                    ->select('persona_id')
+                                                    ->first();
+
+                                                if(count($consulta2) < 1)
+                                                {
+                                                    $data1[] = [
+                                                        'biometrico_id'          => $id,
+                                                        'persona_id'             => $consulta1['persona_id'],
+                                                        'tipo_marcacion'         => 2,
+                                                        'n_documento_biometrico' => $valor1['PIN'],
+                                                        'f_marcacion'            => $valor1['DateTime']
+                                                    ];
+
+                                                    $sw_insert = TRUE;
+                                                }
                                             }
                                         }
                                     }
                                 }
 
-                                RrhhLogMarcacion::insert($data1);
-
+                                if($sw_insert)
+                                {
+                                    RrhhLogMarcacion::insert($data1);
+                                    $respuesta['respuesta'] .= "Se obtuvo los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . ".";
+                                    $respuesta['sw']        = 1;
+                                }
+                                else
+                                {
+                                    $respuesta['respuesta'] .= "No existe registros de asistencia en la siguiente dirección " . $biometrico['ip'] . ".";
+                                    $f_log_asistencia_sw = FALSE;
+                                }
                                 // $tad->delete_data(['value' => 3]);
-
-                                $respuesta['respuesta'] .= "Se obtuvo los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . ".";
-                                $respuesta['sw']        = 1;
                             }
                             else
                             {
                                 $respuesta['respuesta'] .= "No existe registros de asistencia en la siguiente dirección " . $biometrico['ip'] . ".";
                                 $f_log_asistencia_sw = FALSE;
                             }
+
+                            // $log_marcacion = $tad->get_att_log()->to_array();
+
+                            // if(count($log_marcacion))
+                            // {
+                            //     $data1  = [];
+                            //     foreach($log_marcacion as $row)
+                            //     {
+                            //         if(isset($row['PIN']))
+                            //         {
+                            //             $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
+                            //                 ->where("n_documento_biometrico", "=",  $row['PIN'])
+                            //                 ->select('persona_id')
+                            //                 ->first();
+
+                            //             if(count($consulta1) > 0)
+                            //             {
+                            //                 $data1[] = [
+                            //                     'biometrico_id'          => $id,
+                            //                     'persona_id'             => $consulta1['persona_id'],
+                            //                     'tipo_marcacion'         => 2,
+                            //                     'n_documento_biometrico' => $row['PIN'],
+                            //                     'f_marcacion'            => $row['DateTime']
+                            //                 ];
+                            //             }
+                            //         }
+                            //         else
+                            //         {
+                            //             foreach($row as $valor1)
+                            //             {
+                            //                 $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
+                            //                     ->where("n_documento_biometrico", "=",  $valor1['PIN'])
+                            //                     ->select('persona_id')
+                            //                     ->first();
+
+                            //                 if(count($consulta1) > 0)
+                            //                 {
+                            //                     $data1[] = [
+                            //                         'biometrico_id'          => $id,
+                            //                         'persona_id'             => $consulta1['persona_id'],
+                            //                         'tipo_marcacion'         => 2,
+                            //                         'n_documento_biometrico' => $valor1['PIN'],
+                            //                         'f_marcacion'            => $valor1['DateTime']
+                            //                     ];
+                            //                 }
+                            //             }
+                            //         }
+                            //     }
+
+                            //     RrhhLogMarcacion::insert($data1);
+
+                            //     // $tad->delete_data(['value' => 3]);
+
+                            //     $respuesta['respuesta'] .= "Se obtuvo los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . ".";
+                            //     $respuesta['sw']        = 1;
+                            // }
+                            // else
+                            // {
+                            //     $respuesta['respuesta'] .= "No existe registros de asistencia en la siguiente dirección " . $biometrico['ip'] . ".";
+                            //     $f_log_asistencia_sw = FALSE;
+                            // }
                         }
                         catch (Exception $e)
                         {
