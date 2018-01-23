@@ -216,12 +216,9 @@ class Kernel extends ConsoleKernel
                             if($sw_insert)
                             {
                                 RrhhLogMarcacion::insert($data1);
-                                $respuesta['respuesta'] .= "Se obtuvo los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . ".";
-                                $respuesta['sw']        = 1;
                             }
                             else
                             {
-                                $respuesta['respuesta'] .= "No existe registros de asistencia en la siguiente dirección " . $biometrico['ip'] . ".";
                                 $f_log_asistencia_sw = FALSE;
                             }
 
