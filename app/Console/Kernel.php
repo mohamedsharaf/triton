@@ -98,6 +98,7 @@ class Kernel extends ConsoleKernel
 
         //=== OBTENER REGISTRO DE ASISTENCIA ===
             $schedule->call(function(){
+                $f_actual  = date("Y-m-d");
                 $consulta1 = RrhhBiometrico::where('estado', '=', 1)
                     ->get()
                     ->toArray();
