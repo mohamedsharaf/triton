@@ -425,13 +425,13 @@ class AsistenciaController extends Controller
                         $row["ap_paterno"],
                         $row["ap_materno"],
 
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_e"], 'log_marcaciones_id' => $row["log_marcaciones_id_i1"], 'salida_id' => $row["salida_id_i1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"])),
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s1"], 'salida_id' => $row["salida_id_s1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_e"], 'log_marcaciones_id' => $row["log_marcaciones_id_i1"], 'salida_id' => $row["salida_id_i1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s1"], 'salida_id' => $row["salida_id_s1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h1_min_retrasos"])),
 
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_e"], 'log_marcaciones_id' => $row["log_marcaciones_id_i2"], 'salida_id' => $row["salida_id_i2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_e"], 'log_marcaciones_id' => $row["log_marcaciones_id_i2"], 'salida_id' => $row["salida_id_i2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
                         $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s2"], 'salida_id' => $row["salida_id_s2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"])),
-                        $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h2_min_retrasos"])),
+                        $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h2_min_retrasos"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
 
                         $row["ud_funcionario"],
                         $row["lugar_dependencia_funcionario"],
@@ -444,134 +444,9 @@ class AsistenciaController extends Controller
                 return json_encode($respuesta);
                 break;
             case '2':
-                $persona_id = Auth::user()->persona_id;
-
-                if($persona_id != '')
+                if($request->has('persona_id'))
                 {
-                    $jqgrid = new JqgridClass($request);
-
-                    $tabla1 = "rrhh_salidas";
-                    $tabla2 = "rrhh_tipos_salida";
-                    $tabla3 = "rrhh_personas";
-
-                    $select = "
-                        $tabla1.id,
-                        $tabla1.persona_id,
-                        $tabla1.tipo_salida_id,
-                        $tabla1.persona_id_superior,
-
-                        $tabla1.estado,
-                        $tabla1.codigo,
-                        $tabla1.destino,
-                        $tabla1.motivo,
-                        $tabla1.f_salida,
-                        $tabla1.f_retorno,
-
-                        $tabla1.n_dias,
-                        $tabla1.periodo_salida,
-                        $tabla1.periodo_retorno,
-
-                        $tabla1.validar_superior,
-                        $tabla1.f_validar_superior,
-
-                        $tabla1.validar_rrhh,
-                        $tabla1.f_validar_rrhh,
-
-                        $tabla1.pdf,
-                        $tabla1.papeleta_pdf,
-
-                        a2.nombre AS papeleta_salida,
-                        a2.tipo_cronograma,
-                        a2.tipo_salida,
-
-                        a3.n_documento,
-                        a3.nombre AS nombre_persona,
-                        a3.ap_paterno,
-                        a3.ap_materno
-                    ";
-
-                    $array_where = "$tabla1.persona_id=" . $persona_id  . " AND a2.tipo_cronograma=2";
-
-                    $array_where .= $jqgrid->getWhere();
-
-                    $count = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
-                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id_superior")
-                        ->whereRaw($array_where)
-                        ->count();
-
-                    $limit_offset = $jqgrid->getLimitOffset($count);
-
-                    $query = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
-                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id_superior")
-                        ->whereRaw($array_where)
-                        ->select(DB::raw($select))
-                        ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
-                        ->offset($limit_offset['start'])
-                        ->limit($limit_offset['limit'])
-                        ->get()
-                        ->toArray();
-
-                    $respuesta = [
-                        'page'    => $limit_offset['page'],
-                        'total'   => $limit_offset['total_pages'],
-                        'records' => $count
-                    ];
-
-                    $i = 0;
-                    foreach ($query as $row)
-                    {
-                        $val_array = array(
-                            'persona_id'          => $row["persona_id"],
-                            'tipo_salida_id'      => $row["tipo_salida_id"],
-                            'persona_id_superior' => $row["persona_id_superior"],
-                            'estado'              => $row["estado"],
-                            'n_dias'              => $row["n_dias"],
-                            'periodo_salida'      => $row["periodo_salida"],
-                            'periodo_retorno'     => $row["periodo_retorno"],
-                            'validar_superior'    => $row["validar_superior"],
-                            'f_validar_superior'  => $row["f_validar_superior"],
-                            'validar_rrhh'        => $row["validar_rrhh"],
-                            'f_validar_rrhh'      => $row["f_validar_rrhh"],
-                            'pdf'                 => $row["pdf"],
-                            'papeleta_pdf'        => $row["papeleta_pdf"],
-                            'tipo_cronograma'     => $row["tipo_cronograma"],
-                            'tipo_salida'         => $row["tipo_salida"]
-                        );
-
-                        $respuesta['rows'][$i]['id'] = $row["id"];
-                        $respuesta['rows'][$i]['cell'] = array(
-                            '',
-
-                            $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
-                            $this->utilitarios(array('tipo' => '2', 'validar_superior' => $row["validar_superior"])),
-                            $this->utilitarios(array('tipo' => '3', 'validar_rrhh' => $row["validar_rrhh"])),
-                            $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"], 'id' => $row["id"], 'dia_hora' => 2)),
-
-                            $row["papeleta_salida"],
-                            ($row["tipo_salida"] == '')? '' : $this->tipo_salida[$row["tipo_salida"]],
-                            $row["codigo"],
-                            $row["n_dias"],
-
-                            $row["n_documento"],
-                            $row["nombre_persona"],
-                            $row["ap_paterno"],
-                            $row["ap_materno"],
-
-                            $row["destino"],
-                            $row["motivo"],
-
-                            $row["f_salida"],
-                            ($row["periodo_salida"] == '')? '' : $this->periodo[$row["periodo_salida"]],
-
-                            $row["f_retorno"],
-                            ($row["periodo_retorno"] == '')? '' : $this->periodo[$row["periodo_retorno"]],
-
-                            //=== VARIABLES OCULTOS ===
-                                json_encode($val_array)
-                        );
-                        $i++;
-                    }
-                    return json_encode($respuesta);
+                    $persona_id = $request->input('persona_id');
                 }
                 else
                 {
@@ -582,6 +457,95 @@ class AsistenciaController extends Controller
                     ];
                     return json_encode($respuesta);
                 }
+
+                if($request->has('f_marcacion'))
+                {
+                    $f_marcacion = $request->input('f_marcacion');
+                }
+                else
+                {
+                    $respuesta = [
+                        'page'    => 0,
+                        'total'   => 0,
+                        'records' => 0
+                    ];
+                    return json_encode($respuesta);
+                }
+
+                $jqgrid = new JqgridClass($request);
+
+                $tabla1 = "rrhh_log_marcaciones";
+                $tabla2 = "rrhh_biometricos";
+                $tabla3 = "inst_unidades_desconcentradas";
+                $tabla4 = "inst_lugares_dependencia";
+
+                $select = "
+                    $tabla1.id,
+                    $tabla1.biometrico_id,
+                    $tabla1.persona_id,
+                    $tabla1.f_marcacion,
+
+                    a2.unidad_desconcentrada_id,
+                    a2.codigo_af,
+                    a2.ip,
+
+                    a3.lugar_dependencia_id,
+                    a3.nombre AS unidad_desconcentrada,
+
+                    a4.nombre AS lugar_dependencia
+                ";
+
+                $array_where = "$tabla1.persona_id=" . $persona_id . " AND $tabla1.f_marcacion::text LIKE '%" . $f_marcacion . "%' ";
+
+                $array_where .= $jqgrid->getWhere();
+
+                $count = RrhhLogMarcacion::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->whereRaw($array_where)
+                    ->count();
+
+                $limit_offset = $jqgrid->getLimitOffset($count);
+
+                $query = RrhhLogMarcacion::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->whereRaw($array_where)
+                    ->select(DB::raw($select))
+                    ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                    ->offset($limit_offset['start'])
+                    ->limit($limit_offset['limit'])
+                    ->get()
+                    ->toArray();
+
+                $respuesta = [
+                    'page'    => $limit_offset['page'],
+                    'total'   => $limit_offset['total_pages'],
+                    'records' => $count
+                ];
+
+                $i = 0;
+                foreach ($query as $row)
+                {
+                    $val_array = array(
+                        'biometrico_id'            => $row["biometrico_id"],
+                        'unidad_desconcentrada_id' => $row["unidad_desconcentrada_id"],
+                        'lugar_dependencia_id'     => $row["lugar_dependencia_id"]
+                    );
+
+                    $respuesta['rows'][$i]['id'] = $row["id"];
+                    $respuesta['rows'][$i]['cell'] = array(
+                        $row["f_marcacion"],
+                        "MP-" . $row["codigo_af"],
+                        $row["unidad_desconcentrada"],
+                        $row["lugar_dependencia"],
+
+                        //=== VARIABLES OCULTOS ===
+                            json_encode($val_array)
+                    );
+                    $i++;
+                }
+                return json_encode($respuesta);
                 break;
             default:
                 $respuesta = [
@@ -2619,7 +2583,10 @@ class AsistenciaController extends Controller
                     }
                     else
                     {
-                        $respuesta = '<span class="label label-warning font-sm">' . $valor['horario'] . '</span>';
+                        $respuesta = '<button class="btn btn-xs btn-info" onclick="utilitarios([22, ' . $valor['id'] . ', ' . "'" . $valor['fecha'] . "'" . ', ' . $valor['persona_id'] . ']);" title="Ver marcaciones" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                            <i class="fa fa-table"></i>
+                            <strong>' . $valor['horario'] . '</strong>
+                        </button>';
                     }
                 }
                 return($respuesta);

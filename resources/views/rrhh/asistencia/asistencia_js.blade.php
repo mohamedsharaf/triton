@@ -349,9 +349,9 @@
             utilitarios(valor1);
 
         // === JQGRID 2 ===
-            // var valor1 = new Array();
-            // valor1[0]  = 23;
-            // utilitarios(valor1);
+            var valor1 = new Array();
+            valor1[0]  = 23;
+            utilitarios(valor1);
 
         // === VALIDATE 1 ===
             // var valor1 = new Array();
@@ -1134,22 +1134,23 @@
                     }
                 });
                 break;
-            // === MODAL SUBIR DOCUMENTO ===
-            case 22:
-                var valor1 = new Array();
-                valor1[0]  = 25;
-                utilitarios(valor1);
 
+
+
+            // === MODAL ABRIR MARCACIONES ===
+            case 22:
                 $(jqgrid2).jqGrid('setGridParam',{
-                    url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&persona_id=' + valor[1],
+                    url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&persona_id=' + valor[3] + '&f_marcacion=' + valor[2],
                     datatype: 'json'
                 }).trigger('reloadGrid');
 
-                $(jqgrid2).jqGrid('setCaption', "<span class='text-success'>" + valor[2] + "</span>");
+                var ret = $(jqgrid1).jqGrid('getRowData', valor[1]);
 
-                $("#persona_id_3").val(valor[1]);
+                var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
 
-                $('#modal_3').modal();
+                $(jqgrid2).jqGrid('setCaption', "<span class='text-success'>" + persona + "</span>");
+
+                $('#modal_5').modal();
 
                 setTimeout(function(){
                     $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
@@ -1256,6 +1257,9 @@
                 })
                 ;
                 break;
+
+
+
             // === EXCEL MARCACIONES ===
             case 24:
                 var concatenar_valores = '';

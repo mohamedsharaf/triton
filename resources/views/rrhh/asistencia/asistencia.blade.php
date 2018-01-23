@@ -402,6 +402,40 @@
       </div>
     </div>
 
+    <div id="modal_5" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog modal-xlg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              Marcaciones registradas
+            </h4>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-12">
+                <div id="div_jqgrid2" class="jqGrid_wrapper">
+                  <table id="jqgrid2"></table>
+                  <div id="pjqgrid2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info" onclick="utilitarios([25]);">Limpiar formulario</button>
+            <button type="button" class="btn btn-primary" onclick="utilitarios([24]);">Excel</button>
+            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 @endsection
 
 @section('js_plugins')
