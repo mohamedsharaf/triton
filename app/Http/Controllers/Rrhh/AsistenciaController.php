@@ -1692,6 +1692,7 @@ class AsistenciaController extends Controller
                                         $salida_del = $row1['fecha'] . " " . $consulta2['marcacion_salida_del'];
 
                                         $salida_al = $row1['fecha'] . " " . $consulta2['marcacion_salida_al'];
+                                        $salida_al = date("Y-m-d H:i:s", strtotime('+59 second', strtotime($salida_al)));
 
                                         $consulta3 = RrhhLogMarcacion::where("persona_id", "=", $row1['persona_id'])
                                             ->whereBetween('f_marcacion', [$salida_del, $salida_al])
@@ -2189,6 +2190,7 @@ class AsistenciaController extends Controller
                                         $salida_del = $row1['fecha'] . " " . $consulta2['marcacion_salida_del'];
 
                                         $salida_al = $row1['fecha'] . " " . $consulta2['marcacion_salida_al'];
+                                        $salida_al = date("Y-m-d H:i:s", strtotime('+59 second', strtotime($salida_al)));
 
                                         $consulta3 = RrhhLogMarcacion::where("persona_id", "=", $row1['persona_id'])
                                             ->whereBetween('f_marcacion', [$salida_del, $salida_al])
