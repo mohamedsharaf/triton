@@ -430,7 +430,7 @@ class AsistenciaController extends Controller
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h1_min_retrasos"])),
 
                         $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_e"], 'log_marcaciones_id' => $row["log_marcaciones_id_i2"], 'salida_id' => $row["salida_id_i2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s2"], 'salida_id' => $row["salida_id_s2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s2"], 'salida_id' => $row["salida_id_s2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h2_min_retrasos"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
 
                         $row["ud_funcionario"],
