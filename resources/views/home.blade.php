@@ -25,6 +25,81 @@
 
 @section('css')
     <style type="text/css">
+        #alertmod_table_list_2 {
+            top: 900px !important;
+        }
+
+        .select2-close-mask{
+            z-index: 2099;
+        }
+        .select2-dropdown{
+            z-index: 3051;
+        }
+        .ui-th-column-header{
+            text-align: center;
+            background-color: #b9cde5 !important;
+        }
+
+        .ui-search-clear{
+          width: 15px;
+        }
+
+        .modal-xlg {
+            width: 90%;
+        }
+
+        .orgchart .node{
+          /*box-sizing:border-box;
+          display   :inline-block;
+          position  :relative;
+          margin    :0;
+          padding   :3px;
+          border    :2px dashed transparent;
+          text-align:center;*/
+          width     :auto;
+        }
+
+        .oc-export-btn{
+          right:15px;
+          top  :92px;
+        }
+
+        .orgchart .node .title{
+          text-align      :center;
+          font-size       :12px;
+          font-weight     :700;
+          height          :20px;
+          line-height     :20px;
+          overflow        :hidden;
+          text-overflow   :ellipsis;
+          white-space     :nowrap;
+          background-color:#4587BC;
+          color           :#fff;
+          border-radius   :2px 2px 2px 2px;
+          padding-left    :4px;
+          padding-right   :4px;
+        }
+
+        .orgchart .lines .topLine{
+          border-top:2px solid #0069AA
+        }
+        .orgchart .lines .rightLine{
+          border-right :1px solid #0069AA;
+          float        :none;
+          border-radius:0
+        }
+        .orgchart .lines .leftLine{
+          border-left  :1px solid #0069AA;
+          float        :none;
+          border-radius:0
+        }
+        .orgchart .lines .downLine{
+          background-color:#0069AA;
+          margin          :0 auto;
+          height          :20px;
+          width           :2px;
+          float           :none
+        }
     </style>
 @endsection
 
@@ -53,6 +128,9 @@
           <ul class="nav nav-tabs">
             <li class="active"><a data-toggle="tab" href="#tab-1"><i class="fa fa-address-card"></i>Información personal</a></li>
             <li class=""><a data-toggle="tab" href="#tab-2"><i class="fa fa-lock"></i>Cambiar contraseña</a></li>
+            @if($sw_asistencia)
+              <li class=""><a data-toggle="tab" href="#tab-3"><i class="fa fa-check-square"></i>Asistencias</a></li>
+            @endif
           </ul>
           <div class="tab-content">
             <div id="tab-1" class="tab-pane active">
@@ -256,6 +334,7 @@
 
               </div>
             </div>
+
             <div id="tab-2" class="tab-pane">
               <div class="panel-body">
                 <div class="row">
@@ -352,6 +431,17 @@
                 </div>
               </div>
             </div>
+
+            @if($sw_asistencia)
+              <div id="tab-3" class="tab-pane">
+                <div class="panel-body">
+                  <div class="jqGrid_wrapper">
+                    <table id="jqgrid1"></table>
+                    <div id="pjqgrid1"></div>
+                  </div>
+                </div>
+              </div>
+            @endif
           </div>
         </div>
       </div>
@@ -386,6 +476,119 @@
       </div>
     </div>
   </div>
+
+  <!-- === MODAL === -->
+    <div id="modal_3" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              <span id="modal_3_title"></span>
+            </h4>
+
+            <small class="font-bold" id="modal_3_subtitle">
+            </small>
+          </div>
+
+          <div class="modal-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th class="text-center">UNIDAD DESCONCENTRADA</th>
+                  <th class="text-center">LUGAR DE DEPENDENCIA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td id="td_ud" class="text-center">1</td>
+                  <td id="td_ld" class="text-center">1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal_4" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              <span id="modal_4_title"></span>
+            </h4>
+
+            <small class="font-bold" id="modal_4_subtitle">
+            </small>
+          </div>
+
+          <div class="modal-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th id="th_nombre_4" class="text-center"></th>
+                  <th class="text-center">LUGAR DE DEPENDENCIA</th>
+                  <th class="text-center">UNIDAD DESCONCENTRADA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td id="td_nombre_4" class="text-center">1</td>
+                  <td id="td_ld_4" class="text-center">1</td>
+                  <td id="td_ud_4" class="text-center">1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal_5" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog modal-xlg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              Marcaciones registradas
+            </h4>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-12">
+                <div id="div_jqgrid2" class="jqGrid_wrapper">
+                  <table id="jqgrid2"></table>
+                  <div id="pjqgrid2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info" onclick="utilitarios([25]);">Limpiar formulario</button>
+            <button type="button" class="btn btn-primary" onclick="utilitarios([24]);">Excel</button>
+            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 @endsection
 
 @section('js_plugins')

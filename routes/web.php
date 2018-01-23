@@ -38,7 +38,9 @@
 //=== GESTOR DE MODULOS ===
     Route::get('/', 'HomeController@index')->name('home');
     Route::get('/home', 'HomeController@index')->name('home');
+        Route::match(["get", "post"], '/home/view_jqgrid', 'HomeController@view_jqgrid');
         Route::post('/home/send_ajax', 'HomeController@send_ajax');
+        Route::match(["get", "post"], '/home/reportes', 'HomeController@reportes');
 
 //=== GESTOR DE MODULOS ===
     Route::get('/modulo', 'Seguridad\ModuloController@index')->name('modulo');

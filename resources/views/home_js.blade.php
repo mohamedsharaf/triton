@@ -24,125 +24,100 @@
         var public_url     = "{!! asset($public_url) !!}";
 
     // === INFORMACION PERSONAL ===
-
         var usuario_json = $.parseJSON('{!! json_encode($usuario_array) !!}');
         var persona_json = $.parseJSON('{!! json_encode($persona_array) !!}');
 
     // === JQGRID1 ===
-        var title_table   = "NOMBRE TABLA";
+        var title_table   = "{!! $title_table !!}";
         var jqgrid1       = "#jqgrid1";
         var pjqgrid1      = "#pjqgrid1";
         var col_name_1    = new Array(
             "",
+
             "ESTADO",
-            "C.I.",
-            "NOMBRE(S)",
-            "AP. PATERNO",
-            "AP. MATERNO",
-            "AP. ESPOSO",
-            "SEXO",
-            "FECHA NACIMIENTO",
-            "ESTADO CIVIL",
-            "DOMICILIO",
-            "TELEFONO",
-            "CELULAR",
 
-            "MUNICIPIO",
-            "PROVINCIA",
-            "DEPARTAMENTO",
+            "FECHA",
 
-            "MUNICIPIO",
-            "PROVINCIA",
-            "DEPARTAMENTO",
+            "INGRESO",
+            "SALIDA",
+            "RETRASO",
+
+            "INGRESO",
+            "SALIDA",
+            "RETRASO",
+
+            "UNIDAD DESCONCENTRADA",
+            "LUGAR DE DEPENDENCIA",
 
             ""
         );
         var col_m_name_1  = new Array(
             "act",
+
             "estado",
-            "n_documento",
-            "nombre",
-            "ap_paterno",
-            "ap_materno",
-            "ap_esposo",
-            "sexo",
-            "f_nacimiento",
-            "estado_civil",
-            "domicilio",
-            "telefono",
-            "celular",
 
-            "municipio_nacimiento",
-            "provincia_nacimiento",
-            "departamento_nacimiento",
+            "fecha",
 
-            "municipio_residencia",
-            "provincia_residencia",
-            "departamento_residencia",
+            "horario_1_e",
+            "horario_1_s",
+            "h1_min_retrasos",
+
+            "horario_2_e",
+            "horario_2_s",
+            "h2_min_retrasos",
+
+            "ud_funcionario",
+            "lugar_dependencia_funcionario",
 
             "val_json"
         );
         var col_m_index_1 = new Array(
             "",
-            "rrhh_personas.estado",
-            "rrhh_personas.n_documento",
-            "rrhh_personas.nombre",
-            "rrhh_personas.ap_paterno",
-            "rrhh_personas.ap_materno",
-            "rrhh_personas.ap_esposo",
-            "rrhh_personas.sexo",
-            "rrhh_personas.f_nacimiento::text",
-            "rrhh_personas.estado_civil",
-            "rrhh_personas.domicilio",
-            "rrhh_personas.telefono",
-            "rrhh_personas.celular",
 
-            "a2.nombre",
+            "rrhh_asistencias.estado",
+
+            "rrhh_asistencias.fecha::text",
+
+            "rrhh_asistencias.horario_1_e",
+            "rrhh_asistencias.horario_1_s",
+            "rrhh_asistencias.h1_min_retrasos::text",
+
+            "rrhh_asistencias.horario_2_e",
+            "rrhh_asistencias.horario_2_s",
+            "rrhh_asistencias.h2_min_retrasos::text",
+
             "a3.nombre",
             "a4.nombre",
-
-            "a5.nombre",
-            "a6.nombre",
-            "a7.nombre",
 
             ""
         );
         var col_m_width_1 = new Array(
             33,
-            100,
-            100,
-            100,
-            100,
-            100,
-            100,
-            100,
-            140,
-            100,
+
+            90,
+
+            80,
+
+            250,
+            250,
+            65,
+
+            250,
+            250,
+            65,
+
             400,
-            100,
-            100,
-
-            150,
-            150,
-            150,
-
-            150,
-            150,
-            150,
+            400,
 
             10
         );
         var col_m_align_1 = new Array(
             "center",
+
             "center",
-            "right",
-            "left",
-            "left",
-            "left",
-            "left",
+
             "center",
-            "center",
-            "center",
+
             "center",
             "center",
             "center",
@@ -151,7 +126,6 @@
             "center",
             "center",
 
-            "center",
             "center",
             "center",
 
@@ -180,6 +154,46 @@
         $.each(sexo_json, function(index, value) {
             sexo_select += '<option value="' + index + '">' + value + '</option>';
             sexo_jqgrid += ';' + index + ':' + value;
+        });
+
+    // === ESTADO ===
+        var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
+        var estado_select = '';
+        var estado_jqgrid = ':Todos';
+
+        $.each(estado_json, function(index, value) {
+            estado_select += '<option value="' + index + '">' + value + '</option>';
+            estado_jqgrid += ';' + index + ':' + value;
+        });
+
+    // === OMISION ===
+        var omision_json   = $.parseJSON('{!! json_encode($omision_array) !!}');
+        var omision_select = '';
+        var omision_jqgrid = ':Todos';
+
+        $.each(omision_json, function(index, value) {
+            omision_select += '<option value="' + index + '">' + value + '</option>';
+            omision_jqgrid += ';' + index + ':' + value;
+        });
+
+    // === FALTA ===
+        var falta_json   = $.parseJSON('{!! json_encode($falta_array) !!}');
+        var falta_select = '';
+        var falta_jqgrid = ':Todos';
+
+        $.each(falta_json, function(index, value) {
+            falta_select += '<option value="' + index + '">' + value + '</option>';
+            falta_jqgrid += ';' + index + ':' + value;
+        });
+
+    // === LUGAR DE DEPENDENCIA ===
+        var lugar_dependencia_json   = $.parseJSON('{!! json_encode($lugar_dependencia_array) !!}');
+        var lugar_dependencia_select = '';
+        var lugar_dependencia_jqgrid = ':Todos';
+
+        $.each(lugar_dependencia_json, function(index, value) {
+            lugar_dependencia_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            lugar_dependencia_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
     // === DROPZONE ===
@@ -231,6 +245,10 @@
                 language             : "es"
             });
 
+            @if($sw_asistencia)
+                $('.nav-tabs a[href="#tab-3"]').tab('show');
+            @endif
+
         // === INFORMACIÓN PERSONAL ===
             var valor1 = new Array();
             valor1[0]  = 1;
@@ -242,41 +260,51 @@
             utilitarios(valor1);
 
         // === JQGRID 1 ===
-            // var valor1 = new Array();
-            // valor1[0]  = 10;
-            // utilitarios(valor1);
+            @if($sw_asistencia)
+                var valor1 = new Array();
+                valor1[0]  = 10;
+                utilitarios(valor1);
+            @endif
+
+        // === JQGRID 2 ===
+            @if($sw_asistencia)
+                var valor1 = new Array();
+                valor1[0]  = 25;
+                utilitarios(valor1);
+            @endif
 
         // === VALIDATE 1 ===
             var valor1 = new Array();
             valor1[0]  = 16;
             utilitarios(valor1);
 
-        // === VALIDATE 1 ===
+        // === VALIDATE 2 ===
             var valor1 = new Array();
             valor1[0]  = 19;
             utilitarios(valor1);
 
         // Add responsive to jqGrid
-            // $(window).bind('resize', function () {
-            // var width = $('.jqGrid_wrapper').width();
-            //     $(jqgrid1).setGridWidth(width);
-            // });
+            $(window).bind('resize', function () {
+                var width = $('.tab-content').width() - 35;
+                $(jqgrid1).setGridWidth(width);
+                $(jqgrid2).setGridWidth(width);
+            });
 
-            // setTimeout(function(){
-            //     $('.wrapper-content').removeClass('animated fadeInRight');
-            //     var valor1 = new Array();
-            //     valor1[0]  = 0;
-            //     utilitarios(valor1);
-            // },0);
+            setTimeout(function(){
+                $('.wrapper-content').removeClass('animated fadeInRight');
+                var valor1 = new Array();
+                valor1[0]  = 0;
+                utilitarios(valor1);
+            },300);
 
-            // $( "#navbar-minimalize-button" ).on( "click", function() {
-            //     setTimeout(function(){
-            //         $('.wrapper-content').removeClass('animated fadeInRight');
-            //         var valor1 = new Array();
-            //         valor1[0]  = 0;
-            //         utilitarios(valor1);
-            //     },500);
-            // });
+            $("#navbar-minimalize-button" ).on( "click", function() {
+                setTimeout(function(){
+                    $('.wrapper-content').removeClass('animated fadeInRight');
+                    var valor1 = new Array();
+                    valor1[0]  = 0;
+                    utilitarios(valor1);
+                },500);
+            });
     });
 
     $(window).on('resize.jqGrid', function() {
@@ -333,301 +361,191 @@
                 break;
 
             // === JQGRID 1 ===
-            case 10:
-                var edit1 = true;
-                @if(in_array(['codigo' => '0503'], $permisos))
-                    edit1 = false;
-                @endif
-                $(jqgrid1).jqGrid({
-                    caption      : title_table,
-                    url          : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
-                    datatype     : 'json',
-                    mtype        : 'post',
-                    height       : 'auto',
-                    pager        : pjqgrid1,
-                    rowNum       : 10,
-                    rowList      : [10, 20, 30],
-                    sortname     : 'rrhh_personas.id',
-                    sortorder    : "desc",
-                    viewrecords  : true,
-                    shrinkToFit  : false,
-                    hidegrid     : false,
-                    multiboxonly : true,
-                    altRows      : true,
-                    rownumbers   : true,
-                    // multiselect  : true,
-                    //autowidth     : true,
-                    //gridview      :true,
-                    //forceFit      : true,
-                    //toolbarfilter : true,
-                    colNames : [
-                        col_name_1[0],
-                        col_name_1[1],
-                        col_name_1[2],
-                        col_name_1[3],
-                        col_name_1[4],
-                        col_name_1[5],
-                        col_name_1[6],
-                        col_name_1[7],
-                        col_name_1[8],
-                        col_name_1[9],
-                        col_name_1[10],
-                        col_name_1[11],
-                        col_name_1[12],
-                        col_name_1[13],
-                        col_name_1[14],
-                        col_name_1[15],
-                        col_name_1[16],
-                        col_name_1[17],
-                        col_name_1[18],
-                        col_name_1[19]
-                    ],
-                    colModel : [
-                        {
-                            name    : col_m_name_1[0],
-                            index   : col_m_index_1[0],
-                            width   : col_m_width_1[0],
-                            align   : col_m_align_1[0],
-                            fixed   : true,
-                            sortable: false,
-                            resize  : false,
-                            search  : false,
-                            hidden  : edit1
-                        },
-                        {
-                            name       : col_m_name_1[1],
-                            index      : col_m_index_1[1],
-                            width      : col_m_width_1[1],
-                            align      : col_m_align_1[1],
-                            stype      :'select',
-                            editoptions: {value:estado_jqgrid}
-                        },
-                        {
-                            name  : col_m_name_1[2],
-                            index : col_m_index_1[2],
-                            width : col_m_width_1[2],
-                            align : col_m_align_1[2]
-                        },
-                        {
-                            name  : col_m_name_1[3],
-                            index : col_m_index_1[3],
-                            width : col_m_width_1[3],
-                            align : col_m_align_1[3]
-                        },
-                        {
-                            name  : col_m_name_1[4],
-                            index : col_m_index_1[4],
-                            width : col_m_width_1[4],
-                            align : col_m_align_1[4]
-                        },
-                        {
-                            name  : col_m_name_1[5],
-                            index : col_m_index_1[5],
-                            width : col_m_width_1[5],
-                            align : col_m_align_1[5]
-                        },
-                        {
-                            name  : col_m_name_1[6],
-                            index : col_m_index_1[6],
-                            width : col_m_width_1[6],
-                            align : col_m_align_1[6]
-                        },
-                        {
-                            name       : col_m_name_1[7],
-                            index      : col_m_index_1[7],
-                            width      : col_m_width_1[7],
-                            align      : col_m_align_1[7],
-                            stype      :'select',
-                            editoptions: {value:sexo_jqgrid}
-                        },
-                        {
-                            name  : col_m_name_1[8],
-                            index : col_m_index_1[8],
-                            width : col_m_width_1[8],
-                            align : col_m_align_1[8]
-                        },
-                        {
-                            name       : col_m_name_1[9],
-                            index      : col_m_index_1[9],
-                            width      : col_m_width_1[9],
-                            align      : col_m_align_1[9],
-                            stype      :'select',
-                            editoptions: {value:estado_civil_jqgrid}
-                        },
-                        {
-                            name  : col_m_name_1[10],
-                            index : col_m_index_1[10],
-                            width : col_m_width_1[10],
-                            align : col_m_align_1[10]
-                        },
-                        {
-                            name  : col_m_name_1[11],
-                            index : col_m_index_1[11],
-                            width : col_m_width_1[11],
-                            align : col_m_align_1[11]
-                        },
-                        {
-                            name  : col_m_name_1[12],
-                            index : col_m_index_1[12],
-                            width : col_m_width_1[12],
-                            align : col_m_align_1[12]
-                        },
+            @if($sw_asistencia)
+                case 10:
+                    var edit1      = true;
+                    var ancho1     = 5;
+                    var ancho_d    = 29;
 
-
-                        {
-                            name  : col_m_name_1[13],
-                            index : col_m_index_1[13],
-                            width : col_m_width_1[13],
-                            align : col_m_align_1[13]
-                        },
-                        {
-                            name  : col_m_name_1[14],
-                            index : col_m_index_1[14],
-                            width : col_m_width_1[14],
-                            align : col_m_align_1[14]
-                        },
-                        {
-                            name       : col_m_name_1[15],
-                            index      : col_m_index_1[15],
-                            width      : col_m_width_1[15],
-                            align      : col_m_align_1[15],
-                            stype      :'select',
-                            editoptions: {value:departamento_jqgrid}
-                        },
-
-                        {
-                            name  : col_m_name_1[16],
-                            index : col_m_index_1[16],
-                            width : col_m_width_1[16],
-                            align : col_m_align_1[16]
-                        },
-                        {
-                            name  : col_m_name_1[17],
-                            index : col_m_index_1[17],
-                            width : col_m_width_1[17],
-                            align : col_m_align_1[17]
-                        },
-                        {
-                            name       : col_m_name_1[18],
-                            index      : col_m_index_1[18],
-                            width      : col_m_width_1[18],
-                            align      : col_m_align_1[18],
-                            stype      :'select',
-                            editoptions: {value:departamento_jqgrid}
-                        },
-
-                        // === OCULTO ===
+                    $(jqgrid1).jqGrid({
+                        caption     : title_table,
+                        url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                        datatype    : 'json',
+                        mtype       : 'post',
+                        height      : 'auto',
+                        pager       : pjqgrid1,
+                        rowNum      : 10,
+                        rowList     : [10, 20, 30],
+                        sortname    : 'rrhh_asistencias.fecha',
+                        sortorder   : "desc",
+                        viewrecords : true,
+                        shrinkToFit : false,
+                        hidegrid    : false,
+                        multiboxonly: true,
+                        altRows     : true,
+                        rownumbers  : true,
+                        // subGrid     : subgrid_sw,
+                        // multiselect  : true,
+                        //autowidth     : true,
+                        //gridview      :true,
+                        //forceFit      : true,
+                        //toolbarfilter : true,
+                        colNames : [
+                            col_name_1[0],
+                            col_name_1[1],
+                            col_name_1[2],
+                            col_name_1[3],
+                            col_name_1[4],
+                            col_name_1[5],
+                            col_name_1[6],
+                            col_name_1[7],
+                            col_name_1[8],
+                            col_name_1[9],
+                            col_name_1[10],
+                            col_name_1[11]
+                        ],
+                        colModel : [
                             {
-                                name  : col_m_name_1[19],
-                                index : col_m_index_1[19],
-                                width : col_m_width_1[19],
-                                align : col_m_align_1[19],
-                                search: false,
-                                hidden: true
+                                name    : col_m_name_1[0],
+                                index   : col_m_index_1[0],
+                                width   : ancho1,
+                                align   : col_m_align_1[0],
+                                fixed   : true,
+                                sortable: false,
+                                resize  : false,
+                                search  : false,
+                                hidden  : edit1
+                            },
+
+                            {
+                                name       : col_m_name_1[1],
+                                index      : col_m_index_1[1],
+                                width      : col_m_width_1[1],
+                                align      : col_m_align_1[1],
+                                stype      :'select',
+                                editoptions: {value:estado_jqgrid}
+                            },
+
+                            {
+                                name : col_m_name_1[2],
+                                index: col_m_index_1[2],
+                                width: col_m_width_1[2],
+                                align: col_m_align_1[2]
+                            },
+
+                            {
+                                name : col_m_name_1[3],
+                                index: col_m_index_1[3],
+                                width: col_m_width_1[3],
+                                align: col_m_align_1[3]
+                            },
+                            {
+                                name : col_m_name_1[4],
+                                index: col_m_index_1[4],
+                                width: col_m_width_1[4],
+                                align: col_m_align_1[4]
+                            },
+                            {
+                                name : col_m_name_1[5],
+                                index: col_m_index_1[5],
+                                width: col_m_width_1[5],
+                                align: col_m_align_1[5]
+                            },
+
+                            {
+                                name : col_m_name_1[6],
+                                index: col_m_index_1[6],
+                                width: col_m_width_1[6],
+                                align: col_m_align_1[6]
+                            },
+                            {
+                                name : col_m_name_1[7],
+                                index: col_m_index_1[7],
+                                width: col_m_width_1[7],
+                                align: col_m_align_1[7]
+                            },
+                            {
+                                name : col_m_name_1[8],
+                                index: col_m_index_1[8],
+                                width: col_m_width_1[8],
+                                align: col_m_align_1[8]
+                            },
+
+                            {
+                                name : col_m_name_1[9],
+                                index: col_m_index_1[9],
+                                width: col_m_width_1[9],
+                                align: col_m_align_1[9]
+                            },
+                            {
+                                name       : col_m_name_1[10],
+                                index      : col_m_index_1[10],
+                                width      : col_m_width_1[10],
+                                align      : col_m_align_1[10],
+                                stype      :'select',
+                                editoptions: {value:lugar_dependencia_jqgrid}
+                            },
+
+                            // === OCULTO ===
+                                {
+                                    name  : col_m_name_1[11],
+                                    index : col_m_index_1[11],
+                                    width : col_m_width_1[11],
+                                    align : col_m_align_1[11],
+                                    search: false,
+                                    hidden: true
+                                }
+                        ],
+                        loadComplete : function(){
+                            $("tr.jqgrow:odd").addClass('myAltRowClass');
+                        }
+                    });
+
+                    $(jqgrid1).jqGrid('setGroupHeaders', {
+                        useColSpanStyle: true,
+                        groupHeaders   :[
+                            {
+                                startColumnName: 'horario_1_e',
+                                numberOfColumns: 3,
+                                titleText      : 'HORARIO 1'
+                            },
+                            {
+                                startColumnName: 'horario_2_e',
+                                numberOfColumns: 3,
+                                titleText      : 'HORARIO 2'
                             }
-                    ],
-                    loadComplete : function(){
-                        $("tr.jqgrow:odd").addClass('myAltRowClass');
-                    },
-                    gridComplete : function() {
-                        var ids = $(jqgrid1).jqGrid('getDataIDs');
-                        for(var i = 0; i < ids.length; i++){
-                            var cl = ids[i];
-                            ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                            $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : ed
-                            });
-                        }
-                    }
-                });
+                        ]
+                    });
 
-                $(jqgrid1).jqGrid('setGroupHeaders', {
-                    useColSpanStyle: true,
-                    groupHeaders   :[
-                        {
-                            startColumnName: 'municipio_nacimiento',
-                            numberOfColumns: 3,
-                            titleText      : 'LUGAR DE NACIMIENTO'
-                        },
-                        {
-                            startColumnName: 'municipio_residencia',
-                            numberOfColumns: 3,
-                            titleText      : 'RESIDENCIA ACTUAL'
-                        }
-                    ]
-                });
+                    $(jqgrid1).jqGrid('filterToolbar',{
+                        searchOnEnter : true,
+                        stringResult  : true,
+                        defaultSearch : 'cn'
+                    });
 
-                $(jqgrid1).jqGrid('filterToolbar',{
-                    searchOnEnter : true,
-                    stringResult  : true,
-                    defaultSearch : 'cn'
-                });
-
-                $(jqgrid1).jqGrid('navGrid', pjqgrid1, {
-                    edit  : false,
-                    add   : false,
-                    del   : false,
-                    search: false
-                })
-                .navSeparatorAdd(pjqgrid1,{
-                    sepclass : "ui-separator"
-                })
-                @if(in_array(['codigo' => '0502'], $permisos))
+                    $(jqgrid1).jqGrid('navGrid', pjqgrid1, {
+                        edit  : false,
+                        add   : false,
+                        del   : false,
+                        search: false
+                    })
+                    .navSeparatorAdd(pjqgrid1,{
+                        sepclass : "ui-separator"
+                    })
                     .navButtonAdd(pjqgrid1,{
-                    "id"          : "add1",
-                    caption       : "",
-                    title         : 'Agregar nueva fila',
-                    buttonicon    : "ui-icon ui-icon-plusthick",
-                    onClickButton : function(){
-                        var valor1 = new Array();
-                        valor1[0]  = 14;
-                        utilitarios(valor1);
-
-                        var valor1 = new Array();
-                        valor1[0]  = 11;
-                        utilitarios(valor1);
-                    }
-                })
-                @endif
-                @if(in_array(['codigo' => '0503'], $permisos))
-                    .navButtonAdd(pjqgrid1,{
-                    "id"          : "edit1",
-                    caption       : "",
-                    title         : 'Editar fila',
-                    buttonicon    : "ui-icon ui-icon-pencil",
-                    onClickButton : function(){
-                        var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                        if(id == null)
-                        {
-                            var valor1 = new Array();
-                            valor1[0]  = 101;
-                            valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                            valor1[2]  = "¡Favor seleccione una fila!";
-                            utilitarios(valor1);
+                        "id"          : "print1",
+                        caption       : "",
+                        title         : 'Reportes',
+                        buttonicon    : "ui-icon ui-icon-print",
+                        onClickButton : function(){
+                            // var valor1 = new Array();
+                            // valor1[0]  = 13;
+                            // utilitarios(valor1);
                         }
-                        else
-                        {
-                            utilitarios([12, id]);
-                        }
-                    }
-                })
-                @endif
-                // .navSeparatorAdd(pjqgrid1,{
-                //   sepclass : "ui-separator"
-                // })
-                // .navButtonAdd(pjqgrid1,{
-                //   "id"          : "print1",
-                //   caption       : "",
-                //   title         : 'Reportes',
-                //   buttonicon    : "ui-icon ui-icon-print",
-                //   onClickButton : function(){
-                //       var valor1 = new Array();
-                //       valor1[0]  = 13;
-                //       utilitarios(valor1);
-                //   }
-                // })
-                ;
-                break;
+                    })
+                    ;
+                    break;
+            @endif
             // === ABRIR MODAL ===
             case 11:
                 $('#modal_1').modal();
@@ -869,6 +787,180 @@
                     utilitarios(valor1);
                 }
                 break;
+
+            @if($sw_asistencia)
+                // === REPORTE SALIDA ===
+                case 21:
+                    var concatenar_valores = '';
+                    concatenar_valores     += '?tipo=1&salida_id=' + valor[1];
+
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                    break;
+                // === DONDE ASISTIO ===
+                case 22:
+                    $('#modal_3_title, #modal_3_subtitle, #td_ud, #td_ld').empty();
+                    $('#modal_3_title').append('DONDE ASISTIO');
+
+                    var ret = $(jqgrid1).jqGrid('getRowData', valor[2]);
+
+                    var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
+
+                    $('#modal_3_subtitle').append(persona);
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = false;
+                    valor1[4]  = "tipo=50&id=" + valor[1] + "&_token=" + csrf_token;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+
+                    $('#modal_3').modal();
+                    break;
+                // === FERIADO, TOLERANCIA, HORARIO CONTINUO ===
+                case 23:
+                    $('#modal_4_title, #modal_4_subtitle, #th_nombre_4, #td_nombre_4, #td_ud_4, #td_ld_4').empty();
+                    $('#modal_4_title').append(valor[3]);
+
+                    var ret = $(jqgrid1).jqGrid('getRowData', valor[2]);
+
+                    var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
+
+                    $('#modal_4_subtitle').append(persona);
+                    $('#th_nombre_4').append(valor[3]);
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = false;
+                    valor1[4]  = "tipo=51&id=" + valor[1] + "&_token=" + csrf_token;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+
+                    $('#modal_4').modal();
+                    break;
+
+                // === MODAL ABRIR MARCACIONES ===
+                case 24:
+                    $(jqgrid2).jqGrid('setGridParam',{
+                        url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&persona_id=' + valor[3] + '&f_marcacion=' + valor[2],
+                        datatype: 'json'
+                    }).trigger('reloadGrid');
+
+                    $(jqgrid2).jqGrid('setCaption', "<span class='text-success'>Mis marcaciones</span>");
+
+                    $('#modal_5').modal();
+
+                    setTimeout(function(){
+                        $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
+                    }, 300);
+                    break;
+                // === JQGRID 2 ===
+                case 25:
+                    $(jqgrid2).jqGrid({
+                        caption     : '',
+                        datatype    : 'local',
+                        mtype       : 'post',
+                        height      : 'auto',
+                        pager       : pjqgrid2,
+                        rowNum      : 10,
+                        rowList     : [10, 20, 30],
+                        sortname    : 'rrhh_log_marcaciones.f_marcacion',
+                        sortorder   : "desc",
+                        viewrecords : true,
+                        shrinkToFit : false,
+                        hidegrid    : false,
+                        multiboxonly: true,
+                        altRows     : true,
+                        rownumbers  : true,
+                        // subGrid     : subgrid_sw,
+                        // multiselect  : true,
+                        //autowidth     : true,
+                        //gridview      :true,
+                        //forceFit      : true,
+                        //toolbarfilter : true,
+                        colNames :[
+                            "FECHA Y HORA",
+                            "BIOMETRICO",
+                            "UNIDAD DESCONCENTRADA",
+                            "LUGAR DE DEPENDENCIA",
+                            ""
+                        ],
+                        colModel : [
+                            {
+                                name  : "f_marcacion",
+                                index : "rrhh_log_marcaciones.f_marcacion::text",
+                                width : "150",
+                                align : "center"
+                            },
+                            {
+                                name  : "codigo_af",
+                                index : "a2.codigo_af",
+                                width : "100",
+                                align : "center"
+                            },
+                            {
+                                name  : "unidad_desconcentrada",
+                                index : "a3.nombre",
+                                width : "700",
+                                align : "center"
+                            },
+                            {
+                                name       : "lugar_dependencia",
+                                index      : "a4.nombre",
+                                width      : "400",
+                                align      : "center",
+                                stype      : 'select',
+                                editoptions: {value:lugar_dependencia_jqgrid}
+                            },
+
+                            // === OCULTO ===
+                                {
+                                    name: 'val_json',
+                                    index: '',
+                                    width: 10,
+                                    search: false,
+                                    hidden: true
+                                }
+                        ],
+                        loadComplete : function(){
+                            $("tr.jqgrow:odd").addClass('myAltRowClass');
+                        }
+                    });
+
+                    $(jqgrid2).jqGrid('setGroupHeaders', {
+                        useColSpanStyle: true,
+                        groupHeaders   :[
+                            {
+                                startColumnName: 'codigo_af',
+                                numberOfColumns: 3,
+                                titleText      : 'UBICACION DEL BIOMETRICO'
+                            }
+                        ]
+                    });
+
+                    $(jqgrid2).jqGrid('filterToolbar',{
+                        searchOnEnter : true,
+                        stringResult  : true,
+                        defaultSearch : 'cn'
+                    });
+
+                    $(jqgrid2).jqGrid('navGrid', pjqgrid2, {
+                        edit  : false,
+                        add   : false,
+                        del   : false,
+                        search: false
+                    })
+                    .navSeparatorAdd(pjqgrid1,{
+                        sepclass : "ui-separator"
+                    })
+                    ;
+                    break;
+            @endif
+
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -961,6 +1053,25 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
+
+                            @if($sw_asistencia)
+                                // === DONDE ASISTIO ===
+                                case '50':
+                                    if(data.sw === 2){
+                                        $('#td_ud').append(data.consulta.unidad_desconcentrada);
+                                        $('#td_ld').append(data.consulta.lugar_dependencia);
+                                    }
+                                    break;
+
+                                // === FERIADO, TOLERANCIA, HORARIO CONTINUO ===
+                                case '51':
+                                    if(data.sw === 2){
+                                        $('#td_nombre_4').append(data.consulta.nombre);
+                                        $('#td_ld_4').append(data.consulta.lugar_dependencia);
+                                        $('#td_ud_4').append(data.consulta.unidad_desconcentrada);
+                                    }
+                                    break;
+                            @endif
                             default:
                                 break;
                         }
