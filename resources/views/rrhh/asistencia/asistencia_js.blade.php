@@ -1324,7 +1324,7 @@
                 break;
             // === MOSTRAR USUARIO QUE MODIFICO LA ASISTENCIA ===
             case 24:
-                if(valor[2] != ''){
+                if(valor[2] != undefined){
                     $('#modal_6_title, #modal_6_subtitle, #td_persona').empty();
                     // $('#modal_6_title').append('USUARIO QUE MODIFICO LA ASISTENCIA');
 
