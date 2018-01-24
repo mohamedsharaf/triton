@@ -58,11 +58,11 @@
 
             "fecha",
 
-            "horario_1_e",
+            "horario_1_i",
             "horario_1_s",
             "h1_min_retrasos",
 
-            "horario_2_e",
+            "horario_2_i",
             "horario_2_s",
             "h2_min_retrasos",
 
@@ -78,11 +78,11 @@
 
             "rrhh_asistencias.fecha::text",
 
-            "rrhh_asistencias.horario_1_e",
+            "rrhh_asistencias.horario_1_i",
             "rrhh_asistencias.horario_1_s",
             "rrhh_asistencias.h1_min_retrasos::text",
 
-            "rrhh_asistencias.horario_2_e",
+            "rrhh_asistencias.horario_2_i",
             "rrhh_asistencias.horario_2_s",
             "rrhh_asistencias.h2_min_retrasos::text",
 
@@ -505,12 +505,12 @@
                         useColSpanStyle: true,
                         groupHeaders   :[
                             {
-                                startColumnName: 'horario_1_e',
+                                startColumnName: 'horario_1_i',
                                 numberOfColumns: 3,
                                 titleText      : 'HORARIO 1'
                             },
                             {
-                                startColumnName: 'horario_2_e',
+                                startColumnName: 'horario_2_i',
                                 numberOfColumns: 3,
                                 titleText      : 'HORARIO 2'
                             }

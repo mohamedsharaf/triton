@@ -22,6 +22,7 @@
         var url_controller = "{!! url('/asistencia') !!}";
         var csrf_token     = "{!! csrf_token() !!}";
         var public_url     = "{!! asset($public_url) !!}";
+        var f_corte        = "{!! $f_corte !!}";
 
     // === JQGRID1 ===
         var title_table   = "{!! $title_table !!}";
@@ -50,6 +51,11 @@
             "UNIDAD DESCONCENTRADA",
             "LUGAR DE DEPENDENCIA",
 
+            "",
+
+            "",
+            "",
+            "",
             ""
         );
         var col_m_name_1  = new Array(
@@ -64,18 +70,23 @@
             "ap_paterno",
             "ap_materno",
 
-            "horario_1_e",
+            "horario_1_i",
             "horario_1_s",
             "h1_min_retrasos",
 
-            "horario_2_e",
+            "horario_2_i",
             "horario_2_s",
             "h2_min_retrasos",
 
             "ud_funcionario",
             "lugar_dependencia_funcionario",
 
-            "val_json"
+            "val_json",
+
+            "h_1_e",
+            "h_1_s",
+            "h_2_e",
+            "h_2_s"
         );
         var col_m_index_1 = new Array(
             "",
@@ -89,17 +100,22 @@
             "a2.ap_paterno",
             "a2.ap_materno",
 
-            "rrhh_asistencias.horario_1_e",
+            "rrhh_asistencias.horario_1_i",
             "rrhh_asistencias.horario_1_s",
             "rrhh_asistencias.h1_min_retrasos::text",
 
-            "rrhh_asistencias.horario_2_e",
+            "rrhh_asistencias.horario_2_i",
             "rrhh_asistencias.horario_2_s",
             "rrhh_asistencias.h2_min_retrasos::text",
 
             "a3.nombre",
             "a4.nombre",
 
+            "",
+
+            "",
+            "",
+            "",
             ""
         );
         var col_m_width_1 = new Array(
@@ -125,6 +141,11 @@
             400,
             400,
 
+            10,
+
+            10,
+            10,
+            10,
             10
         );
         var col_m_align_1 = new Array(
@@ -150,6 +171,11 @@
             "center",
             "center",
 
+            "center",
+
+            "center",
+            "center",
+            "center",
             "center"
         );
 
@@ -396,16 +422,21 @@
                 break;
             // === JQGRID 1 ===
             case 10:
-                var edit1      = true;
-                var ancho1     = 5;
+                var edit1  = true;
+                var ancho1 = 5;
+
+                var edit2  = true;
+                var ancho2 = 5;
+
                 var ancho_d    = 29;
-                @if(in_array(['codigo' => '1303'], $permisos))
-                    // edit1  = false;
-                    // ancho1 += ancho_d;
-                @endif
+
                 @if(in_array(['codigo' => '1304'], $permisos))
-                    // edit1  = false;
-                    // ancho1 += ancho_d;
+                    edit2  = false;
+                    ancho2 += ancho_d;
+                @endif
+                @if(in_array(['codigo' => '1305'], $permisos))
+                    edit2  = false;
+                    ancho2 += ancho_d;
                 @endif
 
                 $(jqgrid1).jqGrid({
@@ -433,20 +464,31 @@
                     //toolbarfilter : true,
                     colNames : [
                         col_name_1[0],
+
                         col_name_1[1],
+
                         col_name_1[2],
+
                         col_name_1[3],
                         col_name_1[4],
                         col_name_1[5],
                         col_name_1[6],
+
                         col_name_1[7],
+                        col_name_1[16],
                         col_name_1[8],
+                        col_name_1[17],
                         col_name_1[9],
+
                         col_name_1[10],
+                        col_name_1[18],
                         col_name_1[11],
+                        col_name_1[19],
                         col_name_1[12],
+
                         col_name_1[13],
                         col_name_1[14],
+
                         col_name_1[15]
                     ],
                     colModel : [
@@ -503,43 +545,89 @@
                             align : col_m_align_1[6]
                         },
 
-                        {
-                            name : col_m_name_1[7],
-                            index: col_m_index_1[7],
-                            width: col_m_width_1[7],
-                            align: col_m_align_1[7]
-                        },
-                        {
-                            name : col_m_name_1[8],
-                            index: col_m_index_1[8],
-                            width: col_m_width_1[8],
-                            align: col_m_align_1[8]
-                        },
-                        {
-                            name : col_m_name_1[9],
-                            index: col_m_index_1[9],
-                            width: col_m_width_1[9],
-                            align: col_m_align_1[9]
-                        },
+                        //=== HORARIO 1 ===
+                            {
+                                name : col_m_name_1[7],
+                                index: col_m_index_1[7],
+                                width: col_m_width_1[7],
+                                align: col_m_align_1[7]
+                            },
+                            {
+                                name    : col_m_name_1[16],
+                                index   : col_m_index_1[16],
+                                width   : ancho2,
+                                align   : col_m_align_1[16],
+                                fixed   : true,
+                                sortable: false,
+                                resize  : false,
+                                search  : false,
+                                hidden  : edit2
+                            },
+                            {
+                                name : col_m_name_1[8],
+                                index: col_m_index_1[8],
+                                width: col_m_width_1[8],
+                                align: col_m_align_1[8]
+                            },
+                            {
+                                name    : col_m_name_1[17],
+                                index   : col_m_index_1[17],
+                                width   : ancho2,
+                                align   : col_m_align_1[17],
+                                fixed   : true,
+                                sortable: false,
+                                resize  : false,
+                                search  : false,
+                                hidden  : edit2
+                            },
+                            {
+                                name : col_m_name_1[9],
+                                index: col_m_index_1[9],
+                                width: col_m_width_1[9],
+                                align: col_m_align_1[9]
+                            },
 
-                        {
-                            name : col_m_name_1[10],
-                            index: col_m_index_1[10],
-                            width: col_m_width_1[10],
-                            align: col_m_align_1[10]
-                        },
-                        {
-                            name : col_m_name_1[11],
-                            index: col_m_index_1[11],
-                            width: col_m_width_1[11],
-                            align: col_m_align_1[11]
-                        },
-                        {
-                            name : col_m_name_1[12],
-                            index: col_m_index_1[12],
-                            width: col_m_width_1[12],
-                            align: col_m_align_1[12]
-                        },
+                        //=== HORARIO 2 ===
+                            {
+                                name : col_m_name_1[10],
+                                index: col_m_index_1[10],
+                                width: col_m_width_1[10],
+                                align: col_m_align_1[10]
+                            },
+                            {
+                                name    : col_m_name_1[18],
+                                index   : col_m_index_1[18],
+                                width   : ancho2,
+                                align   : col_m_align_1[18],
+                                fixed   : true,
+                                sortable: false,
+                                resize  : false,
+                                search  : false,
+                                hidden  : edit2
+                            },
+                            {
+                                name : col_m_name_1[11],
+                                index: col_m_index_1[11],
+                                width: col_m_width_1[11],
+                                align: col_m_align_1[11]
+                            },
+                            {
+                                name    : col_m_name_1[19],
+                                index   : col_m_index_1[19],
+                                width   : ancho2,
+                                align   : col_m_align_1[19],
+                                fixed   : true,
+                                sortable: false,
+                                resize  : false,
+                                search  : false,
+                                hidden  : edit2
+                            },
+                            {
+                                name : col_m_name_1[12],
+                                index: col_m_index_1[12],
+                                width: col_m_width_1[12],
+                                align: col_m_align_1[12]
+                            },
 
                         {
                             name : col_m_name_1[13],
@@ -576,26 +664,65 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            @if(in_array(['codigo' => '1303'], $permisos))
-                                ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                            @else
-                                ed = '';
-                            @endif
+                            var vac_h1_e = '';
+                            var vac_h1_s = '';
+                            var vac_h2_e = '';
+                            var vac_h2_s = '';
+
+                            var mig_h1_e = '';
+                            var mig_h1_s = '';
+                            var mig_h2_e = '';
+                            var mig_h2_s = '';
+
+                            var ci_nombre = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' + ret.ap_materno);
 
                             @if(in_array(['codigo' => '1304'], $permisos))
-                                if(ret.n_documento != ''){
-                                    var ci_nombre = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' + ret.ap_materno) + ' ' + ret.nombre_persona;
-                                    vmb = " <button type='button' class='btn btn-xs btn-primary' title='Ver marcaciones del biométrico' onclick=\"utilitarios([22, " + val_json.persona_id + ", '" + ci_nombre +"']);\"><i class='fa fa-eye'></i></button>";
+                                if(val_json.estado != '3'){
+                                    if((val_json.h1_falta == '1') || ((val_json.h1_i_omitir == '2') && (val_json.h1_s_omitir == '2'))){
+                                        vac_h1_e = "<button type='button' class='btn btn-xs btn-warning' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 1, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                        vac_h1_s = "<button type='button' class='btn btn-xs btn-warning' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 1, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                    }
+
+                                    if((val_json.h2_falta == '1') || ((val_json.h2_i_omitir == '2') && (val_json.h2_s_omitir == '2'))){
+                                        vac_h2_e = "<button type='button' class='btn btn-xs btn-warning' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                        vac_h2_s = "<button type='button' class='btn btn-xs btn-warning' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                    }
                                 }
-                                else{
-                                    vmb = '';
+                            @endif
+
+                            @if(in_array(['codigo' => '1305'], $permisos))
+                                if(ret.fecha <= f_corte){
+                                    if((val_json.h1_i_omitir != '2')){
+                                        if((val_json.h1_falta == '1') || (val_json.h1_i_omision_registro == '1') || (val_json.h1_i_omitir == '3')){
+                                            mig_h1_e = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 1, 1, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                        }
+                                    }
+
+                                    if((val_json.h1_s_omitir != '2')){
+                                        if((val_json.h1_falta == '1') || (val_json.h1_s_omision_registro == '1') || (val_json.h1_s_omitir == '3')){
+                                            mig_h1_s = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 1, 2, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                        }
+                                    }
+
+                                    if((val_json.h2_i_omitir != '2')){
+                                        if((val_json.h2_falta == '1') || (val_json.h2_i_omision_registro == '1') || (val_json.h2_i_omitir == '3')){
+                                            mig_h2_e = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 2, 1, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                        }
+                                    }
+
+                                    if((val_json.h2_s_omitir != '2')){
+                                        if((val_json.h2_falta == '1') || (val_json.h2_s_omision_registro == '1') || (val_json.h2_s_omitir == '3')){
+                                            mig_h2_s = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 2, 2, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                        }
+                                    }
                                 }
-                            @else
-                                vmb = '';
                             @endif
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed + vmb)
+                                h_1_e: $.trim(vac_h1_e + mig_h1_e),
+                                h_1_s: $.trim(vac_h1_s + mig_h1_s),
+                                h_2_e: $.trim(vac_h2_e + mig_h2_e),
+                                h_2_s: $.trim(vac_h2_s + mig_h2_s)
                             });
                         }
                     }
@@ -610,13 +737,13 @@
                             titleText      : 'FUNCIONARIO'
                         },
                         {
-                            startColumnName: 'horario_1_e',
-                            numberOfColumns: 3,
+                            startColumnName: 'horario_1_i',
+                            numberOfColumns: 5,
                             titleText      : 'HORARIO 1'
                         },
                         {
-                            startColumnName: 'horario_2_e',
-                            numberOfColumns: 3,
+                            startColumnName: 'horario_2_i',
+                            numberOfColumns: 5,
                             titleText      : 'HORARIO 2'
                         }
                     ]
@@ -671,7 +798,7 @@
                     }
                 })
                 @endif
-                @if(in_array(['codigo' => '1304'], $permisos))
+                @if(in_array(['codigo' => '1310'], $permisos))
                     .navSeparatorAdd(pjqgrid1,{
                       sepclass : "ui-separator"
                     })
@@ -989,120 +1116,15 @@
 
                 $('#modal_4').modal();
                 break;
-
-
-
-
-            // === EXCEL CARGOS ===
-            case 18:
-                var concatenar_valores = '';
-                concatenar_valores     += '?tipo=1';
-
-                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
-                win.focus();
-                break;
-
-
-
-            // === MODAL SUBIR DOCUMENTO ===
-            case 19:
-                $('#modal_2_subtitle').empty();
-                $('#modal_2_subtitle').append(valor[2]);
-                $("#id_funcionario_2").val(valor[1]);
-                $('#modal_2').modal();
-                break;
-            // === DROPZONE 1 ===
+            // === LICENCIA POR VACACIONES ===
             case 20:
-                $("#dropzoneForm_1").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        var data = $.parseJSON(response);
-                        if(data.sw === 1){
-                            var valor1 = new Array();
-                            valor1[0]  = 100;
-                            valor1[1]  = data.titulo;
-                            valor1[2]  = data.respuesta;
-                            utilitarios(valor1);
-
-                            $(jqgrid1).trigger("reloadGrid");
-                            $('#modal_2').modal('hide');
-                        }
-                        else if(data.sw === 0){
-                            if(data.error_sw === 1){
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = data.respuesta;
-                                utilitarios(valor1);
-                            }
-                            else
-                            {
-                                var respuesta_server = '';
-                                $.each(data.error.response.original, function(index, value) {
-                                    respuesta_server += value + '<br>';
-                                });
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = respuesta_server;
-                                utilitarios(valor1);
-                            }
-                        }
-                        else if(data.sw === 2){
-                            window.location.reload();
-                        }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === ELIMINAR FUNCIONARIO DEL CARGO ===
-            case 21:
                 swal({
-                    title             : "ELIMINAR FUNCIONARIO DEL CARGO",
-                    text              : "¿Esta seguro de eliminar al FUNCIONARIO del cargo?",
+                    title             : "LICENCIA POR VACACIONES",
+                    text              : "¿" + valor[3] + " está de VACIONES?",
                     type              : "warning",
                     showCancelButton  : true,
                     confirmButtonColor: "#DD6B55",
-                    confirmButtonText : "Eliminar",
+                    confirmButtonText : "Vacaciones",
                     cancelButtonText  : "Cancelar",
                     closeOnConfirm    : false,
                     closeOnCancel     : false
@@ -1112,8 +1134,8 @@
                         swal.close();
 
                         swal({
-                            title            : "ELIMINANDO FUNCIONARIO DEL CARGO",
-                            text             : "Espere a que se elimine al FUNCIONARIO del cargo.",
+                            title            : "Modificando VACACIONES",
+                            text             : "Espere a que se modifique las VACACIONES.",
                             allowEscapeKey   : false,
                             showConfirmButton: false,
                             type             : "info"
@@ -1125,7 +1147,7 @@
                         valor1[1]  = url_controller + '/send_ajax';
                         valor1[2]  = 'POST';
                         valor1[3]  = true;
-                        valor1[4]  = "tipo=3&id=" + valor[1] + "&_token=" + csrf_token;
+                        valor1[4]  = "tipo=3&id=" + valor[1] + "&horario=" + valor[2] + "&_token=" + csrf_token;
                         valor1[5]  = 'json';
                         utilitarios(valor1);
                     }
@@ -1134,9 +1156,46 @@
                     }
                 });
                 break;
+            // === LICENCIA POR MIGRACION ===
+            case 21:
+                swal({
+                    title             : "LICENCIA POR MIGRACION",
+                    text              : "¿Se registrará/quitará LICENCIA POR MIGRACION de " + valor[4] + "?",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "Migración",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        swal.close();
 
+                        swal({
+                            title            : "REGISTRANDO/QUITANDO MIGRACION",
+                            text             : "Espere a que se registre/quite la MIGRACION.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
 
-
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=4&id=" + valor[1] + "&horario=" + valor[2] + "&salida_entrada=" + valor[3] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
+                break;
             // === MODAL ABRIR MARCACIONES ===
             case 22:
                 $(jqgrid2).jqGrid('setGridParam',{
@@ -1420,8 +1479,35 @@
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
 
-                            // === ELIMINAR FUNCIONARIO DEL CARGO ===
+                            // === LICENCIA POR VACACIONES ===
                             case '3':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
+                            // === LICENCIA POR MIGRACION ===
+                            case '4':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
                                     valor1[0]  = 100;

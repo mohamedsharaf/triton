@@ -578,12 +578,6 @@
               </div>
             </div>
           </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-info" onclick="utilitarios([25]);">Limpiar formulario</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([24]);">Excel</button>
-            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
-          </div>
         </div>
       </div>
     </div>

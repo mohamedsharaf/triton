@@ -16,7 +16,10 @@ class CreateRrhhAsistenciasTable extends Migration
         Schema::create('rrhh_asistencias', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('persona_id')->unsigned()->nullable();
-            $table->integer('persona_id_rrhh')->unsigned()->nullable();
+            $table->integer('persona_id_rrhh_h1_i')->unsigned()->nullable();
+            $table->integer('persona_id_rrhh_h1_s')->unsigned()->nullable();
+            $table->integer('persona_id_rrhh_h2_i')->unsigned()->nullable();
+            $table->integer('persona_id_rrhh_h2_s')->unsigned()->nullable();
 
             $table->integer('cargo_id')->unsigned()->nullable();
             $table->integer('unidad_desconcentrada_id')->unsigned()->nullable();
@@ -65,10 +68,10 @@ class CreateRrhhAsistenciasTable extends Migration
             $table->string('observaciones', 500)->nullable();
             $table->string('justificacion', 500)->nullable();
 
-            $table->string('horario_1_e', 100)->nullable();
+            $table->string('horario_1_i', 100)->nullable();
             $table->string('horario_1_s', 100)->nullable();
 
-            $table->string('horario_2_e', 100)->nullable();
+            $table->string('horario_2_i', 100)->nullable();
             $table->string('horario_2_s', 100)->nullable();
 
             $table->timestamps();
@@ -78,7 +81,22 @@ class CreateRrhhAsistenciasTable extends Migration
                 ->on('rrhh_personas')
                 ->onDelete('cascade');
 
-            $table->foreign('persona_id_rrhh')
+            $table->foreign('persona_id_rrhh_h1_i')
+                ->references('id')
+                ->on('rrhh_personas')
+                ->onDelete('cascade');
+
+            $table->foreign('persona_id_rrhh_h1_s')
+                ->references('id')
+                ->on('rrhh_personas')
+                ->onDelete('cascade');
+
+            $table->foreign('persona_id_rrhh_h2_i')
+                ->references('id')
+                ->on('rrhh_personas')
+                ->onDelete('cascade');
+
+            $table->foreign('persona_id_rrhh_h2_s')
                 ->references('id')
                 ->on('rrhh_personas')
                 ->onDelete('cascade');

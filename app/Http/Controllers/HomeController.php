@@ -283,7 +283,11 @@ class HomeController extends Controller
                 $select = "
                     $tabla1.id,
                     $tabla1.persona_id,
-                    $tabla1.persona_id_rrhh,
+
+                    $tabla1.persona_id_rrhh_h1_i,
+                    $tabla1.persona_id_rrhh_h1_s,
+                    $tabla1.persona_id_rrhh_h2_i,
+                    $tabla1.persona_id_rrhh_h2_s,
 
                     $tabla1.cargo_id,
                     $tabla1.unidad_desconcentrada_id,
@@ -332,10 +336,10 @@ class HomeController extends Controller
                     $tabla1.observaciones,
                     $tabla1.justificacion,
 
-                    $tabla1.horario_1_e,
+                    $tabla1.horario_1_i,
                     $tabla1.horario_1_s,
 
-                    $tabla1.horario_2_e,
+                    $tabla1.horario_2_i,
                     $tabla1.horario_2_s,
 
                     a3.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
@@ -375,7 +379,11 @@ class HomeController extends Controller
                 {
                     $val_array = array(
                         'persona_id'      => $row["persona_id"],
-                        'persona_id_rrhh' => $row["persona_id_rrhh"],
+
+                        'persona_id_rrhh_h1_i' => $row["persona_id_rrhh_h1_i"],
+                        'persona_id_rrhh_h1_s' => $row["persona_id_rrhh_h1_s"],
+                        'persona_id_rrhh_h2_i' => $row["persona_id_rrhh_h2_i"],
+                        'persona_id_rrhh_h2_s' => $row["persona_id_rrhh_h2_s"],
 
                         'cargo_id'                 => $row["cargo_id"],
                         'unidad_desconcentrada_id' => $row["unidad_desconcentrada_id"],
@@ -417,10 +425,10 @@ class HomeController extends Controller
                         'h1_falta' => $row["h1_falta"],
                         'h2_falta' => $row["h2_falta"],
 
-                        'horario_1_e' => $row["horario_1_e"],
+                        'horario_1_i' => $row["horario_1_i"],
                         'horario_1_s' => $row["horario_1_s"],
 
-                        'horario_2_e' => $row["horario_2_e"],
+                        'horario_2_i' => $row["horario_2_i"],
                         'horario_2_s' => $row["horario_2_s"]
                     );
 
@@ -432,11 +440,11 @@ class HomeController extends Controller
 
                         $row["fecha"],
 
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_e"], 'log_marcaciones_id' => $row["log_marcaciones_id_i1"], 'salida_id' => $row["salida_id_i1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_i"], 'log_marcaciones_id' => $row["log_marcaciones_id_i1"], 'salida_id' => $row["salida_id_i1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
                         $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s1"], 'salida_id' => $row["salida_id_s1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h1_min_retrasos"])),
 
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_e"], 'log_marcaciones_id' => $row["log_marcaciones_id_i2"], 'salida_id' => $row["salida_id_i2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_i"], 'log_marcaciones_id' => $row["log_marcaciones_id_i2"], 'salida_id' => $row["salida_id_i2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
                         $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s2"], 'salida_id' => $row["salida_id_s2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h2_min_retrasos"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
 

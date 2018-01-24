@@ -10,7 +10,11 @@ class RrhhAsistencia extends Model
 
     protected $fillable = [
         'persona_id',
-        'persona_id_rrhh',
+
+        'persona_id_rrhh_h1_i',
+        'persona_id_rrhh_h1_s',
+        'persona_id_rrhh_h2_i',
+        'persona_id_rrhh_h2_s',
 
         'cargo_id',
         'unidad_desconcentrada_id',
@@ -59,10 +63,10 @@ class RrhhAsistencia extends Model
         'observaciones',
         'justificacion',
 
-        'horario_1_e',
+        'horario_1_i',
         'horario_1_s',
 
-        'horario_2_e',
+        'horario_2_i',
         'horario_2_s'
     ];
 
