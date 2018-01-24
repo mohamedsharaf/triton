@@ -678,41 +678,47 @@
 
                             @if(in_array(['codigo' => '1304'], $permisos))
                                 if(val_json.estado != '3'){
-                                    if((val_json.h1_falta == '1') || ((val_json.h1_i_omitir == '2') && (val_json.h1_s_omitir == '2'))){
-                                        vac_h1_e = "<button type='button' class='btn btn-xs btn-warning' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 1, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
-                                        vac_h1_s = "<button type='button' class='btn btn-xs btn-warning' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 1, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                    if(val_json.fthc_id_h1 == null){
+                                        if((val_json.h1_falta == '1') || ((val_json.h1_i_omitir == '2') && (val_json.h1_s_omitir == '2'))){
+                                            vac_h1_e = "<button type='button' class='btn btn-xs btn-info' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 1, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                            vac_h1_s = "<button type='button' class='btn btn-xs btn-info' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 1, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                        }
                                     }
 
-                                    if((val_json.h2_falta == '1') || ((val_json.h2_i_omitir == '2') && (val_json.h2_s_omitir == '2'))){
-                                        vac_h2_e = "<button type='button' class='btn btn-xs btn-warning' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
-                                        vac_h2_s = "<button type='button' class='btn btn-xs btn-warning' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                    if(val_json.fthc_id_h2 == null){
+                                        if((val_json.h2_falta == '1') || ((val_json.h2_i_omitir == '2') && (val_json.h2_s_omitir == '2'))){
+                                            vac_h2_e = "<button type='button' class='btn btn-xs btn-info' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                            vac_h2_s = "<button type='button' class='btn btn-xs btn-info' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                        }
                                     }
                                 }
                             @endif
 
                             @if(in_array(['codigo' => '1305'], $permisos))
-                                if(ret.fecha <= f_corte){
-                                    if((val_json.h1_i_omitir != '2')){
-                                        if((val_json.h1_falta == '1') || (val_json.h1_i_omision_registro == '1') || (val_json.h1_i_omitir == '3')){
-                                            mig_h1_e = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 1, 1, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                if(val_json.estado != '3'){
+                                    if(ret.fecha <= f_corte){
+                                        if((val_json.h1_i_omitir != '2')){
+                                            if((val_json.h1_falta == '1') || (val_json.h1_i_omision_registro == '1') || (val_json.h1_i_omitir == '3')){
+                                                mig_h1_e = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 1, 1, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                            }
                                         }
-                                    }
 
-                                    if((val_json.h1_s_omitir != '2')){
-                                        if((val_json.h1_falta == '1') || (val_json.h1_s_omision_registro == '1') || (val_json.h1_s_omitir == '3')){
-                                            mig_h1_s = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 1, 2, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                        if((val_json.h1_s_omitir != '2')){
+                                            if((val_json.h1_falta == '1') || (val_json.h1_s_omision_registro == '1') || (val_json.h1_s_omitir == '3')){
+                                                mig_h1_s = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 1, 2, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                            }
                                         }
-                                    }
 
-                                    if((val_json.h2_i_omitir != '2')){
-                                        if((val_json.h2_falta == '1') || (val_json.h2_i_omision_registro == '1') || (val_json.h2_i_omitir == '3')){
-                                            mig_h2_e = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 2, 1, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                        if((val_json.h2_i_omitir != '2')){
+                                            if((val_json.h2_falta == '1') || (val_json.h2_i_omision_registro == '1') || (val_json.h2_i_omitir == '3')){
+                                                mig_h2_e = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 2, 1, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                            }
                                         }
-                                    }
 
-                                    if((val_json.h2_s_omitir != '2')){
-                                        if((val_json.h2_falta == '1') || (val_json.h2_s_omision_registro == '1') || (val_json.h2_s_omitir == '3')){
-                                            mig_h2_s = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 2, 2, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                        if((val_json.h2_s_omitir != '2')){
+                                            if((val_json.h2_falta == '1') || (val_json.h2_s_omision_registro == '1') || (val_json.h2_s_omitir == '3')){
+                                                mig_h2_s = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 2, 2, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
+                                            }
                                         }
                                     }
                                 }
@@ -1316,50 +1322,42 @@
                 })
                 ;
                 break;
-
-
-
-            // === EXCEL MARCACIONES ===
+            // === MOSTRAR USUARIO QUE MODIFICO LA ASISTENCIA ===
             case 24:
-                var concatenar_valores = '';
-                concatenar_valores     += '?tipo=1';
+                if(valor[2] != ''){
+                    $('#modal_6_title, #modal_6_subtitle, #td_persona').empty();
+                    // $('#modal_6_title').append('USUARIO QUE MODIFICO LA ASISTENCIA');
 
-                var persona_id               = $("#persona_id_3").val();
-                var f_marcacion_del          = $("#f_marcacion_del_3").val();
-                var f_marcacion_al           = $("#f_marcacion_al_3").val();
-                var lugar_dependencia_id     = $("#lugar_dependencia_id_3").val();
-                var unidad_desconcentrada_id = $("#unidad_desconcentrada_id_3").val();
+                    var ret = $(jqgrid1).jqGrid('getRowData', valor[1]);
 
-                if($.trim(persona_id) != ''){
-                    concatenar_valores += '&persona_id=' + persona_id;
+                    var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
 
-                    if($.trim(f_marcacion_del) != ''){
-                        concatenar_valores += '&f_marcacion_del=' + f_marcacion_del;
-                    }
+                    $('#modal_6_title').append(persona);
 
-                    if($.trim(f_marcacion_al) != ''){
-                        concatenar_valores += '&f_marcacion_al=' + f_marcacion_al;
-                    }
+                    // $('#modal_6_subtitle').append(persona);
 
-                    if($.trim(lugar_dependencia_id) != ''){
-                        concatenar_valores += '&lugar_dependencia_id=' + lugar_dependencia_id;
-                    }
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = false;
+                    valor1[4]  = "tipo=52&id=" + valor[2] + "&_token=" + csrf_token;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
 
-                    if($.trim(unidad_desconcentrada_id) != ''){
-                        concatenar_valores += '&unidad_desconcentrada_id=' + unidad_desconcentrada_id;
-                    }
-
-                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
-                    win.focus();
+                    $('#modal_6').modal();
                 }
                 else{
                     var valor1 = new Array();
                     valor1[0]  = 101;
                     valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                    valor1[2]  = "¡Seleccione un FUNCIONARIO!";
+                    valor1[2]  = "No existe usuario que modifico la asistencia.";
                     utilitarios(valor1);
                 }
                 break;
+
+
+
             // === RESETEAR FORMULARIO 3 ===
             case 25:
                 $("#persona_id_3").val('');
@@ -1547,6 +1545,13 @@
                                     $('#td_nombre_4').append(data.consulta.nombre);
                                     $('#td_ld_4').append(data.consulta.lugar_dependencia);
                                     $('#td_ud_4').append(data.consulta.unidad_desconcentrada);
+                                }
+                                break;
+
+                            // === MOSTRAR USUARIO QUE MODIFICO LA ASISTENCIA ===
+                            case '52':
+                                if(data.sw === 2){
+                                    $('#td_persona').append(data.consulta.text);
                                 }
                                 break;
 

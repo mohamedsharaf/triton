@@ -582,6 +582,40 @@
       </div>
     </div>
 
+    <div id="modal_6" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              <span id="modal_6_title"></span>
+            </h4>
+
+            <small class="font-bold" id="modal_6_subtitle">
+            </small>
+          </div>
+
+          <div class="modal-body">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th class="text-center">USUARIO QUE MODIFICO LA ASISTENCIA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td id="td_persona" class="text-center">1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
 
 @endsection
 

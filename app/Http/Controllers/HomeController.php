@@ -975,6 +975,29 @@ class HomeController extends Controller
                 }
                 return json_encode($respuesta);
                 break;
+            // === MOSTRAR USUARIO QUE MODIFICO LA ASISTENCIA ===
+            case '52':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('id'))
+                {
+                    $id = $request->input('id');
+
+                    $query = RrhhPersona::where("id", "=", $id)
+                        ->select(DB::raw("id, CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', nombre, ap_paterno, ap_materno)) AS text"))
+                        ->get()
+                        ->first();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
 
             // === SELECT2 DEPARTAMENTO, PROVINCIA Y MUNICIPIO ===
             case '100':
@@ -1077,10 +1100,17 @@ class HomeController extends Controller
                     {
                         $respuesta = '<span class="label label-danger font-sm">' . $valor['horario'] . '</span>';
                     }
-                    else
+                    elseif($this->omision['1'] == $valor['horario'])
                     {
                         $respuesta = '<button class="btn btn-xs btn-info" onclick="utilitarios([24, ' . $valor['id'] . ', ' . "'" . $valor['fecha'] . "'" . ', ' . $valor['persona_id'] . ']);" title="Ver marcaciones" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
                             <i class="fa fa-table"></i>
+                            <strong>' . $valor['horario'] . '</strong>
+                        </button>';
+                    }
+                    else
+                    {
+                        $respuesta = '<button class="btn btn-xs btn-warning" onclick="utilitarios([26, ' . $valor['id'] . ']);" title="Ver USUARIO que modificó" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                            <i class="fa fa-eye"></i>
                             <strong>' . $valor['horario'] . '</strong>
                         </button>';
                     }

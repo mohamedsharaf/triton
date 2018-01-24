@@ -438,15 +438,15 @@ class AsistenciaController extends Controller
                         $row["ap_paterno"],
                         $row["ap_materno"],
 
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_i"], 'log_marcaciones_id' => $row["log_marcaciones_id_i1"], 'salida_id' => $row["salida_id_i1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_i"], 'log_marcaciones_id' => $row["log_marcaciones_id_i1"], 'salida_id' => $row["salida_id_i1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"], 'persona_id_rrhh' => $row["persona_id_rrhh_h1_i"])),
                         '',
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s1"], 'salida_id' => $row["salida_id_s1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_1_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s1"], 'salida_id' => $row["salida_id_s1"], 'fthc_id' => $row["fthc_id_h1"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"], 'persona_id_rrhh' => $row["persona_id_rrhh_h1_s"])),
                         '',
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h1_min_retrasos"])),
 
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_i"], 'log_marcaciones_id' => $row["log_marcaciones_id_i2"], 'salida_id' => $row["salida_id_i2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_i"], 'log_marcaciones_id' => $row["log_marcaciones_id_i2"], 'salida_id' => $row["salida_id_i2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"], 'persona_id_rrhh' => $row["persona_id_rrhh_h2_i"])),
                         '',
-                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s2"], 'salida_id' => $row["salida_id_s2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
+                        $this->utilitarios(array('tipo' => '3', 'horario' => $row["horario_2_s"], 'log_marcaciones_id' => $row["log_marcaciones_id_s2"], 'salida_id' => $row["salida_id_s2"], 'fthc_id' => $row["fthc_id_h2"], 'id' => $row["id"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"], 'persona_id_rrhh' => $row["persona_id_rrhh_h2_s"])),
                         '',
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["h2_min_retrasos"], 'fecha' => $row["fecha"], 'persona_id' => $row["persona_id"])),
 
@@ -3019,6 +3019,29 @@ class AsistenciaController extends Controller
                 }
                 return json_encode($respuesta);
                 break;
+            // === MOSTRAR USUARIO QUE MODIFICO LA ASISTENCIA ===
+            case '52':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+                if($request->has('id'))
+                {
+                    $id = $request->input('id');
+
+                    $query = RrhhPersona::where("id", "=", $id)
+                        ->select(DB::raw("id, CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', nombre, ap_paterno, ap_materno)) AS text"))
+                        ->get()
+                        ->first();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
+                break;
 
             // === SELECT2 PERSONA ===
             case '100':
@@ -3225,7 +3248,7 @@ class AsistenciaController extends Controller
                     }
                     else
                     {
-                        $respuesta = '<button class="btn btn-xs btn-warning" onclick="utilitarios([24, ' . $valor['id'] . ']);" title="Ver USUARIO que modificó" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                        $respuesta = '<button class="btn btn-xs btn-warning" onclick="utilitarios([24, ' . $valor['id'] . ', ' . $valor['persona_id_rrhh'] . ']);" title="Ver USUARIO que modificó la ASISTENCIA" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
                             <i class="fa fa-eye"></i>
                             <strong>' . $valor['horario'] . '</strong>
                         </button>';
