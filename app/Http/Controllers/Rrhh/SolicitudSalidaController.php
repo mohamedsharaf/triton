@@ -1990,6 +1990,10 @@ class SolicitudSalidaController extends Controller
                         $respuesta = '<span class="label label-danger font-sm">' . $this->estado[$valor['estado']] . '</span>';
                         return($respuesta);
                         break;
+                    case '3':
+                        $respuesta = '<span class="label label-success font-sm">' . $this->estado[$valor['estado']] . '</span>';
+                        return($respuesta);
+                        break;
                     default:
                         $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
                         return($respuesta);

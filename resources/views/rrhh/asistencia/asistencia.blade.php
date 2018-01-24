@@ -178,14 +178,14 @@
                   	<div class="col-sm-6">
                       <div class="form-group">
                         <label for="fecha_del">Fecha del</label>
-                        <input type="text" class="form-control" id="fecha_del" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;" value="{{ date("Y-m-d") }}">
+                        <input type="text" class="form-control" id="fecha_del" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
                       </div>
                     </div>
 
                     <div class="col-sm-6">
                       <div class="form-group">
                         <label for="fecha_al">Fecha al</label>
-                        <input type="text" class="form-control" id="fecha_al" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;" value="{{ date("Y-m-d") }}">
+                        <input type="text" class="form-control" id="fecha_al" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
                       </div>
                     </div>
                   </div>
@@ -285,14 +285,14 @@
                     <div class="col-sm-6">
                       <div class="form-group">
                         <label for="fecha_del_2">Fecha del</label>
-                        <input type="text" class="form-control" id="fecha_del_2" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;" value="{{ date("Y-m-d") }}">
+                        <input type="text" class="form-control" id="fecha_del_2" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
                       </div>
                     </div>
 
                     <div class="col-sm-6">
                       <div class="form-group">
                         <label for="fecha_al_2">Fecha al</label>
-                        <input type="text" class="form-control" id="fecha_al_2" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;" value="{{ date("Y-m-d") }}">
+                        <input type="text" class="form-control" id="fecha_al_2" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
                       </div>
                     </div>
                   </div>

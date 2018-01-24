@@ -840,6 +840,8 @@
 
                 $('#lugar_dependencia_id_funcionario_2').select2("val", "");
 
+                $('#fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2').val("").datepicker("update");
+
                 $(form_2)[0].reset();
                 break;
             // === RESETEAR FORMULARIO DE AGREGAR FECHA ===
@@ -862,6 +864,8 @@
 
                 $('#cargo_id').select2("val", "");
                 $('#cargo_id option').remove();
+
+                $('#fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2').val("").datepicker("update");
 
                 $(form_1)[0].reset();
                 break;

@@ -302,7 +302,6 @@ class ConfirmarSalidaRrhhController extends Controller
 
                     $array_where = "a2.tipo_cronograma=1";
 
-
                     $user_id = Auth::user()->id;
                     $rol_id  = Auth::user()->rol_id;
 
@@ -470,12 +469,16 @@ class ConfirmarSalidaRrhhController extends Controller
                     $tabla1 = "rrhh_salidas";
                     $tabla2 = "rrhh_tipos_salida";
                     $tabla3 = "rrhh_personas";
+                    $tabla4 = "rrhh_funcionarios";
+                    $tabla5 = "inst_unidades_desconcentradas";
+                    $tabla6 = "inst_lugares_dependencia";
 
                     $select = "
                         $tabla1.id,
                         $tabla1.persona_id,
                         $tabla1.tipo_salida_id,
                         $tabla1.persona_id_superior,
+                        $tabla1.persona_id_rrhh,
 
                         $tabla1.estado,
                         $tabla1.codigo,
@@ -483,10 +486,11 @@ class ConfirmarSalidaRrhhController extends Controller
                         $tabla1.motivo,
                         $tabla1.f_salida,
                         $tabla1.f_retorno,
-
-                        $tabla1.n_dias,
                         $tabla1.periodo_salida,
                         $tabla1.periodo_retorno,
+
+                        $tabla1.n_dias,
+                        $tabla1.con_sin_retorno,
 
                         $tabla1.validar_superior,
                         $tabla1.f_validar_superior,
@@ -504,15 +508,81 @@ class ConfirmarSalidaRrhhController extends Controller
                         a3.n_documento,
                         a3.nombre AS nombre_persona,
                         a3.ap_paterno,
-                        a3.ap_materno
+                        a3.ap_materno,
+
+                        a4.n_documento AS n_documento_superior,
+                        a4.nombre AS nombre_superior,
+                        a4.ap_paterno AS ap_paterno_superior,
+                        a4.ap_materno AS ap_materno_superior,
+
+                        a5.n_documento AS n_documento_rrhh,
+                        a5.nombre AS nombre_rrhh,
+                        a5.ap_paterno AS ap_paterno_rrhh,
+                        a5.ap_materno AS ap_materno_rrhh,
+
+                        a6.id AS funcionario_id,
+                        a6.unidad_desconcentrada_id,
+
+                        a7.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
+                        a7.nombre AS ud_funcionario,
+
+                        a8.nombre AS lugar_dependencia_funcionario
                     ";
 
-                    $array_where = "$tabla1.persona_id_superior=" . $persona_id  . " AND a2.tipo_cronograma=2 AND $tabla1.estado=1 ";
+                    $array_where = "a2.tipo_cronograma=2";
+
+                    $user_id = Auth::user()->id;
+                    $rol_id  = Auth::user()->rol_id;
+
+                    $consulta1 = SegLdUser::where("user_id", "=", $user_id)
+                        ->select('lugar_dependencia_id')
+                        ->get()
+                        ->toArray();
+                    if(count($consulta1) > 0)
+                    {
+                        $c_1_sw        = TRUE;
+                        $c_2_sw        = TRUE;
+                        $array_where_1 = '';
+                        foreach ($consulta1 as $valor)
+                        {
+                            if(($valor['lugar_dependencia_id'] == '1') && ($rol_id == '1' || $rol_id == '5'))
+                            {
+                                $c_2_sw = FALSE;
+                                break;
+                            }
+
+                            if($c_1_sw)
+                            {
+                                $array_where_1 .= " AND (a7.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                                $c_1_sw        = FALSE;
+                            }
+                            else
+                            {
+                                $array_where_1 .= " OR a7.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            }
+                        }
+                        $array_where_1 .= ")";
+
+                        if($c_2_sw)
+                        {
+                            $array_where .= $array_where_1;
+                        }
+                    }
+                    else
+                    {
+                        $array_where .= " AND a7.lugar_dependencia_id=0 AND ";
+                    }
+
 
                     $array_where .= $jqgrid->getWhere();
 
                     $count = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
                         ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
+                        ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
+                        ->leftJoin("$tabla4 AS a6", "a3.id", "=", "a6.persona_id")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "a6.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
                         ->whereRaw($array_where)
                         ->count();
 
@@ -520,6 +590,11 @@ class ConfirmarSalidaRrhhController extends Controller
 
                     $query = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
                         ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
+                        ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
+                        ->leftJoin("$tabla4 AS a6", "a3.id", "=", "a6.persona_id")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "a6.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
                         ->whereRaw($array_where)
                         ->select(DB::raw($select))
                         ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -559,8 +634,10 @@ class ConfirmarSalidaRrhhController extends Controller
                         $respuesta['rows'][$i]['cell'] = array(
                             '',
 
+                            $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
                             $this->utilitarios(array('tipo' => '2', 'validar_superior' => $row["validar_superior"])),
-                            $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"], 'id' => $row["id"], 'dia_hora' => 2)),
+                            $this->utilitarios(array('tipo' => '3', 'validar_rrhh' => $row["validar_rrhh"])),
+                            $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"], 'id' => $row["id"], 'dia_hora' => 1)),
 
                             $row["papeleta_salida"],
                             ($row["tipo_salida"] == '')? '' : $this->tipo_salida[$row["tipo_salida"]],
@@ -580,6 +657,21 @@ class ConfirmarSalidaRrhhController extends Controller
 
                             $row["f_retorno"],
                             ($row["periodo_retorno"] == '')? '' : $this->periodo[$row["periodo_retorno"]],
+
+                            $row["f_validar_superior"],
+                            $row["n_documento_superior"],
+                            $row["nombre_superior"],
+                            $row["ap_paterno_superior"],
+                            $row["ap_materno_superior"],
+
+                            $row["f_validar_rrhh"],
+                            $row["n_documento_rrhh"],
+                            $row["nombre_rrhh"],
+                            $row["ap_paterno_rrhh"],
+                            $row["ap_materno_rrhh"],
+
+                            $row["ud_funcionario"],
+                            $row["lugar_dependencia_funcionario"],
 
                             //=== VARIABLES OCULTOS ===
                                 json_encode($val_array)
@@ -653,7 +745,7 @@ class ConfirmarSalidaRrhhController extends Controller
                     if($id != '')
                     {
                         $opcion = 'e';
-                        if(!in_array(['codigo' => '1103'], $this->permisos))
+                        if(!in_array(['codigo' => '1203'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
                             return json_encode($respuesta);
@@ -661,7 +753,7 @@ class ConfirmarSalidaRrhhController extends Controller
                     }
                     else
                     {
-                        if(!in_array(['codigo' => '1102'], $this->permisos))
+                        if(!in_array(['codigo' => '1202'], $this->permisos))
                         {
                             $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
                             return json_encode($respuesta);
@@ -672,8 +764,15 @@ class ConfirmarSalidaRrhhController extends Controller
                     $data1['validar_rrhh']   = trim($request->input('validar_rrhh'));
                     $data1['f_validar_rrhh'] = $f_actual;
                     $data1['dia_hora']       = trim($request->input('dia_hora'));
+                    $persona_id              = Auth::user()->persona_id;
 
                 // === MODIFICAR VALORES ===
+                    if($persona_id == '')
+                    {
+                        $respuesta['respuesta'] .= "Usted no esta registrado en PERSONAS.";
+                        return json_encode($respuesta);
+                    }
+
                     $consulta1 = RrhhSalida::where('id', '=', $id)
                         ->where('validar_rrhh', '=', $data1['validar_rrhh'])
                         ->first();
@@ -685,17 +784,16 @@ class ConfirmarSalidaRrhhController extends Controller
 
                         if($consulta2['estado'] == '1')
                         {
-                            if($data1['validar_rrhh'] == '1')
+                            if($consulta2['validar_superior'] != '2')
                             {
-                                if($consulta2['validar_rrhh'] == '2')
-                                {
-                                    $respuesta['respuesta'] .= "La PAPELETA DE SALIDA fue VALIDADO por RRHH, por esa razón no se puede INVALIDAR.";
-                                    return json_encode($respuesta);
-                                }
+                                $respuesta['respuesta'] .= "La PAPELETA DE SALIDA debe de ser validado por el INMEDIATO SUPERIOR.";
+                                return json_encode($respuesta);
                             }
-                            $iu                     = RrhhSalida::find($id);
-                            $iu->validar_rrhh   = $data1['validar_rrhh'];
-                            $iu->f_validar_rrhh = $data1['validar_rrhh'];
+
+                            $iu                  = RrhhSalida::find($id);
+                            $iu->validar_rrhh    = $data1['validar_rrhh'];
+                            $iu->f_validar_rrhh  = $data1['f_validar_rrhh'];
+                            $iu->persona_id_rrhh = $persona_id ;
 
                             $iu->save();
 
@@ -747,6 +845,10 @@ class ConfirmarSalidaRrhhController extends Controller
                         break;
                     case '2':
                         $respuesta = '<span class="label label-danger font-sm">' . $this->estado[$valor['estado']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '3':
+                        $respuesta = '<span class="label label-success font-sm">' . $this->estado[$valor['estado']] . '</span>';
                         return($respuesta);
                         break;
                     default:
