@@ -1539,8 +1539,16 @@
                 break;
             // === REPORTES EXCEL ===
             case 31:
+                var estado = $(".estado_class:checked").val();
+
                 var concatenar_valores = '';
-                concatenar_valores     += '?tipo=10';
+
+                if(estado == 1){
+                    concatenar_valores += '?tipo=10';
+                }
+                else{
+                    concatenar_valores += '?tipo=11';
+                }
 
                 var fecha_del = $("#fecha_del_8").val();
                 var fecha_al  = $("#fecha_al_8").val();

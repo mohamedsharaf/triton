@@ -5330,6 +5330,248 @@ class AsistenciaController extends Controller
                         return "No se encontraron resultados.";
                     }
                 break;
+            case '11':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '1307'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                // === ANALISIS DE LAS VARIABLES ===
+                    if( ! (($request->has('fecha_del') && $request->has('fecha_al'))))
+                    {
+                        return "La FECHA DEL y FECHA AL son obligatorios.";
+                    }
+
+                //=== CARGAR VARIABLES ===
+                    $data1['fecha_del']                        = trim($request->input('fecha_del'));
+                    $data1['fecha_al']                         = trim($request->input('fecha_al'));
+                    $data1['persona_id']                       = trim($request->input('persona_id'));
+                    $data1['lugar_dependencia_id_funcionario'] = trim($request->input('lugar_dependencia_id_funcionario'));
+
+                //=== CONSULTA BASE DE DATOS ===
+                    $tabla1 = "rrhh_asistencias";
+                    $tabla2 = "rrhh_personas";
+                    $tabla3 = "inst_unidades_desconcentradas";
+                    $tabla4 = "inst_lugares_dependencia";
+
+                    $array_where = "$tabla1.estado <> '2'";
+                    if($request->has('fecha_del'))
+                    {
+                        $array_where .= " AND $tabla1.fecha >= '" . $data1['fecha_del'] . "'";
+                    }
+
+                    if($request->has('fecha_al'))
+                    {
+                        $array_where .= " AND $tabla1.fecha <= '" . $data1['fecha_al'] . "'";
+                    }
+
+                    if($request->has('lugar_dependencia_id_funcionario'))
+                    {
+                        $array_where .= " AND a3.lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
+                    }
+
+                    if($request->has('persona_id'))
+                    {
+                        $array_where .= " AND $tabla1.persona_id=" . $data1['persona_id'];
+                    }
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.persona_id,
+
+                        $tabla1.persona_id_rrhh_h1_i,
+                        $tabla1.persona_id_rrhh_h1_s,
+                        $tabla1.persona_id_rrhh_h2_i,
+                        $tabla1.persona_id_rrhh_h2_s,
+
+                        $tabla1.cargo_id,
+                        $tabla1.unidad_desconcentrada_id,
+
+                        $tabla1.log_marcaciones_id_i1,
+                        $tabla1.log_marcaciones_id_s1,
+                        $tabla1.log_marcaciones_id_i2,
+                        $tabla1.log_marcaciones_id_s2,
+
+                        $tabla1.horario_id_1,
+                        $tabla1.horario_id_2,
+
+                        $tabla1.salida_id_i1,
+                        $tabla1.salida_id_s1,
+                        $tabla1.salida_id_i2,
+                        $tabla1.salida_id_s2,
+
+                        $tabla1.fthc_id_h1,
+                        $tabla1.fthc_id_h2,
+
+                        $tabla1.estado,
+                        $tabla1.fecha,
+
+                        $tabla1.h1_i_omitir,
+                        $tabla1.h1_s_omitir,
+                        $tabla1.h2_i_omitir,
+                        $tabla1.h2_s_omitir,
+
+                        $tabla1.h1_min_retrasos,
+                        $tabla1.h2_min_retrasos,
+
+                        $tabla1.h1_descuento,
+                        $tabla1.h2_descuento,
+
+                        $tabla1.h1_i_omision_registro,
+                        $tabla1.h1_s_omision_registro,
+                        $tabla1.h2_i_omision_registro,
+                        $tabla1.h2_s_omision_registro,
+
+                        $tabla1.f_omision_registro,
+                        $tabla1.e_omision_registro,
+
+                        $tabla1.h1_falta,
+                        $tabla1.h2_falta,
+
+                        $tabla1.observaciones,
+                        $tabla1.justificacion,
+
+                        $tabla1.horario_1_i,
+                        $tabla1.horario_1_s,
+
+                        $tabla1.horario_2_i,
+                        $tabla1.horario_2_s,
+
+                        a2.n_documento,
+                        a2.nombre AS nombre_persona,
+                        a2.ap_paterno,
+                        a2.ap_materno,
+
+                        a3.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
+                        a3.nombre AS ud_funcionario,
+
+                        a4.nombre AS lugar_dependencia_funcionario
+                    ";
+
+                    $consulta1 = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderByRaw("$tabla1.fecha ASC, a2.ap_paterno ASC, a2.ap_materno ASC, a2.nombre ASC")
+                        ->get()
+                        ->toArray();
+
+                //=== EXCEL ===
+                    if(count($consulta1) > 0)
+                    {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('resumen_asistencia_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                            $excel->sheet('Resumen Asistencias', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'No',
+                                    'FECHA',
+                                    'CI',
+                                    'NOMBRE COMPLETO',
+
+                                    'HORARIO 1 INGRESO',
+                                    'HORARIO 1 SALIDA',
+                                    'HORARIO 1 RETRASO',
+
+                                    'HORARIO 2 INGRESO',
+                                    'HORARIO 2 SALIDA',
+                                    'HORARIO 2 RETRASO',
+
+                                    'UNIDAD DESCONCENTRADA',
+                                    'LUGAR DE DEPENDENCIA'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                // $sheet->setColumnFormat([
+                                //     'A' => 'yyyy-mm-dd hh:mm:ss'
+                                // ]);
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    $n_documento    = $row1["n_documento"];
+                                    $nombre_persona = trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]);
+                                    $sheet->row($c+1, [
+                                        $c++,
+                                        $row1["fecha"],
+                                        $n_documento,
+                                        $nombre_persona,
+
+                                        $row1["horario_1_i"],
+                                        $row1["horario_1_s"],
+                                        $row1["h1_min_retrasos"],
+
+                                        $row1["horario_2_i"],
+                                        $row1["horario_2_s"],
+                                        $row1["h2_min_retrasos"],
+
+                                        $row1["ud_funcionario"],
+                                        $row1["lugar_dependencia_funcionario"]
+                                    ]);
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+
+                                $sheet->cells('A2:A' . ($c), function($cells){
+                                    $cells->setAlignment('right');
+                                });
+
+                                $sheet->cells('B1:B' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('C2:C' . ($c), function($cells){
+                                    $cells->setAlignment('right');
+                                });
+
+                                $sheet->cells('E1:L' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+
+                                $sheet->setAutoSize(true);
+                            });
+                        })->export('xlsx');
+                    }
+                    else
+                    {
+                        return "No se encontraron resultados.";
+                    }
+                break;
             default:
                 break;
         }

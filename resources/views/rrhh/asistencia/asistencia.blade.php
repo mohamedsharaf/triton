@@ -583,6 +583,23 @@
                     <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario_8" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
                     </select>
                   </div>
+
+                  <h3 class="text-success">
+                    <b>RESUMEN DE LAS ASISTENCIAS / ASISTENCIAS</b>
+                  </h3>
+
+                  <div class="form-group">
+                    <div>
+                      <div class="radio radio-primary radio-inline">
+                        <input type="radio" id="estado_1_id" class="estado_class" name="estado" value="1" checked="checked">
+                        <label class="text-success" for="estado_1_id">RESUMEN DE LAS ASISTENCIAS </label>
+                      </div>
+                      <div class="radio radio-danger radio-inline">
+                          <input type="radio" id="estado_2_id" class="estado_class" name="estado" value="2">
+                          <label class="text-danger" for="estado_2_id"> ASISTENCIAS </label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </form>
             </div>
@@ -591,7 +608,7 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-info" onclick="utilitarios([32]);">Limpiar formulario</button>
             <button type="button" class="btn btn-primary" onclick="utilitarios([30]);">PDF</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([31]);">Excel</button>
+            <button type="button" class="btn btn-success" onclick="utilitarios([31]);">Excel</button>
             <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
           </div>
         </div>
