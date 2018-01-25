@@ -651,6 +651,10 @@ class AsistenciaController extends Controller
                         $cantidad_registros = 0;
 
                         $fecha_acu = $data1['fecha_del'];
+
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+
                         for($i=0; $i < $numero_dias; $i++)
                         {
                             $array_where = "fecha='" . $fecha_acu . "' AND persona_id=" . $data1['persona_id'];
@@ -1304,6 +1308,9 @@ class AsistenciaController extends Controller
                     if(count($consulta1) > 0)
                     {
                         $sw_cerrado = TRUE;
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+
                         foreach ($consulta1 as $row1)
                         {
                             if($row1['estado'] != '3')
@@ -1821,7 +1828,7 @@ class AsistenciaController extends Controller
                                     $horario_2_sw = TRUE;
                                 }
 
-                                if($horario_1_sw)
+                                if($horario_2_sw)
                                 {
                                     $consulta2 = RrhhHorario::where("id", "=", $row1['horario_id_2'])
                                         ->first();
@@ -2553,7 +2560,7 @@ class AsistenciaController extends Controller
                 return json_encode($respuesta);
                 break;
 
-            // === LICENCIA POR VACACIONES ===
+            // === LICENCIA POR MIGRACION ===
             case '4':
                 // === SEGURIDAD ===
                     $this->rol_id   = Auth::user()->rol_id;
@@ -2915,6 +2922,121 @@ class AsistenciaController extends Controller
                         else
                         {
                             $respuesta['respuesta'] .= "La ASISTENCIA se encuentran CERRADA.";
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "No existe la ASISTENCIA.";
+                    }
+
+                return json_encode($respuesta);
+                break;
+
+            // === ELIMINAR ASISTENCIA ===
+            case '5':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>Eliminar asistencia</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo
+                    );
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '1306'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para ELIMINAR ASISTENCIA.";
+                        return json_encode($respuesta);
+                    }
+
+                // === ANALISIS DE LAS VARIABLES ===
+                    if( ! ($request->has('id') || ($request->has('fecha_del') && $request->has('fecha_al'))))
+                    {
+                        $respuesta['respuesta'] .= "La ID o la fecha del y fecha al son obligatorios.";
+                        return json_encode($respuesta);
+                    }
+
+                //=== CARGAR VARIABLES ===
+                    $data1['id'] = trim($request->input('id'));
+
+                    $data1['fecha_del']                        = trim($request->input('fecha_del'));
+                    $data1['fecha_al']                         = trim($request->input('fecha_al'));
+                    $data1['persona_id']                       = trim($request->input('persona_id'));
+                    $data1['lugar_dependencia_id_funcionario'] = trim($request->input('lugar_dependencia_id_funcionario'));
+
+                //=== ANALISIS DE LAS VACACIONES ===
+                    $tabla1 = "rrhh_asistencias";
+                    $tabla2 = "inst_unidades_desconcentradas";
+
+                    $array_where = "$tabla1.estado <> '3'";
+                    if($request->has('id'))
+                    {
+                        $array_where .= " AND $tabla1.id=" . $data1['id'];
+                    }
+
+                    if($request->has('fecha_del'))
+                    {
+                        $array_where .= " AND $tabla1.fecha >= '" . $data1['fecha_del'] . "'";
+                    }
+
+                    if($request->has('fecha_al'))
+                    {
+                        $array_where .= " AND $tabla1.fecha <= '" . $data1['fecha_al'] . "'";
+                    }
+
+                    if($request->has('lugar_dependencia_id_funcionario'))
+                    {
+                        $array_where .= " AND a2.lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
+                    }
+
+                    if($request->has('persona_id'))
+                    {
+                        $array_where .= " AND $tabla1.persona_id=" . $data1['persona_id'];
+                    }
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.estado
+                    ";
+
+                    $consulta1 = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->get()
+                        ->toArray();
+
+                    if(count($consulta1) > 0)
+                    {
+                        $sw_asistencia = FALSE;
+                        foreach($consulta1 as $row1)
+                        {
+                            if($row1['estado'] != '3')
+                            {
+                                $iu = RrhhAsistencia::find($row1['id']);
+                                $iu->delete();
+
+                                $sw_asistencia = TRUE;
+                            }
+                        }
+
+                        if($sw_asistencia)
+                        {
+                            $respuesta['respuesta'] .= "Se logró eliminar la(s) ASISTENCIA(S).";
+
+                            $respuesta['sw'] = 1;
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "No logró eliminar la(s) ASISTENCIA(S).";
                         }
                     }
                     else

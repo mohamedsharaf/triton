@@ -232,7 +232,7 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#fecha_jqgrid, #fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2').datepicker({
+            $('#fecha_jqgrid, #fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2, #fecha_del_7, #fecha_al_7').datepicker({
                 // startView            : 0,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -244,7 +244,7 @@
                 language             : "es"
             });
 
-            $('#persona_id, #persona_id_2').select2({
+            $('#persona_id, #persona_id_2, #persona_id_7').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -269,9 +269,10 @@
             });
             $("#persona_id").appendTo("#persona_id_div");
             $("#persona_id_2").appendTo("#persona_id_div_2");
+            $("#persona_id_7").appendTo("#persona_id_div_7");
 
-            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #lugar_dependencia_id_funcionario_2').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id, #horario_id_1, #horario_id_2, #lugar_dependencia_id_funcionario_2").select2({
+            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7').append(lugar_dependencia_select);
+            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id, #horario_id_1, #horario_id_2, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7").select2({
                 maximumSelectionLength: 1
             });
             $("#lugar_dependencia_id_funcionario").appendTo("#lugar_dependencia_id_funcionario_div");
@@ -281,6 +282,8 @@
             $("#cargo_id").appendTo("#cargo_id_div");
 
             $("#lugar_dependencia_id_funcionario_2").appendTo("#lugar_dependencia_id_funcionario_div_2");
+
+            $("#lugar_dependencia_id_funcionario_7").appendTo("#lugar_dependencia_id_funcionario_div_7");
 
         // === DROPZONE ===
             // var valor1 = new Array();
@@ -422,13 +425,18 @@
                 break;
             // === JQGRID 1 ===
             case 10:
+                var ancho_d = 29;
+
                 var edit1  = true;
                 var ancho1 = 5;
 
+                @if(in_array(['codigo' => '1306'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
                 var edit2  = true;
                 var ancho2 = 5;
-
-                var ancho_d    = 29;
 
                 @if(in_array(['codigo' => '1304'], $permisos))
                     edit2  = false;
@@ -664,6 +672,16 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
+                            var ci_nombre = ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' + ret.ap_materno);
+
+                            var del_1 = '';
+
+                            @if(in_array(['codigo' => '1306'], $permisos))
+                                if(val_json.estado != '3'){
+                                    del_1 = " <button type='button' class='btn btn-xs btn-danger' title='Eliminar ASISTENCIA' onclick=\"utilitarios([25, " + cl + ", '" + ci_nombre + "', '" + ret.fecha + "']);\"><i class='fa fa-trash'></i></button>";
+                                }
+                            @endif
+
                             var vac_h1_e = '';
                             var vac_h1_s = '';
                             var vac_h2_e = '';
@@ -673,8 +691,6 @@
                             var mig_h1_s = '';
                             var mig_h2_e = '';
                             var mig_h2_s = '';
-
-                            var ci_nombre = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' + ret.ap_materno);
 
                             @if(in_array(['codigo' => '1304'], $permisos))
                                 if(val_json.estado != '3'){
@@ -725,6 +741,7 @@
                             @endif
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
+                                act  : $.trim(del_1),
                                 h_1_e: $.trim(vac_h1_e + mig_h1_e),
                                 h_1_s: $.trim(vac_h1_s + mig_h1_s),
                                 h_2_e: $.trim(vac_h2_e + mig_h2_e),
@@ -804,20 +821,24 @@
                     }
                 })
                 @endif
-                @if(in_array(['codigo' => '1310'], $permisos))
+                @if(in_array(['codigo' => '1306'], $permisos))
                     .navSeparatorAdd(pjqgrid1,{
                       sepclass : "ui-separator"
                     })
                     .navButtonAdd(pjqgrid1,{
-                      "id"          : "print1",
-                      caption       : "",
-                      title         : 'Reportes',
-                      buttonicon    : "ui-icon ui-icon-print",
-                      onClickButton : function(){
-                          var valor1 = new Array();
-                          valor1[0]  = 13;
-                          utilitarios(valor1);
-                      }
+                        "id"          : "del1",
+                        caption       : "",
+                        title         : 'Eliminar asistencias',
+                        buttonicon    : "ui-icon ui-icon-trash",
+                        onClickButton : function(){
+                            var valor1 = new Array();
+                            valor1[0]  = 28;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 26;
+                            utilitarios(valor1);
+                        }
                     })
                 @endif
                 ;
@@ -1359,20 +1380,137 @@
                     utilitarios(valor1);
                 }
                 break;
-
-
-
-            // === RESETEAR FORMULARIO 3 ===
+            // === ELIMINAR ASISTENCIA POR FILA ===
             case 25:
-                $("#persona_id_3").val('');
+                swal({
+                    title             : "ELIMINAR ASISTENCIA",
+                    text              : "¿Está seguro de eliminar la ASISTENCIA de " + valor[2] + " en fecha " + valor[3] + "?",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "Eliminar",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        swal.close();
 
-                $('#lugar_dependencia_id_3').select2("val", "");
+                        swal({
+                            title            : "ELIMINANDO ASISTENCIA",
+                            text             : "Espere que se elimine la ASISTENCIA.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
 
-                $('#unidad_desconcentrada_id_3').select2("val", "");
-                $('#unidad_desconcentrada_id_3 option').remove();
-
-                $(form_3)[0].reset();
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=5&id=" + valor[1] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
                 break;
+            // === MODAL ELIMINAR ASISTENCIA ===
+            case 26:
+                $('#modal_7').modal();
+                break;
+            // === ELIMINAR ASISTENCIA ===
+            case 27:
+                var concatenar_valores = '';
+                concatenar_valores     += 'tipo=5&_token=' + csrf_token;
+
+                var fecha_del = $("#fecha_del_7").val();
+                var fecha_al  = $("#fecha_al_7").val();
+
+                var persona_id = $("#persona_id_7").val();
+
+                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_7").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(fecha_del) != ''){
+                    concatenar_valores += '&fecha_del=' + fecha_del;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
+                }
+
+                if($.trim(fecha_al) != ''){
+                    concatenar_valores += '&fecha_al=' + fecha_al;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA AL es obligatorio.';
+                }
+
+                if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
+                    if($.trim(persona_id) != ''){
+                        concatenar_valores += '&persona_id=' + persona_id;
+                    }
+
+                    if($.trim(lugar_dependencia_id_funcionario) != ''){
+                        concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
+                    }
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
+                }
+
+                if(valor_sw){
+                    swal({
+                        title             : "ELIMINANDO ASISTENCIAS",
+                        text              : "Espere que se eliminen las ASISTENCIAS.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = concatenar_valores;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
+                break;
+            // === RESETEAR ELIMINAR ASISTENCIA ===
+            case 28:
+                $('#modal_7_title').empty();
+                $('#modal_7_title').append('Eliminar asistencia');
+
+                $('#persona_id_7').select2("val", "");
+                $('#persona_id_7 option').remove();
+
+                $('#lugar_dependencia_id_funcionario_7').select2("val", "");
+
+                $('#fecha_del_7, #fecha_al_7').val("").datepicker("update");
+
+                $(form_7)[0].reset();
+                break;
+
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -1510,6 +1648,33 @@
 
                             // === LICENCIA POR MIGRACION ===
                             case '4':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
+                            // === ELIMINAR LICENCIA ===
+                            case '5':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
                                     valor1[0]  = 100;
