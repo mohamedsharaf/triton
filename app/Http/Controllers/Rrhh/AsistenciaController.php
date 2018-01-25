@@ -3363,7 +3363,7 @@ class AsistenciaController extends Controller
                     }
                     elseif($this->omision['1'] == $valor['horario'])
                     {
-                        $respuesta = '<button class="btn btn-xs btn-info" onclick="utilitarios([22, ' . $valor['id'] . ', ' . "'" . $valor['fecha'] . "'" . ', ' . $valor['persona_id'] . ']);" title="Ver marcaciones" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                        $respuesta = '<button class="btn btn-xs btn-warning" onclick="utilitarios([22, ' . $valor['id'] . ', ' . "'" . $valor['fecha'] . "'" . ', ' . $valor['persona_id'] . ']);" title="Ver marcaciones" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
                             <i class="fa fa-table"></i>
                             <strong>' . $valor['horario'] . '</strong>
                         </button>';
@@ -4880,7 +4880,6 @@ class AsistenciaController extends Controller
                         ->get()
                         ->toArray();
 
-
                 //=== EXCEL ===
                     if(count($consulta1) > 0)
                     {
@@ -4947,6 +4946,9 @@ class AsistenciaController extends Controller
                                 $persona_id = 0;
                                 $sw_calculo = FALSE;
 
+                                $n_documento    = "";
+                                $nombre_persona = "";
+
                                 $dias_trabajados         = 0;
                                 $feriados                = 0;
                                 $vacaciones              = 0;
@@ -4979,11 +4981,46 @@ class AsistenciaController extends Controller
                                     {
                                         if($sw_calculo)
                                         {
+                                            // === FORMULA DIAS DESCUENTO ===
+                                                $dias_descuento_1 = $licencia_sin_goce_haber + $faltas * 2;
+
+                                                $dias_descuento_2 = ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada) * 0.5;
+
+                                                if($total_atrasos < 21)
+                                                {
+                                                    $dias_descuento_3 = 0;
+                                                }
+                                                elseif($total_atrasos < 31)
+                                                {
+                                                    $dias_descuento_3 = 0.5;
+                                                }
+                                                elseif($total_atrasos < 51)
+                                                {
+                                                    $dias_descuento_3 = 1;
+                                                }
+                                                elseif($total_atrasos < 71)
+                                                {
+                                                    $dias_descuento_3 = 2;
+                                                }
+                                                elseif($total_atrasos < 91)
+                                                {
+                                                    $dias_descuento_3 = 3;
+                                                }
+                                                elseif($total_atrasos < 121)
+                                                {
+                                                    $dias_descuento_3 = 4;
+                                                }
+                                                else
+                                                {
+                                                    $dias_descuento_3 = 5;
+                                                }
+
+                                                $total_dias_descuento = $dias_descuento_1 + $dias_descuento_2 + $dias_descuento_3;
+
                                             $sheet->row($c+1, [
                                                 $c++,
-                                                $row1["n_documento"],
-                                                trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]),
-
+                                                $n_documento,
+                                                $nombre_persona,
 
                                                 $dias_trabajados,
                                                 $feriados,
@@ -5067,8 +5104,214 @@ class AsistenciaController extends Controller
                                         $persona_id = $row1['persona_id'];
                                     }
 
+                                    $n_documento    = $row1["n_documento"];
+                                    $nombre_persona = trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]);
+
+                                    // === DIAS ===
+                                        switch($row1["horario_1_i"])
+                                        {
+                                            case $this->fthc['1']:
+                                                $feriados += 0.5;
+                                                break;
+                                            case $this->omitir['2']:
+                                                $vacaciones += 0.5;
+                                                break;
+                                            case $this->tipo_salida['1']:
+                                                if($row1["horario_1_s"] == $this->tipo_salida['1'])
+                                                {
+                                                    $licencia_con_goce_haber += 0.5;
+                                                }
+                                                else
+                                                {
+                                                    $dias_trabajados += 0.5;
+                                                }
+                                                break;
+                                            case $this->tipo_salida['4']:
+                                                $licencia_con_goce_haber += 0.5;
+                                                break;
+                                            case $this->tipo_salida['5']:
+                                                $licencia_sin_goce_haber += 0.5;
+                                                break;
+                                            case $this->falta['1']:
+                                                $faltas += 0.5;
+                                                break;
+                                            default:
+                                                $dias_trabajados += 0.5;
+                                                break;
+                                        }
+
+                                        switch($row1["horario_2_i"])
+                                        {
+                                            case $this->fthc['1']:
+                                                $feriados += 0.5;
+                                                break;
+                                            case $this->omitir['2']:
+                                                $vacaciones += 0.5;
+                                                break;
+                                            case $this->tipo_salida['1']:
+                                                if($row1["horario_2_s"] == $this->tipo_salida['1'])
+                                                {
+                                                    $licencia_con_goce_haber += 0.5;
+                                                }
+                                                else
+                                                {
+                                                    $dias_trabajados += 0.5;
+                                                }
+                                                break;
+                                            case $this->tipo_salida['4']:
+                                                $licencia_con_goce_haber += 0.5;
+                                                break;
+                                            case $this->tipo_salida['5']:
+                                                $licencia_sin_goce_haber += 0.5;
+                                                break;
+                                            case $this->falta['1']:
+                                                $faltas += 0.5;
+                                                break;
+                                            default:
+                                                $dias_trabajados += 0.5;
+                                                break;
+                                        }
+
+                                    // === MARCADOS / NO MARCADOS ===
+                                        switch($row1["horario_1_i"])
+                                        {
+                                            case $this->omision['1']:
+                                                $h1_ingresos_no_marcados ++;
+                                                break;
+                                            default:
+                                                $h1_ingresos_marcados ++;
+                                                break;
+                                        }
+
+                                        switch($row1["horario_1_s"])
+                                        {
+                                            case $this->omision['1']:
+                                                $h1_salidas_no_marcados ++;
+                                                break;
+                                            default:
+                                                $h1_salidas_marcados ++;
+                                                break;
+                                        }
+
+                                        switch($row1["horario_2_i"])
+                                        {
+                                            case $this->omision['1']:
+                                                $h2_ingresos_no_marcados ++;
+                                                break;
+                                            default:
+                                                $h2_ingresos_marcados ++;
+                                                break;
+                                        }
+
+                                        switch($row1["horario_2_s"])
+                                        {
+                                            case $this->omision['1']:
+                                                $h2_salidas_no_marcados ++;
+                                                break;
+                                            default:
+                                                $h2_salidas_marcados ++;
+                                                break;
+                                        }
+
+                                        // === FALTA INCLUIR ===
+                                            // $pph_salida_no_marcada   = 0;
+                                            // $pph_retorno_no_marcada  = 0;
+
+                                    //=== ATRASOS ===
+                                        $total_atrasos += $row1["h1_min_retrasos"] + $row1["h2_min_retrasos"];
+
                                     $total_dias++;
                                 }
+
+                                // === ULTIMO FUNCIONARIO ===
+                                    // === FORMULA DIAS DESCUENTO ===
+                                        $dias_descuento_1 = $licencia_sin_goce_haber + $faltas * 2;
+
+                                        $dias_descuento_2 = ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada) * 0.5;
+
+                                        if($total_atrasos < 21)
+                                        {
+                                            $dias_descuento_3 = 0;
+                                        }
+                                        elseif($total_atrasos < 31)
+                                        {
+                                            $dias_descuento_3 = 0.5;
+                                        }
+                                        elseif($total_atrasos < 51)
+                                        {
+                                            $dias_descuento_3 = 1;
+                                        }
+                                        elseif($total_atrasos < 71)
+                                        {
+                                            $dias_descuento_3 = 2;
+                                        }
+                                        elseif($total_atrasos < 91)
+                                        {
+                                            $dias_descuento_3 = 3;
+                                        }
+                                        elseif($total_atrasos < 121)
+                                        {
+                                            $dias_descuento_3 = 4;
+                                        }
+                                        else
+                                        {
+                                            $dias_descuento_3 = 5;
+                                        }
+
+                                        $total_dias_descuento = $dias_descuento_1 + $dias_descuento_2 + $dias_descuento_3;
+
+                                    $sheet->row($c+1, [
+                                        $c++,
+                                        $n_documento,
+                                        $nombre_persona,
+
+                                        $dias_trabajados,
+                                        $feriados,
+                                        $vacaciones,
+                                        $licencia_con_goce_haber,
+                                        $licencia_sin_goce_haber,
+                                        $faltas,
+                                        $total_dias,
+
+                                        $dias_descuento_1,
+
+
+                                        $h1_ingresos_marcados,
+                                        $h1_ingresos_no_marcados,
+                                        $h1_salidas_marcados,
+                                        $h1_salidas_no_marcados,
+
+                                        $h2_ingresos_marcados,
+                                        $h2_ingresos_no_marcados,
+                                        $h2_salidas_marcados,
+                                        $h2_salidas_no_marcados,
+
+                                        $pph_salida_no_marcada,
+                                        $pph_retorno_no_marcada,
+
+                                        $dias_descuento_2,
+
+
+                                        $total_atrasos,
+
+                                        $dias_descuento_3,
+
+
+                                        $total_dias_descuento
+                                    ]);
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
 
                                 // $sheet->cells('B1:D' . ($c), function($cells){
                                 //     $cells->setAlignment('center');

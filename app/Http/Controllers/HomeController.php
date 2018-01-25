@@ -1102,7 +1102,7 @@ class HomeController extends Controller
                     }
                     elseif($this->omision['1'] == $valor['horario'])
                     {
-                        $respuesta = '<button class="btn btn-xs btn-info" onclick="utilitarios([24, ' . $valor['id'] . ', ' . "'" . $valor['fecha'] . "'" . ', ' . $valor['persona_id'] . ']);" title="Ver marcaciones" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                        $respuesta = '<button class="btn btn-xs btn-warning" onclick="utilitarios([24, ' . $valor['id'] . ', ' . "'" . $valor['fecha'] . "'" . ', ' . $valor['persona_id'] . ']);" title="Ver marcaciones" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
                             <i class="fa fa-table"></i>
                             <strong>' . $valor['horario'] . '</strong>
                         </button>';
