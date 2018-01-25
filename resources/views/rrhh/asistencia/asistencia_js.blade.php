@@ -232,7 +232,7 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#fecha_jqgrid, #fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2, #fecha_del_7, #fecha_al_7').datepicker({
+            $('#fecha_jqgrid, #fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2, #fecha_del_7, #fecha_al_7, #fecha_del_8, #fecha_al_8').datepicker({
                 // startView            : 0,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -244,7 +244,7 @@
                 language             : "es"
             });
 
-            $('#persona_id, #persona_id_2, #persona_id_7').select2({
+            $('#persona_id, #persona_id_2, #persona_id_7, #persona_id_8').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -270,9 +270,10 @@
             $("#persona_id").appendTo("#persona_id_div");
             $("#persona_id_2").appendTo("#persona_id_div_2");
             $("#persona_id_7").appendTo("#persona_id_div_7");
+            $("#persona_id_8").appendTo("#persona_id_div_8");
 
-            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id, #horario_id_1, #horario_id_2, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7").select2({
+            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7, #lugar_dependencia_id_funcionario_8').append(lugar_dependencia_select);
+            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id, #horario_id_1, #horario_id_2, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7, #lugar_dependencia_id_funcionario_8").select2({
                 maximumSelectionLength: 1
             });
             $("#lugar_dependencia_id_funcionario").appendTo("#lugar_dependencia_id_funcionario_div");
@@ -284,6 +285,8 @@
             $("#lugar_dependencia_id_funcionario_2").appendTo("#lugar_dependencia_id_funcionario_div_2");
 
             $("#lugar_dependencia_id_funcionario_7").appendTo("#lugar_dependencia_id_funcionario_div_7");
+
+            $("#lugar_dependencia_id_funcionario_8").appendTo("#lugar_dependencia_id_funcionario_div_8");
 
         // === DROPZONE ===
             // var valor1 = new Array();
@@ -837,6 +840,26 @@
 
                             var valor1 = new Array();
                             valor1[0]  = 26;
+                            utilitarios(valor1);
+                        }
+                    })
+                @endif
+                @if(in_array(['codigo' => '1307'], $permisos))
+                    .navSeparatorAdd(pjqgrid1,{
+                      sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid1,{
+                        "id"          : "rep1",
+                        caption       : "",
+                        title         : 'Generar reporte de asistencias',
+                        buttonicon    : "ui-icon ui-icon-print",
+                        onClickButton : function(){
+                            var valor1 = new Array();
+                            valor1[0]  = 32;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 29;
                             utilitarios(valor1);
                         }
                     })
@@ -1509,6 +1532,81 @@
                 $('#fecha_del_7, #fecha_al_7').val("").datepicker("update");
 
                 $(form_7)[0].reset();
+                break;
+            // === MODAL REPORTES ===
+            case 29:
+                $('#modal_8').modal();
+                break;
+            // === REPORTES EXCEL ===
+            case 31:
+                var concatenar_valores = '';
+                concatenar_valores     += '?tipo=10';
+
+                var fecha_del = $("#fecha_del_8").val();
+                var fecha_al  = $("#fecha_al_8").val();
+
+                var persona_id = $("#persona_id_8").val();
+
+                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_8").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(fecha_del) != ''){
+                    concatenar_valores += '&fecha_del=' + fecha_del;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
+                }
+
+                if($.trim(fecha_al) != ''){
+                    concatenar_valores += '&fecha_al=' + fecha_al;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA AL es obligatorio.';
+                }
+
+                if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
+                    if($.trim(persona_id) != ''){
+                        concatenar_valores += '&persona_id=' + persona_id;
+                    }
+
+                    if($.trim(lugar_dependencia_id_funcionario) != ''){
+                        concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
+                    }
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
+                }
+
+                if(valor_sw){
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
+                break;
+            // === RESETEAR REPORTES ===
+            case 32:
+                $('#modal_8_title').empty();
+                $('#modal_8_title').append('Generar reportes');
+
+                $('#persona_id_8').select2("val", "");
+                $('#persona_id_8 option').remove();
+
+                $('#lugar_dependencia_id_funcionario_8').select2("val", "");
+
+                $('#fecha_del_8, #fecha_al_8').val("").datepicker("update");
+
+                $(form_8)[0].reset();
                 break;
 
             // === MENSAJE ERROR ===
