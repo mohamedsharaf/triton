@@ -1094,7 +1094,7 @@ class BiometricoController extends Controller
 
                             $att_logs = $tad->get_att_log();
 
-                            if($f_actual <= '2018-01-24')
+                            if($f_actual <= '2018-01-31')
                             {
                                 $log_marcacion = $att_logs->filter_by_date([
                                     'start' => '2018-01-18',

@@ -1803,7 +1803,7 @@ class AsistenciaController extends Controller
                                                                         $iu->h1_falta    = '2';
                                                                     }
 
-                                                                    $iu->horario_1_s = date("H:i:s", strtotime($consulta3['f_marcacion']));
+                                                                    $iu->horario_1_s = $this->tipo_salida[$row4['tipo_salida']];
 
                                                                     $iu->save();
 
@@ -2307,10 +2307,9 @@ class AsistenciaController extends Controller
                                                                     {
                                                                         $iu->horario_2_i = $this->omision['1'];
                                                                         $iu->h2_falta    = '2';
-
                                                                     }
 
-                                                                    $iu->horario_2_s = $this->tipo_salida[$row4['tipo_salida']];;
+                                                                    $iu->horario_2_s = $this->tipo_salida[$row4['tipo_salida']];
 
                                                                     $iu->save();
 
