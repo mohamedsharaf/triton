@@ -5150,6 +5150,12 @@ class AsistenciaController extends Controller
                                             case $this->fthc['1']:
                                                 $feriados += 0.5;
                                                 break;
+                                            case $this->fthc['3']:
+                                                if( ! ($row1["horario_1_i"] == $this->omitir['2']))
+                                                {
+                                                    $dias_trabajados += 0.5;
+                                                }
+                                                break;
                                             case $this->omitir['2']:
                                                 $vacaciones += 0.5;
                                                 break;
