@@ -2586,7 +2586,6 @@ class AsistenciaController extends Controller
                         return json_encode($respuesta);
                     }
 
-
                 // === ANALISIS DE LAS VARIABLES ===
                     if( ! ($request->has('id')))
                     {
@@ -2704,6 +2703,7 @@ class AsistenciaController extends Controller
                                             $iu->h1_i_omitir           = '3';
                                             $iu->h1_falta              = '2';
                                             $iu->h1_i_omision_registro = '2';
+                                            $iu->h1_min_retrasos       = 0;
 
                                             $iu->horario_1_i = $this->omitir['3'];
 
@@ -2814,6 +2814,7 @@ class AsistenciaController extends Controller
                                             $iu->h2_i_omitir           = '3';
                                             $iu->h2_falta              = '2';
                                             $iu->h2_i_omision_registro = '2';
+                                            $iu->h2_min_retrasos       = 0;
 
                                             $iu->horario_2_i = $this->omitir['3'];
 
