@@ -2574,7 +2574,7 @@ class AsistenciaController extends Controller
                     $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>Vacaciones</strong></div>',
+                        'titulo'     => '<div class="text-center"><strong>Migración</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo
                     );
@@ -2698,7 +2698,7 @@ class AsistenciaController extends Controller
 
                                     if($consulta1['h1_i_omitir'] != "2")
                                     {
-                                        if(($consulta1['h1_falta'] == '1') || ($consulta1['h1_i_omision_registro'] == '1'))
+                                        if(($consulta1['h1_falta'] == '1') || ($consulta1['h1_i_omision_registro'] == '1') || ($consulta1['log_marcaciones_id_i1'] != ''))
                                         {
                                             $iu->h1_i_omitir           = '3';
                                             $iu->h1_falta              = '2';
@@ -2809,7 +2809,7 @@ class AsistenciaController extends Controller
 
                                     if($consulta1['h2_i_omitir'] != "2")
                                     {
-                                        if(($consulta1['h2_falta'] == '1') || ($consulta1['h2_i_omision_registro'] == '1'))
+                                        if(($consulta1['h2_falta'] == '1') || ($consulta1['h2_i_omision_registro'] == '1') || ($consulta1['log_marcaciones_id_i2'] != ''))
                                         {
                                             $iu->h2_i_omitir           = '3';
                                             $iu->h2_falta              = '2';
