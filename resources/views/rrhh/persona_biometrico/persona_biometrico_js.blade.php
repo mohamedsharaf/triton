@@ -295,7 +295,7 @@
             case 10:
                 var edit1      = true;
                 var ancho1     = 5;
-                var ancho_d    = 28;
+                var ancho_d    = 29;
                 var subgrid_sw = false;
                 @if(in_array(['codigo' => '0703'], $permisos))
                     edit1  = false;

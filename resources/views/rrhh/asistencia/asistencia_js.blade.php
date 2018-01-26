@@ -723,7 +723,7 @@
                                         }
 
                                         if((val_json.h1_s_omitir != '2')){
-                                            if((val_json.h1_falta == '1') || (val_json.h1_s_omision_registro == '1') || (val_json.h1_s_omitir == '3') || (val_json.log_marcaciones_id_s1 != null)){
+                                            if((val_json.h1_falta == '1') || (val_json.h1_s_omision_registro == '1') || (val_json.h1_s_omitir == '3')){
                                                 mig_h1_s = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 1, 2, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
                                             }
                                         }
@@ -735,7 +735,7 @@
                                         }
 
                                         if((val_json.h2_s_omitir != '2')){
-                                            if((val_json.h2_falta == '1') || (val_json.h2_s_omision_registro == '1') || (val_json.h2_s_omitir == '3') || (val_json.log_marcaciones_id_s2 != null)){
+                                            if((val_json.h2_falta == '1') || (val_json.h2_s_omision_registro == '1') || (val_json.h2_s_omitir == '3')){
                                                 mig_h2_s = " <button type='button' class='btn btn-xs btn-danger' title='Licencia por MIGRACION' onclick=\"utilitarios([21, " + cl + ", 2, 2, '" + ci_nombre +"']);\"><i class='fa fa-history'></i></button>";
                                             }
                                         }
