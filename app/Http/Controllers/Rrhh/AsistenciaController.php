@@ -5116,6 +5116,10 @@ class AsistenciaController extends Controller
                                                 break;
                                             case $this->omitir['2']:
                                                 $vacaciones += 0.5;
+                                                if($row1["horario_2_i"] == $this->fthc['3'])
+                                                {
+                                                    $vacaciones += 0.5;
+                                                }
                                                 break;
                                             case $this->tipo_salida['1']:
                                                 if($row1["horario_1_s"] == $this->tipo_salida['1'])
