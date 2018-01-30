@@ -39,8 +39,8 @@
                 <a href="{{ url('/home') }}"><i class="fa fa-home"></i> <span class="nav-label">Inicio</span></a>
             </li>
 
-            @if(in_array(['codigo' => '0501'], $permisos) || in_array(['codigo' => '0801'], $permisos) || in_array(['codigo' => '0901'], $permisos) || (in_array(['codigo' => '1001'], $permisos)) || in_array(['codigo' => '1101'], $permisos) || in_array(['codigo' => '1201'], $permisos) || in_array(['codigo' => '1301'], $permisos) || in_array(['codigo' => '1401'], $permisos) || in_array(['codigo' => '1501'], $permisos))
-                <li class="{{ isActiveRoute('persona') }}{{ isActiveRoute('funcionario') }}{{ isActiveRoute('tipo_salida') }}{{ isActiveRoute('solicitud_salida') }}{{ isActiveRoute('confirmar_salida') }}{{ isActiveRoute('confirmar_salida_rrhh') }}{{ isActiveRoute('asistencia') }}{{ isActiveRoute('horario') }}{{ isActiveRoute('fthc') }}">
+            @if(in_array(['codigo' => '0501'], $permisos) || in_array(['codigo' => '0801'], $permisos) || in_array(['codigo' => '0901'], $permisos) || (in_array(['codigo' => '1001'], $permisos)) || in_array(['codigo' => '1101'], $permisos) || in_array(['codigo' => '1201'], $permisos) || in_array(['codigo' => '1301'], $permisos) || in_array(['codigo' => '1401'], $permisos) || in_array(['codigo' => '1501'], $permisos) || in_array(['codigo' => '1601'], $permisos))
+                <li class="{{ isActiveRoute('persona') }}{{ isActiveRoute('funcionario') }}{{ isActiveRoute('tipo_salida') }}{{ isActiveRoute('solicitud_salida') }}{{ isActiveRoute('confirmar_salida') }}{{ isActiveRoute('confirmar_salida_rrhh') }}{{ isActiveRoute('asistencia') }}{{ isActiveRoute('horario') }}{{ isActiveRoute('fthc') }}{{ isActiveRoute('salida_particular') }}">
                     <a href="#"><i class="fa fa-group"></i> <span class="nav-label">Recursos humanos</span> </a>
                     <ul class="nav nav-second-level collapse">
                         @if(in_array(['codigo' => '1001'], $permisos))
@@ -60,6 +60,9 @@
                         @endif
                         @if(in_array(['codigo' => '1301'], $permisos))
                             <li class="{{ isActiveRoute('asistencia') }}"><a href="{{ url('/asistencia') }}">Gestor de asistencias</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '1601'], $permisos))
+                            <li class="{{ isActiveRoute('salida_particular') }}"><a href="{{ url('/salida_particular') }}">Salida particular</a></li>
                         @endif
                         @if(in_array(['codigo' => '1401'], $permisos))
                             <li class="{{ isActiveRoute('horario') }}"><a href="{{ url('/horario') }}">Horarios</a></li>

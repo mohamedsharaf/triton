@@ -149,6 +149,26 @@
 
                     <div id="" class="row">
                       <div class="col-lg-12">
+                        <div class="alert alert-danger">
+                          <h3>Artículo 31. SALIDAS DE EMERGENCIA (EN HORA DE OFICINA)</h3>
+
+                          <p class="text-justify">
+                            Se concederá permiso al personal para <strong>salidas particulares de emergencia y de índole personal hasta un máximo dos horas al mes, caso contrario la ausencia después de estas horas se calculara para el descuento en base a la escala de atrasos vigentes, estas horas podrán utilizarse en un mismo día</strong>. Para dichas salidas deberá imprescindiblemente llenar la papeleta de salida particular establecida para tal efecto, con autorización del inmediato superior y firmada previamente por el Encargado de Control de Asistencia en la Fiscalía General del Estado o las Jefaturas Administrativas y Financieras en las Fiscalías Departamentales.
+                          </p>
+
+                          <p class="text-justify">
+                            <strong>Queda prohibida la utilización de este tipo de salidas para justificar atrasos y/o abandono de funciones</strong>, salvo motivos de fuerza mayor que serán debidamente regularizadas y justificadas hasta 24 horas después.
+                          </p>
+
+                          <p class="text-justify">
+                            Las salidas para <strong>atención médica y oficiales sólo serán aceptadas con el registro en la papeleta de la hora de ingreso, salida y firma del médico que realizó la atención</strong> en el ente gestor al que está afiliado el servidor, en el primer caso, y con el sello y firma de la persona o Institución que visitan, con hora de ingreso y salida para el segundo caso.
+                          </p>
+
+                          <p class="text-justify">
+                            Cualquier salida no reportada, así como la ausencia no justificada en el lugar de trabajo serán consideradas como abandono de funciones.
+                          </p>
+                        </div>
+
                         <div class="alert alert-info">
                           <h3>SALIDAS PARTICULARES</h3>
                           <ul>
@@ -181,6 +201,116 @@
                     <div class="jqGrid_wrapper">
                       <table id="jqgrid2"></table>
                       <div id="pjqgrid2"></div>
+                    </div>
+
+                    <br>
+
+                    <div id="" class="row">
+                      <div class="col-lg-12">
+                        <div class="alert alert-danger">
+                          <h3>Artículo 28. LICENCIAS CON GOCE DE HABERES.</h3>
+
+                          <p class="text-justify">
+                            Licencia es la autorización expresa que otorga el Superior Jerárquico de cada Unidad Organizacional para que un funcionario no asista a su fuente de trabajo, debiendo ser aprobada a través de la Jefatura Nacional de Recursos Humanos en la Fiscalía General y por las o los Fiscales Departamentales en cada Distrito del país. <strong>Toda Licencia debe tramitarse con 24 horas de  anticipación</strong> utilizando el formulario impreso del Sistema Integrado de Control de Personal.
+                          </p>
+
+                          <p class="text-justify">
+                            Solo las <strong>licencias con carácter de emergencia pueden ser entregadas hasta 24 horas después de la misma debidamente justificadas</strong>, las licencias con goce de haber procederán en los siguientes casos:
+                          </p>
+
+                          <ol type="a">
+                            <li class="text-justify">
+                              Por fallecimiento de padres o suegros del funcionario,  cónyuge, hijos o hermanos del funcionario, <strong>hasta cinco días calendario</strong>. En estos casos, las licencias serán justificadas con los certificados correspondientes en el plazo máximo de cinco días de ocurrido el suceso.
+                            </li>
+
+                            <li class="text-justify">
+                              Por nacimiento de hijos, <strong>tres días hábiles</strong>, que se computará a partir del día del parto, debiendo presentarse el certificado correspondiente.
+                            </li>
+
+                            <li class="text-justify">
+                              Por asistencia a cursos de capacitación o entrenamiento, con patrocinio del Ministerio Público, el tiempo que sea declarado en comisión.
+                            </li>
+
+                            <li class="text-justify">
+                              Por enfer­medad y/o maternidad conforme a lo dispuesto en el Código de Seguridad Social.
+                            </li>
+
+                            <li class="text-justify">
+                              Por matrimonio del funcionario <strong>tres días hábiles</strong> incluyendo el día del matrimonio, debiendo presentarse el certificado correspondiente.
+                            </li>
+
+                            <li class="text-justify">
+                              Por cumpleaños:  La  servidora  y servidor  del Ministerio Público  que  cumpla años <strong>en días laborales,  gozará de medio día laboral el mismo día</strong>, no compensable en dinero ni sujeto a uso en otro día distinto, previa presentación de copia de la cédula de identidad y llenado del formulario respectivo, con percepción  del 100% del haber mensual.
+                            </li>
+
+                            <li class="text-justify">
+                              En caso de haber sido designado jurado electoral o Juez ciudadano, <strong>un día hábil</strong>, debiendo presentarse el certificado correspondiente o la designación efectuada por el Tribunal Departamental Electoral.
+                            </li>
+
+                            <li class="text-justify">
+                              En caso de ser declarado en comisión por disposiciones superiores.
+                            </li>
+
+                            <li class="text-justify">
+                              De conformidad al Decreto Supremo N°1496, las servidoras públicas del Ministerio Público del Estado, tendrán una tolerancia de <strong>un (1) día hábil al año</strong> para someterse al examen médico de Papanicolaou y/o Mamografía. Dicha tolerancia será fraccionada en dos medias jornadas: media jornada para la realización del examen médico y media jornada para conocer los resultados.
+                            </li>
+                          </ol>
+
+                          <p class="text-justify">
+                            En los  casos a) y b), el funcionario del Ministerio Público deberá sustentar la licencia con el documento pertinente dentro de los siguientes <strong>tres días hábiles</strong>, caso contrario será considerado como abandono de funciones.
+                          </p>
+
+                          <p class="text-justify">
+                            En los casos c) y e) debe sustentarse con la <strong>certificación correspondiente después de 24 horas</strong>.
+                          </p>
+
+                          <p class="text-justify">
+                            En el caso f), se debe <strong>adjuntar fotocopia de la cédula de identidad</strong>, a la papeleta de licencia.
+                          </p>
+
+                          <p class="text-justify">
+                            En el caso g), deberá contarse con el <strong>memorando de designación y el certificado de sufragio emitido por el Tribunal Departamental Electoral</strong>.
+                          </p>
+
+                          <p class="text-justify">
+                            En el caso d) ó i) la licencia debe contar con el <strong>formulario de atención médica y/o Baja Médica</strong> del ente gestor al que esta afiliado el servidor/a con firma del médico que lo atendió.
+                          </p>
+
+                          <p class="text-justify">
+                            Para el caso h) debe contarse con la autorización de la autoridad competente.
+                          </p>
+                        </div>
+
+                        <div class="alert alert-danger">
+                          <h3>Artículo 30. LICENCIA SIN GOCE DE HABERES</h3>
+
+                          <p class="text-justify">
+                            Se podrá conceder licencia sin goce de haberes únicamente cuando el funcionario del Ministerio Público ya no tenga derecho a días de vacación pendiente y en  circunstancias especiales debidamente justificadas y documentadas, como ser:
+                          </p>
+
+                          <ol type="a">
+                            <li class="text-justify">
+                              <strong>Asistencia a cursos de capacitación, especialización, de posgrado, como participante particular</strong> (sin patrocinio del Ministerio Público).
+                            </li>
+
+                            <li class="text-justify">
+                              Por razones de <strong>estudio o realización de trabajos de grado, hasta tres días calendario antes de su examen o defensa del trabajo de grado, previa certificación de la autoridad universitaria competente</strong>.
+                            </li>
+
+                            <li class="text-justify">
+                              <strong>Por motivos de salud</strong> (tratamientos al funcionario o miembros de su familia) que no sean pagados por el seguro social) por períodos no mayores a 30 días calendarios.
+                            </li>
+
+                            <li class="text-justify">
+                              Por otras causas de fuerza mayor u otras debidamente justificadas hasta 5 días hábiles.
+                            </li>
+                          </ol>
+
+                          <p class="text-justify">
+                            En los casos de los incisos a), b) y c) las licencias que no excedan a los <strong>15 días hábiles deberán ser aprobadas por la Jefatura Nacional de Recursos Humanos en la Fiscalía General del Estado y por los Fiscales Departamentales previa autorización expresa del superior inmediato</strong> del funcionario; cuando la <strong>solicitud de licencia sea mayor a los 15 días, la misma deberá ser aprobada mediante Resolución Expresa emitida por el Fiscal General del Estado</strong>. Estas solicitudes deberán presentarse por lo menos con 24 horas de anticipación y con toda la documentación de respaldo.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
