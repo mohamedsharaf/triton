@@ -774,6 +774,13 @@ class PersonaBiometricoController extends Controller
                 // === VERIFICANDO CONEXION ===
                     if($biometrico['estado'] == '1')
                     {
+                        $consulta2 = RrhhPersona::where("id", "=", $consulta1['persona_id'])
+                            ->select('n_documento', 'nombre', 'ap_paterno', 'ap_materno')
+                            ->first()
+                            ->toArray();
+
+                        $nombre = trim($consulta2['ap_paterno'] . ' ' . $consulta2['ap_materno'] . ' ' . $consulta2['nombre']);
+
                         $data_conexion = [
                             'ip'            => $biometrico['ip'],
                             'internal_id'   => $biometrico['internal_id'],
@@ -788,11 +795,16 @@ class PersonaBiometricoController extends Controller
 
                         try
                         {
+                            $res = $tad->set_user_info([
+                                'pin'       => $consulta1['n_documento_biometrico'],
+                                'name'      => $nombre,
+                                'privilege' => $consulta1['privilegio'],
+                                'password'  => rand(1000, 9999)
+                            ]);
+
                             $fb_conexion_array = $tad->get_date()->to_array();
                             $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
                             $e_conexion        = 1;
-
-                            $tad->delete_template(['pin' => $consulta1['n_documento_biometrico']]);
 
                             $respuesta['respuesta'] .= "Se elimino las huellas y rostro del biométrico de la siguiente dirección " . $biometrico['ip'] . ".";
                             $respuesta['sw'] = 1;

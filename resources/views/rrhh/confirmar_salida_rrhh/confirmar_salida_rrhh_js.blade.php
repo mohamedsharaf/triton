@@ -1204,7 +1204,7 @@
                 },
                 function(isConfirm){
                     if (isConfirm){
-                        swal.close();
+                        // swal.close();
 
                         swal({
                             title            : "VALIDANDO PAPELETA DE SALIDA",
@@ -1251,7 +1251,7 @@
                 },
                 function(isConfirm){
                     if (isConfirm){
-                        swal.close();
+                        // swal.close();
 
                         swal({
                             title            : "INVALIDANDO PAPELETA DE SALIDA",

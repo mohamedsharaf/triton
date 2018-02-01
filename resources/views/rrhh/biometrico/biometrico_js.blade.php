@@ -1021,7 +1021,7 @@
                     },
                     function(isConfirm){
                         if (isConfirm){
-                            swal.close();
+                            // swal.close();
 
                             swal({
                                 title             : "REINICIANDO BIOMETRICO",
@@ -1073,7 +1073,7 @@
                     },
                     function(isConfirm){
                         if (isConfirm){
-                            swal.close();
+                            // swal.close();
 
                             swal({
                                 title             : "APAGAR BIOMETRICO",
@@ -1125,7 +1125,7 @@
                     },
                     function(isConfirm){
                         if (isConfirm){
-                            swal.close();
+                            // swal.close();
 
                             swal({
                                 title             : "OBTENIENDO REGISTROS",

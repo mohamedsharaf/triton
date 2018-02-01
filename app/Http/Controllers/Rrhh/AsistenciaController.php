@@ -67,7 +67,8 @@ class AsistenciaController extends Controller
         $this->falta = [
             '1' => 'FALTA',
             '2' => 'ASISTIO',
-            '3' => 'REGULARIZADA'
+            '3' => 'REGULARIZADA',
+            '4' => 'SIN HORARIO'
         ];
 
         $this->fthc = [
@@ -732,15 +733,26 @@ class AsistenciaController extends Controller
                                     $iu->unidad_desconcentrada_id = $data1['unidad_desconcentrada_id'];
 
                                     $iu->horario_id_1 = $data1['horario_id_1'];
-                                    $iu->horario_id_2 = $data1['horario_id_2'];
 
                                     $iu->fecha = $fecha_acu;
 
                                     $iu->horario_1_i = $this->falta['1'];
                                     $iu->horario_1_s = $this->falta['1'];
 
-                                    $iu->horario_2_i = $this->falta['1'];
-                                    $iu->horario_2_s = $this->falta['1'];
+                                    if($data1['horario_id_2'] != '')
+                                    {
+                                        $iu->horario_id_2 = $data1['horario_id_2'];
+
+                                        $iu->horario_2_i = $this->falta['1'];
+                                        $iu->horario_2_s = $this->falta['1'];
+                                    }
+                                    else
+                                    {
+                                        $iu->horario_id_2 = NULL;
+
+                                        $iu->horario_2_i = $this->falta['4'];
+                                        $iu->horario_2_s = $this->falta['4'];
+                                    }
 
                                     $iu->save();
 
@@ -759,6 +771,7 @@ class AsistenciaController extends Controller
                                         {
                                             switch($row4['tipo_fthc'])
                                             {
+                                                // === FERIADO ===
                                                 case '1':
                                                     $sw_1 = TRUE;
                                                     if($row4['unidad_desconcentrada_id'] != '')
@@ -774,89 +787,101 @@ class AsistenciaController extends Controller
                                                         $iu = RrhhAsistencia::find($id);
 
                                                         $iu->fthc_id_h1 = $row4['id'];
-                                                        $iu->fthc_id_h2 = $row4['id'];
 
                                                         $iu->horario_1_i = $this->fthc['1'];
                                                         $iu->horario_1_s = $this->fthc['1'];
 
-                                                        $iu->horario_2_i = $this->fthc['1'];
-                                                        $iu->horario_2_s = $this->fthc['1'];
+                                                        if($data1['horario_id_2'] != '')
+                                                        {
+                                                            $iu->fthc_id_h2 = $row4['id'];
+
+                                                            $iu->horario_2_i = $this->fthc['1'];
+                                                            $iu->horario_2_s = $this->fthc['1'];
+                                                        }
 
                                                         $iu->save();
                                                     }
                                                     break;
+                                                // === TOLERANCIA ===
                                                 case '2':
-                                                    $sw_1 = TRUE;
-                                                    if($row4['unidad_desconcentrada_id'] != '')
+                                                    if($data1['horario_id_2'] != '')
                                                     {
-                                                        if($data1['unidad_desconcentrada_id'] != $row4['unidad_desconcentrada_id'])
+                                                        $sw_1 = TRUE;
+                                                        if($row4['unidad_desconcentrada_id'] != '')
                                                         {
-                                                            $sw_1 = FALSE;
-                                                        }
-                                                    }
-
-                                                    if($sw_1)
-                                                    {
-                                                        $sw_2 = TRUE;
-                                                        if($row4['sexo'] != '')
-                                                        {
-                                                            $consulta5 = RrhhPersona::where('id', '=', $data1['persona_id'])->first();
-                                                            if($consulta5['sexo'] != $row4['sexo'])
+                                                            if($data1['unidad_desconcentrada_id'] != $row4['unidad_desconcentrada_id'])
                                                             {
-                                                                $sw_2 = FALSE;
+                                                                $sw_1 = FALSE;
                                                             }
                                                         }
-                                                        if($sw_2)
+
+                                                        if($sw_1)
                                                         {
-                                                            switch($row4['tipo_horario']) {
-                                                                case '1':
-                                                                    $iu = RrhhAsistencia::find($id);
+                                                            $sw_2 = TRUE;
+                                                            if($row4['sexo'] != '')
+                                                            {
+                                                                $consulta5 = RrhhPersona::where('id', '=', $data1['persona_id'])->first();
+                                                                if($consulta5['sexo'] != $row4['sexo'])
+                                                                {
+                                                                    $sw_2 = FALSE;
+                                                                }
+                                                            }
+                                                            if($sw_2)
+                                                            {
+                                                                switch($row4['tipo_horario']) {
+                                                                    case '1':
+                                                                        $iu = RrhhAsistencia::find($id);
 
-                                                                    $iu->fthc_id_h1 = $row4['id'];
+                                                                        $iu->fthc_id_h1 = $row4['id'];
 
-                                                                    $iu->horario_1_i = $this->fthc['2'];
-                                                                    $iu->horario_1_s = $this->fthc['2'];
+                                                                        $iu->horario_1_i = $this->fthc['2'];
+                                                                        $iu->horario_1_s = $this->fthc['2'];
 
-                                                                    $iu->save();
-                                                                    break;
-                                                                case '2':
-                                                                    $iu = RrhhAsistencia::find($id);
+                                                                        $iu->save();
+                                                                        break;
+                                                                    case '2':
+                                                                        $iu = RrhhAsistencia::find($id);
 
-                                                                    $iu->fthc_id_h2 = $row4['id'];
+                                                                        $iu->fthc_id_h2 = $row4['id'];
 
-                                                                    $iu->horario_2_i = $this->fthc['2'];
-                                                                    $iu->horario_2_s = $this->fthc['2'];
+                                                                        $iu->horario_2_i = $this->fthc['2'];
+                                                                        $iu->horario_2_s = $this->fthc['2'];
 
-                                                                    $iu->save();
-                                                                    break;
-                                                                default:
-                                                                    break;
+                                                                        $iu->save();
+                                                                        break;
+                                                                    default:
+                                                                        break;
+                                                                }
                                                             }
                                                         }
                                                     }
                                                     break;
+                                                // === HORARIO CONTINUO ===
                                                 case '3':
-                                                    $sw_1 = TRUE;
-                                                    if($row4['unidad_desconcentrada_id'] != '')
+                                                    if($data1['horario_id_2'] != '')
                                                     {
-                                                        if($data1['unidad_desconcentrada_id'] != $row4['unidad_desconcentrada_id'])
+                                                        $sw_1 = TRUE;
+                                                        if($row4['unidad_desconcentrada_id'] != '')
                                                         {
-                                                            $sw_1 = FALSE;
+                                                            if($data1['unidad_desconcentrada_id'] != $row4['unidad_desconcentrada_id'])
+                                                            {
+                                                                $sw_1 = FALSE;
+                                                            }
                                                         }
-                                                    }
 
-                                                    if($sw_1)
-                                                    {
-                                                        $iu = RrhhAsistencia::find($id);
+                                                        if($sw_1)
+                                                        {
+                                                            $iu = RrhhAsistencia::find($id);
 
-                                                        $iu->horario_id_1 = $row4['horario_id'];
+                                                            $iu->horario_id_1 = $row4['horario_id'];
 
-                                                        $iu->fthc_id_h2 = $row4['id'];
+                                                            $iu->fthc_id_h2 = $row4['id'];
 
-                                                        $iu->horario_2_i = $this->fthc['3'];
-                                                        $iu->horario_2_s = $this->fthc['3'];
+                                                            $iu->horario_2_i = $this->fthc['3'];
+                                                            $iu->horario_2_s = $this->fthc['3'];
 
-                                                        $iu->save();
+                                                            $iu->save();
+                                                        }
                                                     }
                                                     break;
                                                 default:
@@ -1022,15 +1047,26 @@ class AsistenciaController extends Controller
                                             $iu->unidad_desconcentrada_id = $row1['unidad_desconcentrada_id'];
 
                                             $iu->horario_id_1 = $row1['horario_id_1'];
-                                            $iu->horario_id_2 = $row1['horario_id_2'];
 
                                             $iu->fecha = $fecha_acu;
 
                                             $iu->horario_1_i = $this->falta['1'];
                                             $iu->horario_1_s = $this->falta['1'];
 
-                                            $iu->horario_2_i = $this->falta['1'];
-                                            $iu->horario_2_s = $this->falta['1'];
+                                            if($row1['horario_id_2'] != '')
+                                            {
+                                                $iu->horario_id_2 = $row1['horario_id_2'];
+
+                                                $iu->horario_2_i = $this->falta['1'];
+                                                $iu->horario_2_s = $this->falta['1'];
+                                            }
+                                            else
+                                            {
+                                                $iu->horario_id_2 = NULL;
+
+                                                $iu->horario_2_i = $this->falta['4'];
+                                                $iu->horario_2_s = $this->falta['4'];
+                                            }
 
                                             $iu->save();
 
@@ -1049,6 +1085,7 @@ class AsistenciaController extends Controller
                                                 {
                                                     switch($row3['tipo_fthc'])
                                                     {
+                                                        // === FERIADO ===
                                                         case '1':
                                                             $sw_1 = TRUE;
                                                             if($row3['unidad_desconcentrada_id'] != '')
@@ -1064,88 +1101,100 @@ class AsistenciaController extends Controller
                                                                 $iu = RrhhAsistencia::find($id);
 
                                                                 $iu->fthc_id_h1 = $row3['id'];
-                                                                $iu->fthc_id_h2 = $row3['id'];
 
                                                                 $iu->horario_1_i = $this->fthc['1'];
                                                                 $iu->horario_1_s = $this->fthc['1'];
 
-                                                                $iu->horario_2_i = $this->fthc['1'];
-                                                                $iu->horario_2_s = $this->fthc['1'];
+                                                                if($row1['horario_id_2'] != '')
+                                                                {
+                                                                    $iu->fthc_id_h2 = $row3['id'];
+
+                                                                    $iu->horario_2_i = $this->fthc['1'];
+                                                                    $iu->horario_2_s = $this->fthc['1'];
+                                                                }
 
                                                                 $iu->save();
                                                             }
                                                             break;
+                                                        // === TOLERANCIA ===
                                                         case '2':
-                                                            $sw_1 = TRUE;
-                                                            if($row3['unidad_desconcentrada_id'] != '')
+                                                            if($row1['horario_id_2'] != '')
                                                             {
-                                                                if($row1['unidad_desconcentrada_id'] != $row3['unidad_desconcentrada_id'])
+                                                                $sw_1 = TRUE;
+                                                                if($row3['unidad_desconcentrada_id'] != '')
                                                                 {
-                                                                    $sw_1 = FALSE;
-                                                                }
-                                                            }
-
-                                                            if($sw_1)
-                                                            {
-                                                                $sw_2 = TRUE;
-                                                                if($row3['sexo'] != '')
-                                                                {
-                                                                    if($row1['sexo'] != $row3['sexo'])
+                                                                    if($row1['unidad_desconcentrada_id'] != $row3['unidad_desconcentrada_id'])
                                                                     {
-                                                                        $sw_2 = FALSE;
+                                                                        $sw_1 = FALSE;
                                                                     }
                                                                 }
-                                                                if($sw_2)
+
+                                                                if($sw_1)
                                                                 {
-                                                                    switch($row3['tipo_horario']) {
-                                                                        case '1':
-                                                                            $iu = RrhhAsistencia::find($id);
+                                                                    $sw_2 = TRUE;
+                                                                    if($row3['sexo'] != '')
+                                                                    {
+                                                                        if($row1['sexo'] != $row3['sexo'])
+                                                                        {
+                                                                            $sw_2 = FALSE;
+                                                                        }
+                                                                    }
+                                                                    if($sw_2)
+                                                                    {
+                                                                        switch($row3['tipo_horario']) {
+                                                                            case '1':
+                                                                                $iu = RrhhAsistencia::find($id);
 
-                                                                            $iu->fthc_id_h1 = $row3['id'];
+                                                                                $iu->fthc_id_h1 = $row3['id'];
 
-                                                                            $iu->horario_1_i = $this->fthc['2'];
-                                                                            $iu->horario_1_s = $this->fthc['2'];
+                                                                                $iu->horario_1_i = $this->fthc['2'];
+                                                                                $iu->horario_1_s = $this->fthc['2'];
 
-                                                                            $iu->save();
-                                                                            break;
-                                                                        case '2':
-                                                                            $iu = RrhhAsistencia::find($id);
+                                                                                $iu->save();
+                                                                                break;
+                                                                            case '2':
+                                                                                $iu = RrhhAsistencia::find($id);
 
-                                                                            $iu->fthc_id_h2 = $row3['id'];
+                                                                                $iu->fthc_id_h2 = $row3['id'];
 
-                                                                            $iu->horario_2_i = $this->fthc['2'];
-                                                                            $iu->horario_2_s = $this->fthc['2'];
+                                                                                $iu->horario_2_i = $this->fthc['2'];
+                                                                                $iu->horario_2_s = $this->fthc['2'];
 
-                                                                            $iu->save();
-                                                                            break;
-                                                                        default:
-                                                                            break;
+                                                                                $iu->save();
+                                                                                break;
+                                                                            default:
+                                                                                break;
+                                                                        }
                                                                     }
                                                                 }
                                                             }
                                                             break;
+                                                        // === HORARIO CONTINUO ===
                                                         case '3':
-                                                            $sw_1 = TRUE;
-                                                            if($row3['unidad_desconcentrada_id'] != '')
+                                                            if($row1['horario_id_2'] != '')
                                                             {
-                                                                if($row1['unidad_desconcentrada_id'] != $row3['unidad_desconcentrada_id'])
+                                                                $sw_1 = TRUE;
+                                                                if($row3['unidad_desconcentrada_id'] != '')
                                                                 {
-                                                                    $sw_1 = FALSE;
+                                                                    if($row1['unidad_desconcentrada_id'] != $row3['unidad_desconcentrada_id'])
+                                                                    {
+                                                                        $sw_1 = FALSE;
+                                                                    }
                                                                 }
-                                                            }
 
-                                                            if($sw_1)
-                                                            {
-                                                                $iu = RrhhAsistencia::find($id);
+                                                                if($sw_1)
+                                                                {
+                                                                    $iu = RrhhAsistencia::find($id);
 
-                                                                $iu->horario_id_1 = $row3['horario_id'];
+                                                                    $iu->horario_id_1 = $row3['horario_id'];
 
-                                                                $iu->fthc_id_h2 = $row3['id'];
+                                                                    $iu->fthc_id_h2 = $row3['id'];
 
-                                                                $iu->horario_2_i = $this->fthc['3'];
-                                                                $iu->horario_2_s = $this->fthc['3'];
+                                                                    $iu->horario_2_i = $this->fthc['3'];
+                                                                    $iu->horario_2_s = $this->fthc['3'];
 
-                                                                $iu->save();
+                                                                    $iu->save();
+                                                                }
                                                             }
                                                             break;
                                                         default:
@@ -1203,7 +1252,7 @@ class AsistenciaController extends Controller
                         return json_encode($respuesta);
                     }
 
-                //=== OPERACION ===
+                // === OPERACION ===
                     $data1['fecha_del'] = trim($request->input('fecha_del'));
                     $data1['fecha_al']  = trim($request->input('fecha_al'));
 
@@ -1823,6 +1872,38 @@ class AsistenciaController extends Controller
                                                                     $iu->save();
                                                                 break;
                                                             }
+                                                            elseif($row4['con_sin_retorno'] == '2')
+                                                            {
+                                                                $fh_s = $row1['fecha'] . " " . $row4['h_salida'];
+                                                                if(($fh_ingreso <= $fh_s) && ($fh_s <= $fh_salida))
+                                                                {
+                                                                    // === MODIFICACION A ASISTENCIA ===
+                                                                        $iu = RrhhAsistencia::find($row1['id']);
+
+                                                                        $iu->salida_id_s1          = $row4['id'];
+                                                                        $iu->log_marcaciones_id_s1 = NULL;
+                                                                        $iu->h1_descuento          = '0';
+                                                                        $iu->h1_s_omision_registro = '2';
+
+                                                                        if($marcacion_e_o_sw)
+                                                                        {
+                                                                            $iu->horario_1_i = $this->omision['1'];
+                                                                            $iu->h1_falta    = '2';
+                                                                        }
+
+                                                                        $iu->horario_1_s = $this->tipo_salida[$row4['tipo_salida']];
+
+                                                                        $iu->save();
+
+                                                                    // === MODIFICACION A LOG DE MARCACIONES ===
+                                                                        $iu = RrhhSalida::find($row4['id']);
+
+                                                                        $iu->estado = '3';
+
+                                                                        $iu->save();
+                                                                    break;
+                                                                }
+                                                            }
                                                         }
                                                     }
                                             }
@@ -2335,6 +2416,38 @@ class AsistenciaController extends Controller
 
                                                                         $iu->save();
                                                                     break;
+                                                                }
+                                                                elseif($row4['con_sin_retorno'] == '2')
+                                                                {
+                                                                    $fh_s = $row1['fecha'] . " " . $row4['h_salida'];
+                                                                    if(($fh_ingreso <= $fh_s) && ($fh_s <= $fh_salida))
+                                                                    {
+                                                                        // === MODIFICACION A ASISTENCIA ===
+                                                                            $iu = RrhhAsistencia::find($row1['id']);
+
+                                                                            $iu->salida_id_s1          = $row4['id'];
+                                                                            $iu->log_marcaciones_id_s1 = NULL;
+                                                                            $iu->h1_descuento          = '0';
+                                                                            $iu->h1_s_omision_registro = '2';
+
+                                                                            if($marcacion_e_o_sw)
+                                                                            {
+                                                                                $iu->horario_1_i = $this->omision['1'];
+                                                                                $iu->h1_falta    = '2';
+                                                                            }
+
+                                                                            $iu->horario_1_s = $this->tipo_salida[$row4['tipo_salida']];
+
+                                                                            $iu->save();
+
+                                                                        // === MODIFICACION A LOG DE MARCACIONES ===
+                                                                            $iu = RrhhSalida::find($row4['id']);
+
+                                                                            $iu->estado = '3';
+
+                                                                            $iu->save();
+                                                                        break;
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -3063,6 +3176,124 @@ class AsistenciaController extends Controller
                 return json_encode($respuesta);
                 break;
 
+            // === CERRAR ASISTENCIA ===
+            case '6':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>Cerrar asistencia</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo
+                    );
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '1308'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para CERRAR ASISTENCIA.";
+                        return json_encode($respuesta);
+                    }
+
+                // === ANALISIS DE LAS VARIABLES ===
+                    if( ! ($request->has('id') || ($request->has('fecha_del') && $request->has('fecha_al'))))
+                    {
+                        $respuesta['respuesta'] .= "La ID o la fecha del y fecha al, son obligatorios.";
+                        return json_encode($respuesta);
+                    }
+
+                //=== CARGAR VARIABLES ===
+                    $data1['id'] = trim($request->input('id'));
+
+                    $data1['fecha_del']                        = trim($request->input('fecha_del'));
+                    $data1['fecha_al']                         = trim($request->input('fecha_al'));
+                    $data1['persona_id']                       = trim($request->input('persona_id'));
+                    $data1['lugar_dependencia_id_funcionario'] = trim($request->input('lugar_dependencia_id_funcionario'));
+
+                //=== ANALISIS ===
+                    $tabla1 = "rrhh_asistencias";
+                    $tabla2 = "inst_unidades_desconcentradas";
+
+                    $array_where = "$tabla1.estado <> '3'";
+                    if($request->has('id'))
+                    {
+                        $array_where .= " AND $tabla1.id=" . $data1['id'];
+                    }
+
+                    if($request->has('fecha_del'))
+                    {
+                        $array_where .= " AND $tabla1.fecha >= '" . $data1['fecha_del'] . "'";
+                    }
+
+                    if($request->has('fecha_al'))
+                    {
+                        $array_where .= " AND $tabla1.fecha <= '" . $data1['fecha_al'] . "'";
+                    }
+
+                    if($request->has('lugar_dependencia_id_funcionario'))
+                    {
+                        $array_where .= " AND a2.lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
+                    }
+
+                    if($request->has('persona_id'))
+                    {
+                        $array_where .= " AND $tabla1.persona_id=" . $data1['persona_id'];
+                    }
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.estado
+                    ";
+
+                    $consulta1 = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->get()
+                        ->toArray();
+
+                    if(count($consulta1) > 0)
+                    {
+                        $sw_asistencia = FALSE;
+                        foreach($consulta1 as $row1)
+                        {
+                            if($row1['estado'] != '3')
+                            {
+                                $iu = RrhhAsistencia::find($row1['id']);
+
+                                $iu->estado = '3';
+
+                                $iu->save();
+
+                                $sw_asistencia = TRUE;
+                            }
+                        }
+
+                        if($sw_asistencia)
+                        {
+                            $respuesta['respuesta'] .= "Se logró cerrar la(s) ASISTENCIA(S).";
+
+                            $respuesta['sw'] = 1;
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "No logró cerar la(s) ASISTENCIA(S).";
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "No existe la ASISTENCIA.";
+                    }
+
+                return json_encode($respuesta);
+                break;
+
             // === DONDE ASISTIO ===
             case '50':
                 $respuesta = [
@@ -3366,10 +3597,17 @@ class AsistenciaController extends Controller
                 }
                 elseif($valor['fthc_id'] != '')
                 {
-                    $respuesta = '<button class="btn btn-xs btn-info" onclick="utilitarios([19, ' . $valor['fthc_id'] . ', ' . $valor['id'] . ', ' . "'" .  $valor['horario'] . "'" . ']);" title="Ver ' . $valor['horario'] . '" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
-                            <i class="fa fa-eye"></i>
-                            <strong>' . $valor['horario'] . '</strong>
-                        </button>';
+                    if($this->falta['4'] == $valor['horario'])
+                    {
+                        $respuesta = '<span class="label font-sm">' . $valor['horario'] . '</span>';
+                    }
+                    else
+                    {
+                        $respuesta = '<button class="btn btn-xs btn-info" onclick="utilitarios([19, ' . $valor['fthc_id'] . ', ' . $valor['id'] . ', ' . "'" .  $valor['horario'] . "'" . ']);" title="Ver ' . $valor['horario'] . '" style="margin:0px 0px 0px 0px; padding-top: 0px; padding-bottom: 0.2px;">
+                                <i class="fa fa-eye"></i>
+                                <strong>' . $valor['horario'] . '</strong>
+                            </button>';
+                    }
                 }
                 else
                 {
@@ -3383,6 +3621,10 @@ class AsistenciaController extends Controller
                             <i class="fa fa-table"></i>
                             <strong>' . $valor['horario'] . '</strong>
                         </button>';
+                    }
+                    elseif($this->falta['4'] == $valor['horario'])
+                    {
+                        $respuesta = '<span class="label font-sm">' . $valor['horario'] . '</span>';
                     }
                     else
                     {
@@ -5160,42 +5402,47 @@ class AsistenciaController extends Controller
                                                 break;
                                         }
 
-                                        switch($row1["horario_2_i"])
+                                        if($row1["horario_2_i"] != $this->falta['4'])
                                         {
-                                            case $this->fthc['1']:
-                                                $feriados += 0.5;
-                                                break;
-                                            case $this->fthc['3']:
-                                                if( ! ($row1["horario_1_i"] == $this->omitir['2']))
-                                                {
-                                                    $dias_trabajados += 0.5;
-                                                }
-                                                break;
-                                            case $this->omitir['2']:
-                                                $vacaciones += 0.5;
-                                                break;
-                                            case $this->tipo_salida['1']:
-                                                if($row1["horario_2_s"] == $this->tipo_salida['1'])
-                                                {
+                                            switch($row1["horario_2_i"])
+                                            {
+                                                case $this->fthc['1']:
+                                                    $feriados += 0.5;
+                                                    break;
+                                                case $this->fthc['3']:
+                                                    if( ! ($row1["horario_1_i"] == $this->omitir['2']))
+                                                    {
+                                                        $dias_trabajados += 0.5;
+                                                    }
+                                                    break;
+                                                case $this->omitir['2']:
+                                                    $vacaciones += 0.5;
+                                                    break;
+                                                case $this->tipo_salida['1']:
+                                                    if($row1["horario_2_s"] == $this->tipo_salida['1'])
+                                                    {
+                                                        $licencia_con_goce_haber += 0.5;
+                                                    }
+                                                    else
+                                                    {
+                                                        $dias_trabajados += 0.5;
+                                                    }
+                                                    break;
+                                                case $this->tipo_salida['4']:
                                                     $licencia_con_goce_haber += 0.5;
-                                                }
-                                                else
-                                                {
+                                                    break;
+                                                case $this->tipo_salida['5']:
+                                                    $licencia_sin_goce_haber += 0.5;
+                                                    break;
+                                                case $this->falta['1']:
+                                                    $faltas += 0.5;
+                                                    break;
+                                                case $this->falta['4']:
+                                                    break;
+                                                default:
                                                     $dias_trabajados += 0.5;
-                                                }
-                                                break;
-                                            case $this->tipo_salida['4']:
-                                                $licencia_con_goce_haber += 0.5;
-                                                break;
-                                            case $this->tipo_salida['5']:
-                                                $licencia_sin_goce_haber += 0.5;
-                                                break;
-                                            case $this->falta['1']:
-                                                $faltas += 0.5;
-                                                break;
-                                            default:
-                                                $dias_trabajados += 0.5;
-                                                break;
+                                                    break;
+                                            }
                                         }
 
                                     // === MARCADOS / NO MARCADOS ===
@@ -5219,24 +5466,27 @@ class AsistenciaController extends Controller
                                                 break;
                                         }
 
-                                        switch($row1["horario_2_i"])
+                                        if($row1["horario_2_i"] != $this->falta['4'])
                                         {
-                                            case $this->omision['1']:
-                                                $h2_ingresos_no_marcados ++;
-                                                break;
-                                            default:
-                                                $h2_ingresos_marcados ++;
-                                                break;
-                                        }
+                                            switch($row1["horario_2_i"])
+                                            {
+                                                case $this->omision['1']:
+                                                    $h2_ingresos_no_marcados ++;
+                                                    break;
+                                                default:
+                                                    $h2_ingresos_marcados ++;
+                                                    break;
+                                            }
 
-                                        switch($row1["horario_2_s"])
-                                        {
-                                            case $this->omision['1']:
-                                                $h2_salidas_no_marcados ++;
-                                                break;
-                                            default:
-                                                $h2_salidas_marcados ++;
-                                                break;
+                                            switch($row1["horario_2_s"])
+                                            {
+                                                case $this->omision['1']:
+                                                    $h2_salidas_no_marcados ++;
+                                                    break;
+                                                default:
+                                                    $h2_salidas_marcados ++;
+                                                    break;
+                                            }
                                         }
 
                                         // === FALTA INCLUIR ===
@@ -5246,7 +5496,14 @@ class AsistenciaController extends Controller
                                     //=== ATRASOS ===
                                         $total_atrasos += $row1["h1_min_retrasos"] + $row1["h2_min_retrasos"];
 
-                                    $total_dias++;
+                                    if($row1["horario_2_i"] == $this->falta['4'])
+                                    {
+                                        $total_dias += 0.5;
+                                    }
+                                    else
+                                    {
+                                        $total_dias++;
+                                    }
                                 }
 
                                 // === ULTIMO FUNCIONARIO ===

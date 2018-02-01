@@ -706,7 +706,7 @@
                         },
                         function(isConfirm){
                             if (isConfirm){
-                                swal.close();
+                                // swal.close();
 
                                 swal({
                                     title             : "ENVIANDO INFORMACIÓN",
@@ -803,7 +803,7 @@
                     },
                     function(isConfirm){
                         if (isConfirm){
-                            swal.close();
+                            // swal.close();
 
                             swal({
                                 title            : "ELIMINANDO HUELLAS Y ROSTRO",
@@ -851,7 +851,7 @@
                 },
                 function(isConfirm){
                     if (isConfirm){
-                        swal.close();
+                        // swal.close();
 
                         swal({
                             title            : "ELIMINANDO RELACION PERSONA - BIOMETRICO",

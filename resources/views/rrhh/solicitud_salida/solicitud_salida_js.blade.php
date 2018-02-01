@@ -1117,10 +1117,10 @@
                         },
                         h_salida:{
                             required: true
-                        },
-                        h_retorno:{
-                            required: true
-                        }
+                        }//,
+                        // h_retorno:{
+                        //     required: true
+                        // }
                     }
                 });
                 break;
@@ -1146,7 +1146,7 @@
                 },
                 function(isConfirm){
                     if (isConfirm){
-                        swal.close();
+                        // swal.close();
 
                         swal({
                             title            : "ANULANDO PAPELETA DE SALIDA",
@@ -1193,7 +1193,7 @@
                 },
                 function(isConfirm){
                     if (isConfirm){
-                        swal.close();
+                        // swal.close();
 
                         swal({
                             title            : "HABILITANDO PAPELETA DE SALIDA",

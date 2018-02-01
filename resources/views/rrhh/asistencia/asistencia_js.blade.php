@@ -186,6 +186,13 @@
     // === FORMULARIOS ===
         var form_1 = "#form_1";
         var form_2 = "#form_2";
+        var form_3 = "#form_3";
+        var form_4 = "#form_4";
+        var form_5 = "#form_5";
+        var form_6 = "#form_6";
+        var form_7 = "#form_7";
+        var form_8 = "#form_8";
+        var form_9 = "#form_9";
 
     // === ESTADO ===
         var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
@@ -232,7 +239,7 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#fecha_jqgrid, #fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2, #fecha_del_7, #fecha_al_7, #fecha_del_8, #fecha_al_8').datepicker({
+            $('#fecha_jqgrid, #fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2, #fecha_del_7, #fecha_al_7, #fecha_del_8, #fecha_al_8, #fecha_del_9, #fecha_al_9').datepicker({
                 // startView            : 0,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -244,7 +251,7 @@
                 language             : "es"
             });
 
-            $('#persona_id, #persona_id_2, #persona_id_7, #persona_id_8').select2({
+            $('#persona_id, #persona_id_2, #persona_id_7, #persona_id_8, #persona_id_9').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -271,9 +278,10 @@
             $("#persona_id_2").appendTo("#persona_id_div_2");
             $("#persona_id_7").appendTo("#persona_id_div_7");
             $("#persona_id_8").appendTo("#persona_id_div_8");
+            $("#persona_id_9").appendTo("#persona_id_div_9");
 
-            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7, #lugar_dependencia_id_funcionario_8').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id, #horario_id_1, #horario_id_2, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7, #lugar_dependencia_id_funcionario_8").select2({
+            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7, #lugar_dependencia_id_funcionario_8, #lugar_dependencia_id_funcionario_9').append(lugar_dependencia_select);
+            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id, #horario_id_1, #horario_id_2, #lugar_dependencia_id_funcionario_2, #lugar_dependencia_id_funcionario_7, #lugar_dependencia_id_funcionario_8, #lugar_dependencia_id_funcionario_9").select2({
                 maximumSelectionLength: 1
             });
             $("#lugar_dependencia_id_funcionario").appendTo("#lugar_dependencia_id_funcionario_div");
@@ -287,6 +295,8 @@
             $("#lugar_dependencia_id_funcionario_7").appendTo("#lugar_dependencia_id_funcionario_div_7");
 
             $("#lugar_dependencia_id_funcionario_8").appendTo("#lugar_dependencia_id_funcionario_div_8");
+
+            $("#lugar_dependencia_id_funcionario_9").appendTo("#lugar_dependencia_id_funcionario_div_9");
 
         // === DROPZONE ===
             // var valor1 = new Array();
@@ -434,6 +444,10 @@
                 var ancho1 = 5;
 
                 @if(in_array(['codigo' => '1306'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+                @if(in_array(['codigo' => '1307'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
@@ -678,10 +692,17 @@
                             var ci_nombre = ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' + ret.ap_materno);
 
                             var del_1 = '';
+                            var cas_1 = '';
 
                             @if(in_array(['codigo' => '1306'], $permisos))
                                 if(val_json.estado != '3'){
                                     del_1 = " <button type='button' class='btn btn-xs btn-danger' title='Eliminar ASISTENCIA' onclick=\"utilitarios([25, " + cl + ", '" + ci_nombre + "', '" + ret.fecha + "']);\"><i class='fa fa-trash'></i></button>";
+                                }
+                            @endif
+
+                            @if(in_array(['codigo' => '1308'], $permisos))
+                                if(val_json.estado != '3'){
+                                    cas_1 = " <button type='button' class='btn btn-xs btn-success' title='Cerrar ASISTENCIA' onclick=\"utilitarios([33, " + cl + ", '" + ci_nombre + "', '" + ret.fecha + "']);\"><i class='fa fa-lock'></i></button>";
                                 }
                             @endif
 
@@ -706,8 +727,10 @@
 
                                     if(val_json.fthc_id_h2 == null){
                                         if((val_json.h2_falta == '1') || ((val_json.h2_i_omitir == '2') && (val_json.h2_s_omitir == '2'))){
-                                            vac_h2_e = "<button type='button' class='btn btn-xs btn-info' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
-                                            vac_h2_s = "<button type='button' class='btn btn-xs btn-info' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                            if( ! ((val_json.horario_2_i == 'SIN HORARIO') || (val_json.horario_2_S == 'SIN HORARIO'))){
+                                                vac_h2_e = "<button type='button' class='btn btn-xs btn-info' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                                vac_h2_s = "<button type='button' class='btn btn-xs btn-info' title='Licencia por VACACIONES' onclick=\"utilitarios([20, " + cl + ", 2, '" + ci_nombre +"']);\"><i class='fa fa-suitcase'></i></button>";
+                                            }
                                         }
                                     }
                                 }
@@ -744,7 +767,7 @@
                             @endif
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act  : $.trim(del_1),
+                                act  : $.trim(cas_1 + del_1),
                                 h_1_e: $.trim(vac_h1_e + mig_h1_e),
                                 h_1_s: $.trim(vac_h1_s + mig_h1_s),
                                 h_2_e: $.trim(vac_h2_e + mig_h2_e),
@@ -840,6 +863,26 @@
 
                             var valor1 = new Array();
                             valor1[0]  = 26;
+                            utilitarios(valor1);
+                        }
+                    })
+                @endif
+                @if(in_array(['codigo' => '1308'], $permisos))
+                    .navSeparatorAdd(pjqgrid1,{
+                      sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid1,{
+                        "id"          : "cas1",
+                        caption       : "",
+                        title         : 'Cerrar asistencias',
+                        buttonicon    : "ui-icon ui-icon-locked",
+                        onClickButton : function(){
+                            var valor1 = new Array();
+                            valor1[0]  = 36;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 34;
                             utilitarios(valor1);
                         }
                     })
@@ -1012,10 +1055,10 @@
                     if($.trim(horario_id_2) != ''){
                         concatenar_valores += '&horario_id_2=' + horario_id_2;
                     }
-                    else{
-                        valor_sw    = false;
-                        valor_error += '<br>El campo HORARIO 2 es obligatorio.';
-                    }
+                    // else{
+                    //     valor_sw    = false;
+                    //     valor_error += '<br>El campo HORARIO 2 es obligatorio.';
+                    // }
                 }
 
                 if(valor_sw){
@@ -1185,7 +1228,7 @@
                 },
                 function(isConfirm){
                     if (isConfirm){
-                        swal.close();
+                        // swal.close();
 
                         swal({
                             title            : "Modificando VACACIONES",
@@ -1225,7 +1268,7 @@
                 },
                 function(isConfirm){
                     if (isConfirm){
-                        swal.close();
+                        // swal.close();
 
                         swal({
                             title            : "REGISTRANDO/QUITANDO MIGRACION",
@@ -1406,7 +1449,7 @@
             // === ELIMINAR ASISTENCIA POR FILA ===
             case 25:
                 swal({
-                    title             : "ELIMINAR ASISTENCIA",
+                    title             : "ELIMINAR ASISTENCIAS",
                     text              : "¿Está seguro de eliminar la ASISTENCIA de " + valor[2] + " en fecha " + valor[3] + "?",
                     type              : "warning",
                     showCancelButton  : true,
@@ -1418,7 +1461,7 @@
                 },
                 function(isConfirm){
                     if (isConfirm){
-                        swal.close();
+                        // swal.close();
 
                         swal({
                             title            : "ELIMINANDO ASISTENCIA",
@@ -1616,6 +1659,136 @@
 
                 $(form_8)[0].reset();
                 break;
+            // === CERRAR ASISTENCIA POR FILA ===
+            case 33:
+                swal({
+                    title             : "CERRAR ASISTENCIA",
+                    text              : "¿Está seguro de CERRAR la ASISTENCIA de " + valor[2] + " en fecha " + valor[3] + "?\n\nNOTA. No se podrá volver a HABILITAR la ASISTENCIA.",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "Cerrar asistencia",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        // swal.close();
+
+                        swal({
+                            title            : "CERRANDO ASISTENCIA",
+                            text             : "Espere que se cierre la ASISTENCIA.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=6&id=" + valor[1] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
+                break;
+            // === MODAL ELIMINAR ASISTENCIA ===
+            case 34:
+                $('#modal_9').modal();
+                break;
+            // === CERRAR ASISTENCIA ===
+            case 35:
+                var concatenar_valores = '';
+                concatenar_valores     += 'tipo=6&_token=' + csrf_token;
+
+                var fecha_del = $("#fecha_del_9").val();
+                var fecha_al  = $("#fecha_al_9").val();
+
+                var persona_id = $("#persona_id_9").val();
+
+                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_9").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(fecha_del) != ''){
+                    concatenar_valores += '&fecha_del=' + fecha_del;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
+                }
+
+                if($.trim(fecha_al) != ''){
+                    concatenar_valores += '&fecha_al=' + fecha_al;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA AL es obligatorio.';
+                }
+
+                if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
+                    if($.trim(persona_id) != ''){
+                        concatenar_valores += '&persona_id=' + persona_id;
+                    }
+
+                    if($.trim(lugar_dependencia_id_funcionario) != ''){
+                        concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
+                    }
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
+                }
+
+                if(valor_sw){
+                    swal({
+                        title             : "ELIMINANDO ASISTENCIAS",
+                        text              : "Espere que se eliminen las ASISTENCIAS.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = concatenar_valores;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
+                break;
+            // === RESETEAR CERRAR ASISTENCIA ===
+            case 36:
+                $('#modal_9_title').empty();
+                $('#modal_9_title').append('Cerrar asistencias');
+
+                $('#persona_id_9').select2("val", "");
+                $('#persona_id_9 option').remove();
+
+                $('#lugar_dependencia_id_funcionario_9').select2("val", "");
+
+                $('#fecha_del_9, #fecha_al_9').val("").datepicker("update");
+
+                $(form_9)[0].reset();
+                break;
 
             // === MENSAJE ERROR ===
             case 100:
@@ -1649,7 +1822,7 @@
                                     utilitarios(valor1);
 
                                     $(jqgrid1).trigger("reloadGrid");
-                                    $('#modal_1').modal('hide');
+                                    // $('#modal_1').modal('hide');
                                     // if(data.iu === 1){
                                     //     var valor1 = new Array();
                                     //     valor1[0]  = 14;
@@ -1696,7 +1869,7 @@
                                     utilitarios(valor1);
 
                                     $(jqgrid1).trigger("reloadGrid");
-                                    $('#modal_2').modal('hide');
+                                    // $('#modal_2').modal('hide');
                                 }
                                 else if(data.sw === 0){
                                     if(data.error_sw === 1){
@@ -1779,8 +1952,35 @@
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
 
-                            // === ELIMINAR LICENCIA ===
+                            // === ELIMINAR ASISCTENCIA ===
                             case '5':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
+                            // === CERRAR ASISTENCIA ===
+                            case '6':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
                                     valor1[0]  = 100;

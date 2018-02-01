@@ -1146,7 +1146,7 @@
                 },
                 function(isConfirm){
                     if (isConfirm){
-                        swal.close();
+                        // swal.close();
 
                         swal({
                             title            : "ELIMINANDO FUNCIONARIO DEL CARGO",
