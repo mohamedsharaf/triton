@@ -119,11 +119,11 @@
         Route::post('/asistencia/send_ajax', 'Rrhh\AsistenciaController@send_ajax');
         Route::match(["get", "post"], '/asistencia/reportes', 'Rrhh\AsistenciaController@reportes');
 
-//=== CONTROL DE PAPELETA PARTICULAR ===
-    Route::get('/salida_particular', 'Rrhh\PapeletaParticularController@index')->name('salida_particular');
-        Route::match(["get", "post"], '/salida_particular/view_jqgrid', 'Rrhh\PapeletaParticularController@view_jqgrid');
-        Route::post('/salida_particular/send_ajax', 'Rrhh\PapeletaParticularController@send_ajax');
-        Route::match(["get", "post"], '/salida_particular/reportes', 'Rrhh\PapeletaParticularController@reportes');
+//=== CONTROL DE SALIDA PARTICULAR ===
+    Route::get('/salida_particular', 'Rrhh\SalidaParticularController@index')->name('salida_particular');
+        Route::match(["get", "post"], '/salida_particular/view_jqgrid', 'Rrhh\SalidaParticularController@view_jqgrid');
+        Route::post('/salida_particular/send_ajax', 'Rrhh\SalidaParticularController@send_ajax');
+        Route::match(["get", "post"], '/salida_particular/reportes', 'Rrhh\SalidaParticularController@reportes');
 
 //=== HORARIOS ===
     Route::get('/horario', 'Rrhh\HorarioController@index')->name('horario');

@@ -62,7 +62,7 @@
                             <li class="{{ isActiveRoute('asistencia') }}"><a href="{{ url('/asistencia') }}">Gestor de asistencias</a></li>
                         @endif
                         @if(in_array(['codigo' => '1601'], $permisos))
-                            <li class="{{ isActiveRoute('salida_particular') }}"><a href="{{ url('/salida_particular') }}">Salida particular</a></li>
+                            <li class="{{ isActiveRoute('salida_particular') }}"><a href="{{ url('/salida_particular') }}">Control salida particular</a></li>
                         @endif
                         @if(in_array(['codigo' => '1401'], $permisos))
                             <li class="{{ isActiveRoute('horario') }}"><a href="{{ url('/horario') }}">Horarios</a></li>

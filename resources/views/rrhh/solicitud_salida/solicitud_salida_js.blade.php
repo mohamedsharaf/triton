@@ -833,7 +833,7 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            if(val_json.estado == '1'){
+                            if(val_json.estado == '1' || val_json.estado == '3'){
                                 @if(in_array(['codigo' => '1003'], $permisos))
                                     pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
                                 @else
@@ -1607,7 +1607,7 @@
                             var ret      = $(jqgrid2).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            if(val_json.estado == '1'){
+                            if(val_json.estado == '1' || val_json.estado == '3'){
                                 @if(in_array(['codigo' => '1003'], $permisos))
                                     pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
                                 @else

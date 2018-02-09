@@ -180,7 +180,7 @@
         );
 
     // === JQGRID2 ===
-        var jqgrid2   = "#jqgrid2";
+        var jqgrid2  = "#jqgrid2";
         var pjqgrid2 = "#pjqgrid2";
 
     // === FORMULARIOS ===

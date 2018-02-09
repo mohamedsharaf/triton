@@ -131,6 +131,9 @@
             @if($sw_asistencia)
               <li class=""><a data-toggle="tab" href="#tab-3"><i class="fa fa-check-square"></i>Asistencias</a></li>
             @endif
+            @if($sw_horario)
+              <li class=""><a data-toggle="tab" href="#tab-4"><i class="fa fa-clock-o"></i>Mi horario</a></li>
+            @endif
           </ul>
           <div class="tab-content">
             <div id="tab-1" class="tab-pane active">
@@ -439,6 +442,87 @@
                     <table id="jqgrid1"></table>
                     <div id="pjqgrid1"></div>
                   </div>
+                </div>
+              </div>
+            @endif
+
+            @if($sw_horario)
+              <div id="tab-4" class="tab-pane">
+                <div class="panel-body">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th class="text-center" rowspan="2">HORARIO</th>
+                        <th class="text-center" rowspan="2">INGRESO</th>
+                        <th class="text-center" rowspan="2">SALIDA</th>
+                        <th class="text-center" rowspan="2">TOLERANCIA<br>(minutos)</th>
+                        <th class="text-center" colspan="2">LIMITE ENTRADA</th>
+                        <th class="text-center" colspan="2">LIMITE SALIDA</th>
+                      </tr>
+                      <tr>
+                        <th class="text-center">HORA 1</th>
+                        <th class="text-center">HORA 2</th>
+                        <th class="text-center">HORA 1</th>
+                        <th class="text-center">HORA 2</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="info">
+                        <td class="text-center">
+                          {{ $funcioario_horario_array['horario_1'] }}
+                        </td>
+                        <td class="text-center">
+                          {{ $funcioario_horario_array['h_ingreso_1'] }}
+                        </td>
+                        <td class="text-center">
+                          {{ $funcioario_horario_array['h_salida_1'] }}
+                        </td>
+                        <td class="text-center">
+                          {{ $funcioario_horario_array['tolerancia_1'] }}
+                        </td>
+                        <td class="text-center">
+                          {{ $funcioario_horario_array['marcacion_ingreso_del_1'] }}
+                        </td>
+                        <td class="text-center">
+                          {{ $funcioario_horario_array['marcacion_ingreso_al_1'] }}
+                        </td>
+                        <td class="text-center">
+                          {{ $funcioario_horario_array['marcacion_salida_del_1'] }}
+                        </td>
+                        <td class="text-center">
+                          {{ $funcioario_horario_array['marcacion_salida_al_1'] }}
+                        </td>
+                      </tr>
+                      @if($funcioario_horario_array['horario_2'] != '')
+                        <tr class="success">
+                          <td class="text-center">
+                            {{ $funcioario_horario_array['horario_2'] }}
+                          </td>
+                          <td class="text-center">
+                            {{ $funcioario_horario_array['h_ingreso_2'] }}
+                          </td>
+                          <td class="text-center">
+                            {{ $funcioario_horario_array['h_salida_2'] }}
+                          </td>
+                          <td class="text-center">
+                            {{ $funcioario_horario_array['tolerancia_2'] }}
+                          </td>
+                          <td class="text-center">
+                            {{ $funcioario_horario_array['marcacion_ingreso_del_2'] }}
+                          </td>
+                          <td class="text-center">
+                            {{ $funcioario_horario_array['marcacion_ingreso_al_2'] }}
+                          </td>
+                          <td class="text-center">
+                            {{ $funcioario_horario_array['marcacion_salida_del_2'] }}
+                          </td>
+                          <td class="text-center">
+                            {{ $funcioario_horario_array['marcacion_salida_al_2'] }}
+                          </td>
+                        </tr>
+                      @endif
+                    </tbody>
+                  </table>
                 </div>
               </div>
             @endif

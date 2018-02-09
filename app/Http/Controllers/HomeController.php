@@ -204,14 +204,14 @@ class HomeController extends Controller
                 a7.nombre AS departamento_residencia
             ";
             $persona_array = RrhhPersona::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.municipio_id_nacimiento")
-                                ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.provincia_id")
-                                ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.departamento_id")
-                                ->leftJoin("$tabla2 AS a5", "a5.id", "=", "$tabla1.municipio_id_residencia")
-                                ->leftJoin("$tabla3 AS a6", "a6.id", "=", "a5.provincia_id")
-                                ->leftJoin("$tabla4 AS a7", "a7.id", "=", "a6.departamento_id")
-                                ->where("$tabla1.id", "=", $usuario_array['persona_id'])
-                                ->select(DB::raw($select))
-                                ->first();
+                ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.provincia_id")
+                ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.departamento_id")
+                ->leftJoin("$tabla2 AS a5", "a5.id", "=", "$tabla1.municipio_id_residencia")
+                ->leftJoin("$tabla3 AS a6", "a6.id", "=", "a5.provincia_id")
+                ->leftJoin("$tabla4 AS a7", "a7.id", "=", "a6.departamento_id")
+                ->where("$tabla1.id", "=", $usuario_array['persona_id'])
+                ->select(DB::raw($select))
+                ->first();
 
             $persona_array_sw = TRUE;
         }
@@ -224,25 +224,69 @@ class HomeController extends Controller
         {
             $sw_asistencia = TRUE;
         }
+
+        $sw_horario               = FALSE;
+        $funcioario_horario_array = [];
+        if($usuario_array['persona_id'] != NULL)
+        {
+            $tabla1 = "rrhh_funcionarios";
+            $tabla2 = "rrhh_horarios";
+
+            $select = "
+                $tabla1.id,
+
+                a2.nombre AS horario_1,
+                a2.h_ingreso AS h_ingreso_1,
+                a2.h_salida AS h_salida_1,
+                a2.tolerancia AS tolerancia_1,
+                a2.marcacion_ingreso_del AS marcacion_ingreso_del_1,
+                a2.marcacion_ingreso_al AS marcacion_ingreso_al_1,
+                a2.marcacion_salida_del AS marcacion_salida_del_1,
+                a2.marcacion_salida_al AS marcacion_salida_al_1,
+
+                a3.nombre AS horario_2,
+                a3.h_ingreso AS h_ingreso_2,
+                a3.h_salida AS h_salida_2,
+                a3.tolerancia AS tolerancia_2,
+                a3.marcacion_ingreso_del AS marcacion_ingreso_del_2,
+                a3.marcacion_ingreso_al AS marcacion_ingreso_al_2,
+                a3.marcacion_salida_del AS marcacion_salida_del_2,
+                a3.marcacion_salida_al AS marcacion_salida_al_2
+            ";
+
+            $funcioario_horario_array = RrhhFuncionario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.horario_id_1")
+                ->leftJoin("$tabla2 AS a3", "a3.id", "=", "$tabla1.horario_id_2")
+                ->where("persona_id", "=", $usuario_array['persona_id'])
+                ->select(DB::raw($select))
+                ->first();
+
+            if(count($funcioario_horario_array) > 0)
+            {
+                $sw_horario = TRUE;
+            }
+        }
+
         $data = array(
-            'rol_id'                  => $this->rol_id,
-            'permisos'                => $this->permisos,
-            'title'                   => 'Inicio',
-            'home'                    => 'Inicio',
-            'sistema'                 => 'Recursos Humanos',
-            'modulo'                  => 'Mi perfil',
-            'title_table'             => 'Mis asistencias',
-            'estado_civil_array'      => $this->estado_civil,
-            'sexo_array'              => $this->sexo,
-            'usuario_array'           => $usuario_array,
-            'persona_array'           => $persona_array,
-            'persona_array_sw'        => $persona_array_sw,
-            'sw_asistencia'           => $sw_asistencia,
-            'public_url'              => $this->public_url,
-            'estado_array'            => $this->estado,
-            'omision_array'           => $this->omision,
-            'falta_array'             => $this->falta,
-            'lugar_dependencia_array' => InstLugarDependencia::select("id", "nombre")
+            'rol_id'                   => $this->rol_id,
+            'permisos'                 => $this->permisos,
+            'title'                    => 'Inicio',
+            'home'                     => 'Inicio',
+            'sistema'                  => 'Recursos Humanos',
+            'modulo'                   => 'Mi perfil',
+            'title_table'              => 'Mis asistencias',
+            'estado_civil_array'       => $this->estado_civil,
+            'sexo_array'               => $this->sexo,
+            'usuario_array'            => $usuario_array,
+            'persona_array'            => $persona_array,
+            'persona_array_sw'         => $persona_array_sw,
+            'sw_asistencia'            => $sw_asistencia,
+            'public_url'               => $this->public_url,
+            'estado_array'             => $this->estado,
+            'omision_array'            => $this->omision,
+            'falta_array'              => $this->falta,
+            'sw_horario'               => $sw_horario,
+            'funcioario_horario_array' => $funcioario_horario_array,
+            'lugar_dependencia_array'  => InstLugarDependencia::select("id", "nombre")
                                             ->orderBy("nombre")
                                             ->get()
                                             ->toArray()

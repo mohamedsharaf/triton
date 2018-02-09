@@ -45,6 +45,12 @@ class CreateRrhhSalidasTable extends Migration
             $table->smallInteger('pdf')->default('1')->unsigned();
             $table->string('papeleta_pdf', 250)->nullable();
 
+            $table->integer('log_marcaciones_id_s')->unsigned()->nullable();
+            $table->integer('log_marcaciones_id_r')->unsigned()->nullable();
+
+            $table->string('salida_s', 100)->default('NO MARCADO')->nullable();
+            $table->string('salida_r', 100)->default('NO MARCADO')->nullable();
+
             $table->timestamps();
 
             $table->foreign('persona_id')
@@ -65,6 +71,16 @@ class CreateRrhhSalidasTable extends Migration
             $table->foreign('persona_id_rrhh')
                 ->references('id')
                 ->on('rrhh_personas')
+                ->onDelete('cascade');
+
+            $table->foreign('log_marcaciones_id_s')
+                ->references('id')
+                ->on('rrhh_log_marcaciones')
+                ->onDelete('cascade');
+
+            $table->foreign('log_marcaciones_id_r')
+                ->references('id')
+                ->on('rrhh_log_marcaciones')
                 ->onDelete('cascade');
         });
     }
