@@ -1059,7 +1059,7 @@
                     var h_salida  = $("#h_salida").val();
                     var h_retorno = $("#h_retorno").val();
 
-                    if(h_salida < h_retorno){
+                    if(h_retorno == ''){
                         swal({
                             title             : "ENVIANDO INFORMACIÓN",
                             text              : "Espere a que guarde la información.",
@@ -1079,11 +1079,32 @@
                         utilitarios(valor1);
                     }
                     else{
-                        var valor1 = new Array();
-                        valor1[0]  = 101;
-                        valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                        valor1[2]  = "La HORA DE RETORNO debe de ser, mayor o igual a la HORA DE SALIDA";
-                        utilitarios(valor1);
+                        if(h_salida < h_retorno){
+                            swal({
+                                title             : "ENVIANDO INFORMACIÓN",
+                                text              : "Espere a que guarde la información.",
+                                allowEscapeKey    : false,
+                                showConfirmButton : false,
+                                type              : "info"
+                            });
+                            $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                            var valor1 = new Array();
+                            valor1[0]  = 150;
+                            valor1[1]  = url_controller + '/send_ajax';
+                            valor1[2]  = 'POST';
+                            valor1[3]  = true;
+                            valor1[4]  = $(form_1).serialize();
+                            valor1[5]  = 'json';
+                            utilitarios(valor1);
+                        }
+                        else{
+                            var valor1 = new Array();
+                            valor1[0]  = 101;
+                            valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                            valor1[2]  = "La HORA DE RETORNO debe de ser, mayor o igual a la HORA DE SALIDA";
+                            utilitarios(valor1);
+                        }
                     }
                 }
                 else{
