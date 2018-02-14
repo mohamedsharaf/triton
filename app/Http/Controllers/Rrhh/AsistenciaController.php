@@ -2099,6 +2099,8 @@ class AsistenciaController extends Controller
                                             {
                                                 $fh_ingreso = $row1['fecha'] . " " . $consulta2['h_ingreso'];
 
+                                                $fh_ingreso_limite = $row1['fecha'] . " " . $consulta2['marcacion_ingreso_del'];
+
                                                 $fh_ingreso_tolerancia = date("Y-m-d H:i:s", strtotime('+' . ($consulta2['tolerancia'] + 1) . ' minute', strtotime($fh_ingreso)));
 
                                                 $ingreso_del = $row1['fecha'] . " " . $consulta2['marcacion_ingreso_del'];
@@ -2141,7 +2143,7 @@ class AsistenciaController extends Controller
                                                                 {
                                                                     $fh_s = $row1['fecha'] . " " . $row4['h_salida'];
 
-                                                                    if($fh_s <= $fh_ingreso)
+                                                                    if(($fh_s <= $fh_ingreso) && ($fh_ingreso_limite <= $fh_s))
                                                                     {
                                                                         // === MODIFICACION A ASISTENCIA ===
                                                                             $iu = RrhhAsistencia::find($row1['id']);
@@ -2333,7 +2335,7 @@ class AsistenciaController extends Controller
                                                                 {
                                                                     $fh_s = $row1['fecha'] . " " . $row4['h_salida'];
 
-                                                                    if($fh_s <= $fh_ingreso)
+                                                                    if(($fh_s <= $fh_ingreso) && ($fh_ingreso_limite <= $fh_s))
                                                                     {
                                                                         // === MODIFICACION A ASISTENCIA ===
                                                                             $iu = RrhhAsistencia::find($row1['id']);
@@ -2529,7 +2531,7 @@ class AsistenciaController extends Controller
                                                             {
                                                                 $fh_s = $row1['fecha'] . " " . $row4['h_salida'];
 
-                                                                if($fh_s <= $fh_ingreso)
+                                                                if(($fh_s <= $fh_ingreso) && ($fh_ingreso_limite <= $fh_s))
                                                                 {
                                                                     // === MODIFICACION A ASISTENCIA ===
                                                                         $iu = RrhhAsistencia::find($row1['id']);
