@@ -5518,8 +5518,8 @@ class AsistenciaController extends Controller
                                     'HORARIO 2 SALIDAS MARCADAS',
                                     'HORARIO 2 SALIDAS NO MARCADAS',
 
-                                    'PERMISO POR HORA SALIDA NO MARCADAS',
-                                    'PERMISO POR HORA RETORNO NO MARCADOS',
+                                    'SALIDA PARTICULAR SALIDA NO MARCADAS',
+                                    'SALIDA PARTICULAR RETORNO NO MARCADOS',
 
                                     'DIAS DESCUENTO',
 
@@ -5540,6 +5540,29 @@ class AsistenciaController extends Controller
 
                                 $sheet->freezeFirstRow();
                                 $sheet->setAutoFilter();
+
+                                $sheet->getStyle("D1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("E1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("F1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("G1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("H1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("I1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("J1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("K1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("L1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("M1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("N1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("O1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("P1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("Q1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("R1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("S1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("T1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("U1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("V1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("W1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("X1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("Y1")->getAlignment()->setTextRotation(90);
 
                                 // $sheet->setColumnFormat([
                                 //     'A' => 'yyyy-mm-dd hh:mm:ss'
@@ -6103,7 +6126,7 @@ class AsistenciaController extends Controller
                     {
                         set_time_limit(3600);
                         ini_set('memory_limit','-1');
-                        Excel::create('resumen_asistencia_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                        Excel::create('asistencia_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
                             $excel->sheet('Resumen Asistencias', function($sheet) use($consulta1){
                                 $sheet->row(1, [
                                     'No',
