@@ -70,6 +70,16 @@
             no_si_jqgrid += ';' + index + ':' + value;
         });
 
+    // === LUGAR DE DEPENDENCIA ===
+        var lugar_dependencia_json   = $.parseJSON('{!! json_encode($lugar_dependencia_array) !!}');
+        var lugar_dependencia_select = '';
+        var lugar_dependencia_jqgrid = ':Todos';
+
+        $.each(lugar_dependencia_json, function(index, value) {
+            lugar_dependencia_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            lugar_dependencia_jqgrid += ';' + value.nombre + ':' + value.nombre;
+        });
+
     // === DROPZONE ===
         Dropzone.autoDiscover = false;
 
@@ -122,22 +132,7 @@
                 var edit1      = true;
                 var ancho1     = 5;
                 var ancho_d    = 29;
-                @if(in_array(['codigo' => '1003'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
-                @endif
-
-                @if(in_array(['codigo' => '1003'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
-                @endif
-
-                @if(in_array(['codigo' => '1003'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
-                @endif
-
-                @if(in_array(['codigo' => '1003'], $permisos))
+                @if(in_array(['codigo' => '1603'], $permisos))
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
@@ -166,37 +161,34 @@
                     //forceFit      : true,
                     //toolbarfilter : true,
                     colNames : [
-                        col_name_1[0],
-                        col_name_1[1],
-                        col_name_1[2],
-                        col_name_1[3],
-                        col_name_1[4],
+                        "",
+                        "ESTADO",
+                        "FECHA",
 
-                        col_name_1[5],
-                        col_name_1[6],
-                        col_name_1[7],
+                        "C.I.",
+                        "NOMBRE(S)",
+                        "AP. PATERNO",
+                        "AP. MATERNO",
 
-                        col_name_1[8],
-                        col_name_1[9],
-                        col_name_1[10],
-                        col_name_1[11],
+                        "SALIDA",
+                        "RETORNO",
+                        "RETRASO",
 
-                        col_name_1[12],
-                        col_name_1[13],
+                        "HORA SALIDA",
+                        "HORA RETORNO",
+                        "RETORNO",
 
-                        col_name_1[14],
-                        col_name_1[15],
-                        col_name_1[16],
-                        col_name_1[17],
+                        "UNIDAD DESCONCENTRADA",
+                        "LUGAR DE DEPENDENCIA",
 
-                        col_name_1[18]
+                        ""
                     ],
                     colModel : [
                         {
-                            name    : col_m_name_1[0],
-                            index   : col_m_index_1[0],
+                            name    : "act",
+                            index   : "",
                             width   : ancho1,
-                            align   : col_m_align_1[0],
+                            align   : "center",
                             fixed   : true,
                             sortable: false,
                             resize  : false,
@@ -204,130 +196,106 @@
                             hidden  : edit1
                         },
                         {
-                            name       : col_m_name_1[1],
-                            index      : col_m_index_1[1],
-                            width      : col_m_width_1[1],
-                            align      : col_m_align_1[1],
+                            name       : "estado",
+                            index      : "rrhh_salidas.estado",
+                            width      : 90,
+                            align      : "center",
                             stype      :'select',
                             editoptions: {value:estado_jqgrid}
                         },
                         {
-                            name       : col_m_name_1[2],
-                            index      : col_m_index_1[2],
-                            width      : col_m_width_1[2],
-                            align      : col_m_align_1[2],
-                            stype      :'select',
-                            editoptions: {value:no_si_jqgrid}
-                        },
-                        {
-                            name       : col_m_name_1[3],
-                            index      : col_m_index_1[3],
-                            width      : col_m_width_1[3],
-                            align      : col_m_align_1[3],
-                            stype      :'select',
-                            editoptions: {value:no_si_jqgrid}
-                        },
-                        {
-                            name       : col_m_name_1[4],
-                            index      : col_m_index_1[4],
-                            width      : col_m_width_1[4],
-                            align      : col_m_align_1[4],
-                            stype      :'select',
-                            editoptions: {value:no_si_jqgrid}
+                            name : "fecha",
+                            index: "rrhh_salidas.f_salida",
+                            width: 80,
+                            align: "center"
                         },
 
                         {
-                            name : col_m_name_1[5],
-                            index: col_m_index_1[5],
-                            width: col_m_width_1[5],
-                            align: col_m_align_1[5]
+                            name : "n_documento",
+                            index: "a2.n_documento",
+                            width: 80,
+                            align: "right"
                         },
                         {
-                            name       : col_m_name_1[6],
-                            index      : col_m_index_1[6],
-                            width      : col_m_width_1[6],
-                            align      : col_m_align_1[6],
-                            stype      :'select',
-                            editoptions: {value:tipo_salida_jqgrid}
+                            name : "nombre_persona",
+                            index: "a2.nombre",
+                            width: 180,
+                            align: "center"
                         },
                         {
-                            name : col_m_name_1[7],
-                            index: col_m_index_1[7],
-                            width: col_m_width_1[7],
-                            align: col_m_align_1[7]
-                        },
-
-                        {
-                            name : col_m_name_1[8],
-                            index: col_m_index_1[8],
-                            width: col_m_width_1[8],
-                            align: col_m_align_1[8]
+                            name : "ap_paterno",
+                            index: "a2.ap_paterno",
+                            width: 150,
+                            align: "center"
                         },
                         {
-                            name : col_m_name_1[9],
-                            index: col_m_index_1[9],
-                            width: col_m_width_1[9],
-                            align: col_m_align_1[9]
-                        },
-                        {
-                            name : col_m_name_1[10],
-                            index: col_m_index_1[10],
-                            width: col_m_width_1[10],
-                            align: col_m_align_1[10]
-                        },
-                        {
-                            name : col_m_name_1[11],
-                            index: col_m_index_1[11],
-                            width: col_m_width_1[11],
-                            align: col_m_align_1[11]
+                            name : "ap_materno",
+                            index: "a2.ap_materno",
+                            width: 150,
+                            align: "center"
                         },
 
                         {
-                            name : col_m_name_1[12],
-                            index: col_m_index_1[12],
-                            width: col_m_width_1[12],
-                            align: col_m_align_1[12]
+                            name : "salida_s",
+                            index: "rrhh_salidas.salida_s",
+                            width: 250,
+                            align: "center"
                         },
                         {
-                            name : col_m_name_1[13],
-                            index: col_m_index_1[13],
-                            width: col_m_width_1[13],
-                            align: col_m_align_1[13]
+                            name : "salida_r",
+                            index: "rrhh_salidas.salida_r",
+                            width: 250,
+                            align: "center"
+                        },
+                        {
+                            name : "min_retrasos",
+                            index: "rrhh_salidas.min_retrasos",
+                            width: 65,
+                            align: "center"
                         },
 
                         {
-                            name : col_m_name_1[14],
-                            index: col_m_index_1[14],
-                            width: col_m_width_1[14],
-                            align: col_m_align_1[14]
+                            name : "h_salida",
+                            index: "rrhh_salidas.h_salida::text",
+                            width: 110,
+                            align: "center"
                         },
                         {
-                            name : col_m_name_1[15],
-                            index: col_m_index_1[15],
-                            width: col_m_width_1[15],
-                            align: col_m_align_1[15]
+                            name : "h_retorno",
+                            index: "rrhh_salidas.h_retorno::text",
+                            width: 110,
+                            align: "center"
                         },
                         {
-                            name : col_m_name_1[16],
-                            index: col_m_index_1[16],
-                            width: col_m_width_1[16],
-                            align: col_m_align_1[16]
-                        },
-                        {
-                            name       : col_m_name_1[17],
-                            index      : col_m_index_1[17],
-                            width      : col_m_width_1[17],
-                            align      : col_m_align_1[17],
+                            name       : "con_sin_retorno",
+                            index      : "rrhh_salidas.con_sin_retorno",
+                            width      : 100,
+                            align      : "center",
                             stype      :'select',
                             editoptions: {value:con_sin_retorno_jqgrid}
                         },
 
+                        {
+                            name : "ud_funcionario",
+                            index: "a3.nombre",
+                            width: 400,
+                            align: "center"
+                        },
+                        {
+                            name       : "lugar_dependencia_funcionario",
+                            index      : "a4.nombre",
+                            width      : 400,
+                            align      : "center",
+                            stype      :'select',
+                            editoptions: {value:lugar_dependencia_jqgrid}
+                        },
+
                         // === OCULTO ===
                             {
-                                name  : col_m_name_1[18],
-                                index : col_m_index_1[18],
-                                width : col_m_width_1[18],
-                                align : col_m_align_1[18],
+                                name  : "val_json",
+                                index : "",
+                                width : 10,
+                                align : "center",
                                 search: false,
                                 hidden: true
                             }
@@ -342,56 +310,10 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            if(val_json.estado == '1' || val_json.estado == '3'){
-                                @if(in_array(['codigo' => '1003'], $permisos))
-                                    pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
-                                @else
-                                    pdf1 = '';
-                                @endif
-                            }
-                            else{
-                                pdf1 = '';
-                            }
-
-                            if((val_json.validar_superior == '1') && (val_json.validar_rrhh == '1') && (val_json.estado == '1')){
-                                @if(in_array(['codigo' => '1003'], $permisos))
-                                    ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                                @else
-                                    ed = '';
-                                @endif
-
-                                @if(in_array(['codigo' => '1003'], $permisos))
-                                    up1 = " <button type='button' class='btn btn-xs btn-info' title='Suber documentación' onclick=\"utilitarios([19, " + cl + ", '" + ret.codigo + "', 1]);\"><i class='fa fa-cloud-upload'></i></button>";
-                                @else
-                                    up1 = '';
-                                @endif
-
-                                @if(in_array(['codigo' => '1003'], $permisos))
-                                    del1 = " <button type='button' class='btn btn-xs btn-danger' title='Anular PAPELETA DE SALIDA' onclick=\"utilitarios([17, " + cl + ", 2, 1]);\"><i class='fa fa-trash'></i></button>";
-                                @else
-                                    del1 = '';
-                                @endif
-                            }
-                            else{
-                                ed   = '';
-                                del1 = '';
-                                up1 = '';
-                            }
-
-                            if((val_json.validar_superior == '1') && (val_json.validar_rrhh == '1') && (val_json.estado == '2')){
-                                @if(in_array(['codigo' => '1003'], $permisos))
-                                    // del2 = " <button type='button' class='btn btn-xs btn-warning' title='Habilitar PAPELETA DE SALIDA' onclick=\"utilitarios([18, " + cl + ", 1, 1]);\"><i class='fa fa-check'></i></button>";
-                                    del2 = '';
-                                @else
-                                    del2 = '';
-                                @endif
-                            }
-                            else{
-                                del2 = '';
-                            }
+                            var ed = "";
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed + up1 + pdf1 + del1 + del2)
+                                act : $.trim(ed)
                             });
                         }
                     }
@@ -401,14 +323,14 @@
                     useColSpanStyle: true,
                     groupHeaders   :[
                         {
-                            startColumnName: 'validar_superior',
-                            numberOfColumns: 2,
-                            titleText      : '¿VALIDADO'
+                            startColumnName: 'salida_s',
+                            numberOfColumns: 3,
+                            titleText      : 'MARCACION EN EL BIOMETRICO'
                         },
                         {
-                            startColumnName: 'n_documento',
-                            numberOfColumns: 4,
-                            titleText      : 'INMEDIATO SUPERIOR'
+                            startColumnName: 'h_salida',
+                            numberOfColumns: 3,
+                            titleText      : 'PERIODO DE LA SALIDA'
                         }
                     ]
                 });
@@ -428,72 +350,6 @@
                 .navSeparatorAdd(pjqgrid1,{
                     sepclass : "ui-separator"
                 })
-                @if(in_array(['codigo' => '1002'], $permisos))
-                    .navButtonAdd(pjqgrid1,{
-                    "id"          : "add1",
-                    caption       : "",
-                    title         : 'Agregar nueva fila',
-                    buttonicon    : "ui-icon ui-icon-plusthick",
-                    onClickButton : function(){
-                        var valor1 = new Array();
-                        valor1[0]  = 14;
-                        utilitarios(valor1);
-
-                        var valor1 = new Array();
-                        valor1[0]  = 11;
-                        utilitarios(valor1);
-                    }
-                })
-                @endif
-                @if(in_array(['codigo' => '1003'], $permisos))
-                    // .navButtonAdd(pjqgrid1,{
-                    //     "id"          : "edit1",
-                    //     caption       : "",
-                    //     title         : 'Editar fila',
-                    //     buttonicon    : "ui-icon ui-icon-pencil",
-                    //     onClickButton : function(){
-                    //         var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                    //         if(id == null)
-                    //         {
-                    //             var valor1 = new Array();
-                    //             valor1[0]  = 101;
-                    //             valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                    //             valor1[2]  = "¡Favor seleccione una fila!";
-                    //             utilitarios(valor1);
-                    //         }
-                    //         else
-                    //         {
-                    //             utilitarios([12, id]);
-                    //         }
-                    //     }
-                    // })
-                @endif
-                @if(in_array(['codigo' => '1004'], $permisos))
-                    .navSeparatorAdd(pjqgrid1,{
-                        sepclass : "ui-separator"
-                    })
-                    .navButtonAdd(pjqgrid1,{
-                        "id"          : "print1",
-                        caption       : "",
-                        title         : 'Reportes',
-                        buttonicon    : "ui-icon ui-icon-print",
-                        onClickButton : function(){
-                            var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                            if(id == null)
-                            {
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                                valor1[2]  = "¡Favor seleccione una fila!";
-                                utilitarios(valor1);
-                            }
-                            else
-                            {
-                                utilitarios([13, id]);
-                            }
-                        }
-                    })
-                @endif
                 ;
                 break;
 

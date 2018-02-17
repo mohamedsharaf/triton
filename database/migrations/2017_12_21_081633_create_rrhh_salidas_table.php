@@ -50,6 +50,7 @@ class CreateRrhhSalidasTable extends Migration
 
             $table->string('salida_s', 100)->default('NO MARCADO')->nullable();
             $table->string('salida_r', 100)->default('NO MARCADO')->nullable();
+            $table->smallInteger('min_retrasos')->default('0')->unsigned();
 
             $table->timestamps();
 
