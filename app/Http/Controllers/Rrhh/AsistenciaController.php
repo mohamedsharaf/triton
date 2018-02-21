@@ -2589,7 +2589,7 @@ class AsistenciaController extends Controller
                                                                 {
                                                                     if(($row5['f_salida'] == $row1['fecha']) && ($row5['f_retorno'] == $row1['fecha']))
                                                                     {
-                                                                        if($row5['periodo_retorno'] == '2')
+                                                                        if($row5['periodo_salida'] == '2')
                                                                         {
                                                                             $salida_sw_2 = TRUE;
                                                                         }
