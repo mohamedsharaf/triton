@@ -5525,6 +5525,8 @@ class AsistenciaController extends Controller
                                     'SALIDA PARTICULAR SALIDA NO MARCADAS',
                                     'SALIDA PARTICULAR RETORNO NO MARCADOS',
 
+                                    'TOTAL NO MARCADAS',
+
                                     'DIAS DESCUENTO',
 
 
@@ -5567,6 +5569,7 @@ class AsistenciaController extends Controller
                                 $sheet->getStyle("W1")->getAlignment()->setTextRotation(90);
                                 $sheet->getStyle("X1")->getAlignment()->setTextRotation(90);
                                 $sheet->getStyle("Y1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("Z1")->getAlignment()->setTextRotation(90);
 
                                 // $sheet->setColumnFormat([
                                 //     'A' => 'yyyy-mm-dd hh:mm:ss'
@@ -5676,6 +5679,8 @@ class AsistenciaController extends Controller
 
                                                 $pph_salida_no_marcada,
                                                 $pph_retorno_no_marcada,
+
+                                                ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada),
 
                                                 $dias_descuento_2,
 
@@ -5942,8 +5947,11 @@ class AsistenciaController extends Controller
                                         $h2_salidas_marcados,
                                         $h2_salidas_no_marcados,
 
+
                                         $pph_salida_no_marcada,
                                         $pph_retorno_no_marcada,
+
+                                        ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada),
 
                                         $dias_descuento_2,
 

@@ -637,7 +637,7 @@ class ConfirmarSalidaRrhhController extends Controller
                             $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
                             $this->utilitarios(array('tipo' => '2', 'validar_superior' => $row["validar_superior"])),
                             $this->utilitarios(array('tipo' => '3', 'validar_rrhh' => $row["validar_rrhh"])),
-                            $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"], 'id' => $row["id"], 'dia_hora' => 1)),
+                            $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"], 'id' => $row["id"], 'dia_hora' => 2)),
 
                             $row["papeleta_salida"],
                             ($row["tipo_salida"] == '')? '' : $this->tipo_salida[$row["tipo_salida"]],
@@ -1398,7 +1398,7 @@ class ConfirmarSalidaRrhhController extends Controller
                                         'tipo'    => '111',
                                         'x1'      => $x1,
                                         'y1'      => $y1,
-                                        'txt'     => "AUTORIZADO POR FISCAL DEPARAMETAL",
+                                        'txt'     => "AUTORIZADO POR FISCAL DEPARTAMENTAL",
                                         'border'  => 'LRTB',
                                         'align'   => 'C',
                                         'fill'    => $fill,
