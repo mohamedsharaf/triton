@@ -852,7 +852,7 @@
                                 @endif
 
                                 @if(in_array(['codigo' => '1003'], $permisos))
-                                    up1 = " <button type='button' class='btn btn-xs btn-info' title='Suber documentación' onclick=\"utilitarios([19, " + cl + ", '" + ret.codigo + "', 1]);\"><i class='fa fa-cloud-upload'></i></button>";
+                                    up1 = " <button type='button' class='btn btn-xs btn-info' title='Subir documentación' onclick=\"utilitarios([19, " + cl + ", '" + ret.codigo + "', 1]);\"><i class='fa fa-cloud-upload'></i></button>";
                                 @else
                                     up1 = '';
                                 @endif
@@ -1647,7 +1647,7 @@
                                 @endif
 
                                 @if(in_array(['codigo' => '1003'], $permisos))
-                                    up1 = " <button type='button' class='btn btn-xs btn-info' title='Suber documentación' onclick=\"utilitarios([19, " + cl + ", '" + ret.codigo + "', 2]);\"><i class='fa fa-cloud-upload'></i></button>";
+                                    up1 = " <button type='button' class='btn btn-xs btn-info' title='Subir documentación' onclick=\"utilitarios([19, " + cl + ", '" + ret.codigo + "', 2]);\"><i class='fa fa-cloud-upload'></i></button>";
                                 @else
                                     up1 = '';
                                 @endif
