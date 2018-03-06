@@ -42,6 +42,7 @@ class FuncionarioController extends Controller
 
     private $public_dir;
     private $public_url;
+    private $link_pdf;
 
     private $reporte_1;
     private $reporte_data_1;
@@ -72,6 +73,7 @@ class FuncionarioController extends Controller
 
         $this->public_dir = '/storage/rrhh/funcionario/documentos/designacion';
         $this->public_url = 'storage/rrhh/funcionario/documentos/designacion/';
+        $this->link_pdf   = asset($this->public_url );
     }
 
     public function index()
@@ -1098,6 +1100,40 @@ class FuncionarioController extends Controller
                         break;
                 }
                 break;
+            case '4':
+                switch($valor['acefalia'])
+                {
+                    case '1':
+                        $respuesta = $this->acefalia[$valor['acefalia']];
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = $this->acefalia[$valor['acefalia']];
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '5':
+                switch($valor['documento_sw'])
+                {
+                    case '1':
+                        $respuesta = $this->documento_sw[$valor['documento_sw']];
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = $this->documento_sw[$valor['documento_sw']];
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
 
             case '10':
                 $organigrama_array = [];
@@ -1314,6 +1350,262 @@ class FuncionarioController extends Controller
                 {
                     return "SIN FUNCIONARIO";
                 }
+                break;
+            case '2':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '0804'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                // === ANALISIS DE LAS VARIABLES ===
+                    if( ! (($request->has('lugar_dependencia_id'))))
+                    {
+                        return "LUGAR DE DEPENDENCIA es obligatorio.";
+                    }
+
+                //=== CARGAR VARIABLES ===
+                    $data1['lugar_dependencia_id'] = trim($request->input('lugar_dependencia_id'));
+
+                //=== CONSULTA BASE DE DATOS ===
+                    $tabla1 = "inst_cargos";
+                    $tabla2 = "inst_tipos_cargo";
+                    $tabla3 = "inst_auos";
+                    $tabla4 = "inst_lugares_dependencia";
+                    $tabla5 = "rrhh_funcionarios";
+                    $tabla6 = "rrhh_personas";
+                    $tabla7 = "inst_unidades_desconcentradas";
+                    $tabla8 = "rrhh_horarios";
+
+                    $array_where = "a7.lugar_dependencia_id = " . $data1['lugar_dependencia_id'];
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.auo_id,
+                        $tabla1.tipo_cargo_id,
+                        $tabla1.item_contrato,
+                        $tabla1.acefalia,
+                        $tabla1.nombre As cargo,
+
+                        a2.nombre AS tipo_cargo,
+
+                        a3.lugar_dependencia_id AS lugar_dependencia_id_cargo,
+                        a3.nombre AS auo_cargo,
+
+                        a4.nombre AS lugar_dependencia_cargo,
+
+                        a5.id AS funcionario_id,
+                        a5.persona_id,
+                        a5.cargo_id,
+                        a5.unidad_desconcentrada_id,
+                        a5.horario_id_1,
+                        a5.horario_id_2,
+                        a5.situacion,
+                        a5.documento_sw,
+                        a5.f_ingreso,
+                        a5.f_salida,
+                        a5.sueldo,
+                        a5.observaciones,
+                        a5.documento_file,
+
+                        a6.n_documento,
+                        a6.nombre AS nombre_persona,
+                        a6.ap_paterno,
+                        a6.ap_materno,
+
+                        a7.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
+                        a7.nombre AS ud_funcionario,
+
+                        a8.nombre AS lugar_dependencia_funcionario,
+
+                        a9.nombre AS horario_1,
+                        a10.nombre AS horario_2
+                    ";
+
+                    $consulta1 = InstCargo::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_cargo_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.auo_id")
+                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                        ->leftJoin("$tabla5 AS a5", "a5.cargo_id", "=", "$tabla1.id")
+                        ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.persona_id")
+                        ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a5.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla4 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
+                        ->leftJoin("$tabla8 AS a9", "a9.id", "=", "a5.horario_id_1")
+                        ->leftJoin("$tabla8 AS a10", "a10.id", "=", "a5.horario_id_2")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderBy("a6.ap_paterno", "ASC")
+                        ->orderBy("a6.ap_materno", "ASC")
+                        ->orderBy("a6.nombre", "ASC")
+                        ->get()
+                        ->toArray();
+
+                //=== EXCEL ===
+                    if(count($consulta1) > 0)
+                    {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('asistencia_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                            $excel->sheet('Resumen Asistencias', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'No',
+                                    '¿ACEFALO?',
+                                    'TIPO DE CARGO',
+                                    'SITUACION',
+                                    'NUMERO',
+                                    '¿CON PDF?',
+
+                                    'CI',
+                                    'FUNCIONARIO',
+
+                                    'FECHA DE INGRESO',
+                                    'FECHA DE SALIDA',
+
+                                    'SUELDO',
+
+                                    'UNIDAD DESCONCENTRADA DEL FUNCIONARIO',
+                                    'LUGAR DE DEPENDENCIA DEL FUNCIONARIO',
+
+                                    'HORARIO 1',
+                                    'HORARIO 2',
+
+                                    'CARGO',
+                                    'AREA UNIDAD ORGANIZACIONAL',
+                                    'LUGAR DE DEPENDENCIA DEL CARGO',
+
+                                    'OBSERVACIONES'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                // $sheet->setColumnFormat([
+                                //     'A' => 'yyyy-mm-dd hh:mm:ss'
+                                // ]);
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    $n_documento    = $row1["n_documento"];
+                                    $nombre_persona = trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]);
+                                    $sheet->row($c+1, [
+                                        $c++,
+                                        $this->utilitarios(array('tipo' => '4', 'acefalia' => $row1["acefalia"])),
+                                        $row1["tipo_cargo"],
+                                        ($row1["situacion"] == '')? '' : $this->situacion[$row1["situacion"]],
+                                        $row1["item_contrato"],
+                                        $this->utilitarios(array('tipo' => '5', 'documento_sw' => $row1["documento_sw"])),
+
+                                        $n_documento,
+                                        $nombre_persona,
+
+                                        $row1["f_ingreso"],
+                                        $row1["f_salida"],
+
+                                        $row1["sueldo"],
+
+                                        $row1["ud_funcionario"],
+                                        $row1["lugar_dependencia_funcionario"],
+
+                                        $row1["horario_1"],
+                                        $row1["horario_2"],
+
+                                        $row1["cargo"],
+                                        $row1["auo_cargo"],
+                                        $row1["lugar_dependencia_cargo"],
+
+                                        $row1["observaciones"]
+                                    ]);
+
+                                    // $sheet->setActiveSheetIndex(0)->getCell('F' . $c+1)->getHyperlink()->setUrl('http://www.phpexcel.net');
+
+                                    // $sheet->getCell('F' . $c+1)
+                                    //     ->getHyperlink()
+                                    //     ->setUrl($this->link_pdf . $row1["documento_file"])
+                                    //     ->setTooltip('Clic para ver el PDF');
+
+                                    // $sheet->getCell('F' . $c+1)->getHyperlink()->setUrl($this->link_pdf . $row1["documento_file"]);
+
+                                    // $sheet->getStyle('F' . $c+1)
+                                    //      ->applyFromArray(array(
+                                    //         'font' => array(
+                                    //             'color' => ['rgb' => '0000FF'],
+                                    //             'underline' => 'single'
+                                    //         )
+                                    //     ));
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+
+                                $sheet->cells('A2:A' . ($c), function($cells){
+                                    $cells->setAlignment('right');
+                                });
+
+                                $sheet->cells('B1:F' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('G2:G' . ($c), function($cells){
+                                    $cells->setAlignment('right');
+                                });
+
+                                $sheet->cells('H1:H' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->cells('I1:J' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('K2:K' . ($c), function($cells){
+                                    $cells->setAlignment('right');
+                                });
+
+                                $sheet->cells('L1:R' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                 $sheet->cells('S1:S' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->setAutoSize(true);
+                            });
+                        })->export('xlsx');
+                    }
+                    else
+                    {
+                        return "No se encontraron resultados.";
+                    }
                 break;
             default:
                 break;

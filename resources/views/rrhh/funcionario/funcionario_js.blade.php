@@ -281,8 +281,8 @@
             });
             $("#persona_id").appendTo("#persona_id_div");
 
-            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo').append(lugar_dependencia_select);
-            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id_d, #horario_id_1, #horario_id_2").select2({
+            $('#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #lugar_dependencia_id_r').append(lugar_dependencia_select);
+            $("#lugar_dependencia_id_funcionario, #lugar_dependencia_id_cargo, #unidad_desconcentrada_id, #auo_id, #cargo_id_d, #horario_id_1, #horario_id_2, #lugar_dependencia_id_r").select2({
                 maximumSelectionLength: 1
             });
             $("#lugar_dependencia_id_funcionario").appendTo("#lugar_dependencia_id_funcionario_div");
@@ -290,6 +290,7 @@
             $("#unidad_desconcentrada_id").appendTo("#unidad_desconcentrada_id_div");
             $("#auo_id").appendTo("#auo_id_div");
             $("#cargo_id_d").appendTo("#cargo_id_div");
+            $("#lugar_dependencia_id_r").appendTo("#lugar_dependencia_id_r_div");
 
             $('#f_ingreso').datepicker({
                 startView            : 2,
@@ -803,7 +804,7 @@
                       buttonicon    : "ui-icon ui-icon-print",
                       onClickButton : function(){
                           var valor1 = new Array();
-                          valor1[0]  = 13;
+                          valor1[0]  = 26;
                           utilitarios(valor1);
                       }
                     })
@@ -1345,6 +1346,32 @@
 
                 $(form_3)[0].reset();
                 break;
+            // === ABRIR MODAL GENERAR LISTA DE FUNCIONARIOS ===
+            case 26:
+                $('#modal_4').modal();
+                break;
+            // === GENERAR LISTA DE FUNCIONARIOS EXCEL ===
+            case 27:
+                var concatenar_valores = '';
+                concatenar_valores     += '?tipo=2';
+
+                var lugar_dependencia_id = $("#lugar_dependencia_id_r").val();
+
+                if($.trim(lugar_dependencia_id) != ''){
+                    concatenar_valores += '&lugar_dependencia_id=' + lugar_dependencia_id;
+
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
+                    valor1[2]  = "¡Seleccione LUGAR DE DEPENDENCIA!";
+                    utilitarios(valor1);
+                }
+                break;
+
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);

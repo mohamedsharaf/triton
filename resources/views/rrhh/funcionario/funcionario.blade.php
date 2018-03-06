@@ -384,7 +384,7 @@
     </div>
 
     <div id="modal_4" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog modal-xlg">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">
@@ -393,7 +393,7 @@
             </button>
 
             <h4 class="modal-title">
-              Generar reportes
+              Generar lista de funcionarios
             </h4>
           </div>
 
@@ -401,23 +401,18 @@
             <div class="row">
               <form id="form_10" role="form" action="#">
                 <div class="col-sm-12">
-                  <div id="auo_id_div" class="form-group">
-                    <label for="auo_id_r">Área o unidad organizacional</label>
-                    <select name="auo_id" id="auo_id_r" data-placeholder="Área o unidad organizacional" multiple="multiple" style="width: 100%;">
+                  <div id="lugar_dependencia_id_r_div" class="form-group">
+                    <label for="lugar_dependencia_id_r">Lugar de dependencia</label>
+                    <select name="lugar_dependencia_id_r" id="lugar_dependencia_id_r" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
                     </select>
                   </div>
                 </div>
               </form>
             </div>
-
-            <div class="row">
-              <div id="chart-container-1" style="overflow-x: scroll;"></div>
-            </div>
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-success" onclick="utilitarios([18]);">Excel</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([17]);">Organigrama</button>
+            <button type="button" class="btn btn-success" onclick="utilitarios([27]);">Excel</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal">Salir</button>
           </div>
         </div>
