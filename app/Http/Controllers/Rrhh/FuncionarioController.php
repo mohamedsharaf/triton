@@ -1535,22 +1535,22 @@ class FuncionarioController extends Controller
                                         $row1["observaciones"]
                                     ]);
 
-                                    // $sheet->setActiveSheetIndex(0)->getCell('F' . $c+1)->getHyperlink()->setUrl('http://www.phpexcel.net');
+                                    if($row1["documento_sw"] == '2')
+                                    {
 
-                                    // $sheet->getCell('F' . $c+1)
-                                    //     ->getHyperlink()
-                                    //     ->setUrl($this->link_pdf . $row1["documento_file"])
-                                    //     ->setTooltip('Clic para ver el PDF');
+                                        $sheet->getCell('F' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl($this->link_pdf . $row1["documento_file"])
+                                            ->setTooltip('Clic para ver el PDF');
 
-                                    // $sheet->getCell('F' . $c+1)->getHyperlink()->setUrl($this->link_pdf . $row1["documento_file"]);
-
-                                    // $sheet->getStyle('F' . $c+1)
-                                    //      ->applyFromArray(array(
-                                    //         'font' => array(
-                                    //             'color' => ['rgb' => '0000FF'],
-                                    //             'underline' => 'single'
-                                    //         )
-                                    //     ));
+                                        $sheet->getStyle('F' . $c)
+                                             ->applyFromArray(array(
+                                                'font' => array(
+                                                    'color'     => ['rgb' => '0000FF'],
+                                                    'underline' => 'single'
+                                                )
+                                            ));
+                                    }
 
                                     if($sw)
                                     {
