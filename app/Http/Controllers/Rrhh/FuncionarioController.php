@@ -1540,7 +1540,7 @@ class FuncionarioController extends Controller
 
                                         $sheet->getCell('F' . $c)
                                             ->getHyperlink()
-                                            ->setUrl($this->link_pdf . $row1["documento_file"])
+                                            ->setUrl($this->link_pdf . '/' . $row1["documento_file"])
                                             ->setTooltip('Clic para ver el PDF');
 
                                         $sheet->getStyle('F' . $c)
