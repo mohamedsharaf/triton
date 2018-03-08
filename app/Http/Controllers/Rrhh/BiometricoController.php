@@ -43,9 +43,11 @@ class BiometricoController extends Controller
         $this->middleware('auth');
 
         $this->estado = [
-            '1' => 'HABILITADO CON RED',
-            '2' => 'INHABILITADO',
-            '3' => 'HABILITADO SIN RED'
+            '1' => 'WEB SERVICES',
+            '2' => 'SIN CONEXION',
+            '3' => 'SIN RED',
+            '4' => 'CONEXION C#',
+            '5' => 'DIGITAL PERSONA'
         ];
 
         $this->e_conexion = [
@@ -446,55 +448,18 @@ class BiometricoController extends Controller
                     $estado = trim($request->input('estado'));
                     try
                     {
-                        if($estado == '1')
-                        {
-                            $this->validate($request,[
-                                'lugar_dependencia_id'     => 'required',
-                                'unidad_desconcentrada_id' => 'required',
-                                'codigo_af'                => 'required',
-                                'ip'                       => 'required|ipv4',
-                                'internal_id'              => 'required|numeric',
-                                'com_key'                  => 'required',
-                                'soap_port'                => 'required|numeric',
-                                'udp_port'                 => 'required|numeric'
-                            ],
-                            [
-                                'lugar_dependencia_id.required'     => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
+                        $this->validate($request,[
+                            'lugar_dependencia_id'     => 'required',
+                            'unidad_desconcentrada_id' => 'required',
+                            'codigo_af'                => 'required'
+                        ],
+                        [
+                            'lugar_dependencia_id.required'     => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
 
-                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.',
+                            'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.',
 
-                                'codigo_af.required'                => 'El campo CODIGO ACTIVO FIJO es obligatorio.',
-
-                                'ip.required'                       => 'El campo IP es obligatorio.',
-                                'ip.ipv4'                           => 'El campo IP debe ser una dirección IPv4 válida.',
-
-                                'internal_id.required'              => 'El campo ID USUARIO es obligatorio.',
-                                'internal_id.numeric'               => 'El campo ID USUARIO debe ser un número.',
-
-                                'com_key.required'                  => 'El campo LLAVE COM es obligatorio.',
-
-                                'soap_port.required'                => 'El campo PUERTO SOAP es obligatorio.',
-                                'soap_port.numeric'                 => 'El campo PUERTO SOAP debe ser un número.',
-
-                                'udp_port.required'                 => 'El campo PUERTO UDP es obligatorio.',
-                                'udp_port.numeric'                  => 'El campo PUERTO UDP debe ser un número.'
-                            ]);
-                        }
-                        else
-                        {
-                            $this->validate($request,[
-                                'lugar_dependencia_id'     => 'required',
-                                'unidad_desconcentrada_id' => 'required',
-                                'codigo_af'                => 'required'
-                            ],
-                            [
-                                'lugar_dependencia_id.required'     => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
-
-                                'unidad_desconcentrada_id.required' => 'El campo UNIDAD DESCONCENTRADA es obligatorio.',
-
-                                'codigo_af.required'                => 'El campo CODIGO ACTIVO FIJO es obligatorio.'
-                            ]);
-                        }
+                            'codigo_af.required'                => 'El campo CODIGO ACTIVO FIJO es obligatorio.'
+                        ]);
                     }
                     catch (Exception $e)
                     {
@@ -1344,6 +1309,14 @@ class BiometricoController extends Controller
                         break;
                     case '3':
                         $respuesta = '<span class="label label-warning font-sm">' . $this->estado[$valor['estado']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '4':
+                        $respuesta = '<span class="label label-success font-sm">' . $this->estado[$valor['estado']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '5':
+                        $respuesta = '<span class="label label-info font-sm">' . $this->estado[$valor['estado']] . '</span>';
                         return($respuesta);
                         break;
                     default:

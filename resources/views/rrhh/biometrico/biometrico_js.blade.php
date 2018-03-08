@@ -28,7 +28,7 @@
         var pjqgrid1      = "#pjqgrid1";
         var col_name_1    = new Array(
             "",
-            "ESTADO",
+            "TIPO DE CONEXION",
             "ESTADO CONEXION",
             "SERVIDOR",
             "BIOMETRICO",
@@ -195,6 +195,12 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
+            $('#estado').append(estado_select);
+            $("#estado").select2({
+                    maximumSelectionLength: 1
+                });
+            $("#estado").appendTo("#estado_div");
+
             $('#lugar_dependencia_id').append(lugar_dependencia_select);
             $("#lugar_dependencia_id").select2({
                     maximumSelectionLength: 1
@@ -225,14 +231,20 @@
                 }
             });
 
-        // === RADIO CHANGE ===
-            $(".estado_class").on("change", function(e) {
+        // === SELECT CHANGE - TIPO DE CONEXION ===
+            $("#estado").on("change", function(e) {
                 $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", false);
-                switch ($(".estado_class:checked").val()){
+                switch ($.trim(this.value)){
                     case '2':
                         $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
                         break;
                     case '3':
+                        $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
+                        break;
+                    case '4':
+                        $('#internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
+                        break;
+                    case '5':
                         $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
                         break;
                     default:
@@ -746,9 +758,16 @@
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
 
-                $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
+                // $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
+                $("#estado").select2("val", val_json.estado);
 
-                if(val_json.estado != 1){
+                if(val_json.estado == 1){
+
+                }
+                else if(val_json.estado == 4){
+                    $('#internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
+                }
+                else{
                     $('#ip, #internal_id, #com_key, #soap_port, #udp_port').prop("disabled", true);
                 }
 
@@ -778,6 +797,7 @@
 
                 $("#biometrico_id").val('');
 
+                $('#estado').select2("val", "");
                 $('#lugar_dependencia_id').select2("val", "");
                 $('#unidad_desconcentrada_id').select2("val", "");
                 $('#unidad_desconcentrada_id option').remove();
@@ -816,9 +836,12 @@
             // === VALIDACION ===
             case 16:
                 $(form_1).validate({
-                    rules: {
+                    rules:{
+                        estado:{
+                            required: true
+                        },
                         lugar_dependencia_id:{
-                            required : true
+                            required: true
                         },
                         unidad_desconcentrada_id:{
                             required: true

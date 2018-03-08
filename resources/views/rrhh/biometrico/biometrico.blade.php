@@ -101,22 +101,10 @@
                   <input type="hidden" id="tipo1" name="tipo" value="1"/>
                   {{ csrf_field() }}
                   <div class="col-sm-12">
-                    <div class="form-group">
-                      <label>Estado</label>
-                      <div>
-                          <div class="radio radio-primary radio-inline">
-                            <input type="radio" id="estado_1_id" class="estado_class" name="estado" value="1" checked="checked">
-                            <label class="text-success" for="estado_1_id"> {{ $estado_array['1'] }} </label>
-                          </div>
-                          <div class="radio radio-danger radio-inline">
-                              <input type="radio" id="estado_2_id" class="estado_class" name="estado" value="2">
-                              <label class="text-danger" for="estado_2_id"> {{ $estado_array['2'] }} </label>
-                          </div>
-                          <div class="radio radio-warning radio-inline">
-                              <input type="radio" id="estado_3_id" class="estado_class" name="estado" value="3">
-                              <label class="text-warning" for="estado_3_id"> {{ $estado_array['3'] }} </label>
-                          </div>
-                      </div>
+                    <div id="estado_div" class="form-group">
+                      <label for="estado">Tipo de conexión</label>
+                      <select name="estado" id="estado" data-placeholder="Tipo de conexión" multiple="multiple" style="width: 100%;">
+                      </select>
                     </div>
 
                     <div id="lugar_dependencia_id_div" class="form-group">

@@ -1098,8 +1098,8 @@ class SolicitudSalidaController extends Controller
                                         break;
                                     // === TOLERANCIA ===
                                     case '2':
-                                        $respuesta['respuesta'] .= "No se logro generar consulte con el ENCARGADO DE INFORMATICA.";
-                                        return json_encode($respuesta);
+                                        // $respuesta['respuesta'] .= "No se logro generar consulte con el ENCARGADO DE INFORMATICA.";
+                                        // return json_encode($respuesta);
                                         break;
                                     // === HORARIO CONTINUO ===
                                     case '3':
