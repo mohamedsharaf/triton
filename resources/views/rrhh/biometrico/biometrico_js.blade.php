@@ -517,42 +517,51 @@
                     gridComplete : function() {
                         var ids = $(jqgrid1).jqGrid('getDataIDs');
                         for(var i = 0; i < ids.length; i++){
-                            var cl = ids[i];
+                            var cl       = ids[i];
+                            var ret      = $(jqgrid1).jqGrid('getRowData', cl);
+                            var val_json = $.parseJSON(ret.val_json);
+
+                            var ed = "";
+                            var rc = "";
+                            var sf = "";
+                            var re = "";
+                            var ap = "";
+                            var lo = "";
+
                             @if(in_array(['codigo' => '0603'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                            @else
-                                ed = '';
                             @endif
 
                             @if(in_array(['codigo' => '0604'], $permisos))
-                                rc = " <button type='button' class='btn btn-xs btn-danger' title='Revisar conexión' onclick=\"utilitarios([18, " + cl + "]);\"><i class='fa fa-plug'></i></button>";
-                            @else
-                                rc = '';
+                                if(val_json.estado == '1'){
+                                    rc = " <button type='button' class='btn btn-xs btn-danger' title='Revisar conexión' onclick=\"utilitarios([18, " + cl + "]);\"><i class='fa fa-plug'></i></button>";
+                                }
                             @endif
 
                             @if(in_array(['codigo' => '0605'], $permisos))
-                                sf = " <button type='button' class='btn btn-xs btn-warning' title='Sincronizar fecha y hora' onclick=\"utilitarios([19, " + cl + "]);\"><i class='fa fa-clock-o'></i></button>";
-                            @else
-                                sf = '';
+                                if(val_json.estado == '1'){
+                                    sf = " <button type='button' class='btn btn-xs btn-warning' title='Sincronizar fecha y hora' onclick=\"utilitarios([19, " + cl + "]);\"><i class='fa fa-clock-o'></i></button>";
+                                }
                             @endif
 
                             @if(in_array(['codigo' => '0606'], $permisos))
-                                re = " <button type='button' class='btn btn-xs btn-primary' title='Reiniciar biométrico' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-rotate-right'></i></button>";
-                            @else
-                                re = '';
+                                if(val_json.estado == '1'){
+                                    re = " <button type='button' class='btn btn-xs btn-primary' title='Reiniciar biométrico' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-rotate-right'></i></button>";
+                                }
                             @endif
 
                             @if(in_array(['codigo' => '0607'], $permisos))
-                                ap = " <button type='button' class='btn btn-xs' title='Apagar biométrico' onclick=\"utilitarios([21, " + cl + "]);\"><i class='fa fa-power-off'></i></button>";
-                            @else
-                                ap = '';
+                                if(val_json.estado == '1'){
+                                    ap = " <button type='button' class='btn btn-xs' title='Apagar biométrico' onclick=\"utilitarios([21, " + cl + "]);\"><i class='fa fa-power-off'></i></button>";
+                                }
                             @endif
 
                             @if(in_array(['codigo' => '0608'], $permisos))
-                                lo = " <button type='button' class='btn btn-xs btn-success' title='Obtener registro de asistencia' onclick=\"utilitarios([22, " + cl + "]);\"><i class='fa fa-database'></i></button>";
-                            @else
-                                lo = '';
+                                if(val_json.estado == '1'){
+                                    lo = " <button type='button' class='btn btn-xs btn-success' title='Obtener registro de asistencia' onclick=\"utilitarios([22, " + cl + "]);\"><i class='fa fa-database'></i></button>";
+                                }
                             @endif
+
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
                                 act : $.trim(ed + rc + sf + re + ap + lo)
                             });
