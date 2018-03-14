@@ -2227,6 +2227,10 @@ class AsistenciaController extends Controller
                                                                             {
                                                                                 $salida_sw_2 = TRUE;
                                                                             }
+                                                                            elseif(($row5['f_retorno'] != $row1['fecha']))
+                                                                            {
+                                                                                $salida_sw_2 = TRUE;
+                                                                            }
                                                                         }
                                                                         elseif(($row5['f_retorno'] == $row1['fecha']))
                                                                         {
@@ -2416,6 +2420,10 @@ class AsistenciaController extends Controller
                                                                                 $salida_sw_2 = TRUE;
                                                                             }
                                                                             elseif(($row5['periodo_salida'] != '') && ($row5['periodo_retorno'] != ''))
+                                                                            {
+                                                                                $salida_sw_2 = TRUE;
+                                                                            }
+                                                                            elseif(($row5['f_retorno'] != $row1['fecha']))
                                                                             {
                                                                                 $salida_sw_2 = TRUE;
                                                                             }
@@ -2611,6 +2619,10 @@ class AsistenciaController extends Controller
                                                                             $salida_sw_2 = TRUE;
                                                                         }
                                                                         elseif(($row5['periodo_salida'] == '') && ($row5['periodo_retorno'] == ''))
+                                                                        {
+                                                                            $salida_sw_2 = TRUE;
+                                                                        }
+                                                                        elseif(($row5['f_retorno'] != $row1['fecha']))
                                                                         {
                                                                             $salida_sw_2 = TRUE;
                                                                         }
