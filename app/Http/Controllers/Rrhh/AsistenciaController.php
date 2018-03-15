@@ -1508,6 +1508,10 @@ class AsistenciaController extends Controller
                                                                         {
                                                                             $salida_sw_2 = TRUE;
                                                                         }
+                                                                        elseif(($row5['f_salida'] != $row1['fecha']))
+                                                                        {
+                                                                            $salida_sw_2 = TRUE;
+                                                                        }
                                                                     }
                                                                     elseif(($row5['f_salida'] == $row1['fecha']))
                                                                     {
@@ -1700,6 +1704,10 @@ class AsistenciaController extends Controller
                                                                         {
                                                                             $salida_sw_2 = TRUE;
                                                                         }
+                                                                        elseif(($row5['f_salida'] != $row1['fecha']))
+                                                                        {
+                                                                            $salida_sw_2 = TRUE;
+                                                                        }
                                                                     }
                                                                     elseif(($row5['f_salida'] == $row1['fecha']))
                                                                     {
@@ -1888,6 +1896,10 @@ class AsistenciaController extends Controller
                                                                         $salida_sw_2 = TRUE;
                                                                     }
                                                                     elseif(($row5['periodo_salida'] != '2') && ($row5['periodo_retorno'] != '1'))
+                                                                    {
+                                                                        $salida_sw_2 = TRUE;
+                                                                    }
+                                                                    elseif(($row5['f_salida'] != $row1['fecha']))
                                                                     {
                                                                         $salida_sw_2 = TRUE;
                                                                     }
