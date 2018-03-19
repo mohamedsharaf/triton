@@ -56,7 +56,9 @@
             "",
             "",
             "",
-            ""
+            "",
+
+            "TIPO DE CARGO"
         );
         var col_m_name_1  = new Array(
             "act",
@@ -86,7 +88,9 @@
             "h_1_e",
             "h_1_s",
             "h_2_e",
-            "h_2_s"
+            "h_2_s",
+
+            "tipo_cargo"
         );
         var col_m_index_1 = new Array(
             "",
@@ -116,7 +120,9 @@
             "",
             "",
             "",
-            ""
+            "",
+
+            "a5.nombre"
         );
         var col_m_width_1 = new Array(
             33,
@@ -146,7 +152,9 @@
             10,
             10,
             10,
-            10
+            10,
+
+            110
         );
         var col_m_align_1 = new Array(
             "center",
@@ -176,6 +184,8 @@
             "center",
             "center",
             "center",
+            "center",
+
             "center"
         );
 
@@ -232,6 +242,16 @@
         $.each(lugar_dependencia_json, function(index, value) {
             lugar_dependencia_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
             lugar_dependencia_jqgrid += ';' + value.nombre + ':' + value.nombre;
+        });
+
+    // === TIPO DE CARGO ===
+        var tipo_cargo_json   = $.parseJSON('{!! json_encode($tipo_cargo_array) !!}');
+        var tipo_cargo_select = '';
+        var tipo_cargo_jqgrid = ':Todos';
+
+        $.each(tipo_cargo_json, function(index, value) {
+            tipo_cargo_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            tipo_cargo_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
     // === DROPZONE ===
@@ -492,6 +512,8 @@
 
                         col_name_1[1],
 
+                        col_name_1[20],
+
                         col_name_1[2],
 
                         col_name_1[3],
@@ -536,6 +558,15 @@
                             align      : col_m_align_1[1],
                             stype      :'select',
                             editoptions: {value:estado_jqgrid}
+                        },
+
+                        {
+                            name       : col_m_name_1[20],
+                            index      : col_m_index_1[20],
+                            width      : col_m_width_1[20],
+                            align      : col_m_align_1[20],
+                            stype      :'select',
+                            editoptions: {value:tipo_cargo_jqgrid}
                         },
 
                         {

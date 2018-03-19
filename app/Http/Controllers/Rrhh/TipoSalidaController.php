@@ -46,7 +46,8 @@ class TipoSalidaController extends Controller
             '2' => 'PARTICULAR',
             '3' => 'VACACIONES',
             '4' => 'CUMPLEAÑOS',
-            '5' => 'SIN GOCE DE HABER'
+            '5' => 'SIN GOCE DE HABER',
+            '6' => 'TOLERANCIA'
         ];
 
         $this->tipo_cronograma = [

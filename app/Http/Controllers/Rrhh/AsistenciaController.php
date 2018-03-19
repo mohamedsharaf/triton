@@ -88,7 +88,8 @@ class AsistenciaController extends Controller
             '2' => 'LICENCIA PARTICULAR',
             '3' => 'VACACIONES',
             '4' => 'CUMPLEAÑOS',
-            '5' => 'LICENCIA SIN GOCE DE HABER'
+            '5' => 'LICENCIA SIN GOCE DE HABER',
+            '6' => 'TOLERANCIA'
         ];
 
         $this->con_sin_retorno = [
@@ -178,6 +179,11 @@ class AsistenciaController extends Controller
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
                                                 ->get()
+                                                ->toArray(),
+                'tipo_cargo_array'        => InstTipoCargo::whereRaw($array_where)
+                                                ->select("id", "nombre")
+                                                ->orderBy("nombre")
+                                                ->get()
                                                 ->toArray()
             ];
             return view('rrhh.asistencia.asistencia')->with($data);
@@ -223,6 +229,7 @@ class AsistenciaController extends Controller
                 $tabla8  = "rrhh_horarios";
                 $tabla9  = "rrhh_salidas";
                 $tabla10 = "rrhh_tipos_salida";
+                $tabla11 = "inst_tipos_cargo";
 
                 $select = "
                     $tabla1.id,
@@ -286,6 +293,8 @@ class AsistenciaController extends Controller
                     $tabla1.horario_2_i,
                     $tabla1.horario_2_s,
 
+                    $tabla1.tipo_cargo_id,
+
                     a2.n_documento,
                     a2.nombre AS nombre_persona,
                     a2.ap_paterno,
@@ -294,7 +303,9 @@ class AsistenciaController extends Controller
                     a3.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
                     a3.nombre AS ud_funcionario,
 
-                    a4.nombre AS lugar_dependencia_funcionario
+                    a4.nombre AS lugar_dependencia_funcionario,
+
+                    a6.nombre AS tipo_cargo
                 ";
 
                 $array_where = "TRUE" . $where_concatenar;
@@ -346,6 +357,7 @@ class AsistenciaController extends Controller
                 $count = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
                     ->leftJoin("$tabla5 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
                     ->leftJoin("$tabla6 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->leftJoin("$tabla11 AS a5", "a5.id", "=", "$tabla1.tipo_cargo_id")
                     ->whereRaw($array_where)
                     ->count();
 
@@ -354,6 +366,8 @@ class AsistenciaController extends Controller
                 $query = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
                     ->leftJoin("$tabla5 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
                     ->leftJoin("$tabla6 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.cargo_id")
+                    ->leftJoin("$tabla11 AS a6", "a6.id", "=", "a5.tipo_cargo_id")
                     ->whereRaw($array_where)
                     ->select(DB::raw($select))
                     ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -423,7 +437,9 @@ class AsistenciaController extends Controller
                         'horario_1_s' => $row["horario_1_s"],
 
                         'horario_2_i' => $row["horario_2_i"],
-                        'horario_2_s' => $row["horario_2_s"]
+                        'horario_2_s' => $row["horario_2_s"],
+
+                        'tipo_cargo_id' => $row["tipo_cargo_id"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
@@ -431,6 +447,8 @@ class AsistenciaController extends Controller
                         '',
 
                         $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
+
+                        $row["tipo_cargo"],
 
                         $row["fecha"],
 
@@ -5408,6 +5426,8 @@ class AsistenciaController extends Controller
                     $tabla2 = "rrhh_personas";
                     $tabla3 = "inst_unidades_desconcentradas";
                     $tabla4 = "inst_lugares_dependencia";
+                    $tabla5 = "inst_cargos";
+                    $tabla6 = "inst_tipos_cargo";
 
                     $array_where = "$tabla1.estado <> '2'";
                     if($request->has('fecha_del'))
@@ -5500,12 +5520,16 @@ class AsistenciaController extends Controller
                         a3.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
                         a3.nombre AS ud_funcionario,
 
-                        a4.nombre AS lugar_dependencia_funcionario
+                        a4.nombre AS lugar_dependencia_funcionario,
+
+                        a6.nombre AS tipo_cargo
                     ";
 
                     $consulta1 = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
                         ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
                         ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.cargo_id")
+                        ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.tipo_cargo_id")
                         ->whereRaw($array_where)
                         ->select(DB::raw($select))
                         ->orderByRaw("a2.ap_paterno ASC, a2.ap_materno ASC, a2.nombre ASC, $tabla1.fecha")
@@ -5523,6 +5547,9 @@ class AsistenciaController extends Controller
                                     'No',
                                     'CI',
                                     'NOMBRE COMPLETO',
+
+
+                                    'TIPO DE CARGO',
 
 
                                     'DIAS TRABAJADOS',
@@ -5594,6 +5621,7 @@ class AsistenciaController extends Controller
                                 $sheet->getStyle("X1")->getAlignment()->setTextRotation(90);
                                 $sheet->getStyle("Y1")->getAlignment()->setTextRotation(90);
                                 $sheet->getStyle("Z1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("AA1")->getAlignment()->setTextRotation(90);
 
                                 // $sheet->setColumnFormat([
                                 //     'A' => 'yyyy-mm-dd hh:mm:ss'
@@ -5606,6 +5634,7 @@ class AsistenciaController extends Controller
 
                                 $n_documento    = "";
                                 $nombre_persona = "";
+                                $tipo_cargo     = "";
 
                                 $dias_trabajados         = 0;
                                 $feriados                = 0;
@@ -5679,6 +5708,8 @@ class AsistenciaController extends Controller
                                                 $c++,
                                                 $n_documento,
                                                 $nombre_persona,
+
+                                                $tipo_cargo,
 
                                                 $dias_trabajados,
                                                 $feriados,
@@ -5766,6 +5797,7 @@ class AsistenciaController extends Controller
 
                                     $n_documento    = $row1["n_documento"];
                                     $nombre_persona = trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]);
+                                    $tipo_cargo     = $row1["tipo_cargo"];
 
                                     // === DIAS ===
                                         switch($row1["horario_1_i"])
@@ -5950,6 +5982,8 @@ class AsistenciaController extends Controller
                                         $n_documento,
                                         $nombre_persona,
 
+                                        $tipo_cargo,
+
                                         $dias_trabajados,
                                         $feriados,
                                         $vacaciones,
@@ -6001,9 +6035,9 @@ class AsistenciaController extends Controller
                                         $sw = TRUE;
                                     }
 
-                                // $sheet->cells('B1:D' . ($c), function($cells){
-                                //     $cells->setAlignment('center');
-                                // });
+                                $sheet->cells('D2:D' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
 
                                 $sheet->cells('A2:B' . ($c), function($cells){
                                     $cells->setAlignment('right');
@@ -6053,6 +6087,8 @@ class AsistenciaController extends Controller
                     $tabla2 = "rrhh_personas";
                     $tabla3 = "inst_unidades_desconcentradas";
                     $tabla4 = "inst_lugares_dependencia";
+                    $tabla5 = "inst_cargos";
+                    $tabla6 = "inst_tipos_cargo";
 
                     $array_where = "$tabla1.estado <> '2'";
                     if($request->has('fecha_del'))
@@ -6145,12 +6181,16 @@ class AsistenciaController extends Controller
                         a3.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
                         a3.nombre AS ud_funcionario,
 
-                        a4.nombre AS lugar_dependencia_funcionario
+                        a4.nombre AS lugar_dependencia_funcionario,
+
+                        a6.nombre AS tipo_cargo
                     ";
 
                     $consulta1 = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
                         ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
                         ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.cargo_id")
+                        ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.tipo_cargo_id")
                         ->whereRaw($array_where)
                         ->select(DB::raw($select))
                         ->orderByRaw("$tabla1.fecha ASC, a2.ap_paterno ASC, a2.ap_materno ASC, a2.nombre ASC")
@@ -6169,6 +6209,8 @@ class AsistenciaController extends Controller
                                     'FECHA',
                                     'CI',
                                     'NOMBRE COMPLETO',
+
+                                    'TIPO DE CARGO',
 
                                     'HORARIO 1 INGRESO',
                                     'HORARIO 1 SALIDA',
@@ -6208,6 +6250,8 @@ class AsistenciaController extends Controller
                                         $n_documento,
                                         $nombre_persona,
 
+                                        $row1["tipo_cargo"],
+
                                         $row1["horario_1_i"],
                                         $row1["horario_1_s"],
                                         $row1["h1_min_retrasos"],
@@ -6246,7 +6290,7 @@ class AsistenciaController extends Controller
                                     $cells->setAlignment('right');
                                 });
 
-                                $sheet->cells('E1:L' . ($c), function($cells){
+                                $sheet->cells('E1:M' . ($c), function($cells){
                                     $cells->setAlignment('center');
                                 });
 

@@ -62,7 +62,8 @@ class ConfirmarSalidaController extends Controller
             '2' => 'LICENCIA PARTICULAR',
             '3' => 'VACACIONES',
             '4' => 'CUMPLEAÑOS',
-            '5' => 'LICENCIA SIN GOCE DE HABER'
+            '5' => 'LICENCIA SIN GOCE DE HABER',
+            '6' => 'TOLERANCIA'
         ];
 
         $this->con_sin_retorno = [
