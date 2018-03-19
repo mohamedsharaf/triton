@@ -293,8 +293,6 @@ class AsistenciaController extends Controller
                     $tabla1.horario_2_i,
                     $tabla1.horario_2_s,
 
-                    $tabla1.tipo_cargo_id,
-
                     a2.n_documento,
                     a2.nombre AS nombre_persona,
                     a2.ap_paterno,
@@ -437,9 +435,7 @@ class AsistenciaController extends Controller
                         'horario_1_s' => $row["horario_1_s"],
 
                         'horario_2_i' => $row["horario_2_i"],
-                        'horario_2_s' => $row["horario_2_s"],
-
-                        'tipo_cargo_id' => $row["tipo_cargo_id"]
+                        'horario_2_s' => $row["horario_2_s"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
