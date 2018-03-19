@@ -355,7 +355,8 @@ class AsistenciaController extends Controller
                 $count = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
                     ->leftJoin("$tabla5 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
                     ->leftJoin("$tabla6 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
-                    ->leftJoin("$tabla11 AS a5", "a5.id", "=", "$tabla1.tipo_cargo_id")
+                    ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.cargo_id")
+                    ->leftJoin("$tabla11 AS a6", "a6.id", "=", "a5.tipo_cargo_id")
                     ->whereRaw($array_where)
                     ->count();
 
