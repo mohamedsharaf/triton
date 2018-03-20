@@ -94,6 +94,7 @@
         Route::match(["get", "post"], '/solicitud_salida/view_jqgrid', 'Rrhh\SolicitudSalidaController@view_jqgrid');
         Route::post('/solicitud_salida/send_ajax', 'Rrhh\SolicitudSalidaController@send_ajax');
         Route::match(["get", "post"], '/solicitud_salida/reportes', 'Rrhh\SolicitudSalidaController@reportes');
+        Route::match(["get", "post"], '/solicitud_salida/cargo_ud', 'Rrhh\SolicitudSalidaController@cargo_ud');
 
 //=== CONFIRMAR SALIDA ===
     Route::get('/confirmar_salida', 'Rrhh\ConfirmarSalidaController@index')->name('confirmar_salida');

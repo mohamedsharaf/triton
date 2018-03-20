@@ -747,7 +747,7 @@ class SolicitudSalidaController extends Controller
                     }
 
                     $consulta3 = RrhhFuncionario::where('persona_id', '=', $data1['persona_id'])
-                        ->select('horario_id_1', 'horario_id_2')
+                        ->select('horario_id_1', 'horario_id_2', 'cargo_id', 'unidad_desconcentrada_id')
                         ->first();
 
                     if(count($consulta3) > 0)
@@ -1143,6 +1143,9 @@ class SolicitudSalidaController extends Controller
                         $iu->tipo_salida_id      = $data1['tipo_salida_id'];
                         $iu->persona_id_superior = $data1['persona_id_superior'];
 
+                        $iu->cargo_id                 = $consulta3['cargo_id'];
+                        $iu->unidad_desconcentrada_id = $consulta3['unidad_desconcentrada_id'];
+
                         $anio = date('Y', strtotime($data1['f_salida']));
 
                         $iu->codigo = str_pad((RrhhSalida::whereRaw("date_part('year', f_salida)='" . $anio . "'")->count())+1, 6, "0", STR_PAD_LEFT) . "/" . $anio;
@@ -1174,6 +1177,9 @@ class SolicitudSalidaController extends Controller
                                 $iu->persona_id          = $data1['persona_id'];
                                 $iu->tipo_salida_id      = $data1['tipo_salida_id'];
                                 $iu->persona_id_superior = $data1['persona_id_superior'];
+
+                                $iu->cargo_id                 = $consulta3['cargo_id'];
+                                $iu->unidad_desconcentrada_id = $consulta3['unidad_desconcentrada_id'];
 
                                 $iu->destino   = $data1['destino'];
                                 $iu->motivo    = $data1['motivo'];
@@ -1733,6 +1739,9 @@ class SolicitudSalidaController extends Controller
                         $iu->tipo_salida_id      = $data1['tipo_salida_id'];
                         $iu->persona_id_superior = $data1['persona_id_superior'];
 
+                        $iu->cargo_id                 = $consulta1['cargo_id'];
+                        $iu->unidad_desconcentrada_id = $consulta1['unidad_desconcentrada_id'];
+
                         $iu->codigo = str_pad((RrhhSalida::whereRaw("date_part('year', f_salida)='" . $anio_actual . "'")->count())+1, 6, "0", STR_PAD_LEFT) . "/" . $anio_actual;
 
                         $iu->destino   = $data1['destino'];
@@ -1763,6 +1772,9 @@ class SolicitudSalidaController extends Controller
                                 $iu->persona_id          = $data1['persona_id'];
                                 $iu->tipo_salida_id      = $data1['tipo_salida_id'];
                                 $iu->persona_id_superior = $data1['persona_id_superior'];
+
+                                $iu->cargo_id                 = $consulta1['cargo_id'];
+                                $iu->unidad_desconcentrada_id = $consulta1['unidad_desconcentrada_id'];
 
                                 $iu->destino   = $data1['destino'];
                                 $iu->motivo    = $data1['motivo'];
@@ -3596,6 +3608,26 @@ class SolicitudSalidaController extends Controller
                 break;
             default:
                 break;
+        }
+    }
+
+    public function cargo_ud()
+    {
+        $consulta1 = RrhhSalida::select('id', 'persona_id')
+                    ->get()
+                    ->toArray();
+        foreach ($consulta1 as $row1)
+        {
+            $consulta2 = RrhhFuncionario::where('persona_id', '=', $row1['persona_id'])
+                            ->select('unidad_desconcentrada_id', 'cargo_id')
+                            ->first();
+
+            $iu = RrhhSalida::find($row1['id']);
+
+            $iu->cargo_id                 = $consulta2['cargo_id'];
+            $iu->unidad_desconcentrada_id = $consulta2['unidad_desconcentrada_id'];
+
+            $iu->save();
         }
     }
 }

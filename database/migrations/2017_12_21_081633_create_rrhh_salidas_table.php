@@ -20,6 +20,9 @@ class CreateRrhhSalidasTable extends Migration
             $table->integer('persona_id_superior')->unsigned()->nullable();
             $table->integer('persona_id_rrhh')->unsigned()->nullable();
 
+            $table->integer('cargo_id')->unsigned()->nullable();
+            $table->integer('unidad_desconcentrada_id')->unsigned()->nullable();
+
             $table->smallInteger('estado')->default('1')->unsigned();
             $table->string('codigo', 12)->nullable();
             $table->string('destino', 500)->nullable();
@@ -72,6 +75,16 @@ class CreateRrhhSalidasTable extends Migration
             $table->foreign('persona_id_rrhh')
                 ->references('id')
                 ->on('rrhh_personas')
+                ->onDelete('cascade');
+
+            $table->foreign('cargo_id')
+                ->references('id')
+                ->on('inst_cargos')
+                ->onDelete('cascade');
+
+            $table->foreign('unidad_desconcentrada_id')
+                ->references('id')
+                ->on('inst_unidades_desconcentradas')
                 ->onDelete('cascade');
 
             $table->foreign('log_marcaciones_id_s')

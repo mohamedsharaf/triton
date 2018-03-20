@@ -252,6 +252,9 @@ class ConfirmarSalidaRrhhController extends Controller
                         $tabla1.persona_id_superior,
                         $tabla1.persona_id_rrhh,
 
+                        $tabla1.cargo_id,
+                        $tabla1.unidad_desconcentrada_id,
+
                         $tabla1.estado,
                         $tabla1.codigo,
                         $tabla1.destino,
@@ -291,9 +294,6 @@ class ConfirmarSalidaRrhhController extends Controller
                         a5.nombre AS nombre_rrhh,
                         a5.ap_paterno AS ap_paterno_rrhh,
                         a5.ap_materno AS ap_materno_rrhh,
-
-                        a6.id AS funcionario_id,
-                        a6.unidad_desconcentrada_id,
 
                         a7.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
                         a7.nombre AS ud_funcionario,
@@ -352,8 +352,7 @@ class ConfirmarSalidaRrhhController extends Controller
                         ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
                         ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
                         ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
-                        ->leftJoin("$tabla4 AS a6", "a3.id", "=", "a6.persona_id")
-                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "a6.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
                         ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
                         ->whereRaw($array_where)
                         ->count();
@@ -364,8 +363,7 @@ class ConfirmarSalidaRrhhController extends Controller
                         ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
                         ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
                         ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
-                        ->leftJoin("$tabla4 AS a6", "a3.id", "=", "a6.persona_id")
-                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "a6.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
                         ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
                         ->whereRaw($array_where)
                         ->select(DB::raw($select))
