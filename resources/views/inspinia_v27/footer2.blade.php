@@ -3,6 +3,6 @@
         <strong>Unidad de Informatica</strong>
     </div>
     <div>
-    <strong>Copyright &copy; Fiscalía General del Estado</strong> 2012-{{date('Y')}}
+    <strong>Copyright &copy; Ministerio Público</strong> 2012-{{date('Y')}}
     </div>
 </div>

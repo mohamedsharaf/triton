@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 
 use App\Libraries\JqgridClass;
 use App\Libraries\UtilClass;
+use App\Libraries\SalidaParticularClass;
 
 use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegLdUser;
@@ -62,7 +63,8 @@ class SalidaParticularController extends Controller
             '2' => 'LICENCIA PARTICULAR',
             '3' => 'VACACIONES',
             '4' => 'CUMPLEAÑOS',
-            '5' => 'LICENCIA SIN GOCE DE HABER'
+            '5' => 'LICENCIA SIN GOCE DE HABER',
+            '6' => 'TOLERANCIA'
         ];
 
         $this->con_sin_retorno = [
@@ -153,11 +155,9 @@ class SalidaParticularController extends Controller
                 'title_table'             => 'Control de salida particular',
                 'public_url'              => $this->public_url,
                 'estado_array'            => $this->estado,
-                'tipo_salida_array'       => $this->tipo_salida,
-                'con_sin_retorno_array'   => $this->con_sin_retorno,
-                'periodo_array'           => $this->periodo,
-                'no_si_array'             => $this->no_si,
                 'sp_estado_array'         => $this->sp_estado,
+                'con_sin_retorno_array'   => $this->con_sin_retorno,
+                'no_si_array'             => $this->no_si,
                 'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
@@ -195,6 +195,7 @@ class SalidaParticularController extends Controller
                 $tabla2 = "rrhh_personas";
                 $tabla3 = "inst_unidades_desconcentradas";
                 $tabla4 = "inst_lugares_dependencia";
+                $tabla5 = "rrhh_tipos_salida";
 
                 $select = "
                     $tabla1.id,
@@ -202,6 +203,9 @@ class SalidaParticularController extends Controller
                     $tabla1.tipo_salida_id,
                     $tabla1.persona_id_superior,
                     $tabla1.persona_id_rrhh,
+
+                    $tabla1.cargo_id,
+                    $tabla1.unidad_desconcentrada_id,
 
                     $tabla1.estado,
                     $tabla1.codigo,
@@ -224,6 +228,13 @@ class SalidaParticularController extends Controller
                     $tabla1.pdf,
                     $tabla1.papeleta_pdf,
 
+                    $tabla1.log_marcaciones_id_s,
+                    $tabla1.log_marcaciones_id_r,
+
+                    $tabla1.salida_s,
+                    $tabla1.salida_r,
+                    $tabla1.min_retrasos,
+
                     a2.n_documento,
                     a2.nombre AS nombre_persona,
                     a2.ap_paterno,
@@ -232,10 +243,14 @@ class SalidaParticularController extends Controller
                     a3.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
                     a3.nombre AS ud_funcionario,
 
-                    a4.nombre AS lugar_dependencia_funcionario
+                    a4.nombre AS lugar_dependencia_funcionario,
+
+                    a5.nombre AS papeleta_salida,
+                    a5.tipo_cronograma,
+                    a5.tipo_salida
                 ";
 
-                $array_where = "a2.tipo_cronograma=1";
+                $array_where = "a5.tipo_cronograma=1 AND a5.tipo_salida=2 AND $tabla1.validar_superior=2 AND $tabla1.validar_rrhh=2";
 
                 $user_id = Auth::user()->id;
                 $rol_id  = Auth::user()->rol_id;
@@ -283,20 +298,18 @@ class SalidaParticularController extends Controller
                 $array_where .= $jqgrid->getWhere();
 
                 $count = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
-                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a6.unidad_desconcentrada_id")
-                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a7.lugar_dependencia_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.tipo_salida_id")
                     ->whereRaw($array_where)
                     ->count();
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
-                $query = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
-                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
-                    ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
-                    ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
-                    ->leftJoin("$tabla4 AS a6", "a3.id", "=", "a6.persona_id")
-                    ->leftJoin("$tabla5 AS a7", "a7.id", "=", "a6.unidad_desconcentrada_id")
-                    ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
+                $query = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
+                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                    ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.tipo_salida_id")
                     ->whereRaw($array_where)
                     ->select(DB::raw($select))
                     ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -315,21 +328,29 @@ class SalidaParticularController extends Controller
                 foreach ($query as $row)
                 {
                     $val_array = array(
-                        'persona_id'          => $row["persona_id"],
-                        'tipo_salida_id'      => $row["tipo_salida_id"],
-                        'persona_id_superior' => $row["persona_id_superior"],
-                        'persona_id_rrhh'     => $row["persona_id_rrhh"],
-                        'estado'              => $row["estado"],
-                        'n_horas'             => $row["n_horas"],
-                        'con_sin_retorno'     => $row["con_sin_retorno"],
-                        'validar_superior'    => $row["validar_superior"],
-                        'f_validar_superior'  => $row["f_validar_superior"],
-                        'validar_rrhh'        => $row["validar_rrhh"],
-                        'f_validar_rrhh'      => $row["f_validar_rrhh"],
-                        'pdf'                 => $row["pdf"],
-                        'papeleta_pdf'        => $row["papeleta_pdf"],
-                        'tipo_cronograma'     => $row["tipo_cronograma"],
-                        'tipo_salida'         => $row["tipo_salida"]
+                        'persona_id'               => $row["persona_id"],
+                        'tipo_salida_id'           => $row["tipo_salida_id"],
+                        'persona_id_superior'      => $row["persona_id_superior"],
+                        'persona_id_rrhh'          => $row["persona_id_rrhh"],
+                        'cargo_id'                 => $row["cargo_id"],
+                        'unidad_desconcentrada_id' => $row["unidad_desconcentrada_id"],
+                        'estado'                   => $row["estado"],
+                        'n_horas'                  => $row["n_horas"],
+                        'con_sin_retorno'          => $row["con_sin_retorno"],
+                        'validar_superior'         => $row["validar_superior"],
+                        'f_validar_superior'       => $row["f_validar_superior"],
+                        'validar_rrhh'             => $row["validar_rrhh"],
+                        'f_validar_rrhh'           => $row["f_validar_rrhh"],
+                        'pdf'                      => $row["pdf"],
+                        'papeleta_pdf'             => $row["papeleta_pdf"],
+                        'log_marcaciones_id_s'     => $row["log_marcaciones_id_s"],
+                        'log_marcaciones_id_r'     => $row["log_marcaciones_id_r"],
+                        'salida_s'                 => $row["salida_s"],
+                        'salida_r'                 => $row["salida_r"],
+                        'min_retrasos'             => $row["min_retrasos"],
+
+                        'tipo_cronograma' => $row["tipo_cronograma"],
+                        'tipo_salida'     => $row["tipo_salida"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
@@ -337,12 +358,7 @@ class SalidaParticularController extends Controller
                         '',
 
                         $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
-                        $this->utilitarios(array('tipo' => '2', 'validar_superior' => $row["validar_superior"])),
-                        $this->utilitarios(array('tipo' => '3', 'validar_rrhh' => $row["validar_rrhh"])),
-                        $this->utilitarios(array('tipo' => '4', 'pdf' => $row["pdf"], 'id' => $row["id"], 'dia_hora' => 1)),
 
-                        $row["papeleta_salida"],
-                        ($row["tipo_salida"] == '')? '' : $this->tipo_salida[$row["tipo_salida"]],
                         $row["codigo"],
 
                         $row["n_documento"],
@@ -350,25 +366,14 @@ class SalidaParticularController extends Controller
                         $row["ap_paterno"],
                         $row["ap_materno"],
 
-                        $row["destino"],
-                        $row["motivo"],
-
                         $row["f_salida"],
                         $row["h_salida"],
                         $row["h_retorno"],
                         ($row["con_sin_retorno"] == '')? '' : $this->con_sin_retorno[$row["con_sin_retorno"]],
 
-                        $row["f_validar_superior"],
-                        $row["n_documento_superior"],
-                        $row["nombre_superior"],
-                        $row["ap_paterno_superior"],
-                        $row["ap_materno_superior"],
-
-                        $row["f_validar_rrhh"],
-                        $row["n_documento_rrhh"],
-                        $row["nombre_rrhh"],
-                        $row["ap_paterno_rrhh"],
-                        $row["ap_materno_rrhh"],
+                        $row["salida_s"],
+                        $row["salida_r"],
+                        $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["min_retrasos"])),
 
                         $row["ud_funcionario"],
                         $row["lugar_dependencia_funcionario"],
@@ -407,7 +412,7 @@ class SalidaParticularController extends Controller
 
         switch($tipo)
         {
-            // === VALIDAR / INVALIDAR PAPELETA DE SALIDA ===
+            // === SINCRONIZAR SALIDA PARTICULAR ===
             case '1':
                 // === SEGURIDAD ===
                     $this->rol_id   = Auth::user()->rol_id;
@@ -417,105 +422,67 @@ class SalidaParticularController extends Controller
                                         ->get()
                                         ->toArray();
 
+                // === LIBRERIAS ===
+                    $salida_particular = new SalidaParticularClass();
+
                 // === INICIALIZACION DE VARIABLES ===
                     $data1     = array();
-                    $respuesta = array(
-                        'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>Papeleta de Salida</strong></div>',
-                        'respuesta'  => '',
-                        'tipo'       => $tipo,
-                        'iu'         => 1,
-                        'error_sw'   => 1
-                    );
-                    $opcion   = 'n';
-                    $f_actual = date('Y-m-d H:i:s');
 
                 // === PERMISOS ===
-                    $id = trim($request->input('id'));
-                    if($id != '')
+                    if(!in_array(['codigo' => '1602'], $this->permisos))
                     {
-                        $opcion = 'e';
-                        if(!in_array(['codigo' => '1203'], $this->permisos))
-                        {
-                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
-                            return json_encode($respuesta);
-                        }
-                    }
-                    else
-                    {
-                        if(!in_array(['codigo' => '1202'], $this->permisos))
-                        {
-                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
-                            return json_encode($respuesta);
-                        }
-                    }
-
-                //=== OPERACION ===
-                    $data1['validar_rrhh']   = trim($request->input('validar_rrhh'));
-                    $data1['f_validar_rrhh'] = $f_actual;
-                    $data1['dia_hora']       = trim($request->input('dia_hora'));
-                    $persona_id              = Auth::user()->persona_id;
-
-                // === MODIFICAR VALORES ===
-                    if($persona_id == '')
-                    {
-                        $respuesta['respuesta'] .= "Usted no esta registrado en PERSONAS.";
+                        $respuesta = array(
+                            'sw'         => 0,
+                            'titulo'     => '<div class="text-center"><strong>Sincronizar Salida Particular</strong></div>',
+                            'respuesta'  => "No tiene permiso para SINCRONIZAR la SALIDA PARTICULAR.",
+                            'tipo'       => $tipo,
+                            'iu'         => 1,
+                            'error_sw'   => 1
+                        );
                         return json_encode($respuesta);
                     }
 
-                    $consulta1 = RrhhSalida::where('id', '=', $id)
-                        ->where('validar_rrhh', '=', $data1['validar_rrhh'])
-                        ->first();
+                //=== OPERACION ===
+                    $data1['fecha_del'] = trim($request->input('fecha_del'));
+                    $data1['fecha_al']  = trim($request->input('fecha_al'));
 
-                    if(!(count($consulta1) > 0))
-                    {
-                        $consulta2 = RrhhSalida::where('id', '=', $id)
-                            ->first();
+                    $data1['lugar_dependencia_id_funcionario'] = trim($request->input('lugar_dependencia_id_funcionario'));
 
-                        if($consulta2['estado'] == '1')
-                        {
-                            if($consulta2['validar_superior'] != '2')
-                            {
-                                $respuesta['respuesta'] .= "La PAPELETA DE SALIDA debe de ser validado por el INMEDIATO SUPERIOR.";
-                                return json_encode($respuesta);
-                            }
+                    $data1['persona_id'] = trim($request->input('persona_id'));
 
-                            $iu                  = RrhhSalida::find($id);
-                            $iu->validar_rrhh    = $data1['validar_rrhh'];
-                            $iu->f_validar_rrhh  = $data1['f_validar_rrhh'];
-                            $iu->persona_id_rrhh = $persona_id ;
+                // === ANALISIS ===
+                    $respuesta = $salida_particular->getSincronizar($data1);
 
-                            $iu->save();
-
-                            if($data1['validar_rrhh'] == '2')
-                            {
-                                $respuesta['respuesta'] .= "La PAPELETA DE SALIDA fue VALIDADO.";
-                            }
-                            else
-                            {
-                                $respuesta['respuesta'] .= "La PAPELETA DE SALIDA fue INVALIDADO.";
-                            }
-                            $respuesta['sw'] = 1;
-                        }
-                        else
-                        {
-                            $respuesta['respuesta'] .= "La PAPELETA DE SALIDA fue ANULADA.";
-                        }
-                    }
-                    else
-                    {
-                        if($data1['validar_rrhh'] == '2')
-                        {
-                            $respuesta['respuesta'] .= "La PAPELETA DE SALIDA ya fue VALIDADO.";
-                        }
-                        else
-                        {
-                            $respuesta['respuesta'] .= "La PAPELETA DE SALIDA ya fue INVALIDADA.";
-                        }
-                    }
-
-                    $respuesta['dia_hora']  = $data1['dia_hora'];
                 return json_encode($respuesta);
+                break;
+
+            // === SELECT2 PERSONA ===
+            case '100':
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = RrhhPersona::whereRaw("CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) ilike '%$nombre%'")
+                                ->where("estado", "=", $estado)
+                                ->select(DB::raw("id, CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) AS text"))
+                                ->orderByRaw("CONCAT_WS(' ', ap_paterno, ap_materno, nombre) ASC")
+                                ->limit($page_limit)
+                                ->get()
+                                ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
                 break;
             default:
                 break;
@@ -548,58 +515,16 @@ class SalidaParticularController extends Controller
                 }
                 break;
             case '2':
-                switch($valor['validar_superior'])
+                if($valor['min_retrasos'] > 0)
                 {
-                    case '1':
-                        $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['validar_superior']] . '</span>';
-                        return($respuesta);
-                        break;
-                    case '2':
-                        $respuesta = '<span class="label label-primary font-sm">' . $this->no_si[$valor['validar_superior']] . '</span>';
-                        return($respuesta);
-                        break;
-                    default:
-                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
-                        return($respuesta);
-                        break;
+                    $respuesta = '<span class="label label-danger font-sm">' . $valor['min_retrasos'] . '</span>';
                 }
-                break;
-            case '3':
-                switch($valor['validar_rrhh'])
+                else
                 {
-                    case '1':
-                        $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['validar_rrhh']] . '</span>';
-                        return($respuesta);
-                        break;
-                    case '2':
-                        $respuesta = '<span class="label label-primary font-sm">' . $this->no_si[$valor['validar_rrhh']] . '</span>';
-                        return($respuesta);
-                        break;
-                    default:
-                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
-                        return($respuesta);
-                        break;
+                    $respuesta = '<span class="label label-primary font-sm">' . $valor['min_retrasos'] . '</span>';
                 }
-                break;
-            case '4':
-                switch($valor['pdf'])
-                {
-                    case '1':
-                        $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['pdf']] . '</span>';
-                        return($respuesta);
-                        break;
-                    case '2':
-                        $respuesta = '<button class="btn btn-xs btn-primary" onclick="utilitarios([21, ' . $valor['id'] . ', ' . $valor['dia_hora'] . ']);" title="Clic ver el documento">
-                            <i class="fa fa-cloud-download"></i>
-                            <strong>' . $this->no_si[$valor['pdf']] . '</strong>
-                        </button>';
-                        return($respuesta);
-                        break;
-                    default:
-                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
-                        return($respuesta);
-                        break;
-                }
+
+                return($respuesta);
                 break;
 
             case '100':

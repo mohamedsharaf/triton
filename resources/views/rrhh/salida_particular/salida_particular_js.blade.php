@@ -50,6 +50,16 @@
             estado_jqgrid += ';' + index + ':' + value;
         });
 
+    // === SALIDO Y RETORNO ESTADO ===
+        var sp_estado_json   = $.parseJSON('{!! json_encode($sp_estado_array) !!}');
+        var sp_estado_select = '';
+        var sp_estado_jqgrid = ':Todos';
+
+        $.each(sp_estado_json, function(index, value) {
+            sp_estado_select += '<option value="' + index + '">' + value + '</option>';
+            sp_estado_jqgrid += ';' + index + ':' + value;
+        });
+
     // === CON SIN RETORNO ===
         var con_sin_retorno_json   = $.parseJSON('{!! json_encode($con_sin_retorno_array) !!}');
         var con_sin_retorno_select = '';
@@ -85,6 +95,48 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
+            $('#fecha_del_1, #fecha_al_1').datepicker({
+                // startView            : 0,
+                // todayBtn          : "linked",
+                // keyboardNavigation: false,
+                // forceParse        : false,
+                autoclose            : true,
+                format               : "yyyy-mm-dd",
+                startDate            : '-20y',
+                endDate              : '0d',
+                language             : "es"
+            });
+
+            $('#persona_id_1').select2({
+                maximumSelectionLength: 1,
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 10,
+                            estado    : 1,
+                            tipo      : 100,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#persona_id_1").appendTo("#persona_id_div_1");
+
+            $('#lugar_dependencia_id_funcionario_1').append(lugar_dependencia_select);
+            $("#lugar_dependencia_id_funcionario_1").select2({
+                maximumSelectionLength: 1
+            });
+            $("#lugar_dependencia_id_funcionario_1").appendTo("#lugar_dependencia_id_funcionario_div_1");
 
         // === JQGRID 1 ===
             var valor1 = new Array();
@@ -138,7 +190,7 @@
                 @endif
 
                 $(jqgrid1).jqGrid({
-                    caption     : title_table,
+                    // caption     : title_table,
                     url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
                     datatype    : 'json',
                     mtype       : 'post',
@@ -162,21 +214,24 @@
                     //toolbarfilter : true,
                     colNames : [
                         "",
+
                         "ESTADO",
-                        "FECHA",
+
+                        "CODIGO",
 
                         "C.I.",
                         "NOMBRE(S)",
                         "AP. PATERNO",
                         "AP. MATERNO",
 
-                        "SALIDA",
-                        "RETORNO",
-                        "RETRASO",
-
+                        "FECHA DE SALIDA",
                         "HORA SALIDA",
                         "HORA RETORNO",
                         "RETORNO",
+
+                        "HORA SALIDA",
+                        "HORA RETORNO",
+                        "RETRASO",
 
                         "UNIDAD DESCONCENTRADA",
                         "LUGAR DE DEPENDENCIA",
@@ -195,6 +250,7 @@
                             search  : false,
                             hidden  : edit1
                         },
+
                         {
                             name       : "estado",
                             index      : "rrhh_salidas.estado",
@@ -203,10 +259,11 @@
                             stype      :'select',
                             editoptions: {value:estado_jqgrid}
                         },
+
                         {
-                            name : "fecha",
-                            index: "rrhh_salidas.f_salida",
-                            width: 80,
+                            name : "codigo",
+                            index: "rrhh_salidas.codigo",
+                            width: 100,
                             align: "center"
                         },
 
@@ -236,24 +293,11 @@
                         },
 
                         {
-                            name : "salida_s",
-                            index: "rrhh_salidas.salida_s",
-                            width: 250,
+                            name : "f_salida",
+                            index: "rrhh_salidas.f_salida::text",
+                            width: 125,
                             align: "center"
                         },
-                        {
-                            name : "salida_r",
-                            index: "rrhh_salidas.salida_r",
-                            width: 250,
-                            align: "center"
-                        },
-                        {
-                            name : "min_retrasos",
-                            index: "rrhh_salidas.min_retrasos",
-                            width: 65,
-                            align: "center"
-                        },
-
                         {
                             name : "h_salida",
                             index: "rrhh_salidas.h_salida::text",
@@ -267,12 +311,29 @@
                             align: "center"
                         },
                         {
-                            name       : "con_sin_retorno",
-                            index      : "rrhh_salidas.con_sin_retorno",
-                            width      : 100,
-                            align      : "center",
-                            stype      :'select',
-                            editoptions: {value:con_sin_retorno_jqgrid}
+                            name : "con_sin_retorno",
+                            index: "rrhh_salidas.con_sin_retorno",
+                            width: 100,
+                            align: "center"
+                        },
+
+                        {
+                            name : "salida_s",
+                            index: "rrhh_salidas.salida_s",
+                            width: 250,
+                            align: "center"
+                        },
+                        {
+                            name : "salida_r",
+                            index: "rrhh_salidas.salida_r",
+                            width: 250,
+                            align: "center"
+                        },
+                        {
+                            name : "min_retrasos",
+                            index: "rrhh_salidas.min_retrasos::text",
+                            width: 65,
+                            align: "center"
                         },
 
                         {
@@ -310,10 +371,13 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            var ed = "";
+                            var pdf1 = "";
+                            @if(in_array(['codigo' => '1003'], $permisos))
+                                pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([11, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
+                            @endif
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed)
+                                act : $.trim(pdf1)
                             });
                         }
                     }
@@ -323,14 +387,14 @@
                     useColSpanStyle: true,
                     groupHeaders   :[
                         {
-                            startColumnName: 'salida_s',
-                            numberOfColumns: 3,
-                            titleText      : 'MARCACION EN EL BIOMETRICO'
+                            startColumnName: 'f_salida',
+                            numberOfColumns: 4,
+                            titleText      : 'PAPELETA'
                         },
                         {
-                            startColumnName: 'h_salida',
+                            startColumnName: 'salida_s',
                             numberOfColumns: 3,
-                            titleText      : 'PERIODO DE LA SALIDA'
+                            titleText      : 'BIOMETRICO'
                         }
                     ]
                 });
@@ -347,10 +411,198 @@
                     del   : false,
                     search: false
                 })
-                .navSeparatorAdd(pjqgrid1,{
-                    sepclass : "ui-separator"
-                })
+                @if(in_array(['codigo' => '1602'], $permisos))
+                    .navSeparatorAdd(pjqgrid1,{
+                        sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid1,{
+                        "id"          : "add2",
+                        caption       : "",
+                        title         : 'Sincronizar salida particular',
+                        buttonicon    : "ui-icon ui-icon-arrowrefresh-1-w",
+                        onClickButton : function(){
+                            var valor1 = new Array();
+                            valor1[0]  = 13;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 12;
+                            utilitarios(valor1);
+                        }
+                    })
+                @endif
                 ;
+                break;
+
+            // === REPORTE PAPELETA DE SALIDA ===
+            case 11:
+                var concatenar_valores = '';
+                concatenar_valores     += '?tipo=1&salida_id=' + valor[1];
+
+                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                win.focus();
+                break;
+            // === SINCRONIZAR SALIDA PARTICULAR ===
+            case 12:
+                $('#modal_1').modal();
+                break;
+            // === RESETEAR FORMULARIO DE SINCRONIZAR SALIDA PARTICULAR ===
+            case 13:
+                $('#modal_1_title').empty();
+                $('#modal_1_title').append('Sincronizar salida particular');
+
+                $('#persona_id_1').select2("val", "");
+                $('#persona_id_1 option').remove();
+
+                $('#lugar_dependencia_id_funcionario_1').select2("val", "");
+
+                $('#fecha_del_1, #fecha_al_1').val("").datepicker("update");
+
+                $(form_1)[0].reset();
+                break;
+            // === SINCRONIZAR SALIDA PARTICULAR ===
+            case 14:
+                var concatenar_valores = '';
+                concatenar_valores     += 'tipo=1&_token=' + csrf_token;
+
+                var fecha_del = $("#fecha_del_1").val();
+                var fecha_al  = $("#fecha_al_1").val();
+
+                var persona_id = $("#persona_id_1").val();
+
+                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_1").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(fecha_del) != ''){
+                    concatenar_valores += '&fecha_del=' + fecha_del;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
+                }
+
+                if($.trim(fecha_al) != ''){
+                    concatenar_valores += '&fecha_al=' + fecha_al;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA AL es obligatorio.';
+                }
+
+                if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
+                    if($.trim(persona_id) != ''){
+                        concatenar_valores += '&persona_id=' + persona_id;
+                    }
+
+                    if($.trim(lugar_dependencia_id_funcionario) != ''){
+                        concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
+                    }
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
+                }
+
+                if(valor_sw){
+                    swal({
+                        title             : "SINCRONIZANDO SALIDAS PARTICULARES",
+                        text              : "Espere a que se sincronicen las asistencias.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = concatenar_valores;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
+                break;
+
+            // === MENSAJE ERROR ===
+            case 100:
+                toastr.success(valor[2], valor[1], options1);
+                break;
+            // === MENSAJE ERROR ===
+            case 101:
+                toastr.error(valor[2], valor[1], options1);
+                break;
+            // === MENSAJE ALERTA ===
+            case 102:
+                toastr.warning(valor[2], valor[1], options1);
+                break;
+
+            // === AJAX ===
+            case 150:
+                $.ajax({
+                    url: valor[1],
+                    type: valor[2],
+                    async: valor[3],
+                    data: valor[4],
+                    dataType: valor[5],
+                    success: function(data){
+                        switch(data.tipo){
+                            // === SINCRONIZAR SALIDA PARTICULAR ===
+                            case '1':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            default:
+                                break;
+                        }
+                    },
+                    error: function(result) {
+                        alert(result.responseText);
+                        window.location.reload();
+                        //console.error("Este callback maneja los errores", result);
+                    }
+                });
                 break;
 
             default:

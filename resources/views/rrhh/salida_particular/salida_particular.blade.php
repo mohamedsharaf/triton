@@ -155,7 +155,7 @@
   </div>
 
   <!-- === MODAL === -->
-    {{-- <div id="modal_1" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div id="modal_1" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -176,22 +176,22 @@
                   <div class="row">
                     <div class="col-sm-6">
                       <div class="form-group">
-                        <label for="fecha_del">Fecha del</label>
-                        <input type="text" class="form-control" id="fecha_del" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
+                        <label for="fecha_del_1">Fecha del</label>
+                        <input type="text" class="form-control" id="fecha_del_1" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
                       </div>
                     </div>
 
                     <div class="col-sm-6">
                       <div class="form-group">
-                        <label for="fecha_al">Fecha al</label>
-                        <input type="text" class="form-control" id="fecha_al" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
+                        <label for="fecha_al_4">Fecha al</label>
+                        <input type="text" class="form-control" id="fecha_al_1" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
                       </div>
                     </div>
                   </div>
 
-                  <div id="persona_id_div" class="form-group">
-                    <label for="persona_id">Funcionario</label>
-                    <select name="persona_id" id="persona_id" data-placeholder="Funcionario" multiple="multiple" style="width: 100%;">
+                  <div id="persona_id_div_1" class="form-group">
+                    <label for="persona_id_1">Funcionario</label>
+                    <select name="persona_id" id="persona_id_1" data-placeholder="Funcionario" multiple="multiple" style="width: 100%;">
                     </select>
                   </div>
 
@@ -199,116 +199,9 @@
                     <b>UBICACION DEL FUNCIONARIO</b>
                   </h3>
 
-                  <div id="lugar_dependencia_id_funcionario_div" class="form-group">
-                    <label for="lugar_dependencia_id_funcionario">Lugar de dependencia</label>
-                    <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <div id="unidad_desconcentrada_id_div" class="form-group">
-                    <label for="unidad_desconcentrada_id">Unidad desconcentrada</label>
-                    <select name="unidad_desconcentrada_id" id="unidad_desconcentrada_id" data-placeholder="Unidad desconcentrada" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <h3 class="text-success">
-                    <b>CONTROL DE ASISTENCIA</b>
-                  </h3>
-
-                  <div id="horario_id_1_div" class="form-group">
-                    <label for="horario_id_1">Horario 1</label>
-                    <select name="horario_id_1" id="horario_id_1" data-placeholder="Horario 1" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <div id="horario_id_2_div" class="form-group">
-                    <label for="horario_id_2">Horario 2</label>
-                    <select name="horario_id_2" id="horario_id_2" data-placeholder="Horario 2" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <h3 class="text-success">
-                    <b>UBICACION DEL CARGO</b>
-                  </h3>
-
-                  <div id="lugar_dependencia_id_cargo_div" class="form-group">
-                    <label for="lugar_dependencia_id_cargo">Lugar de dependencia</label>
-                    <select name="lugar_dependencia_id_cargo" id="lugar_dependencia_id_cargo" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <div id="auo_id_div" class="form-group">
-                    <label for="auo_id">Área o unidad organizacional</label>
-                    <select name="auo_id" id="auo_id" data-placeholder="Área o unidad organizacional" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <div id="cargo_id_div" class="form-group">
-                    <label for="cargo_id">Cargo</label>
-                    <select name="cargo_id" id="cargo_id" data-placeholder="Cargo" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
-            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">
-              <span aria-hidden="true">&times;</span>
-              <span class="sr-only">Close</span>
-            </button>
-
-            <h4 class="modal-title">
-              <span id="modal_2_title"></span>
-            </h4>
-          </div>
-
-          <div class="modal-body">
-            <div class="row">
-              <form id="form_2" role="form" action="#">
-                <div class="col-sm-12">
-                  <div class="row">
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label for="fecha_del_2">Fecha del</label>
-                        <input type="text" class="form-control" id="fecha_del_2" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label for="fecha_al_2">Fecha al</label>
-                        <input type="text" class="form-control" id="fecha_al_2" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
-                      </div>
-                    </div>
-                  </div>
-
-                  <div id="persona_id_div_2" class="form-group">
-                    <label for="persona_id_2">Funcionario</label>
-                    <select name="persona_id" id="persona_id_2" data-placeholder="Funcionario" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <h3 class="text-success">
-                    <b>UBICACION DEL FUNCIONARIO</b>
-                  </h3>
-
-                  <div id="lugar_dependencia_id_funcionario_div_2" class="form-group">
-                    <label for="lugar_dependencia_id_funcionario_2">Lugar de dependencia</label>
-                    <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario_2" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                  <div id="lugar_dependencia_id_funcionario_div_1" class="form-group">
+                    <label for="lugar_dependencia_id_funcionario_1">Lugar de dependencia</label>
+                    <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario_1" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
                     </select>
                   </div>
                 </div>
@@ -318,364 +211,12 @@
 
           <div class="modal-footer">
             <button type="button" class="btn btn-info" onclick="utilitarios([13]);">Limpiar formulario</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([16]);">Sincronizar</button>
+            <button type="button" class="btn btn-primary" onclick="utilitarios([14]);">Sincronizar</button>
             <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
           </div>
         </div>
       </div>
     </div>
-
-    <div id="modal_3" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">
-              <span aria-hidden="true">&times;</span>
-              <span class="sr-only">Close</span>
-            </button>
-
-            <h4 class="modal-title">
-              <span id="modal_3_title"></span>
-            </h4>
-
-            <small class="font-bold" id="modal_3_subtitle">
-            </small>
-          </div>
-
-          <div class="modal-body">
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th class="text-center">UNIDAD DESCONCENTRADA</th>
-                  <th class="text-center">LUGAR DE DEPENDENCIA</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td id="td_ud" class="text-center">1</td>
-                  <td id="td_ld" class="text-center">1</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="modal_4" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">
-              <span aria-hidden="true">&times;</span>
-              <span class="sr-only">Close</span>
-            </button>
-
-            <h4 class="modal-title">
-              <span id="modal_4_title"></span>
-            </h4>
-
-            <small class="font-bold" id="modal_4_subtitle">
-            </small>
-          </div>
-
-          <div class="modal-body">
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th id="th_nombre_4" class="text-center"></th>
-                  <th class="text-center">LUGAR DE DEPENDENCIA</th>
-                  <th class="text-center">UNIDAD DESCONCENTRADA</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td id="td_nombre_4" class="text-center">1</td>
-                  <td id="td_ld_4" class="text-center">1</td>
-                  <td id="td_ud_4" class="text-center">1</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="modal_5" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog modal-xlg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">
-              <span aria-hidden="true">&times;</span>
-              <span class="sr-only">Close</span>
-            </button>
-
-            <h4 class="modal-title">
-              Marcaciones registradas
-            </h4>
-          </div>
-
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-sm-12">
-                <div id="div_jqgrid2" class="jqGrid_wrapper">
-                  <table id="jqgrid2"></table>
-                  <div id="pjqgrid2"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-info" onclick="utilitarios([25]);">Limpiar formulario</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([24]);">Excel</button>
-            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="modal_6" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">
-              <span aria-hidden="true">&times;</span>
-              <span class="sr-only">Close</span>
-            </button>
-
-            <h4 class="modal-title">
-              <span id="modal_6_title"></span>
-            </h4>
-
-            <small class="font-bold" id="modal_6_subtitle">
-            </small>
-          </div>
-
-          <div class="modal-body">
-            <table class="table table-bordered">
-              <thead>
-                <tr>
-                  <th class="text-center">USUARIO QUE MODIFICO LA ASISTENCIA</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td id="td_persona" class="text-center">1</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="modal_7" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">
-              <span aria-hidden="true">&times;</span>
-              <span class="sr-only">Close</span>
-            </button>
-
-            <h4 class="modal-title">
-              <span id="modal_7_title"></span>
-            </h4>
-          </div>
-
-          <div class="modal-body">
-            <div class="row">
-              <form id="form_7" role="form" action="#">
-                <div class="col-sm-12">
-                  <div class="row">
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label for="fecha_del_7">Fecha del</label>
-                        <input type="text" class="form-control" id="fecha_del_7" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label for="fecha_al_7">Fecha al</label>
-                        <input type="text" class="form-control" id="fecha_al_7" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
-                      </div>
-                    </div>
-                  </div>
-
-                  <div id="persona_id_div_7" class="form-group">
-                    <label for="persona_id_7">Funcionario</label>
-                    <select name="persona_id" id="persona_id_7" data-placeholder="Funcionario" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <h3 class="text-success">
-                    <b>UBICACION DEL FUNCIONARIO</b>
-                  </h3>
-
-                  <div id="lugar_dependencia_id_funcionario_div_7" class="form-group">
-                    <label for="lugar_dependencia_id_funcionario_7">Lugar de dependencia</label>
-                    <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario_7" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-info" onclick="utilitarios([28]);">Limpiar formulario</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([27]);">Eliminar</button>
-            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="modal_8" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">
-              <span aria-hidden="true">&times;</span>
-              <span class="sr-only">Close</span>
-            </button>
-
-            <h4 class="modal-title">
-              <span id="modal_8_title"></span>
-            </h4>
-          </div>
-
-          <div class="modal-body">
-            <div class="row">
-              <form id="form_8" role="form" action="#">
-                <div class="col-sm-12">
-                  <div class="row">
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label for="fecha_del_8">Fecha del</label>
-                        <input type="text" class="form-control" id="fecha_del_8" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label for="fecha_al_8">Fecha al</label>
-                        <input type="text" class="form-control" id="fecha_al_8" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
-                      </div>
-                    </div>
-                  </div>
-
-                  <div id="persona_id_div_8" class="form-group">
-                    <label for="persona_id_8">Funcionario</label>
-                    <select name="persona_id" id="persona_id_8" data-placeholder="Funcionario" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <h3 class="text-success">
-                    <b>UBICACION DEL FUNCIONARIO</b>
-                  </h3>
-
-                  <div id="lugar_dependencia_id_funcionario_div_8" class="form-group">
-                    <label for="lugar_dependencia_id_funcionario_8">Lugar de dependencia</label>
-                    <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario_8" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <h3 class="text-success">
-                    <b>RESUMEN DE LAS ASISTENCIAS / ASISTENCIAS</b>
-                  </h3>
-
-                  <div class="form-group">
-                    <div>
-                      <div class="radio radio-primary radio-inline">
-                        <input type="radio" id="estado_1_id" class="estado_class" name="estado" value="1" checked="checked">
-                        <label class="text-success" for="estado_1_id">RESUMEN DE LAS ASISTENCIAS </label>
-                      </div>
-                      <div class="radio radio-danger radio-inline">
-                          <input type="radio" id="estado_2_id" class="estado_class" name="estado" value="2">
-                          <label class="text-danger" for="estado_2_id"> ASISTENCIAS </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-info" onclick="utilitarios([32]);">Limpiar formulario</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([30]);">PDF</button>
-            <button type="button" class="btn btn-success" onclick="utilitarios([31]);">Excel</button>
-            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="modal_9" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">
-              <span aria-hidden="true">&times;</span>
-              <span class="sr-only">Close</span>
-            </button>
-
-            <h4 class="modal-title">
-              <span id="modal_9_title"></span>
-            </h4>
-          </div>
-
-          <div class="modal-body">
-            <div class="row">
-              <form id="form_9" role="form" action="#">
-                <div class="col-sm-12">
-                  <div class="row">
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label for="fecha_del_9">Fecha del</label>
-                        <input type="text" class="form-control" id="fecha_del_9" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                      <div class="form-group">
-                        <label for="fecha_al_9">Fecha al</label>
-                        <input type="text" class="form-control" id="fecha_al_9" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
-                      </div>
-                    </div>
-                  </div>
-
-                  <div id="persona_id_div_9" class="form-group">
-                    <label for="persona_id_9">Funcionario</label>
-                    <select name="persona_id" id="persona_id_9" data-placeholder="Funcionario" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-
-                  <h3 class="text-success">
-                    <b>UBICACION DEL FUNCIONARIO</b>
-                  </h3>
-
-                  <div id="lugar_dependencia_id_funcionario_div_9" class="form-group">
-                    <label for="lugar_dependencia_id_funcionario_9">Lugar de dependencia</label>
-                    <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario_9" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
-                    </select>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-info" onclick="utilitarios([36]);">Limpiar formulario</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([35]);">Cerrar asistencia</button>
-            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
-          </div>
-        </div>
-      </div>
-    </div> --}}
 
 @endsection
 

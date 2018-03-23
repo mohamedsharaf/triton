@@ -3610,24 +3610,4 @@ class SolicitudSalidaController extends Controller
                 break;
         }
     }
-
-    public function cargo_ud()
-    {
-        $consulta1 = RrhhSalida::select('id', 'persona_id')
-                    ->get()
-                    ->toArray();
-        foreach ($consulta1 as $row1)
-        {
-            $consulta2 = RrhhFuncionario::where('persona_id', '=', $row1['persona_id'])
-                            ->select('unidad_desconcentrada_id', 'cargo_id')
-                            ->first();
-
-            $iu = RrhhSalida::find($row1['id']);
-
-            $iu->cargo_id                 = $consulta2['cargo_id'];
-            $iu->unidad_desconcentrada_id = $consulta2['unidad_desconcentrada_id'];
-
-            $iu->save();
-        }
-    }
 }
