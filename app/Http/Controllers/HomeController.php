@@ -186,6 +186,7 @@ class HomeController extends Controller
                 $tabla1.domicilio,
                 $tabla1.telefono,
                 $tabla1.celular,
+                $tabla1.estado_segip,
 
                 a2.nombre AS municipio_nacimiento,
                 a2.provincia_id AS provincia_id_nacimiento,
@@ -661,56 +662,56 @@ class HomeController extends Controller
                     }
 
                 // === VALIDATE ===
-                    try
-                    {
-                        $validator = $this->validate($request,[
-                            'f_nacimiento'            => 'required|date',
-                            'nombre'                  => 'required|max:50',
-                            'ap_paterno'              => 'max:50',
-                            'ap_materno'              => 'max:50',
-                            'ap_esposo'               => 'max:50',
-                            'estado_civil'            => 'required',
-                            'municipio_id_nacimiento' => 'required',
-                            'domicilio'               => 'required|max:500',
-                            'telefono'                => 'max:50',
-                            'celular'                 => 'required|max:50',
-                            'municipio_id_residencia' => 'required'
-                        ],
-                        [
-                            'f_nacimiento.required' => 'El campo FECHA DE NACIMIENTO es obligatorio.',
-                            'f_nacimiento.date'    => 'El campo FECHA DE NACIMIENTO no corresponde con una fecha válida.',
+                    // try
+                    // {
+                    //     $validator = $this->validate($request,[
+                    //         'f_nacimiento'            => 'required|date',
+                    //         'nombre'                  => 'required|max:50',
+                    //         'ap_paterno'              => 'max:50',
+                    //         'ap_materno'              => 'max:50',
+                    //         'ap_esposo'               => 'max:50',
+                    //         'estado_civil'            => 'required',
+                    //         'municipio_id_nacimiento' => 'required',
+                    //         'domicilio'               => 'required|max:500',
+                    //         'telefono'                => 'max:50',
+                    //         'celular'                 => 'required|max:50',
+                    //         'municipio_id_residencia' => 'required'
+                    //     ],
+                    //     [
+                    //         'f_nacimiento.required' => 'El campo FECHA DE NACIMIENTO es obligatorio.',
+                    //         'f_nacimiento.date'    => 'El campo FECHA DE NACIMIENTO no corresponde con una fecha válida.',
 
-                            'nombre.required' => 'El campo NOMBRE(S) es obligatorio.',
-                            'nombre.max'      => 'El campo NOMBRE(S) debe ser :max caracteres como máximo.',
+                    //         'nombre.required' => 'El campo NOMBRE(S) es obligatorio.',
+                    //         'nombre.max'      => 'El campo NOMBRE(S) debe ser :max caracteres como máximo.',
 
 
-                            'ap_paterno.max'      => 'El campo APELLIDO PATERNO debe ser :max caracteres como máximo.',
+                    //         'ap_paterno.max'      => 'El campo APELLIDO PATERNO debe ser :max caracteres como máximo.',
 
-                            'ap_materno.max'      => 'El campo APELLIDO MATERNO debe ser :max caracteres como máximo.',
+                    //         'ap_materno.max'      => 'El campo APELLIDO MATERNO debe ser :max caracteres como máximo.',
 
-                            'ap_esposo.max'      => 'El campo APELLIDO ESPOSO debe ser :max caracteres como máximo.',
+                    //         'ap_esposo.max'      => 'El campo APELLIDO ESPOSO debe ser :max caracteres como máximo.',
 
-                            'estado_civil.required' => 'El campo ESTADO CIVIL es obligatorio.',
+                    //         'estado_civil.required' => 'El campo ESTADO CIVIL es obligatorio.',
 
-                            'municipio_id_nacimiento.required' => 'El campo LUGAR DE NACIMIENTO es obligatorio.',
+                    //         'municipio_id_nacimiento.required' => 'El campo LUGAR DE NACIMIENTO es obligatorio.',
 
-                            'domicilio.required' => 'El campo DOMICILIO es obligatorio.',
-                            'domicilio.max'      => 'El campo DOMICILIO debe ser :max caracteres como máximo.',
+                    //         'domicilio.required' => 'El campo DOMICILIO es obligatorio.',
+                    //         'domicilio.max'      => 'El campo DOMICILIO debe ser :max caracteres como máximo.',
 
-                            'telefono.max'      => 'El campo TELEFONO debe ser :max caracteres como máximo.',
+                    //         'telefono.max'      => 'El campo TELEFONO debe ser :max caracteres como máximo.',
 
-                            'celular.required' => 'El campo CELULAR es obligatorio.',
-                            'celular.max'      => 'El campo CELULAR debe ser :max caracteres como máximo.',
+                    //         'celular.required' => 'El campo CELULAR es obligatorio.',
+                    //         'celular.max'      => 'El campo CELULAR debe ser :max caracteres como máximo.',
 
-                            'municipio_id_residencia.required' => 'El campo RESIDENCIA ACTUAL es obligatorio.'
-                        ]);
-                    }
-                    catch (Exception $e)
-                    {
-                        $respuesta['error_sw'] = 2;
-                        $respuesta['error']    = $e;
-                        return json_encode($respuesta);
-                    }
+                    //         'municipio_id_residencia.required' => 'El campo RESIDENCIA ACTUAL es obligatorio.'
+                    //     ]);
+                    // }
+                    // catch (Exception $e)
+                    // {
+                    //     $respuesta['error_sw'] = 2;
+                    //     $respuesta['error']    = $e;
+                    //     return json_encode($respuesta);
+                    // }
 
                 //=== OPERACION ===
                     $data                            = [];
@@ -734,14 +735,22 @@ class HomeController extends Controller
                                 $data[$llave] = NULL;
                         }
 
+                    $consulta1 = RrhhPersona::where('id', '=', $id)->first();
+
                     $iu                          = RrhhPersona::find($id);
                     $iu->municipio_id_nacimiento = $data['municipio_id_nacimiento'];
                     $iu->municipio_id_residencia = $data['municipio_id_residencia'];
-                    $iu->nombre                  = $data['nombre'];
-                    $iu->ap_paterno              = $data['ap_paterno'];
-                    $iu->ap_materno              = $data['ap_materno'];
+
+                    if($consulta1['estado_segip'] == '1')
+                    {
+                        $iu->nombre                  = $data['nombre'];
+                        $iu->ap_paterno              = $data['ap_paterno'];
+                        $iu->ap_materno              = $data['ap_materno'];
+                        $iu->f_nacimiento            = $data['f_nacimiento'];
+                    }
+
                     $iu->ap_esposo               = $data['ap_esposo'];
-                    $iu->f_nacimiento            = $data['f_nacimiento'];
+
                     $iu->estado_civil            = $data['estado_civil'];
                     $iu->sexo                    = $data['sexo'];
                     $iu->domicilio               = $data['domicilio'];
@@ -753,12 +762,15 @@ class HomeController extends Controller
                     $respuesta['sw']         = 1;
                     $respuesta['iu']         = 2;
 
-                    $c_usuario = User::where('persona_id', '=', $id)->select("id")->first();
-                    if(count($c_usuario) > 0)
+                    if($consulta1['estado_segip'] == '1')
                     {
-                        $iu1       = User::find($c_usuario['id']);
-                        $iu1->name = $data['nombre'];
-                        $iu1->save();
+                        $c_usuario = User::where('persona_id', '=', $id)->select("id")->first();
+                        if(count($c_usuario) > 0)
+                        {
+                            $iu1       = User::find($c_usuario['id']);
+                            $iu1->name = $data['nombre'];
+                            $iu1->save();
+                        }
                     }
                 //=== respuesta ===
                 return json_encode($respuesta);

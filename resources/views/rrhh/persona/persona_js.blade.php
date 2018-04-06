@@ -49,7 +49,9 @@
             "PROVINCIA",
             "DEPARTAMENTO",
 
-            ""
+            "",
+
+            "¿CON SEGIP?"
         );
         var col_m_name_1  = new Array(
             "act",
@@ -74,7 +76,9 @@
             "provincia_residencia",
             "departamento_residencia",
 
-            "val_json"
+            "val_json",
+
+            "estado_segip"
         );
         var col_m_index_1 = new Array(
             "",
@@ -99,7 +103,8 @@
             "a6.nombre",
             "a7.nombre",
 
-            ""
+            "",
+            "rrhh_personas.estado_segip"
         );
         var col_m_width_1 = new Array(
             33,
@@ -124,7 +129,9 @@
             150,
             150,
 
-            10
+            10,
+
+            100
         );
         var col_m_align_1 = new Array(
             "center",
@@ -147,6 +154,8 @@
 
             "center",
             "center",
+            "center",
+
             "center",
 
             "center"
@@ -183,6 +192,16 @@
         $.each(sexo_json, function(index, value) {
             sexo_select += '<option value="' + index + '">' + value + '</option>';
             sexo_jqgrid += ';' + index + ':' + value;
+        });
+
+    // === VALIDADO POR EL SEGIP ===
+        var validado_segip_json   = $.parseJSON('{!! json_encode($validado_segip_array) !!}');
+        var validado_segip_select = '';
+        var validado_segip_jqgrid = ':Todos';
+
+        $.each(validado_segip_json, function(index, value) {
+            validado_segip_select += '<option value="' + index + '">' + value + '</option>';
+            validado_segip_jqgrid += ';' + index + ':' + value;
         });
 
     // === DEPARTAMENTO ===
@@ -288,9 +307,16 @@
                 break;
             // === JQGRID 1 ===
             case 10:
-                var edit1 = true;
+                var edit1   = true;
+                var ancho1  = 5;
+                var ancho_d = 29;
                 @if(in_array(['codigo' => '0503'], $permisos))
-                    edit1 = false;
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+                @if(in_array(['codigo' => '0505'], $permisos) || in_array(['codigo' => '0506'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
                 @endif
                 $(jqgrid1).jqGrid({
                     caption      : title_table,
@@ -317,6 +343,7 @@
                     colNames : [
                         col_name_1[0],
                         col_name_1[1],
+                        col_name_1[20],
                         col_name_1[2],
                         col_name_1[3],
                         col_name_1[4],
@@ -340,7 +367,7 @@
                         {
                             name    : col_m_name_1[0],
                             index   : col_m_index_1[0],
-                            width   : col_m_width_1[0],
+                            width   : ancho1,
                             align   : col_m_align_1[0],
                             fixed   : true,
                             sortable: false,
@@ -355,6 +382,14 @@
                             align      : col_m_align_1[1],
                             stype      :'select',
                             editoptions: {value:estado_jqgrid}
+                        },
+                        {
+                            name       : col_m_name_1[20],
+                            index      : col_m_index_1[20],
+                            width      : col_m_width_1[20],
+                            align      : col_m_align_1[20],
+                            stype      :'select',
+                            editoptions: {value:validado_segip_jqgrid}
                         },
                         {
                             name  : col_m_name_1[2],
@@ -486,10 +521,33 @@
                     gridComplete : function() {
                         var ids = $(jqgrid1).jqGrid('getDataIDs');
                         for(var i = 0; i < ids.length; i++){
-                            var cl = ids[i];
-                            ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                            var cl       = ids[i];
+                            var ret      = $(jqgrid1).jqGrid('getRowData', cl);
+                            var val_json = $.parseJSON(ret.val_json);
+
+                            var ci_nombre = ret.nombre + ' ' + $.trim(ret.ap_paterno + ' ' + ret.ap_materno);
+
+                            var ed = "";
+                            @if(in_array(['codigo' => '0503'], $permisos))
+                                ed = " <button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                            @endif
+
+                            var vse = "";
+                            @if(in_array(['codigo' => '0505'], $permisos))
+                                if(val_json.estado_segip == '1'){
+                                    vse = " <button type='button' class='btn btn-xs btn-primary' title='Validar por el SEGIP' onclick=\"utilitarios([17, " + cl + ", '" + ci_nombre + "' ]);\"><i class='fa fa-check'></i></button>";
+                                }
+                            @endif
+
+                            var cse = "";
+                            @if(in_array(['codigo' => '0506'], $permisos))
+                                if(val_json.estado_segip == '2'){
+                                    cse = " <button type='button' class='btn btn-xs btn-warning' title='Certificación SEGIP' onclick=\"utilitarios([18, " + cl + "]);\"><i class='fa fa-print'></i></button>";
+                                }
+                            @endif
+
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : ed
+                                act : $.trim(ed + vse + cse)
                             });
                         }
                     }
@@ -616,6 +674,15 @@
                 $("#telefono").val(ret.telefono);
                 $("#celular").val(ret.celular);
 
+                if(val_json.estado_segip == '2'){
+                    $("#n_documento").prop('disabled', true);
+
+                    $("#nombre").prop('disabled', true);
+                    $("#ap_paterno").prop('disabled', true);
+                    $("#ap_materno").prop('disabled', true);
+                    $("#f_nacimiento").prop('disabled', true);
+                }
+
                 if(ret.municipio_nacimiento != ""){
                     var dpm = ret.departamento_nacimiento + ', ' + ret.provincia_nacimiento + ', ' + ret.municipio_nacimiento;
                     $('#municipio_id_nacimiento').append('<option value="' + val_json.municipio_id_nacimiento + '">' + dpm + '</option>');
@@ -645,6 +712,13 @@
                 $('#municipio_id_residencia').select2("val", "");
                 $('#municipio_id_nacimiento option').remove();
                 $('#municipio_id_residencia option').remove();
+
+                $("#n_documento").prop('disabled', false);
+
+                $("#nombre").prop('disabled', false);
+                $("#ap_paterno").prop('disabled', false);
+                $("#ap_materno").prop('disabled', false);
+                $("#f_nacimiento").prop('disabled', false);
                 $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
@@ -731,6 +805,93 @@
                     }
                 });
                 break;
+            // === VALIDAR PERSONA POR EL SEGIP ===
+            case 17:
+                swal({
+                    title             : "VALIDAR POR EL SEGIP",
+                    text              : "¿Está seguro de VALIDAR POR EL SEGIP a " + valor[2] + "?\n\nNOTA. No se podrá volver a modificar el CI, NOMBRE(S), APELLIDO PATERNO, APELLIDO MATERNO y FECHA DE NACIMIENTO.",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "VALIDAR",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        // swal.close();
+
+                        swal({
+                            title            : "VALIDANDO POR EL SEGIP",
+                            text             : "Espere que VALIDE POR EL SEGIP la PERSONA.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=2&id=" + valor[1] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
+                break;
+            // === CERTIFICACION SEGIP ===
+            case 18:
+                swal({
+                    title            : "GENERANDO CERTIFICACION SEGIP",
+                    text             : "Espere que se genere CERTIFICACION SEGIP.",
+                    allowEscapeKey   : false,
+                    showConfirmButton: false,
+                    type             : "info"
+                });
+                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                var valor1 = new Array();
+                valor1[0]  = 150;
+                valor1[1]  = url_controller + '/send_ajax';
+                valor1[2]  = 'POST';
+                valor1[3]  = true;
+                valor1[4]  = "tipo=3&id=" + valor[1] + "&_token=" + csrf_token;
+                valor1[5]  = 'json';
+                utilitarios(valor1);
+                // var concatenar_valores += '?tipo=1';
+
+                // var id = valor[1];
+
+                // var valor_sw    = true;
+                // var valor_error = '';
+
+                // if($.trim(id) != ''){
+                //     concatenar_valores += '&id=' + id;
+                // }
+                // else{
+                //     valor_sw    = false;
+                //     valor_error += 'Seleccione una persona.';
+                // }
+
+                // if(valor_sw){
+                //     var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                //     win.focus();
+                // }
+                // else{
+                //     var valor1 = new Array();
+                //     valor1[0]  = 101;
+                //     valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                //     valor1[2]  = valor_error;
+                //     utilitarios(valor1);
+                // }
+                break;
+
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -767,6 +928,60 @@
                                     else if(data.iu === 2){
                                         $('#modal_1').modal('hide');
                                     }
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === VALIDAR PERSONA POR EL SEGIP ===
+                            case '2':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === CERTIFICACION SEGIP ===
+                            case '3':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $('#div_pdf').empty();
+                                    $('#div_pdf').append('<object id="object_pdf" data="data:application/pdf;base64,' + data.pdf + '" type="application/pdf" style="min-height:500px;width:100%"></object>');
+
+                                    $('#modal_2').modal();
+                                    setTimeout(function(){
+                                        $("#object_pdf").css("height", $( window ).height()-150 + 'px');
+                                    }, 300);
                                 }
                                 else if(data.sw === 0){
                                     var valor1 = new Array();

@@ -230,6 +230,27 @@
           </div>
         </div>
       </div>
+
+      <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-xlg">
+          <div class="modal-content">
+            <div class="modal-header" style="padding: 5px 15px 5px 15px;">
+              <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">&times;</span>
+                <span class="sr-only">Close</span>
+              </button>
+
+              {{-- <h4 class="modal-title">
+                <span id="modal_2_title">CERTIFICACION SEGIP</span>
+              </h4> --}}
+            </div>
+
+            <div id="div_pdf" class="modal-body">
+
+            </div>
+          </div>
+        </div>
+      </div>
 @endsection
 
 @section('js_plugins')

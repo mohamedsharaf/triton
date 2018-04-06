@@ -338,6 +338,15 @@
                     $("#telefono").val(persona_json.telefono);
                     $("#celular").val(persona_json.celular);
 
+                    if(persona_json.estado_segip == '2'){
+                        $("#n_documento").prop('disabled', true);
+
+                        $("#nombre").prop('disabled', true);
+                        $("#ap_paterno").prop('disabled', true);
+                        $("#ap_materno").prop('disabled', true);
+                        $("#f_nacimiento").prop('disabled', true);
+                    }
+
                     if(persona_json.municipio_nacimiento != null){
                         var dpm = persona_json.departamento_nacimiento + ', ' + persona_json.provincia_nacimiento + ', ' + persona_json.municipio_nacimiento;
                         $('#municipio_id_nacimiento').append('<option value="' + persona_json.municipio_id_nacimiento + '">' + dpm + '</option>');

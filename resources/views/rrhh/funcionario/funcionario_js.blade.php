@@ -857,6 +857,9 @@
                     $("#lugar_dependencia_id_funcionario").select2("val", val_json.lugar_dependencia_id_funcionario);
 
                     $("#unidad_desconcentrada_id").select2("val", val_json.unidad_desconcentrada_id);
+
+                    $("#horario_id_1").select2("val", val_json.horario_id_1);
+                    $("#horario_id_2").select2("val", val_json.horario_id_2);
                 }
 
                 if(ret.cargo != ""){

@@ -31,6 +31,8 @@ class CreateRrhhPersonasTable extends Migration
             $table->string('telefono', 50)->nullable();
             $table->string('celular', 50)->nullable();
 
+            $table->smallInteger('estado_segip')->default('1')->unsigned();
+
             $table->timestamps();
 
             $table->foreign('municipio_id_nacimiento')
