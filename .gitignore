@@ -8,6 +8,7 @@ public/storage/seguridad/user/image/*.png
 public/storage/seguridad/user/image/*.gif
 public/storage/rrhh/funcionario/documentos/designacion/*.pdf
 public/storage/rrhh/salidas/solicitud_salida/*.pdf
+public/storage/rrhh/salidas/solicitud_salida/*.PDF
 public/hot
 storage/*.key
 .env.*.php
