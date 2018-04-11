@@ -2042,7 +2042,9 @@ class AsistenciaController extends Controller
                                                             if($row4['h_retorno'] != '')
                                                             {
                                                                 $fh_r = $row1['fecha'] . " " . $row4['h_retorno'];
-                                                                if($fh_r >= $fh_salida)
+
+                                                                $fh_s = $row1['fecha'] . " " . $row4['h_salida'];
+                                                                if(($fh_r >= $fh_salida) && ($fh_ingreso <= $fh_s) && ($fh_s <= $fh_salida))
                                                                 {
                                                                     // === MODIFICACION A ASISTENCIA ===
                                                                         $iu = RrhhAsistencia::find($row1['id']);
@@ -5841,9 +5843,16 @@ class AsistenciaController extends Controller
                                                     $feriados += 0.5;
                                                     break;
                                                 case $this->fthc['3']:
-                                                    if( ! ($row1["horario_1_i"] == $this->omitir['2']))
+                                                    if($row1["horario_1_i"] == $this->tipo_salida['5'])
                                                     {
-                                                        $dias_trabajados += 0.5;
+                                                        $licencia_sin_goce_haber += 0.5;
+                                                    }
+                                                    else
+                                                    {
+                                                        if( ! ($row1["horario_1_i"] == $this->omitir['2']))
+                                                        {
+                                                            $dias_trabajados += 0.5;
+                                                        }
                                                     }
                                                     break;
                                                 case $this->omitir['2']:
