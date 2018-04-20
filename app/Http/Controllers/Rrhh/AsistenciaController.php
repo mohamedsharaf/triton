@@ -5668,7 +5668,8 @@ class AsistenciaController extends Controller
                                         if($sw_calculo)
                                         {
                                             // === FORMULA DIAS DESCUENTO ===
-                                                $dias_descuento_1 = $licencia_sin_goce_haber + $faltas * 2;
+                                                // $dias_descuento_1 = $licencia_sin_goce_haber + $faltas * 2;
+                                                $dias_descuento_1 = $faltas * 2;
 
                                                 $dias_descuento_2 = ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada) * 0.5;
 
@@ -5948,7 +5949,8 @@ class AsistenciaController extends Controller
 
                                 // === ULTIMO FUNCIONARIO ===
                                     // === FORMULA DIAS DESCUENTO ===
-                                        $dias_descuento_1 = $licencia_sin_goce_haber + $faltas * 2;
+                                        // $dias_descuento_1 = $licencia_sin_goce_haber + $faltas * 2;
+                                        $dias_descuento_1 = $faltas * 2;
 
                                         $dias_descuento_2 = ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada) * 0.5;
 

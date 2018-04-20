@@ -369,10 +369,10 @@ class SalidaParticularController extends Controller
                         $row["f_salida"],
                         $row["h_salida"],
                         $row["h_retorno"],
-                        ($row["con_sin_retorno"] == '')? '' : $this->con_sin_retorno[$row["con_sin_retorno"]],
+                        $this->utilitarios(array('tipo' => '3', 'con_sin_retorno' => $row["con_sin_retorno"])),
 
-                        $row["salida_s"],
-                        $row["salida_r"],
+                        $this->utilitarios(array('tipo' => '4', 'marcacion' => $row["salida_s"])),
+                        $this->utilitarios(array('tipo' => '4', 'marcacion' => $row["salida_r"])),
                         $this->utilitarios(array('tipo' => '2', 'min_retrasos' => $row["min_retrasos"])),
 
                         $row["ud_funcionario"],
@@ -525,6 +525,37 @@ class SalidaParticularController extends Controller
                 }
 
                 return($respuesta);
+                break;
+            case '3':
+                switch($valor['con_sin_retorno'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-primary font-sm">' . $this->con_sin_retorno[$valor['con_sin_retorno']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<span class="label label-success
+                         font-sm">' . $this->con_sin_retorno[$valor['con_sin_retorno']] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '4':
+                switch($valor['marcacion'])
+                {
+                    case 'NO MARCADO':
+                        $respuesta = '<span class="label label-danger font-sm">' . $valor['marcacion'] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
                 break;
 
             case '100':
