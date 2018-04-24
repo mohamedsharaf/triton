@@ -30,7 +30,7 @@
         },
         "files": [
             "vendor/ritey/nusoap/lib/nusoap.php"
-       ],
+        ]
     },
     "autoload-dev": {
         "psr-4": {

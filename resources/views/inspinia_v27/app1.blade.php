@@ -34,7 +34,7 @@
       <div>
         @yield('content')
 
-        <p class="m-t text-white"> <small><strong>Copyright &copy;</strong> Fiscalía General del Estado 2012-{{date('Y')}}</small> </p>
+        <p class="m-t text-white"> <small><strong>Copyright &copy;</strong> Ministerio Público 2012-{{date('Y')}}</small> </p>
       </div>
     </div>
 

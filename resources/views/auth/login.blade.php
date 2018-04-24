@@ -21,9 +21,9 @@
     </div>
 
     <h3 class="text-white">Bienvenido a TRITON</h3>
-    <p class="text-white">
+    {{-- <p class="text-white">
         Sistema de Personal
-    </p>
+    </p> --}}
 
     <form class="m-t" role="form" method="POST" action="{{ route('login') }}">
         {{ csrf_field() }}
