@@ -120,9 +120,13 @@ class SalidaParticularClass
 
             if(count($consulta1) > 0)
             {
-                $sw_cerrado = TRUE;
                 set_time_limit(3600);
                 ini_set('memory_limit','-1');
+
+                foreach ($consulta1 as $row1)
+                {
+
+                }
             }
             else
             {
