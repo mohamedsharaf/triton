@@ -30,15 +30,14 @@ class SalidaParticularClass
 
     }
 
-    public function getSincronizar($data1, $tipo='1')
+    public function getSincronizar($data1)
     {
         // === INICIALIZACION DE VARIABLES ===
             $respuesta = array(
                 'sw'         => 0,
                 'titulo'     => '<div class="text-center"><strong>Sincronizar Salida Particular</strong></div>',
                 'respuesta'  => '',
-                'tipo'       => $tipo,
-                'iu'         => 1,
+                'tipo'       => $data1['tipo'],
                 'error_sw'   => 1
             );
 
@@ -118,6 +117,8 @@ class SalidaParticularClass
                 ->get()
                 ->toArray();
 
+            $c_sincronizar = 0;
+
             if(count($consulta1) > 0)
             {
                 set_time_limit(3600);
@@ -125,8 +126,197 @@ class SalidaParticularClass
 
                 foreach ($consulta1 as $row1)
                 {
+                    $fh_salida  = $row1['f_salida'] . " " . $row1['h_salida'];
+                    $fh_retorno = $row1['f_salida'] . " " . $row1['h_retorno'];
 
+                    $tabla1 = "rrhh_asistencias";
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.persona_id,
+
+                        $tabla1.horario_id_1,
+                        $tabla1.horario_id_2
+                    ";
+
+                    $array_where = "$tabla1.fecha = '" . $row1['f_salida'] . "' AND $tabla1.persona_id = " . $row1['persona_id'];
+
+                    $consulta2 = RrhhAsistencia::whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->first();
+
+                    if(count($consulta2) > 0)
+                    {
+                        $consulta3 = RrhhHorario::where("id", "=", $consulta2['horario_id_1'])
+                            ->first();
+
+                        $consulta4 = RrhhHorario::where("id", "=", $consulta2['horario_id_2'])
+                            ->first();
+
+                        $fh_ingreso_1 = '';
+                        $fh_salida_1  = '';
+                        if(count($consulta3) > 0)
+                        {
+                            $fh_ingreso_1 = $row1['f_salida'] . " " . $consulta3['h_ingreso'];
+                            $fh_salida_1  = $row1['f_salida'] . " " . $consulta3['h_salida'];
+                        }
+
+                        $fh_ingreso_2 = '';
+                        $fh_salida_2  = '';
+                        if(count($consulta4) > 0)
+                        {
+                            $fh_ingreso_2 = $row1['f_salida'] . " " . $consulta4['h_ingreso'];
+                            $fh_salida_2  = $row1['f_salida'] . " " . $consulta4['h_salida'];
+                        }
+
+                        // === SALIDA ===
+                            $salida_sw_1 = TRUE;
+                            $salida_sw_2 = FALSE; //Si se modifica los valores $log_marcaciones_id_s y $log_marcaciones_s
+                            if($fh_salida == $fh_ingreso_1)
+                            {
+                                $salida_sw_1 = FALSE;
+                            }
+
+                            if(($fh_salida == $fh_ingreso_2) && $salida_sw_1)
+                            {
+                                $salida_sw_1 = FALSE;
+                            }
+
+                            $log_marcaciones_id_s = '';
+                            $log_marcaciones_s    = '';
+
+                            if($salida_sw_1)
+                            {
+                                $consulta3 = RrhhLogMarcacion::where("persona_id", "=", $row1['persona_id'])
+                                    ->whereBetween('f_marcacion', [$fh_salida, $fh_retorno])
+                                    ->select('id', 'f_marcacion')
+                                    ->orderBy('f_marcacion', 'asc')
+                                    ->first();
+
+                                if(count($consulta3) > 0)
+                                {
+                                    $log_marcaciones_id_s = $consulta3['id'];
+                                    // $log_marcaciones_s    = $consulta3['f_marcacion'];
+                                    $log_marcaciones_s = date("H:i:s", strtotime($consulta3['f_marcacion']));
+                                    $salida_sw_2 = TRUE;
+                                }
+                            }
+                            else
+                            {
+                                $log_marcaciones_s = $data1['sp_estado']['2'];
+                                $salida_sw_2 = TRUE;
+                            }
+
+                            $c_sincronizar++;
+
+                        // === RETORNO ===
+                            $retorno_sw_1 = TRUE;
+                            $retorno_sw_2 = FALSE; //Si se modifica los valores $log_marcaciones_id_r y $log_marcaciones_r
+                            if($fh_retorno == $fh_salida_1)
+                            {
+                                $retorno_sw_1 = FALSE;
+                            }
+
+                            if(($fh_retorno == $fh_salida_2) && $retorno_sw_1)
+                            {
+                                $retorno_sw_1 = FALSE;
+                            }
+
+                            $log_marcaciones_id_r = '';
+                            $log_marcaciones_r    = '';
+                            $min_retrasos         = 0;
+
+                            if($retorno_sw_1)
+                            {
+                                $fh_retorno_21 = strtotime('+20 minute', strtotime($fh_retorno));
+                                $fh_retorno_21 = strtotime('+59 second', strtotime($fh_retorno_21));
+                                $fh_retorno_21 = date("Y-m-d H:i:s", $fh_retorno_21);
+
+                                $consulta4 = RrhhLogMarcacion::where("persona_id", "=", $row1['persona_id'])
+                                    ->whereBetween('f_marcacion', [$fh_salida, $fh_retorno_21])
+                                    ->select('id', 'f_marcacion')
+                                    ->orderBy('f_marcacion', 'asc')
+                                    ->get()
+                                    ->toArray();
+
+                                if(count($consulta4) > 0)
+                                {
+                                    foreach($consulta4 as $row4)
+                                    {
+                                        if($log_marcaciones_id_s != $row4['id'])
+                                        {
+                                            $log_marcaciones_id_r = $row4['id'];
+                                            // $log_marcaciones_r    = $row4['f_marcacion'];
+                                            $log_marcaciones_r = date("H:i:s", strtotime($row4['f_marcacion']));
+
+                                            if($fh_retorno < $row4['f_marcacion'])
+                                            {
+                                                $min_retrasos = floor((strtotime($row4['f_marcacion']) - strtotime($fh_retorno)) / 60);
+                                            }
+
+                                            $retorno_sw_2 = TRUE;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                $log_marcaciones_r = $data1['sp_estado']['3'];
+                                $retorno_sw_2 = TRUE;
+                            }
+
+                        if($salida_sw_2 || $retorno_sw_2)
+                        {
+                            // === MODIFICACION DE LA SALIDA ===
+                                $iu = RrhhSalida::find($row1['id']);
+
+                                if($salida_sw_2)
+                                {
+                                    $iu->salida_s = $log_marcaciones_s;
+                                    if($log_marcaciones_id_s != '')
+                                    {
+                                        $iu->log_marcaciones_id_s = $log_marcaciones_id_s;
+                                    }
+                                }
+
+                                if($retorno_sw_2)
+                                {
+                                    $iu->salida_r = $log_marcaciones_r;
+                                    if($log_marcaciones_id_r != '')
+                                    {
+                                        $iu->log_marcaciones_id_r = $log_marcaciones_id_r;
+                                    }
+                                }
+
+                                $iu->min_retrasos = $min_retrasos;
+
+                                $iu->save();
+
+                            // === MODIFICACION A LOG DE MARCACIONES ===
+                                if($log_marcaciones_id_s != '')
+                                {
+                                    $iu = RrhhLogMarcacion::find($log_marcaciones_id_s);
+
+                                    $iu->estado = '2';
+
+                                    $iu->save();
+                                }
+
+                                if($log_marcaciones_id_r != '')
+                                {
+                                    $iu = RrhhLogMarcacion::find($log_marcaciones_id_r);
+
+                                    $iu->estado = '2';
+
+                                    $iu->save();
+                                }
+                        }
+                    }
                 }
+
+                $respuesta['respuesta'] .= "Se sincronizaron " . $c_sincronizar . ".";
+                $respuesta['sw'] = 1;
             }
             else
             {

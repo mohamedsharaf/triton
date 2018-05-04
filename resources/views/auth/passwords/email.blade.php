@@ -42,6 +42,10 @@
         <p class="text-muted text-center"><small>¿Ya tienes una cuenta?</small></p>
 
         <a class="btn btn-sm btn-white btn-block" href="{{ route('login') }}">Iniciar sesión</a>
+
+        <br>
+
+        <a href="https://docs.google.com/document/d/1B_HWKJvku10m8sYdhCIgp9bXbOH9OnV7C0Y7_TwpZUY/edit?usp=sharing" class="btn btn-sm btn-warning btn-block" target="_blank">Manual</a>
     </form>
 
 @endsection

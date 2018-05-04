@@ -84,7 +84,8 @@ class SalidaParticularController extends Controller
 
         $this->sp_estado = [
             '1' => 'NO MARCADO',
-            '2' => 'REGULARIZADA'
+            '2' => 'SALIDA IGUAL AL HORARIO DE INGRESO',
+            '3' => 'RETORNO IGUAL AL HORARIO DE SALIDA'
         ];
 
         $this->public_dir = '/image/logo';
@@ -450,6 +451,10 @@ class SalidaParticularController extends Controller
 
                     $data1['persona_id'] = trim($request->input('persona_id'));
 
+                    $data1['sp_estado'] = $this->sp_estado;
+
+                    $data1['tipo'] = $tipo;
+
                 // === ANALISIS ===
                     $respuesta = $salida_particular->getSincronizar($data1);
 
@@ -547,12 +552,20 @@ class SalidaParticularController extends Controller
             case '4':
                 switch($valor['marcacion'])
                 {
-                    case 'NO MARCADO':
+                    case $this->sp_estado['1']:
                         $respuesta = '<span class="label label-danger font-sm">' . $valor['marcacion'] . '</span>';
                         return($respuesta);
                         break;
+                    case $this->sp_estado['2']:
+                        $respuesta = '<span class="label label-success font-sm">' . $valor['marcacion'] . '</span>';
+                        return($respuesta);
+                        break;
+                    case $this->sp_estado['3']:
+                        $respuesta = '<span class="label label-info font-sm">' . $valor['marcacion'] . '</span>';
+                        return($respuesta);
+                        break;
                     default:
-                        $respuesta = '';
+                        $respuesta = '<span class="label label-primary font-sm">' . $valor['marcacion'] . '</span>';
                         return($respuesta);
                         break;
                 }

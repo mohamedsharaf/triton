@@ -48,17 +48,22 @@
             @endif
         </div>
 
-        <div class="form-group">
+        {{-- <div class="form-group">
             <div class="checkbox i-checks">
                 <label class="text-white">
                     <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}><i></i> Recuérdame
                 </label>
             </div>
-        </div>
+        </div> --}}
 
         <button type="submit" class="btn btn-success block full-width m-b">Iniciar sesión</button>
 
         <a href="{{ route('password.request') }}"><small>¿Olvidaste tu contraseña?</small></a>
+
+        <br>
+        <br>
+
+        <a href="https://docs.google.com/document/d/1B_HWKJvku10m8sYdhCIgp9bXbOH9OnV7C0Y7_TwpZUY/edit?usp=sharing" class="btn btn-sm btn-warning btn-block" target="_blank">Manual</a>
     </form>
 
 @endsection
