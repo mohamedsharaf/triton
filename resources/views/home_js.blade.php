@@ -132,6 +132,11 @@
             "center"
         );
 
+    // === JQGRID3 ===
+        var title_table_3   = "{!! $title_table_2 !!}";
+        var jqgrid3       = "#jqgrid3";
+        var pjqgrid3      = "#pjqgrid3";
+
     // === FORMULARIO 1 ===
         var form_1 = "#form_1";
         var form_2 = "#form_2";
@@ -288,6 +293,7 @@
                 var width = $('.tab-content').width() - 35;
                 $(jqgrid1).setGridWidth(width);
                 $(jqgrid2).setGridWidth(width);
+                $(jqgrid3).setGridWidth(width);
             });
 
             setTimeout(function(){
@@ -317,7 +323,17 @@
         switch(valor[0]){
             // === JQGRID REDIMENCIONAR ===
             case 0:
-                $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
+                var v_ancho_1 = 0;
+                if($(".jqGrid_wrapper").width() > 0){
+                    var v_ancho_1 = $(".jqGrid_wrapper").width();
+                }
+
+                if($(".jqGrid_wrapper_3").width() > 0){
+                    var v_ancho_1 = $(".jqGrid_wrapper_3").width();
+                }
+
+                $(jqgrid1).jqGrid('setGridWidth', v_ancho_1);
+                $(jqgrid3).jqGrid('setGridWidth', v_ancho_1);
                 break;
             // === INFORMACIÓN PERSONAL ===
             case 1:
@@ -369,192 +385,368 @@
                 }
                 break;
 
-            // === JQGRID 1 ===
+            // === JQGRID 1 y 2 ===
             @if($sw_asistencia)
                 case 10:
-                    var edit1      = true;
-                    var ancho1     = 5;
-                    var ancho_d    = 29;
+                    // === JQGRID 1 ===
+                        var edit1      = true;
+                        var ancho1     = 5;
+                        var ancho_d    = 29;
 
-                    $(jqgrid1).jqGrid({
-                        caption     : title_table,
-                        url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
-                        datatype    : 'json',
-                        mtype       : 'post',
-                        height      : 'auto',
-                        pager       : pjqgrid1,
-                        rowNum      : 10,
-                        rowList     : [10, 20, 30],
-                        sortname    : 'rrhh_asistencias.fecha',
-                        sortorder   : "desc",
-                        viewrecords : true,
-                        shrinkToFit : false,
-                        hidegrid    : false,
-                        multiboxonly: true,
-                        altRows     : true,
-                        rownumbers  : true,
-                        // subGrid     : subgrid_sw,
-                        // multiselect  : true,
-                        //autowidth     : true,
-                        //gridview      :true,
-                        //forceFit      : true,
-                        //toolbarfilter : true,
-                        colNames : [
-                            col_name_1[0],
-                            col_name_1[1],
-                            col_name_1[2],
-                            col_name_1[3],
-                            col_name_1[4],
-                            col_name_1[5],
-                            col_name_1[6],
-                            col_name_1[7],
-                            col_name_1[8],
-                            col_name_1[9],
-                            col_name_1[10],
-                            col_name_1[11]
-                        ],
-                        colModel : [
-                            {
-                                name    : col_m_name_1[0],
-                                index   : col_m_index_1[0],
-                                width   : ancho1,
-                                align   : col_m_align_1[0],
-                                fixed   : true,
-                                sortable: false,
-                                resize  : false,
-                                search  : false,
-                                hidden  : edit1
-                            },
-
-                            {
-                                name       : col_m_name_1[1],
-                                index      : col_m_index_1[1],
-                                width      : col_m_width_1[1],
-                                align      : col_m_align_1[1],
-                                stype      :'select',
-                                editoptions: {value:estado_jqgrid}
-                            },
-
-                            {
-                                name : col_m_name_1[2],
-                                index: col_m_index_1[2],
-                                width: col_m_width_1[2],
-                                align: col_m_align_1[2]
-                            },
-
-                            {
-                                name : col_m_name_1[3],
-                                index: col_m_index_1[3],
-                                width: col_m_width_1[3],
-                                align: col_m_align_1[3]
-                            },
-                            {
-                                name : col_m_name_1[4],
-                                index: col_m_index_1[4],
-                                width: col_m_width_1[4],
-                                align: col_m_align_1[4]
-                            },
-                            {
-                                name : col_m_name_1[5],
-                                index: col_m_index_1[5],
-                                width: col_m_width_1[5],
-                                align: col_m_align_1[5]
-                            },
-
-                            {
-                                name : col_m_name_1[6],
-                                index: col_m_index_1[6],
-                                width: col_m_width_1[6],
-                                align: col_m_align_1[6]
-                            },
-                            {
-                                name : col_m_name_1[7],
-                                index: col_m_index_1[7],
-                                width: col_m_width_1[7],
-                                align: col_m_align_1[7]
-                            },
-                            {
-                                name : col_m_name_1[8],
-                                index: col_m_index_1[8],
-                                width: col_m_width_1[8],
-                                align: col_m_align_1[8]
-                            },
-
-                            {
-                                name : col_m_name_1[9],
-                                index: col_m_index_1[9],
-                                width: col_m_width_1[9],
-                                align: col_m_align_1[9],
-                                    hidden: true
-                            },
-                            {
-                                name       : col_m_name_1[10],
-                                index      : col_m_index_1[10],
-                                width      : col_m_width_1[10],
-                                align      : col_m_align_1[10],
-                                stype      :'select',
-                                editoptions: {value:lugar_dependencia_jqgrid},
-                                    hidden: true
-                            },
-
-                            // === OCULTO ===
+                        $(jqgrid1).jqGrid({
+                            caption     : title_table,
+                            url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                            datatype    : 'json',
+                            mtype       : 'post',
+                            height      : 'auto',
+                            pager       : pjqgrid1,
+                            rowNum      : 10,
+                            rowList     : [10, 20, 30],
+                            sortname    : 'rrhh_asistencias.fecha',
+                            sortorder   : "desc",
+                            viewrecords : true,
+                            shrinkToFit : false,
+                            hidegrid    : false,
+                            multiboxonly: true,
+                            altRows     : true,
+                            rownumbers  : true,
+                            // subGrid     : subgrid_sw,
+                            // multiselect  : true,
+                            //autowidth     : true,
+                            //gridview      :true,
+                            //forceFit      : true,
+                            //toolbarfilter : true,
+                            colNames : [
+                                col_name_1[0],
+                                col_name_1[1],
+                                col_name_1[2],
+                                col_name_1[3],
+                                col_name_1[4],
+                                col_name_1[5],
+                                col_name_1[6],
+                                col_name_1[7],
+                                col_name_1[8],
+                                col_name_1[9],
+                                col_name_1[10],
+                                col_name_1[11]
+                            ],
+                            colModel : [
                                 {
-                                    name  : col_m_name_1[11],
-                                    index : col_m_index_1[11],
-                                    width : col_m_width_1[11],
-                                    align : col_m_align_1[11],
-                                    search: false,
-                                    hidden: true
-                                }
-                        ],
-                        loadComplete : function(){
-                            $("tr.jqgrow:odd").addClass('myAltRowClass');
-                        }
-                    });
+                                    name    : col_m_name_1[0],
+                                    index   : col_m_index_1[0],
+                                    width   : ancho1,
+                                    align   : col_m_align_1[0],
+                                    fixed   : true,
+                                    sortable: false,
+                                    resize  : false,
+                                    search  : false,
+                                    hidden  : edit1
+                                },
 
-                    $(jqgrid1).jqGrid('setGroupHeaders', {
-                        useColSpanStyle: true,
-                        groupHeaders   :[
-                            {
-                                startColumnName: 'horario_1_i',
-                                numberOfColumns: 3,
-                                titleText      : 'HORARIO 1'
-                            },
-                            {
-                                startColumnName: 'horario_2_i',
-                                numberOfColumns: 3,
-                                titleText      : 'HORARIO 2'
+                                {
+                                    name       : col_m_name_1[1],
+                                    index      : col_m_index_1[1],
+                                    width      : col_m_width_1[1],
+                                    align      : col_m_align_1[1],
+                                    stype      :'select',
+                                    editoptions: {value:estado_jqgrid}
+                                },
+
+                                {
+                                    name : col_m_name_1[2],
+                                    index: col_m_index_1[2],
+                                    width: col_m_width_1[2],
+                                    align: col_m_align_1[2]
+                                },
+
+                                {
+                                    name : col_m_name_1[3],
+                                    index: col_m_index_1[3],
+                                    width: col_m_width_1[3],
+                                    align: col_m_align_1[3]
+                                },
+                                {
+                                    name : col_m_name_1[4],
+                                    index: col_m_index_1[4],
+                                    width: col_m_width_1[4],
+                                    align: col_m_align_1[4]
+                                },
+                                {
+                                    name : col_m_name_1[5],
+                                    index: col_m_index_1[5],
+                                    width: col_m_width_1[5],
+                                    align: col_m_align_1[5]
+                                },
+
+                                {
+                                    name : col_m_name_1[6],
+                                    index: col_m_index_1[6],
+                                    width: col_m_width_1[6],
+                                    align: col_m_align_1[6]
+                                },
+                                {
+                                    name : col_m_name_1[7],
+                                    index: col_m_index_1[7],
+                                    width: col_m_width_1[7],
+                                    align: col_m_align_1[7]
+                                },
+                                {
+                                    name : col_m_name_1[8],
+                                    index: col_m_index_1[8],
+                                    width: col_m_width_1[8],
+                                    align: col_m_align_1[8]
+                                },
+
+                                {
+                                    name : col_m_name_1[9],
+                                    index: col_m_index_1[9],
+                                    width: col_m_width_1[9],
+                                    align: col_m_align_1[9],
+                                        hidden: true
+                                },
+                                {
+                                    name       : col_m_name_1[10],
+                                    index      : col_m_index_1[10],
+                                    width      : col_m_width_1[10],
+                                    align      : col_m_align_1[10],
+                                    stype      :'select',
+                                    editoptions: {value:lugar_dependencia_jqgrid},
+                                        hidden: true
+                                },
+
+                                // === OCULTO ===
+                                    {
+                                        name  : col_m_name_1[11],
+                                        index : col_m_index_1[11],
+                                        width : col_m_width_1[11],
+                                        align : col_m_align_1[11],
+                                        search: false,
+                                        hidden: true
+                                    }
+                            ],
+                            loadComplete : function(){
+                                $("tr.jqgrow:odd").addClass('myAltRowClass');
                             }
-                        ]
-                    });
+                        });
 
-                    $(jqgrid1).jqGrid('filterToolbar',{
-                        searchOnEnter : true,
-                        stringResult  : true,
-                        defaultSearch : 'cn'
-                    });
+                        $(jqgrid1).jqGrid('setGroupHeaders', {
+                            useColSpanStyle: true,
+                            groupHeaders   :[
+                                {
+                                    startColumnName: 'horario_1_i',
+                                    numberOfColumns: 3,
+                                    titleText      : 'HORARIO 1'
+                                },
+                                {
+                                    startColumnName: 'horario_2_i',
+                                    numberOfColumns: 3,
+                                    titleText      : 'HORARIO 2'
+                                }
+                            ]
+                        });
 
-                    $(jqgrid1).jqGrid('navGrid', pjqgrid1, {
-                        edit  : false,
-                        add   : false,
-                        del   : false,
-                        search: false
-                    })
-                    .navSeparatorAdd(pjqgrid1,{
-                        sepclass : "ui-separator"
-                    })
-                    .navButtonAdd(pjqgrid1,{
-                        "id"          : "print1",
-                        caption       : "",
-                        title         : 'Reportes',
-                        buttonicon    : "ui-icon ui-icon-print",
-                        onClickButton : function(){
-                            // var valor1 = new Array();
-                            // valor1[0]  = 13;
-                            // utilitarios(valor1);
-                        }
-                    })
-                    ;
+                        $(jqgrid1).jqGrid('filterToolbar',{
+                            searchOnEnter : true,
+                            stringResult  : true,
+                            defaultSearch : 'cn'
+                        });
+
+                        $(jqgrid1).jqGrid('navGrid', pjqgrid1, {
+                            edit  : false,
+                            add   : false,
+                            del   : false,
+                            search: false
+                        })
+                        .navSeparatorAdd(pjqgrid1,{
+                            sepclass : "ui-separator"
+                        })
+                        .navButtonAdd(pjqgrid1,{
+                            "id"          : "print1",
+                            caption       : "",
+                            title         : 'Reportes',
+                            buttonicon    : "ui-icon ui-icon-print",
+                            onClickButton : function(){
+                                // var valor1 = new Array();
+                                // valor1[0]  = 13;
+                                // utilitarios(valor1);
+                            }
+                        })
+                        ;
+
+                    // === JQGRID 3 ===
+                        $(jqgrid3).jqGrid({
+                            caption     : title_table_3,
+                            url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=3',
+                            datatype    : 'json',
+                            mtype       : 'post',
+                            height      : 'auto',
+                            pager       : pjqgrid3,
+                            rowNum      : 10,
+                            rowList     : [10, 20, 30],
+                            sortname    : 'rrhh_salidas.f_salida',
+                            sortorder   : "desc",
+                            viewrecords : true,
+                            shrinkToFit : false,
+                            hidegrid    : false,
+                            multiboxonly: true,
+                            altRows     : true,
+                            rownumbers  : true,
+                            // subGrid     : subgrid_sw,
+                            // multiselect  : true,
+                            //autowidth     : true,
+                            //gridview      :true,
+                            //forceFit      : true,
+                            //toolbarfilter : true,
+                            colNames : [
+                                "",
+
+                                "ESTADO",
+
+                                "CODIGO",
+
+                                "FECHA DE SALIDA",
+                                "HORA SALIDA",
+                                "HORA RETORNO",
+                                "RETORNO",
+
+                                "HORA SALIDA",
+                                "HORA RETORNO",
+                                "RETRASO",
+
+                                ""
+                            ],
+                            colModel : [
+                                {
+                                    name    : "act",
+                                    index   : "",
+                                    width   : 34,
+                                    align   : "center",
+                                    fixed   : true,
+                                    sortable: false,
+                                    resize  : false,
+                                    search  : false,
+                                    hidden  : false
+                                },
+
+                                {
+                                    name       : "estado",
+                                    index      : "rrhh_salidas.estado",
+                                    width      : 90,
+                                    align      : "center",
+                                    stype      :'select',
+                                    editoptions: {value:estado_jqgrid}
+                                },
+
+                                {
+                                    name : "codigo",
+                                    index: "rrhh_salidas.codigo",
+                                    width: 100,
+                                    align: "center"
+                                },
+
+                                {
+                                    name : "f_salida",
+                                    index: "rrhh_salidas.f_salida::text",
+                                    width: 125,
+                                    align: "center"
+                                },
+                                {
+                                    name : "h_salida",
+                                    index: "rrhh_salidas.h_salida::text",
+                                    width: 110,
+                                    align: "center"
+                                },
+                                {
+                                    name : "h_retorno",
+                                    index: "rrhh_salidas.h_retorno::text",
+                                    width: 110,
+                                    align: "center"
+                                },
+                                {
+                                    name : "con_sin_retorno",
+                                    index: "rrhh_salidas.con_sin_retorno",
+                                    width: 100,
+                                    align: "center"
+                                },
+
+                                {
+                                    name : "salida_s",
+                                    index: "rrhh_salidas.salida_s",
+                                    width: 250,
+                                    align: "center"
+                                },
+                                {
+                                    name : "salida_r",
+                                    index: "rrhh_salidas.salida_r",
+                                    width: 250,
+                                    align: "center"
+                                },
+                                {
+                                    name : "min_retrasos",
+                                    index: "rrhh_salidas.min_retrasos::text",
+                                    width: 65,
+                                    align: "center"
+                                },
+
+                                // === OCULTO ===
+                                    {
+                                        name  : "val_json",
+                                        index : "",
+                                        width : 10,
+                                        align : "center",
+                                        search: false,
+                                        hidden: true
+                                    }
+                            ],
+                            loadComplete : function(){
+                                $("tr.jqgrow:odd").addClass('myAltRowClass');
+                            },
+                            gridComplete : function() {
+                                var ids = $(jqgrid3).jqGrid('getDataIDs');
+                                for(var i = 0; i < ids.length; i++){
+                                    var cl       = ids[i];
+                                    var ret      = $(jqgrid3).jqGrid('getRowData', cl);
+                                    var val_json = $.parseJSON(ret.val_json);
+
+                                    var pdf1 = "";
+                                    pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([27, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
+
+                                    $(jqgrid3).jqGrid('setRowData', ids[i], {
+                                        act : $.trim(pdf1)
+                                    });
+                                }
+                            }
+                        });
+
+                        $(jqgrid3).jqGrid('setGroupHeaders', {
+                            useColSpanStyle: true,
+                            groupHeaders   :[
+                                {
+                                    startColumnName: 'f_salida',
+                                    numberOfColumns: 4,
+                                    titleText      : 'PAPELETA'
+                                },
+                                {
+                                    startColumnName: 'salida_s',
+                                    numberOfColumns: 3,
+                                    titleText      : 'BIOMETRICO'
+                                }
+                            ]
+                        });
+
+                        $(jqgrid3).jqGrid('filterToolbar',{
+                            searchOnEnter : true,
+                            stringResult  : true,
+                            defaultSearch : 'cn'
+                        });
+
+                        $(jqgrid3).jqGrid('navGrid', pjqgrid3, {
+                            edit  : false,
+                            add   : false,
+                            del   : false,
+                            search: false
+                        })
+                        ;
                     break;
             @endif
             // === ABRIR MODAL ===
@@ -992,6 +1184,15 @@
                         valor1[2]  = "No existe usuario que modifico la asistencia.";
                         utilitarios(valor1);
                     }
+                    break;
+
+                // === REPORTE PAPELETA DE SALIDA ===
+                case 27:
+                    var concatenar_valores = '';
+                    concatenar_valores     += '?tipo=1&salida_id=' + valor[1];
+
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
                     break;
             @endif
 

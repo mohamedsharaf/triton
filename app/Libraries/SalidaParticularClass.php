@@ -229,7 +229,7 @@ class SalidaParticularClass
                             if($retorno_sw_1)
                             {
                                 $fh_retorno_21 = strtotime('+20 minute', strtotime($fh_retorno));
-                                $fh_retorno_21 = strtotime('+59 second', strtotime($fh_retorno_21));
+                                $fh_retorno_21 = strtotime('+59 second', $fh_retorno_21);
                                 $fh_retorno_21 = date("Y-m-d H:i:s", $fh_retorno_21);
 
                                 $consulta4 = RrhhLogMarcacion::where("persona_id", "=", $row1['persona_id'])

@@ -123,6 +123,12 @@ class HomeController extends Controller
             '2' => 'TARDE'
         ];
 
+        $this->sp_estado = [
+            '1' => 'NO MARCADO',
+            '2' => 'SALIDA IGUAL AL HORARIO DE INGRESO',
+            '3' => 'RETORNO IGUAL AL HORARIO DE SALIDA'
+        ];
+
         $this->public_dir_1 = '/image/logo';
         $this->public_url_1 = 'storage/rrhh/salidas/solicitud_salida/';
     }
@@ -275,6 +281,7 @@ class HomeController extends Controller
             'sistema'                  => 'Recursos Humanos',
             'modulo'                   => 'Mi perfil',
             'title_table'              => 'Mis asistencias',
+            'title_table_2'            => 'Mis papeletas particulares',
             'estado_civil_array'       => $this->estado_civil,
             'sexo_array'               => $this->sexo,
             'usuario_array'            => $usuario_array,
@@ -599,6 +606,134 @@ class HomeController extends Controller
                         "MP-" . $row["codigo_af"],
                         $row["unidad_desconcentrada"],
                         $row["lugar_dependencia"],
+
+                        //=== VARIABLES OCULTOS ===
+                            json_encode($val_array)
+                    );
+                    $i++;
+                }
+                return json_encode($respuesta);
+                break;
+            case '3':
+                $jqgrid = new JqgridClass($request);
+
+                $tabla1 = "rrhh_salidas";
+                $tabla2 = "rrhh_tipos_salida";
+
+                $select = "
+                    $tabla1.id,
+                    $tabla1.persona_id,
+                    $tabla1.tipo_salida_id,
+                    $tabla1.persona_id_superior,
+                    $tabla1.persona_id_rrhh,
+
+                    $tabla1.cargo_id,
+                    $tabla1.unidad_desconcentrada_id,
+
+                    $tabla1.estado,
+                    $tabla1.codigo,
+                    $tabla1.destino,
+                    $tabla1.motivo,
+                    $tabla1.f_salida,
+                    $tabla1.f_retorno,
+                    $tabla1.h_salida,
+                    $tabla1.h_retorno,
+
+                    $tabla1.n_horas,
+                    $tabla1.con_sin_retorno,
+
+                    $tabla1.validar_superior,
+                    $tabla1.f_validar_superior,
+
+                    $tabla1.validar_rrhh,
+                    $tabla1.f_validar_rrhh,
+
+                    $tabla1.pdf,
+                    $tabla1.papeleta_pdf,
+
+                    $tabla1.log_marcaciones_id_s,
+                    $tabla1.log_marcaciones_id_r,
+
+                    $tabla1.salida_s,
+                    $tabla1.salida_r,
+                    $tabla1.min_retrasos,
+
+                    a2.nombre AS papeleta_salida,
+                    a2.tipo_cronograma,
+                    a2.tipo_salida
+                ";
+
+                $persona_id  = Auth::user()->persona_id;
+                $array_where = "$tabla1.persona_id=" . $persona_id . " AND a2.tipo_cronograma=1 AND a2.tipo_salida=2 AND $tabla1.validar_superior=2 AND $tabla1.validar_rrhh=2";
+
+                $array_where .= $jqgrid->getWhere();
+
+                $count = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                    ->whereRaw($array_where)
+                    ->count();
+
+                $limit_offset = $jqgrid->getLimitOffset($count);
+
+                $query = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                    ->whereRaw($array_where)
+                    ->select(DB::raw($select))
+                    ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                    ->offset($limit_offset['start'])
+                    ->limit($limit_offset['limit'])
+                    ->get()
+                    ->toArray();
+
+                $respuesta = [
+                    'page'    => $limit_offset['page'],
+                    'total'   => $limit_offset['total_pages'],
+                    'records' => $count
+                ];
+
+                $i = 0;
+                foreach ($query as $row)
+                {
+                    $val_array = array(
+                        'persona_id'               => $row["persona_id"],
+                        'tipo_salida_id'           => $row["tipo_salida_id"],
+                        'persona_id_superior'      => $row["persona_id_superior"],
+                        'persona_id_rrhh'          => $row["persona_id_rrhh"],
+                        'cargo_id'                 => $row["cargo_id"],
+                        'unidad_desconcentrada_id' => $row["unidad_desconcentrada_id"],
+                        'estado'                   => $row["estado"],
+                        'n_horas'                  => $row["n_horas"],
+                        'con_sin_retorno'          => $row["con_sin_retorno"],
+                        'validar_superior'         => $row["validar_superior"],
+                        'f_validar_superior'       => $row["f_validar_superior"],
+                        'validar_rrhh'             => $row["validar_rrhh"],
+                        'f_validar_rrhh'           => $row["f_validar_rrhh"],
+                        'pdf'                      => $row["pdf"],
+                        'papeleta_pdf'             => $row["papeleta_pdf"],
+                        'log_marcaciones_id_s'     => $row["log_marcaciones_id_s"],
+                        'log_marcaciones_id_r'     => $row["log_marcaciones_id_r"],
+                        'salida_s'                 => $row["salida_s"],
+                        'salida_r'                 => $row["salida_r"],
+                        'min_retrasos'             => $row["min_retrasos"],
+
+                        'tipo_cronograma' => $row["tipo_cronograma"],
+                        'tipo_salida'     => $row["tipo_salida"]
+                    );
+
+                    $respuesta['rows'][$i]['id'] = $row["id"];
+                    $respuesta['rows'][$i]['cell'] = array(
+                        '',
+
+                        $this->utilitarios(array('tipo' => '11', 'estado' => $row["estado"])),
+
+                        $row["codigo"],
+
+                        $row["f_salida"],
+                        $row["h_salida"],
+                        $row["h_retorno"],
+                        $this->utilitarios(array('tipo' => '13', 'con_sin_retorno' => $row["con_sin_retorno"])),
+
+                        $this->utilitarios(array('tipo' => '14', 'marcacion' => $row["salida_s"])),
+                        $this->utilitarios(array('tipo' => '14', 'marcacion' => $row["salida_r"])),
+                        $this->utilitarios(array('tipo' => '12', 'min_retrasos' => $row["min_retrasos"])),
 
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
@@ -1172,6 +1307,80 @@ class HomeController extends Controller
                     }
                 }
                 return($respuesta);
+                break;
+
+
+            case '11':
+                switch($valor['estado'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-primary font-sm">' . $this->estado[$valor['estado']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->estado[$valor['estado']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '3':
+                        $respuesta = '<span class="label label-success font-sm">' . $this->estado[$valor['estado']] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '12':
+                if($valor['min_retrasos'] > 0)
+                {
+                    $respuesta = '<span class="label label-danger font-sm">' . $valor['min_retrasos'] . '</span>';
+                }
+                else
+                {
+                    $respuesta = '<span class="label label-primary font-sm">' . $valor['min_retrasos'] . '</span>';
+                }
+
+                return($respuesta);
+                break;
+            case '13':
+                switch($valor['con_sin_retorno'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-primary font-sm">' . $this->con_sin_retorno[$valor['con_sin_retorno']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<span class="label label-success
+                         font-sm">' . $this->con_sin_retorno[$valor['con_sin_retorno']] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '14':
+                switch($valor['marcacion'])
+                {
+                    case $this->sp_estado['1']:
+                        $respuesta = '<span class="label label-danger font-sm">' . $valor['marcacion'] . '</span>';
+                        return($respuesta);
+                        break;
+                    case $this->sp_estado['2']:
+                        $respuesta = '<span class="label label-success font-sm">' . $valor['marcacion'] . '</span>';
+                        return($respuesta);
+                        break;
+                    case $this->sp_estado['3']:
+                        $respuesta = '<span class="label label-info font-sm">' . $valor['marcacion'] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '<span class="label label-primary font-sm">' . $valor['marcacion'] . '</span>';
+                        return($respuesta);
+                        break;
+                }
                 break;
 
             case '100':

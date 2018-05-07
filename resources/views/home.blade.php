@@ -130,6 +130,7 @@
             <li class=""><a data-toggle="tab" href="#tab-2"><i class="fa fa-lock"></i>Cambiar contraseña</a></li>
             @if($sw_asistencia)
               <li class=""><a data-toggle="tab" href="#tab-3"><i class="fa fa-check-square"></i>Asistencias</a></li>
+              <li class=""><a data-toggle="tab" href="#tab-5"><i class="fa fa-newspaper-o"></i>Papeleta particular</a></li>
             @endif
             @if($sw_horario)
               <li class=""><a data-toggle="tab" href="#tab-4"><i class="fa fa-clock-o"></i>Mi horario</a></li>
@@ -523,6 +524,17 @@
                       @endif
                     </tbody>
                   </table>
+                </div>
+              </div>
+            @endif
+
+            @if($sw_asistencia)
+              <div id="tab-5" class="tab-pane">
+                <div class="panel-body">
+                  <div class="jqGrid_wrapper_3">
+                    <table id="jqgrid3"></table>
+                    <div id="pjqgrid3"></div>
+                  </div>
                 </div>
               </div>
             @endif
