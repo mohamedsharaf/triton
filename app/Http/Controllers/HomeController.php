@@ -942,7 +942,10 @@ class HomeController extends Controller
                             ->toArray();
                         if($user_imagen['imagen'] != '')
                         {
-                            unlink(public_path($this->public_dir) . '/' . $user_imagen['imagen']);
+                            if(file_exists(public_path($this->public_dir) . '/' . $user_imagen['imagen']))
+                            {
+                                unlink(public_path($this->public_dir) . '/' . $user_imagen['imagen']);
+                            }
                         }
 
                         if($request->hasFile('file'))

@@ -441,7 +441,7 @@
                 // forceParse        : false,
                 autoclose: true,
                 format   : "yyyy-mm-dd",
-                startDate: '-1y',
+                startDate: '-2d',
                 endDate  : '+1y',
                 language : "es"
             });
@@ -460,7 +460,7 @@
                 // forceParse        : false,
                 autoclose: true,
                 format   : "yyyy-mm-dd",
-                startDate: '-1y',
+                startDate: '-2d',
                 endDate  : '+1y',
                 language : "es"
             });

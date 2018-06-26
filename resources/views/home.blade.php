@@ -141,6 +141,17 @@
               <div class="panel-body">
                 <div class="row">
                   <div class="col-lg-12">
+                    <p class="text-right">
+                      <a href="https://docs.google.com/document/d/1B_HWKJvku10m8sYdhCIgp9bXbOH9OnV7C0Y7_TwpZUY/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank">
+                        {{-- <i class="fa fa-upload"></i> --}}
+                        <strong>Manual</strong>
+                      </a>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-lg-12">
                     <p id="image_user_p" class="text-center">
                         <img id="image_user" src="{!! asset('image/logo/user_default_1.png') !!}" class="img-thumbnail" alt="image" style="max-height: 200px;">
                     </p>
@@ -156,7 +167,7 @@
                 <div class="row">
                   <div class="col-lg-12">
                     <p class="text-center">
-                      <button type="button" class="btn btn-warning" onclick="utilitarios([17]);">
+                      <button type="button" class="btn btn-info" onclick="utilitarios([17]);">
                         <i class="fa fa-upload"></i>
                         <strong>Subir fotografía</strong>
                       </button>
@@ -342,6 +353,16 @@
             <div id="tab-2" class="tab-pane">
               <div class="panel-body">
                 <div class="row">
+                  <div class="col-lg-12">
+                    <p class="text-right">
+                      <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-warning btn-xs" target="_blank">
+                        <strong>Manual</strong>
+                      </a>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="row">
                   <form id="form_2" role="form" action="#">
                     <input type="hidden" id="tipo1" name="tipo" value="3"/>
                     {{ csrf_field() }}
@@ -439,9 +460,64 @@
             @if($sw_asistencia)
               <div id="tab-3" class="tab-pane">
                 <div class="panel-body">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <p class="text-right">
+                        <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-danger btn-xs" target="_blank">
+                          <strong>Reglamento</strong>
+                        </a>
+
+                        <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-warning btn-xs" target="_blank">
+                          <strong>Manual</strong>
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+
                   <div class="jqGrid_wrapper">
                     <table id="jqgrid1"></table>
                     <div id="pjqgrid1"></div>
+                  </div>
+
+                  <br/>
+
+                  <div id="" class="row">
+                    <div class="col-lg-12">
+                      <div class="alert alert-warning">
+                        <h3>ARTÍCULO 24. OBLIGATORIEDAD EN EL REGISTRO DE INGRESO Y SALIDA</h3>
+                        <p>Toda servidora o servidor del Ministerio Público, tiene la obligación de registrar la hora de ingreso y de salida en el sistema biométrico o el medio habilitado para tal efecto, <b>cualquier omisión injustificada en el registro de asistencia al ingreso y/o salida será sancionado con el descuento de medio día de haber o según corresponda</b>.</p>
+                      </div>
+
+                      <div class="alert alert-danger">
+                        <h3>ARTÍCULO 27. ATRASOS, INASISTENCIA Y ABANDONO</h3>
+                        <p><b>a) ATRASOS Y MULTAS.-</b> Se considera atraso al registro que efectúa la o el servidor público al ingreso a la fuente laboral después del límite permitido como “tolerancia”; se otorgará excepcionalmente cinco minutos de tolerancia en los horarios de ingreso; pasado este límite el servidor será sancionado pecuniariamente de acuerdo a la siguiente escala:</p>
+                        <ul>
+                          <li>De <span class="badge badge-primary">21</span> a <span class="badge badge-primary">30</span> minutos al mes: <b>Medio día de haber</b>.</li>
+                          <li>De <span class="badge badge-primary">31</span> a <span class="badge badge-primary">50</span> minutos al mes: <b>Un día de haber</b>.</li>
+                          <li>De <span class="badge badge-primary">51</span> a <span class="badge badge-primary">70</span> minutos al mes: <b>Dos días de haber</b>.</li>
+                          <li>De <span class="badge badge-primary">71</span> a <span class="badge badge-primary">90</span> minutos al mes: <b>Tres días de haber</b>.</li>
+                          <li>De <span class="badge badge-primary">91</span> a <span class="badge badge-primary">120</span> minutos al mes: <b>Cuatro días de haber</b>.</li>
+                          <li>Más de <span class="badge badge-primary">120</span> minutos al mes: <b>Cinco días de haber y llamada de atención por escrito</b>.</li>
+                        </ul>
+                        <p><i class="fa fa-eye"></i> Tres llamadas de atención por escrito durante una misma gestión, se remitirán antecedentes para inicio de proceso interno.</p>
+
+                        <br/>
+
+                        <p><b>b)  CÓMPUTO DE ATRASOS.-</b> Cuando una o un servidor público llegue después de los cinco minutos de la hora de ingreso oficial, el cómputo de retraso acumulativo se sumará a partir del horario de ingreso, sin tomar en cuenta los 5 minutos de tolerancia. A este efecto, el período de cómputo de asistencia se realizará desde fecha 16 del mes anterior hasta el 15 del mes en que se procese la planilla respectiva.</p>
+
+                        <br/>
+
+                        <p><b>c) INASISTENCIA.-</b> Cuando una o un servidor público no asistiera a su fuente laboral, sin justificativo alguno, será pasible a las siguientes sanciones:</p>
+
+                        <p>Medio día de falta injustificada, <b>un día de haber</b> de sanción.</li>
+                        <ul>
+                          <li>Un día de falta o dos medios días alternos de falta injustificada durante el mes, <b>dos días de haber</b> de sanción.</li>
+                          <li>Un día y medio de falta o tres medios días alternos de falta injustificada durante el mes, <b>tres días de haber</b> de sanción.</li>
+                          <li>Dos días de falta o cuatro medios días alternos de falta injustificada en el mes, <b>cuatro días de haber</b> de sanción.</li>
+                          <li>Dos días y medio de falta o cinco medios días alternos de falta injustificada en el mes, <b>cinco días de haber</b> de sanción.</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -450,6 +526,20 @@
             @if($sw_horario)
               <div id="tab-4" class="tab-pane">
                 <div class="panel-body">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <p class="text-right">
+                        <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-danger btn-xs" target="_blank">
+                          <strong>Reglamento</strong>
+                        </a>
+
+                        <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-warning btn-xs" target="_blank">
+                          <strong>Manual</strong>
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+
                   <table class="table table-bordered">
                     <thead>
                       <tr>
@@ -531,43 +621,40 @@
             @if($sw_asistencia)
               <div id="tab-5" class="tab-pane">
                 <div class="panel-body">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <p class="text-right">
+                        <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-danger btn-xs" target="_blank">
+                          <strong>Reglamento</strong>
+                        </a>
+
+                        <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-warning btn-xs" target="_blank">
+                          <strong>Manual</strong>
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+
                   <div class="jqGrid_wrapper_3">
                     <table id="jqgrid3"></table>
                     <div id="pjqgrid3"></div>
+                  </div>
+
+                  <br/>
+
+                  <div id="" class="row">
+                    <div class="col-lg-12">
+                      <div class="alert alert-danger">
+                        <h3>ARTÍCULO 34. SALIDAS DE EMERGENCIA (EN HORAS DE OFICINA)</h3>
+                        <p>Se concederá permiso al personal para salidas particulares de emergencia y de índole personal hasta un máximo dos horas al mes, caso contrario <b>la ausencia después de estas horas se calculará para el descuento en base a la escala de atrasos vigente</b>, estas horas podrán utilizarse en un mismo día. Para dichas salidas deberá imprescindiblemente llenar la papeleta de salida particular establecida para tal efecto, con autorización del inmediato superior y firmada previamente por el Encargado de Control de Asistencia en la Fiscalía General del Estado o las Jefaturas Administrativas y Financieras en las Fiscalías Departamentales.</p>
+                        <p>Queda prohibida la utilización de este tipo de salidas para justificar atrasos y/o abandono de funciones, salvo motivos de fuerza mayor que serán debidamente regularizadas y justificadas hasta 24 horas después.</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             @endif
           </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="" class="row">
-      <div class="col-lg-12">
-        <div class="alert alert-success">
-          <h3>Obligatoriedad en el Registro de Ingreso y Salida (Art. 20)</h3>
-          La omisión en el registro de entrada y/o salida será sancionado con el descuento de medio día de haber o según corresponda.
-        </div>
-
-        <div class="alert alert-warning">
-          <h3>Atrasos y Multas (Art. 23 a).)</h3>
-          <p>De <span class="badge badge-danger">21</span> a <span class="badge badge-danger">30</span> minutos al mes: <b>Medio día de haber</b>.</p>
-          <p>De <span class="badge badge-danger">31</span> a <span class="badge badge-danger">50</span> minutos al mes: <b>Un día de haber</b>.</p>
-          <p>De <span class="badge badge-danger">51</span> a <span class="badge badge-danger">70</span> minutos al mes: <b>Dos días de haber</b>.</p>
-          <p>De <span class="badge badge-danger">71</span> a <span class="badge badge-danger">90</span> minutos al mes: <b>Tres días de haber</b>.</p>
-          <p>De <span class="badge badge-danger">91</span> a <span class="badge badge-danger">120</span> minutos al mes: <b>Cuatro días de haber</b>.</p>
-          <p>Más de <span class="badge badge-danger">120</span> minutos al mes: <b>Cinco días de haber y llamada de atención por escrito</b>.</p>
-          <p><i class="fa fa-eye"></i> Tres llamadas de atención por escrito durante una misma gestión, se remitirán antecedentes para inicio de proceso interno.</p>
-        </div>
-
-        <div class="alert alert-danger">
-          <h3>Inasistencia (Art. 23 c).)</h3>
-          <p>Medio día de falta injustificada, <b>un día de haber</b> de sanción.</p>
-          <p>Un día de falta o dos medios días alternos de falta injustificada durante el mes, <b>dos días de haber</b> de sanción.</p>
-          <p>Un día y medio de falta o tres medios días alternos de falta injustificada durante el mes, <b>tres días de haber</b> de sanción.</p>
-          <p>Dos días de falta o cuatro medios días alternos de falta injustificada en el mes, <b>cuatro días de haber</b> de sanción.</p>
-          <p>Dos días y medio de falta o cinco medios días alternos de falta injustificada en el mes, <b>cinco días de haber</b> de sanción.</p>
         </div>
       </div>
     </div>

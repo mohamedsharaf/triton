@@ -471,7 +471,7 @@ class PersonaController extends Controller
 
                         if($consulta1['f_nacimiento'] != '')
                         {
-                            $cliente = new nusoap_client('http://172.27.104.3:86/ServicioExternoInstitucion.svc?singleWsdl', true);
+                            $cliente = new nusoap_client(env('SEGIP_RUTA'), true);
 
                             $error = $cliente->getError();
                             if($error)
