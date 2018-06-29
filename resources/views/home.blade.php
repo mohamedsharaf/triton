@@ -142,7 +142,7 @@
                 <div class="row">
                   <div class="col-lg-12">
                     <p class="text-right">
-                      <a href="https://docs.google.com/document/d/1B_HWKJvku10m8sYdhCIgp9bXbOH9OnV7C0Y7_TwpZUY/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank">
+                      <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank">
                         {{-- <i class="fa fa-upload"></i> --}}
                         <strong>Manual</strong>
                       </a>
@@ -355,7 +355,7 @@
                 <div class="row">
                   <div class="col-lg-12">
                     <p class="text-right">
-                      <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-warning btn-xs" target="_blank">
+                      <a href="https://docs.google.com/document/d/1NO75m2JYMm2qwLt_BBbQCQCGZQWhgQTJjnNBmnaLOwU/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank">
                         <strong>Manual</strong>
                       </a>
                     </p>
@@ -467,7 +467,7 @@
                           <strong>Reglamento</strong>
                         </a>
 
-                        <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-warning btn-xs" target="_blank">
+                        <a href="https://docs.google.com/document/d/1kZLzDNQX8VEhJuKDkCRgCp-hpkgKZm4alUtZukh_BsU/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank">
                           <strong>Manual</strong>
                         </a>
                       </p>
@@ -533,7 +533,7 @@
                           <strong>Reglamento</strong>
                         </a>
 
-                        <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-warning btn-xs" target="_blank">
+                        <a href="https://docs.google.com/document/d/1R3o7ZFEZwTpJwpyzW6fs5iRl4XfYGLRlEzwVRf5PDA8/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank">
                           <strong>Manual</strong>
                         </a>
                       </p>
@@ -628,7 +628,7 @@
                           <strong>Reglamento</strong>
                         </a>
 
-                        <a href="https://drive.google.com/open?id=1xZBuQMIKahkHzycp9IqHSkWRIKMSZ-Lm" class="btn btn-warning btn-xs" target="_blank">
+                        <a href="https://docs.google.com/document/d/1GZtONMI8jH6r_m7q9pusA-wxPpMX_wRE6O_fQ8QHTRM/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank">
                           <strong>Manual</strong>
                         </a>
                       </p>

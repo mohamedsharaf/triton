@@ -187,13 +187,10 @@ class SolicitudSalidaController extends Controller
                 $tabla1 = "rrhh_salidas";
                 $tabla2 = "rrhh_tipos_salida";
 
+                $array_where = "$tabla1.persona_id=" . $consulta1['persona_id'] . " AND $tabla1.f_salida >= '$primer_dia_mes_salida' AND $tabla1.f_salida <= '$ultimo_dia_mes_salida' AND a2.tipo_salida='2' AND a2.tipo_cronograma='1' AND ($tabla1.estado=1 OR $tabla1.estado=3)";
+
                 $consulta2 = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
-                    ->where("$tabla1.persona_id", '=', $consulta1['persona_id'])
-                    ->where("$tabla1.f_salida", '>=', $primer_dia_mes_salida)
-                    ->where("$tabla1.f_salida", '<=', $ultimo_dia_mes_salida)
-                    ->where("a2.tipo_salida", '=', '2')
-                    ->where("a2.tipo_cronograma", '=', '1')
-                    ->where("$tabla1.estado", '=', 1)
+                    ->whereRaw($array_where)
                     ->sum("$tabla1.n_horas");
 
             $data = [
@@ -700,21 +697,16 @@ class SolicitudSalidaController extends Controller
 
                                 if($opcion == 'n')
                                 {
+                                    $array_where = "f_salida >= '$primer_dia_mes_salida' AND f_salida <= '$ultimo_dia_mes_salida' AND tipo_salida_id=" . $data1['tipo_salida_id'] . " AND (estado=1 OR estado=3)";
                                     $consulta2 = RrhhSalida::where('persona_id', '=', $data1['persona_id'])
-                                        ->where('f_salida', '>=', $primer_dia_mes_salida)
-                                        ->where('f_salida', '<=', $ultimo_dia_mes_salida)
-                                        ->where('tipo_salida_id', '=', $data1['tipo_salida_id'])
-                                        ->where('estado', '=', 1)
+                                        ->whereRaw($array_where)
                                         ->sum('n_horas');
                                 }
                                 else
                                 {
+                                    $array_where = "f_salida >= '$primer_dia_mes_salida' AND f_salida <= '$ultimo_dia_mes_salida' AND tipo_salida_id=" . $data1['tipo_salida_id'] . " AND id <> $id AND (estado=1 OR estado=3)";
                                     $consulta2 = RrhhSalida::where('persona_id', '=', $data1['persona_id'])
-                                        ->where('f_salida', '>=', $primer_dia_mes_salida)
-                                        ->where('f_salida', '<=', $ultimo_dia_mes_salida)
-                                        ->where('tipo_salida_id', '=', $data1['tipo_salida_id'])
-                                        ->where('estado', '=', 1)
-                                        ->where('id', '<>', $id)
+                                        ->whereRaw($array_where)
                                         ->sum('n_horas');
                                 }
 
