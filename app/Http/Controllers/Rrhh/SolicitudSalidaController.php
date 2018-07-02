@@ -193,6 +193,36 @@ class SolicitudSalidaController extends Controller
                     ->whereRaw($array_where)
                     ->sum("$tabla1.n_horas");
 
+            // === DIAS DE LA SEMANA ===
+                $f_actual = date("w");
+                $n_dias = 2;
+                switch($f_actual)
+                {
+                    // === DOMINGO ===
+                    case 0:
+                        break;
+                    // === LUNES ===
+                    case 1:
+                        $n_dias = 4;
+                        break;
+                    // === MARTES ===
+                    case 2:
+                        $n_dias = 4;
+                        break;
+                    // === MIERCOLES ===
+                    case 3:
+                        break;
+                    // === JUEVES ===
+                    case 4:
+                        break;
+                    // === VIERNES ===
+                    case 5:
+                        break;
+                    // === SABADO ===
+                    case 6:
+                        break;
+                }
+
             $data = [
                 'rol_id'                      => $this->rol_id,
                 'permisos'                    => $this->permisos,
@@ -211,6 +241,7 @@ class SolicitudSalidaController extends Controller
                 'funcionario_array'           => $consulta1,
                 'funcionario_sw'              => $funcionario_sw,
                 'n_horas'                     => $consulta2,
+                'n_dias'                      => $n_dias,
                 'tipo_salida_por_horas_array' => RrhhTipoSalida::where("lugar_dependencia_id", "=", $consulta1['lugar_dependencia_id_funcionario'])
                     ->where("estado", "=", '1')
                     ->where("tipo_cronograma", "=", '1')

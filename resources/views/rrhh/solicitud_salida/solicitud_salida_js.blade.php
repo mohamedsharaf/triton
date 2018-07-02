@@ -441,7 +441,7 @@
                 // forceParse        : false,
                 autoclose: true,
                 format   : "yyyy-mm-dd",
-                startDate: '-2d',
+                startDate: '-' + {!! $n_dias !!} + 'd',
                 endDate  : '+1y',
                 language : "es"
             });
@@ -460,7 +460,7 @@
                 // forceParse        : false,
                 autoclose: true,
                 format   : "yyyy-mm-dd",
-                startDate: '-2d',
+                startDate: '-' + {!! $n_dias !!} + 'd',
                 endDate  : '+1y',
                 language : "es"
             });
