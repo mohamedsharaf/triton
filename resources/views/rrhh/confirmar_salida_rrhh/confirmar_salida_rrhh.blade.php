@@ -155,6 +155,71 @@
           </div>
       </div>
   </div>
+
+  <!-- === MODAL === -->
+    <div id="modal_30" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              <span id="modal_30_title"></span>
+            </h4>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <form id="form_30" role="form" action="#">
+                <div class="col-sm-12">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label for="fecha_del_30">Fecha salida del</label>
+                        <input type="text" class="form-control" id="fecha_del_30" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label for="fecha_al_30">Fecha salida al</label>
+                        <input type="text" class="form-control" id="fecha_al_30" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="persona_id_div_30" class="form-group">
+                    <label for="persona_id_30">Funcionario solicitante</label>
+                    <select name="persona_id" id="persona_id_30" data-placeholder="Funcionario" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+
+                  <h3 class="text-success">
+                    <b>UBICACION DEL FUNCIONARIO</b>
+                  </h3>
+
+                  <div id="lugar_dependencia_id_funcionario_div_30" class="form-group">
+                    <label for="lugar_dependencia_id_funcionario_30">Lugar de dependencia</label>
+                    <select name="lugar_dependencia_id_funcionario" id="lugar_dependencia_id_funcionario_30" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info" onclick="utilitarios([31]);">Limpiar formulario</button>
+            <button type="button" class="btn btn-primary" onclick="utilitarios([32, 1]);">PDF</button>
+            <button type="button" class="btn btn-success" onclick="utilitarios([32, 2]);">Excel</button>
+            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+          </div>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @section('js_plugins')

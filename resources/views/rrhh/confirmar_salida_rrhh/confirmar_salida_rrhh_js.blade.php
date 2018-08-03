@@ -459,6 +459,9 @@
     // === FORMULARIO 2 ===
         var form_2 = "#form_2";
 
+    // === FORMULARIO 30 ===
+        var form_30 = "#form_30";
+
     // === ESTADO ===
         var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
         var estado_select = '';
@@ -539,15 +542,29 @@
             tipo_salida_por_dias_tipo_salida[value.id] = value.tipo_salida;
         });
 
+    // === LUGAR DE DEPENDENCIA ===
+        var lugar_dependencia_json   = $.parseJSON('{!! json_encode($lugar_dependencia_array) !!}');
+        var lugar_dependencia_select = '';
+        var lugar_dependencia_jqgrid = ':Todos';
+
+        $.each(lugar_dependencia_json, function(index, value) {
+            lugar_dependencia_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            lugar_dependencia_jqgrid += ';' + value.nombre + ':' + value.nombre;
+        });
+
     $(document).ready(function(){
         //=== INICIALIZAR ===
             $('#tipo_salida_id').append(tipo_salida_por_horas_select);
             $('#tipo_salida_id_2').append(tipo_salida_por_dias_select);
+            $('#lugar_dependencia_id_funcionario_30').append(lugar_dependencia_select);
+
             $("#tipo_salida_id, #tipo_salida_id_2").select2({
                 maximumSelectionLength: 1
             });
+            $("#lugar_dependencia_id_funcionario_30").select2();
             $("#tipo_salida_id").appendTo("#tipo_salida_id_div");
             $("#tipo_salida_id_2").appendTo("#tipo_salida_id_2_div");
+            $("#lugar_dependencia_id_funcionario_30").appendTo("#lugar_dependencia_id_funcionario_div_30");
 
             $('#tipo_salida, #tipo_salida_2').append(tipo_salida_select);
             $("#tipo_salida, #tipo_salida_2").select2({
@@ -581,8 +598,33 @@
                     }
                 }
             });
+            $('#persona_id_30').select2({
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q                               : params.term,
+                            page_limit                      : 10,
+                            estado                          : 1,
+                            tipo                            : 100,
+                            lugar_dependencia_id_funcionario: funcionario_json.lugar_dependencia_id_funcionario,
+                            persona_id                      : funcionario_json.persona_id,
+                            _token                          : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
             $("#persona_id_superior").appendTo("#persona_id_superior_div");
             $("#persona_id_superior_2").appendTo("#persona_id_superior_2_div");
+            $("#persona_id_30").appendTo("#persona_id_div_30");
 
             $('#f_salida').datepicker({
                 // startView            : 2,
@@ -613,6 +655,18 @@
                 startDate: '-0d',
                 endDate  : '+1y',
                 language : "es"
+            });
+
+            $('#fecha_del_30, #fecha_al_30').datepicker({
+                // startView            : 0,
+                // todayBtn          : "linked",
+                // keyboardNavigation: false,
+                // forceParse        : false,
+                autoclose            : true,
+                format               : "yyyy-mm-dd",
+                startDate            : '-20y',
+                endDate              : '0d',
+                language             : "es"
             });
 
         // === SELECT CHANGE ===
@@ -1164,19 +1218,13 @@
                         title         : 'Reportes',
                         buttonicon    : "ui-icon ui-icon-print",
                         onClickButton : function(){
-                            var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                            if(id == null)
-                            {
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                                valor1[2]  = "¡Favor seleccione una fila!";
-                                utilitarios(valor1);
-                            }
-                            else
-                            {
-                                utilitarios([13, id]);
-                            }
+                            var valor1 = new Array();
+                            valor1[0]  = 31;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 30;
+                            utilitarios(valor1);
                         }
                     })
                 @endif
@@ -1297,6 +1345,98 @@
                 if(val_json.pdf == '2'){
                     var win = window.open(public_url + '/' + val_json.papeleta_pdf,  '_blank');
                     win.focus();
+                }
+                break;
+
+            // === MODAL REPORTES ===
+            case 30:
+                $('#modal_30').modal();
+                break;
+            // === RESETEAR FORMULARIO DEL REPORTE ===
+            case 31:
+                $('#modal_30_title').empty();
+                $('#modal_30_title').append('Generar reportes');
+
+                $('#persona_id_30').select2("val", "");
+                $('#persona_id_30 option').remove();
+
+                $('#lugar_dependencia_id_funcionario_30').select2("val", "");
+
+                $('#fecha_del_30, #fecha_al_30').val("").datepicker("update");
+
+                $(form_30)[0].reset();
+                break;
+
+            // === REPORTES EXCEL ===
+            case 32:
+                var concatenar_valores = '';
+
+                if(valor[1] == 1){
+                    concatenar_valores += '?tipo=10';
+                }
+                else{
+                    concatenar_valores += '?tipo=11';
+                }
+
+                var fecha_del = $("#fecha_del_30").val();
+                var fecha_al  = $("#fecha_al_30").val();
+
+                var persona_id = $("#persona_id_30").val();
+
+                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_30").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(fecha_del) != ''){
+                    concatenar_valores += '&fecha_del=' + fecha_del;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
+                }
+
+                if($.trim(fecha_al) != ''){
+                    concatenar_valores += '&fecha_al=' + fecha_al;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA AL es obligatorio.';
+                }
+
+                if($.trim(persona_id) != ''){
+                    concatenar_valores += '&persona_id=' + persona_id;
+                }
+
+                if($.trim(lugar_dependencia_id_funcionario) != ''){
+                    concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
+                }
+
+                // if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
+                //     if($.trim(persona_id) != ''){
+                //         concatenar_valores += '&persona_id[]=' + persona_id;
+                //     }
+
+                //     if($.trim(lugar_dependencia_id_funcionario) != ''){
+                //         concatenar_valores += '&lugar_dependencia_id_funcionario[]=' + lugar_dependencia_id_funcionario;
+                //     }
+                // }
+                // else{
+                //     valor_sw    = false;
+                //     valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
+                // }
+
+                if(valor_sw){
+                    // alert(concatenar_valores);
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
                 }
                 break;
 

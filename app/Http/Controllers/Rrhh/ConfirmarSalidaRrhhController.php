@@ -175,6 +175,49 @@ class ConfirmarSalidaRrhhController extends Controller
 
         if(in_array(['codigo' => '1201'], $this->permisos) && ($funcionario_sw))
         {
+            $user_id = Auth::user()->id;
+
+            $consulta2 = SegLdUser::where("seg_ld_users.user_id", "=", $user_id)
+                ->select('lugar_dependencia_id')
+                ->get()
+                ->toArray();
+
+            $array_where = 'estado=1';
+            if(count($consulta2) > 0)
+            {
+                $c_1_sw        = TRUE;
+                $c_2_sw        = TRUE;
+                $array_where_1 = '';
+                foreach ($consulta2 as $valor2)
+                {
+                    if($valor2['lugar_dependencia_id'] == '1')
+                    {
+                        $c_2_sw = FALSE;
+                        break;
+                    }
+
+                    if($c_1_sw)
+                    {
+                        $array_where_1 .= " AND (id=" . $valor2['lugar_dependencia_id'];
+                        $c_1_sw        = FALSE;
+                    }
+                    else
+                    {
+                        $array_where_1 .= " OR id=" . $valor2['lugar_dependencia_id'];
+                    }
+                }
+                $array_where_1 .= ")";
+
+                if($c_2_sw)
+                {
+                    $array_where .= $array_where_1;
+                }
+            }
+            else
+            {
+                $array_where .= " AND id=0";
+            }
+
             $data = [
                 'rol_id'                      => $this->rol_id,
                 'permisos'                    => $this->permisos,
@@ -203,6 +246,11 @@ class ConfirmarSalidaRrhhController extends Controller
                     ->where("estado", "=", '1')
                     ->where("tipo_cronograma", "=", '2')
                     ->select("id", "nombre", "tipo_salida")
+                    ->orderBy("nombre")
+                    ->get()
+                    ->toArray(),
+                'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
+                    ->select("id", "nombre")
                     ->orderBy("nombre")
                     ->get()
                     ->toArray()
@@ -825,6 +873,35 @@ class ConfirmarSalidaRrhhController extends Controller
 
                     $respuesta['dia_hora']  = $data1['dia_hora'];
                 return json_encode($respuesta);
+                break;
+
+            // === SELECT2 PERSONA ===
+            case '100':
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = RrhhPersona::whereRaw("CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) ilike '%$nombre%'")
+                                ->where("estado", "=", $estado)
+                                ->select(DB::raw("id, CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) AS text"))
+                                ->orderByRaw("CONCAT_WS(' ', ap_paterno, ap_materno, nombre) ASC")
+                                ->limit($page_limit)
+                                ->get()
+                                ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
                 break;
             default:
                 break;
@@ -2392,6 +2469,445 @@ class ConfirmarSalidaRrhhController extends Controller
                 {
                     return "La BOLETA DE SALIDA no existe";
                 }
+                break;
+
+            case '11':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '1204'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                // === ANALISIS DE LAS VARIABLES ===
+                    if( ! (($request->has('fecha_del') && $request->has('fecha_al'))))
+                    {
+                        return "La FECHA DEL y FECHA AL son obligatorios.";
+                    }
+
+                //=== CARGAR VARIABLES ===
+                    $data1['fecha_del']                        = trim($request->input('fecha_del'));
+                    $data1['fecha_al']                         = trim($request->input('fecha_al'));
+                    $data1['persona_id']                       = $request->input('persona_id');
+                    $data1['lugar_dependencia_id_funcionario'] = $request->input('lugar_dependencia_id_funcionario');
+
+
+                    $persona_id_array = explode(",", $data1['persona_id']);
+
+                    print_r($data1);
+                    echo "<br>";
+
+                    print_r($persona_id_array);
+                    // exit($data1['persona_id'][0]);
+
+                //=== CONSULTA BASE DE DATOS ===
+                    $tabla1 = "rrhh_asistencias";
+                    $tabla2 = "rrhh_personas";
+                    $tabla3 = "inst_unidades_desconcentradas";
+                    $tabla4 = "inst_lugares_dependencia";
+                    $tabla5 = "inst_cargos";
+                    $tabla6 = "inst_tipos_cargo";
+
+                    $array_where = "$tabla1.estado <> '2'";
+                    if($request->has('fecha_del'))
+                    {
+                        $array_where .= " AND $tabla1.fecha >= '" . $data1['fecha_del'] . "'";
+                    }
+
+                    if($request->has('fecha_al'))
+                    {
+                        $array_where .= " AND $tabla1.fecha <= '" . $data1['fecha_al'] . "'";
+                    }
+
+                    if($request->has('lugar_dependencia_id_funcionario'))
+                    {
+                        $array_where .= " AND a3.lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
+                    }
+
+                    if($request->has('persona_id'))
+                    {
+                        $array_where .= " AND $tabla1.persona_id=" . $data1['persona_id'];
+                    }
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.persona_id,
+
+                        $tabla1.persona_id_rrhh_h1_i,
+                        $tabla1.persona_id_rrhh_h1_s,
+                        $tabla1.persona_id_rrhh_h2_i,
+                        $tabla1.persona_id_rrhh_h2_s,
+
+                        $tabla1.cargo_id,
+                        $tabla1.unidad_desconcentrada_id,
+
+                        $tabla1.log_marcaciones_id_i1,
+                        $tabla1.log_marcaciones_id_s1,
+                        $tabla1.log_marcaciones_id_i2,
+                        $tabla1.log_marcaciones_id_s2,
+
+                        $tabla1.horario_id_1,
+                        $tabla1.horario_id_2,
+
+                        $tabla1.salida_id_i1,
+                        $tabla1.salida_id_s1,
+                        $tabla1.salida_id_i2,
+                        $tabla1.salida_id_s2,
+
+                        $tabla1.fthc_id_h1,
+                        $tabla1.fthc_id_h2,
+
+                        $tabla1.estado,
+                        $tabla1.fecha,
+
+                        $tabla1.h1_i_omitir,
+                        $tabla1.h1_s_omitir,
+                        $tabla1.h2_i_omitir,
+                        $tabla1.h2_s_omitir,
+
+                        $tabla1.h1_min_retrasos,
+                        $tabla1.h2_min_retrasos,
+
+                        $tabla1.h1_descuento,
+                        $tabla1.h2_descuento,
+
+                        $tabla1.h1_i_omision_registro,
+                        $tabla1.h1_s_omision_registro,
+                        $tabla1.h2_i_omision_registro,
+                        $tabla1.h2_s_omision_registro,
+
+                        $tabla1.f_omision_registro,
+                        $tabla1.e_omision_registro,
+
+                        $tabla1.h1_falta,
+                        $tabla1.h2_falta,
+
+                        $tabla1.observaciones,
+                        $tabla1.justificacion,
+
+                        $tabla1.horario_1_i,
+                        $tabla1.horario_1_s,
+
+                        $tabla1.horario_2_i,
+                        $tabla1.horario_2_s,
+
+                        a2.n_documento,
+                        a2.nombre AS nombre_persona,
+                        a2.ap_paterno,
+                        a2.ap_materno,
+
+                        a3.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
+                        a3.nombre AS ud_funcionario,
+
+                        a4.nombre AS lugar_dependencia_funcionario,
+
+                        a6.nombre AS tipo_cargo
+                    ";
+
+                    $consulta1 = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.cargo_id")
+                        ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.tipo_cargo_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderByRaw("$tabla1.fecha ASC, a2.ap_paterno ASC, a2.ap_materno ASC, a2.nombre ASC")
+                        ->get()
+                        ->toArray();
+
+
+
+                    $tabla1 = "rrhh_salidas";
+                    $tabla2 = "rrhh_tipos_salida";
+                    $tabla3 = "rrhh_personas";
+                    $tabla4 = "rrhh_funcionarios";
+                    $tabla5 = "inst_unidades_desconcentradas";
+                    $tabla6 = "inst_lugares_dependencia";
+
+                    $array_where = "a2.tipo_cronograma=1";
+                    if($request->has('fecha_del'))
+                    {
+                        $array_where .= " AND $tabla1.f_salida >= '" . $data1['fecha_del'] . "'";
+                    }
+
+                    if($request->has('fecha_al'))
+                    {
+                        $array_where .= " AND $tabla1.f_salida <= '" . $data1['fecha_al'] . "'";
+                    }
+
+                    if($request->has('persona_id'))
+                    {
+                        $persona_id_array = explode(",", $data1['persona_id']);
+
+                        $array_where .= " AND (";
+
+                        $persona_sw     = TRUE;
+                        $persona_string = "";
+                        foreach ($persona_id_array as $persona_valor)
+                        {
+                            if($persona_sw)
+                            {
+                                $persona_string .= "$tabla1.persona_id=" . $persona_valor;
+                                $persona_sw = FALSE;
+                            }
+                            else
+                            {
+                                $persona_string .= " OR $tabla1.persona_id=" . $persona_valor;
+                            }
+                        }
+
+                        $array_where .= $persona_string . ")";
+                    }
+
+                    if($request->has('lugar_dependencia_id_funcionario'))
+                    {
+                        $array_where .= " AND a3.lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
+                    }
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.persona_id,
+                        $tabla1.tipo_salida_id,
+                        $tabla1.persona_id_superior,
+                        $tabla1.persona_id_rrhh,
+
+                        $tabla1.cargo_id,
+                        $tabla1.unidad_desconcentrada_id,
+
+                        $tabla1.estado,
+                        $tabla1.codigo,
+                        $tabla1.destino,
+                        $tabla1.motivo,
+                        $tabla1.f_salida,
+                        $tabla1.f_retorno,
+                        $tabla1.h_salida,
+                        $tabla1.h_retorno,
+
+                        $tabla1.n_horas,
+                        $tabla1.con_sin_retorno,
+
+                        $tabla1.validar_superior,
+                        $tabla1.f_validar_superior,
+
+                        $tabla1.validar_rrhh,
+                        $tabla1.f_validar_rrhh,
+
+                        $tabla1.pdf,
+                        $tabla1.papeleta_pdf,
+
+                        a2.nombre AS papeleta_salida,
+                        a2.tipo_cronograma,
+                        a2.tipo_salida,
+
+                        a3.n_documento,
+                        a3.nombre AS nombre_persona,
+                        a3.ap_paterno,
+                        a3.ap_materno,
+
+                        a4.n_documento AS n_documento_superior,
+                        a4.nombre AS nombre_superior,
+                        a4.ap_paterno AS ap_paterno_superior,
+                        a4.ap_materno AS ap_materno_superior,
+
+                        a5.n_documento AS n_documento_rrhh,
+                        a5.nombre AS nombre_rrhh,
+                        a5.ap_paterno AS ap_paterno_rrhh,
+                        a5.ap_materno AS ap_materno_rrhh,
+
+                        a7.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
+                        a7.nombre AS ud_funcionario,
+
+                        a8.nombre AS lugar_dependencia_funcionario
+                    ";
+
+                    $array_where = "a2.tipo_cronograma=1";
+
+                    $user_id = Auth::user()->id;
+                    $rol_id  = Auth::user()->rol_id;
+
+                    $consulta1 = SegLdUser::where("user_id", "=", $user_id)
+                        ->select('lugar_dependencia_id')
+                        ->get()
+                        ->toArray();
+                    if(count($consulta1) > 0)
+                    {
+                        $c_1_sw        = TRUE;
+                        $c_2_sw        = TRUE;
+                        $array_where_1 = '';
+                        foreach ($consulta1 as $valor)
+                        {
+                            if(($valor['lugar_dependencia_id'] == '1') && ($rol_id == '1' || $rol_id == '5'))
+                            {
+                                $c_2_sw = FALSE;
+                                break;
+                            }
+
+                            if($c_1_sw)
+                            {
+                                $array_where_1 .= " AND (a7.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                                $c_1_sw        = FALSE;
+                            }
+                            else
+                            {
+                                $array_where_1 .= " OR a7.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                            }
+                        }
+                        $array_where_1 .= ")";
+
+                        if($c_2_sw)
+                        {
+                            $array_where .= $array_where_1;
+                        }
+                    }
+                    else
+                    {
+                        $array_where .= " AND a7.lugar_dependencia_id=0 AND ";
+                    }
+
+
+                    $array_where .= $jqgrid->getWhere();
+
+                    $count = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
+                        ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
+                        ->whereRaw($array_where)
+                        ->count();
+
+                    $limit_offset = $jqgrid->getLimitOffset($count);
+
+                    $query = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
+                        ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                        ->offset($limit_offset['start'])
+                        ->limit($limit_offset['limit'])
+                        ->get()
+                        ->toArray();
+
+                // //=== EXCEL ===
+                //     if(count($consulta1) > 0)
+                //     {
+                //         set_time_limit(3600);
+                //         ini_set('memory_limit','-1');
+                //         Excel::create('asistencia_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                //             $excel->sheet('Resumen Asistencias', function($sheet) use($consulta1){
+                //                 $sheet->row(1, [
+                //                     'No',
+                //                     'FECHA',
+                //                     'CI',
+                //                     'NOMBRE COMPLETO',
+
+                //                     'TIPO DE CARGO',
+
+                //                     'HORARIO 1 INGRESO',
+                //                     'HORARIO 1 SALIDA',
+                //                     'HORARIO 1 RETRASO',
+
+                //                     'HORARIO 2 INGRESO',
+                //                     'HORARIO 2 SALIDA',
+                //                     'HORARIO 2 RETRASO',
+
+                //                     'UNIDAD DESCONCENTRADA',
+                //                     'LUGAR DE DEPENDENCIA'
+                //                 ]);
+
+                //                 $sheet->row(1, function($row){
+                //                     $row->setBackground('#CCCCCC');
+                //                     $row->setFontWeight('bold');
+                //                     $row->setAlignment('center');
+                //                 });
+
+                //                 $sheet->freezeFirstRow();
+                //                 $sheet->setAutoFilter();
+
+                //                 // $sheet->setColumnFormat([
+                //                 //     'A' => 'yyyy-mm-dd hh:mm:ss'
+                //                 // ]);
+
+                //                 $sw = FALSE;
+                //                 $c  = 1;
+
+                //                 foreach($consulta1 as $index1 => $row1)
+                //                 {
+                //                     $n_documento    = $row1["n_documento"];
+                //                     $nombre_persona = trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]);
+                //                     $sheet->row($c+1, [
+                //                         $c++,
+                //                         $row1["fecha"],
+                //                         $n_documento,
+                //                         $nombre_persona,
+
+                //                         $row1["tipo_cargo"],
+
+                //                         $row1["horario_1_i"],
+                //                         $row1["horario_1_s"],
+                //                         $row1["h1_min_retrasos"],
+
+                //                         $row1["horario_2_i"],
+                //                         $row1["horario_2_s"],
+                //                         $row1["h2_min_retrasos"],
+
+                //                         $row1["ud_funcionario"],
+                //                         $row1["lugar_dependencia_funcionario"]
+                //                     ]);
+
+                //                     if($sw)
+                //                     {
+                //                         $sheet->row($c, function($row){
+                //                             $row->setBackground('#deeaf6');
+                //                         });
+
+                //                         $sw = FALSE;
+                //                     }
+                //                     else
+                //                     {
+                //                         $sw = TRUE;
+                //                     }
+                //                 }
+
+                //                 $sheet->cells('A2:A' . ($c), function($cells){
+                //                     $cells->setAlignment('right');
+                //                 });
+
+                //                 $sheet->cells('B1:B' . ($c), function($cells){
+                //                     $cells->setAlignment('center');
+                //                 });
+
+                //                 $sheet->cells('C2:C' . ($c), function($cells){
+                //                     $cells->setAlignment('right');
+                //                 });
+
+                //                 $sheet->cells('E1:M' . ($c), function($cells){
+                //                     $cells->setAlignment('center');
+                //                 });
+
+
+                //                 $sheet->setAutoSize(true);
+                //             });
+                //         })->export('xlsx');
+                //     }
+                //     else
+                //     {
+                //         return "No se encontraron resultados.";
+                //     }
                 break;
             default:
                 break;
