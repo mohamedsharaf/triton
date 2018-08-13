@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 
 use App\Libraries\JqgridClass;
 use App\Libraries\UtilClass;
+use App\Libraries\BiometricoClass;
 
 use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegLdUser;
@@ -1264,6 +1265,50 @@ class BiometricoController extends Controller
 
                 //=== OPERACION ===
                 return json_encode($respuesta);
+                break;
+            // === GENERAR BACKUP Y ELIMINAR EL LOG DEL BIOMETRICO ===
+            case '7':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ALERTA</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo
+                    );
+
+                    $fs_conexion = date("Y-m-d H:i:s");
+                    $f_actual    = date("Y-m-d");
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if(!in_array(['codigo' => '0610'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para GENERAR BACKUP Y ELIMINAR EL LOG DEL BIOMETRICO.";
+                        return json_encode($respuesta);
+                    }
+
+                // === LIBRERIAS ===
+                    $biometrico = new BiometricoClass();
+
+                // === LLAMAR A LA LIBRERIA ===
+                    $data1['id'] = $id;
+
+                    $respuesta1 = $biometrico->getBackupLog($data1);
+
+                    $respuesta['respuesta'] .= $respuesta1['respuesta'];
+                    $respuesta['sw']        = $respuesta1['sw'];
+
+                //=== RESPUESTA ===
+                    return json_encode($respuesta);
                 break;
 
             // === SELECT2 UNIDAD DESCONCENTRADA ===

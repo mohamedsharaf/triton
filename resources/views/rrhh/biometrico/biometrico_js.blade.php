@@ -332,6 +332,15 @@
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
+                @if(in_array(['codigo' => '0610'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+                @if(in_array(['codigo' => '0611'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
                 @if(in_array(['codigo' => '0609'], $permisos))
                     subgrid_sw = true;
                 @endif
@@ -527,6 +536,8 @@
                             var re = "";
                             var ap = "";
                             var lo = "";
+                            var be = "";
+                            var vb = "";
 
                             @if(in_array(['codigo' => '0603'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
@@ -562,8 +573,18 @@
                                 }
                             @endif
 
+                            @if(in_array(['codigo' => '0610'], $permisos))
+                                if(val_json.estado == '1'){
+                                    be = " <button type='button' class='btn btn-xs btn-danger' title='Generar backup y eliminar el log del biométrico' onclick=\"utilitarios([23, " + cl + "]);\"><i class='fa fa-copy'></i></button>";
+                                }
+                            @endif
+
+                            @if(in_array(['codigo' => '0611'], $permisos))
+                                vb = " <button type='button' class='btn btn-xs btn-info' title='Ver log del backup del biométrico' onclick=\"utilitarios([24, " + cl + "]);\"><i class='fa fa-eye'></i></button>";
+                            @endif
+
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed + rc + sf + re + ap + lo)
+                                act : $.trim(ed + rc + sf + re + ap + lo + be + vb)
                             });
                         }
                     },
@@ -1190,6 +1211,58 @@
                     utilitarios(valor1);
                 }
                 break;
+            // === GENERAR BACKUP Y ELIMINAR EL LOG DEL BIOMETRICO ===
+            case 23:
+                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                if(val_json.estado == 1){
+                    swal({
+                        title: "GENERAR BACKUP Y ELIMINAR",
+                        text: "¿Está seguro de generar el backup y luego eliminar el registro de marcaciones?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Generar",
+                        cancelButtonText: "Cancelar",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                    function(isConfirm){
+                        if (isConfirm){
+                            // swal.close();
+
+                            swal({
+                                title             : "GENERANDO BACKUP",
+                                text              : "Espere a que se genere el backup y elimine marcaciones del biométrico.",
+                                allowEscapeKey    : false,
+                                showConfirmButton : false,
+                                type              : "info"
+                            });
+                            $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                            var valor1 = new Array();
+                            valor1[0]  = 150;
+                            valor1[1]  = url_controller + '/send_ajax';
+                            valor1[2]  = 'POST';
+                            valor1[3]  = true;
+                            valor1[4]  = "tipo=7&id=" + valor[1] + "&_token=" + csrf_token;
+                            valor1[5]  = 'json';
+                            utilitarios(valor1);
+                        }
+                        else{
+                            swal.close();
+                        }
+                    });
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 102;
+                    valor1[1]  = "ALERTA";
+                    valor1[2]  = "BIOMETRICO SIN RED.";
+                    utilitarios(valor1);
+                }
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -1363,6 +1436,32 @@
                                 break;
                             // === OBTENER REGISTRO DE ASISTENCIA ===
                             case '6':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === GENERAR BACKUP Y ELIMINAR EL LOG DEL BIOMETRICO ===
+                            case '7':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
                                     valor1[0]  = 100;
