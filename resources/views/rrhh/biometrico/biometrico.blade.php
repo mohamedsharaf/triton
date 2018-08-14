@@ -178,6 +178,53 @@
           </div>
         </div>
       </div>
+
+      <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span>
+            </button>
+
+            <h4 class="modal-title">
+              <span id="modal_2_title"></span>
+            </h4>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <form id="form_2" role="form" action="#">
+                <input type="hidden" id="biometrico_id_2" name="id" value=""/>
+                <div class="col-sm-12">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label for="fecha_del_2">Fecha del</label>
+                        <input type="text" class="form-control" id="fecha_del_2" name="fecha_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;" value="{{ date('Y-m-d')}}">
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <label for="fecha_al_2">Fecha al</label>
+                        <input type="text" class="form-control" id="fecha_al_2" name="fecha_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;" value="{{ date('Y-m-d')}}">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="utilitarios([24]);">Obtener registro de asistencia</button>
+            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+          </div>
+        </div>
+      </div>
+    </div>
 @endsection
 
 @section('js_plugins')

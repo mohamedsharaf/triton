@@ -212,6 +212,18 @@
                 });
             $("#unidad_desconcentrada_id").appendTo("#unidad_desconcentrada_id_div");
 
+            $('#fecha_del_2, #fecha_al_2').datepicker({
+                // startView            : 2,
+                // todayBtn          : "linked",
+                // keyboardNavigation: false,
+                // forceParse        : false,
+                autoclose            : true,
+                format               : "yyyy-mm-dd",
+                startDate            : '-100y',
+                endDate              : '+0d',
+                language             : "es"
+            });
+
         // === SELECT CHANGE ===
             $("#lugar_dependencia_id").on("change", function(e) {
                 $('#unidad_desconcentrada_id').select2('val','');
@@ -1161,55 +1173,11 @@
                 break;
             // === OBTENER REGISTRO DE ASISTENCIA ===
             case 22:
-                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
-                var val_json = $.parseJSON(ret.val_json);
+                $('#modal_2_title').empty();
+                $('#modal_2_title').append('Obtener registro de asistencia');
+                $("#biometrico_id_2").val(valor[1]);
 
-                if(val_json.estado == 1){
-                    swal({
-                        title: "REGISTRO DE ASISTENCIA",
-                        text: "¿Está seguro de obtener registro de asistencia?",
-                        type: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#DD6B55",
-                        confirmButtonText: "Obtener registro",
-                        cancelButtonText: "Cancelar",
-                        closeOnConfirm: false,
-                        closeOnCancel: false
-                    },
-                    function(isConfirm){
-                        if (isConfirm){
-                            // swal.close();
-
-                            swal({
-                                title             : "OBTENIENDO REGISTROS",
-                                text              : "Espere a que se obtenga el registro de asistencia del biométrico.",
-                                allowEscapeKey    : false,
-                                showConfirmButton : false,
-                                type              : "info"
-                            });
-                            $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                            var valor1 = new Array();
-                            valor1[0]  = 150;
-                            valor1[1]  = url_controller + '/send_ajax';
-                            valor1[2]  = 'POST';
-                            valor1[3]  = true;
-                            valor1[4]  = "tipo=6&id=" + valor[1] + "&_token=" + csrf_token;
-                            valor1[5]  = 'json';
-                            utilitarios(valor1);
-                        }
-                        else{
-                            swal.close();
-                        }
-                    });
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 102;
-                    valor1[1]  = "ALERTA";
-                    valor1[2]  = "BIOMETRICO SIN RED.";
-                    utilitarios(valor1);
-                }
+                $('#modal_2').modal();
                 break;
             // === GENERAR BACKUP Y ELIMINAR EL LOG DEL BIOMETRICO ===
             case 23:
@@ -1263,6 +1231,78 @@
                     utilitarios(valor1);
                 }
                 break;
+            // === OBTENER REGISTRO DE ASISTENCIA ===
+            case 24:
+                var concatenar_valores = '';
+                concatenar_valores     += 'tipo=6&_token=' + csrf_token;
+
+                var biometrico_id = $("#biometrico_id_2").val();
+
+                var fecha_del = $("#fecha_del_2").val();
+                var fecha_al  = $("#fecha_al_2").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(biometrico_id) != ''){
+                    concatenar_valores += '&id=' + biometrico_id;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>Seleccione un biométrico.';
+                }
+
+                if($.trim(fecha_del) != ''){
+                    concatenar_valores += '&fecha_del=' + fecha_del;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
+                }
+
+                if($.trim(fecha_al) != ''){
+                    concatenar_valores += '&fecha_al=' + fecha_al;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA AL es obligatorio.';
+                }
+
+                if(fecha_del <= fecha_al){
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>La FECHA DEL debe de ser menor o igual a FECHA AL.';
+                }
+
+                if(valor_sw){
+                    swal({
+                        title             : "OBTENIENDO REGISTROS",
+                        text              : "Espere a que se obtenga el registro de asistencia del biométrico.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = concatenar_valores;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
+                break;
+
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);

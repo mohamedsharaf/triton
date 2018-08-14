@@ -1023,248 +1023,30 @@ class BiometricoController extends Controller
                     $f_actual    = date("Y-m-d");
 
                 // === PERMISOS ===
-                    $id = trim($request->input('id'));
+                    $id        = trim($request->input('id'));
+                    $fecha_del = trim($request->input('fecha_del'));
+                    $fecha_al  = trim($request->input('fecha_al'));
                     if(!in_array(['codigo' => '0608'], $this->permisos))
                     {
                         $respuesta['respuesta'] .= "No tiene permiso para OBTENER REGISTRO DE ASISTENCIA.";
                         return json_encode($respuesta);
                     }
 
-                // === CONSULTA ===
-                    $biometrico = RrhhBiometrico::where('id', '=', $id)
-                        ->first()
-                        ->toArray();
+                // === LIBRERIAS ===
+                    $biometrico = new BiometricoClass();
 
-                // === VERIFICANDO CONEXION ===
-                    if($biometrico['estado'] == '1')
-                    {
-                        $data_conexion = [
-                            'ip'            => $biometrico['ip'],
-                            'internal_id'   => $biometrico['internal_id'],
-                            'com_key'       => $biometrico['com_key'],
-                            'soap_port'     => $biometrico['soap_port'],
-                            'udp_port'      => $biometrico['udp_port'],
-                            'encoding'      => $biometrico['encoding']
-                        ];
+                // === LLAMAR A LA LIBRERIA ===
+                    $data1['id']        = $id;
+                    $data1['fecha_del'] = $fecha_del;
+                    $data1['fecha_al']  = $fecha_al;
 
-                        $tad_factory = new TADFactory($data_conexion);
-                        $tad         = $tad_factory->get_instance();
+                    $respuesta1 = $biometrico->getRegistroAsistencia($data1);
 
-                        $f_log_asistencia_sw = TRUE;
-                        try
-                        {
-                            $fb_conexion_array = $tad->get_date()->to_array();
-                            $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
+                    $respuesta['respuesta'] .= $respuesta1['respuesta'];
+                    $respuesta['sw']        = $respuesta1['sw'];
 
-                            $e_conexion = 1;
-
-                            $att_logs = $tad->get_att_log();
-
-                            if($f_actual <= '2018-01-31')
-                            {
-                                $log_marcacion = $att_logs->filter_by_date([
-                                    'start' => '2018-01-18',
-                                    'end'   => $f_actual
-                                ])->to_array();
-                            }
-                            else
-                            {
-                                $log_marcacion = $att_logs->filter_by_date([
-                                    'start' => $f_actual,
-                                    'end'   => $f_actual
-                                ])->to_array();
-                            }
-
-                            if(count($log_marcacion))
-                            {
-                                $data1     = [];
-                                $sw_insert = FALSE;
-                                foreach($log_marcacion as $row)
-                                {
-                                    if(isset($row['PIN']))
-                                    {
-                                        $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
-                                            ->where("n_documento_biometrico", "=",  $row['PIN'])
-                                            ->select('persona_id')
-                                            ->first();
-
-                                        if(count($consulta1) > 0)
-                                        {
-                                            $consulta2 = RrhhLogMarcacion::where("biometrico_id", "=", $id)
-                                                ->where("persona_id", "=", $consulta1['persona_id'])
-                                                ->where("f_marcacion", "=", $row['DateTime'])
-                                                ->select('persona_id')
-                                                ->first();
-
-                                            if(count($consulta2) < 1)
-                                            {
-                                                $data1[] = [
-                                                    'biometrico_id'          => $id,
-                                                    'persona_id'             => $consulta1['persona_id'],
-                                                    'tipo_marcacion'         => 2,
-                                                    'n_documento_biometrico' => $row['PIN'],
-                                                    'f_marcacion'            => $row['DateTime']
-                                                ];
-
-                                                $sw_insert = TRUE;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        foreach($row as $valor1)
-                                        {
-                                            $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
-                                                ->where("n_documento_biometrico", "=",  $valor1['PIN'])
-                                                ->select('persona_id')
-                                                ->first();
-
-                                            if(count($consulta1) > 0)
-                                            {
-                                                $consulta2 = RrhhLogMarcacion::where("biometrico_id", "=", $id)
-                                                    ->where("persona_id", "=", $consulta1['persona_id'])
-                                                    ->where("f_marcacion", "=", $valor1['DateTime'])
-                                                    ->select('persona_id')
-                                                    ->first();
-
-                                                if(count($consulta2) < 1)
-                                                {
-                                                    $data1[] = [
-                                                        'biometrico_id'          => $id,
-                                                        'persona_id'             => $consulta1['persona_id'],
-                                                        'tipo_marcacion'         => 2,
-                                                        'n_documento_biometrico' => $valor1['PIN'],
-                                                        'f_marcacion'            => $valor1['DateTime']
-                                                    ];
-
-                                                    $sw_insert = TRUE;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if($sw_insert)
-                                {
-                                    RrhhLogMarcacion::insert($data1);
-                                    $respuesta['respuesta'] .= "Se obtuvo los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . ".";
-                                    $respuesta['sw']        = 1;
-                                }
-                                else
-                                {
-                                    $respuesta['respuesta'] .= "No existe registros de asistencia en la siguiente dirección " . $biometrico['ip'] . ".";
-                                    $f_log_asistencia_sw = FALSE;
-                                }
-                                // $tad->delete_data(['value' => 3]);
-                            }
-                            else
-                            {
-                                $respuesta['respuesta'] .= "No existe registros de asistencia en la siguiente dirección " . $biometrico['ip'] . ".";
-                                $f_log_asistencia_sw = FALSE;
-                            }
-
-                            // $log_marcacion = $tad->get_att_log()->to_array();
-
-                            // if(count($log_marcacion))
-                            // {
-                            //     $data1  = [];
-                            //     foreach($log_marcacion as $row)
-                            //     {
-                            //         if(isset($row['PIN']))
-                            //         {
-                            //             $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
-                            //                 ->where("n_documento_biometrico", "=",  $row['PIN'])
-                            //                 ->select('persona_id')
-                            //                 ->first();
-
-                            //             if(count($consulta1) > 0)
-                            //             {
-                            //                 $data1[] = [
-                            //                     'biometrico_id'          => $id,
-                            //                     'persona_id'             => $consulta1['persona_id'],
-                            //                     'tipo_marcacion'         => 2,
-                            //                     'n_documento_biometrico' => $row['PIN'],
-                            //                     'f_marcacion'            => $row['DateTime']
-                            //                 ];
-                            //             }
-                            //         }
-                            //         else
-                            //         {
-                            //             foreach($row as $valor1)
-                            //             {
-                            //                 $consulta1 = RrhhPersonaBiometrico::where("biometrico_id", "=", $id)
-                            //                     ->where("n_documento_biometrico", "=",  $valor1['PIN'])
-                            //                     ->select('persona_id')
-                            //                     ->first();
-
-                            //                 if(count($consulta1) > 0)
-                            //                 {
-                            //                     $data1[] = [
-                            //                         'biometrico_id'          => $id,
-                            //                         'persona_id'             => $consulta1['persona_id'],
-                            //                         'tipo_marcacion'         => 2,
-                            //                         'n_documento_biometrico' => $valor1['PIN'],
-                            //                         'f_marcacion'            => $valor1['DateTime']
-                            //                     ];
-                            //                 }
-                            //             }
-                            //         }
-                            //     }
-
-                            //     RrhhLogMarcacion::insert($data1);
-
-                            //     // $tad->delete_data(['value' => 3]);
-
-                            //     $respuesta['respuesta'] .= "Se obtuvo los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . ".";
-                            //     $respuesta['sw']        = 1;
-                            // }
-                            // else
-                            // {
-                            //     $respuesta['respuesta'] .= "No existe registros de asistencia en la siguiente dirección " . $biometrico['ip'] . ".";
-                            //     $f_log_asistencia_sw = FALSE;
-                            // }
-                        }
-                        catch (Exception $e)
-                        {
-                            $respuesta['respuesta'] .= "No se logró obtener los registros de asistencia de la siguiente dirección " . $biometrico['ip'] . "<br>Verifique la conexión.<br>";
-                            $e_conexion             = 2;
-                            $fb_conexion            = null;
-
-                            $error       = '' . $e;
-                            $error_array = explode("Stack trace:", $error);
-
-                            $iu                = new RrhhLogAlerta;
-                            $iu->biometrico_id = $id;
-                            $iu->tipo_emisor   = 2;
-                            $iu->tipo_alerta   = 1;
-                            $iu->f_alerta      = $fs_conexion;
-                            $iu->mensaje       = $error_array[0];
-                            $iu->save();
-
-                            $f_log_asistencia_sw = FALSE;
-                        }
-
-                        if($f_log_asistencia_sw)
-                        {
-                            $iu                   = RrhhBiometrico::find($id);
-                            $iu->e_conexion       = $e_conexion;
-                            $iu->fs_conexion      = $fs_conexion;
-                            $iu->fb_conexion      = $fb_conexion;
-                            $iu->f_log_asistencia = $fs_conexion;
-                            $iu->save();
-                        }
-                        else
-                        {
-                            $iu              = RrhhBiometrico::find($id);
-                            $iu->e_conexion  = $e_conexion;
-                            $iu->fs_conexion = $fs_conexion;
-                            $iu->fb_conexion = $fb_conexion;
-                            $iu->save();
-                        }
-                    }
-
-                //=== OPERACION ===
-                return json_encode($respuesta);
+                //=== RESPUESTA ===
+                    return json_encode($respuesta);
                 break;
             // === GENERAR BACKUP Y ELIMINAR EL LOG DEL BIOMETRICO ===
             case '7':
