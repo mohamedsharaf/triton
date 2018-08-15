@@ -153,4 +153,10 @@
         Route::match(["get", "post"], '/persona_biometrico/view_jqgrid', 'Rrhh\PersonaBiometricoController@view_jqgrid');
         Route::post('/persona_biometrico/send_ajax', 'Rrhh\PersonaBiometricoController@send_ajax');
 
+//=== MARCACION DEL BIOMETRICO ===
+    Route::get('/marcacion_biometrico', 'Rrhh\MarcacionBiometricoController@index')->name('marcacion_biometrico');
+        Route::match(["get", "post"], '/marcacion_biometrico/view_jqgrid', 'Rrhh\MarcacionBiometricoController@view_jqgrid');
+        Route::post('/marcacion_biometrico/send_ajax', 'Rrhh\MarcacionBiometricoController@send_ajax');
+        Route::match(["get", "post"], '/marcacion_biometrico/reportes', 'Rrhh\MarcacionBiometricoController@reportes');
+
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');

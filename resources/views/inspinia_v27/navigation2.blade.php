@@ -78,8 +78,8 @@
                 </li>
             @endif
 
-            @if(in_array(['codigo' => '0601'], $permisos) || in_array(['codigo' => '0701'], $permisos))
-                <li class="{{ isActiveRoute('biometrico') }}{{ isActiveRoute('persona_biometrico') }}">
+            @if(in_array(['codigo' => '0601'], $permisos) || in_array(['codigo' => '0701'], $permisos) || in_array(['codigo' => '1801'], $permisos))
+                <li class="{{ isActiveRoute('biometrico') }}{{ isActiveRoute('persona_biometrico') }}{{ isActiveRoute('marcacion_biometrico') }}">
                     <a href="#"><i class="fa fa-sitemap"></i> <span class="nav-label">Biometricos</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         @if(in_array(['codigo' => '0601'], $permisos))
@@ -87,6 +87,9 @@
                         @endif
                         @if(in_array(['codigo' => '0701'], $permisos))
                             <li class="{{ isActiveRoute('persona_biometrico') }}"><a href="{{ url('/persona_biometrico') }}">Personas</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '1801'], $permisos))
+                            <li class="{{ isActiveRoute('marcacion_biometrico') }}"><a href="{{ url('/marcacion_biometrico') }}">Log del biométrico</a></li>
                         @endif
                     </ul>
                 </li>

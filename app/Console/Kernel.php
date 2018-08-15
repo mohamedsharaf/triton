@@ -98,7 +98,9 @@ class Kernel extends ConsoleKernel
 
         //=== OBTENER REGISTRO DE ASISTENCIA ===
             $schedule->call(function(){
-                $f_actual  = date("Y-m-d");
+                $f_actual   = date("Y-m-d");
+                $f_ayer = date("Y-m-d", strtotime('-1 day'));
+
                 $consulta1 = RrhhBiometrico::where('estado', '=', 1)
                     ->get()
                     ->toArray();
@@ -125,24 +127,12 @@ class Kernel extends ConsoleKernel
                         $fb_conexion_array = $tad->get_date()->to_array();
                         $fb_conexion       = $fb_conexion_array['Row']['Date'] . ' ' . $fb_conexion_array['Row']['Time'];
 
-                        // $log_marcacion = $tad->get_att_log()->to_array();
-
                         $att_logs = $tad->get_att_log();
 
-                        if($f_actual <= '2018-01-24')
-                        {
-                            $log_marcacion = $att_logs->filter_by_date([
-                                'start' => '2018-01-18',
-                                'end'   => $f_actual
-                            ])->to_array();
-                        }
-                        else
-                        {
-                            $log_marcacion = $att_logs->filter_by_date([
-                                'start' => $f_actual,
-                                'end'   => $f_actual
-                            ])->to_array();
-                        }
+                        $log_marcacion = $att_logs->filter_by_date([
+                            'start' => $f_ayer,
+                            'end'   => $f_actual
+                        ])->to_array();
 
                         if(count($log_marcacion))
                         {
@@ -314,7 +304,7 @@ class Kernel extends ConsoleKernel
                         $iu->save();
                     }
                 }
-            })->everyTenMinutes();
+            })->hourlyAt(17);
     }
 
     /**
