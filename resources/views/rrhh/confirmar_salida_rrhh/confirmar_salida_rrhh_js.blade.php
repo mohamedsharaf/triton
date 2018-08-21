@@ -1171,46 +1171,6 @@
                 .navSeparatorAdd(pjqgrid1,{
                     sepclass : "ui-separator"
                 })
-                @if(in_array(['codigo' => '1202'], $permisos))
-                    // .navButtonAdd(pjqgrid1,{
-                    //     "id"          : "add1",
-                    //     caption       : "",
-                    //     title         : 'Agregar nueva fila',
-                    //     buttonicon    : "ui-icon ui-icon-plusthick",
-                    //     onClickButton : function(){
-                    //         var valor1 = new Array();
-                    //         valor1[0]  = 14;
-                    //         utilitarios(valor1);
-
-                    //         var valor1 = new Array();
-                    //         valor1[0]  = 11;
-                    //         utilitarios(valor1);
-                    //     }
-                    // })
-                @endif
-                @if(in_array(['codigo' => '1203'], $permisos))
-                    // .navButtonAdd(pjqgrid1,{
-                    //     "id"          : "edit1",
-                    //     caption       : "",
-                    //     title         : 'Editar fila',
-                    //     buttonicon    : "ui-icon ui-icon-pencil",
-                    //     onClickButton : function(){
-                    //         var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                    //         if(id == null)
-                    //         {
-                    //             var valor1 = new Array();
-                    //             valor1[0]  = 101;
-                    //             valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                    //             valor1[2]  = "¡Favor seleccione una fila!";
-                    //             utilitarios(valor1);
-                    //         }
-                    //         else
-                    //         {
-                    //             utilitarios([12, id]);
-                    //         }
-                    //     }
-                    // })
-                @endif
                 @if(in_array(['codigo' => '1204'], $permisos))
                     .navButtonAdd(pjqgrid1,{
                         "id"          : "print1",
@@ -1815,70 +1775,21 @@
                 .navSeparatorAdd(pjqgrid2,{
                     sepclass : "ui-separator"
                 })
-                @if(in_array(['codigo' => '1202'], $permisos))
-                    // .navButtonAdd(pjqgrid2,{
-                    //     "id"          : "add2",
-                    //     caption       : "",
-                    //     title         : 'Agregar nueva fila',
-                    //     buttonicon    : "ui-icon ui-icon-plusthick",
-                    //     onClickButton : function(){
-                    //         var valor1 = new Array();
-                    //         valor1[0]  = 54;
-                    //         utilitarios(valor1);
-
-                    //         var valor1 = new Array();
-                    //         valor1[0]  = 51;
-                    //         utilitarios(valor1);
-                    //     }
-                    // })
-                @endif
-                @if(in_array(['codigo' => '1203'], $permisos))
-                    // .navButtonAdd(pjqgrid2,{
-                    //     "id"          : "edit2",
-                    //     caption       : "",
-                    //     title         : 'Editar fila',
-                    //     buttonicon    : "ui-icon ui-icon-pencil",
-                    //     onClickButton : function(){
-                    //         var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                    //         if(id == null)
-                    //         {
-                    //             var valor1 = new Array();
-                    //             valor1[0]  = 101;
-                    //             valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                    //             valor1[2]  = "¡Favor seleccione una fila!";
-                    //             utilitarios(valor1);
-                    //         }
-                    //         else
-                    //         {
-                    //             utilitarios([52, id]);
-                    //         }
-                    //     }
-                    // })
-                @endif
                 @if(in_array(['codigo' => '1204'], $permisos))
-                    // .navSeparatorAdd(pjqgrid2,{
-                    //   sepclass : "ui-separator"
-                    // })
                     .navButtonAdd(pjqgrid2,{
-                      "id"          : "print2",
-                      caption       : "",
-                      title         : 'Reportes',
-                      buttonicon    : "ui-icon ui-icon-print",
-                      onClickButton : function(){
-                        var id = $(jqgrid2).jqGrid('getGridParam','selrow');
-                        if(id == null)
-                        {
+                        "id"          : "print2",
+                        caption       : "",
+                        title         : 'Reportes',
+                        buttonicon    : "ui-icon ui-icon-print",
+                        onClickButton : function(){
+                        var valor1 = new Array();
+                            valor1[0]  = 31;
+                            utilitarios(valor1);
+
                             var valor1 = new Array();
-                            valor1[0]  = 101;
-                            valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                            valor1[2]  = "¡Favor seleccione una fila!";
+                            valor1[0]  = 30;
                             utilitarios(valor1);
                         }
-                        else
-                        {
-                            utilitarios([13, id]);
-                        }
-                      }
                     })
                 @endif
                 ;
