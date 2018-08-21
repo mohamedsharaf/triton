@@ -567,9 +567,6 @@ class ConfirmarSalidaRrhhController extends Controller
                         a5.ap_paterno AS ap_paterno_rrhh,
                         a5.ap_materno AS ap_materno_rrhh,
 
-                        a6.id AS funcionario_id,
-                        a6.unidad_desconcentrada_id,
-
                         a7.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
                         a7.nombre AS ud_funcionario,
 
@@ -620,15 +617,13 @@ class ConfirmarSalidaRrhhController extends Controller
                         $array_where .= " AND a7.lugar_dependencia_id=0 AND ";
                     }
 
-
                     $array_where .= $jqgrid->getWhere();
 
                     $count = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
                         ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
                         ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
                         ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
-                        ->leftJoin("$tabla4 AS a6", "a3.id", "=", "a6.persona_id")
-                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "a6.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
                         ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
                         ->whereRaw($array_where)
                         ->count();
@@ -639,8 +634,7 @@ class ConfirmarSalidaRrhhController extends Controller
                         ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
                         ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
                         ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
-                        ->leftJoin("$tabla4 AS a6", "a3.id", "=", "a6.persona_id")
-                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "a6.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
                         ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
                         ->whereRaw($array_where)
                         ->select(DB::raw($select))
@@ -2481,7 +2475,7 @@ class ConfirmarSalidaRrhhController extends Controller
                                         ->toArray();
 
                 // === INICIALIZACION DE VARIABLES ===
-                    $data1     = array();
+                    $data1 = array();
 
                 // === PERMISOS ===
                     if(!in_array(['codigo' => '1204'], $this->permisos))
@@ -2501,132 +2495,7 @@ class ConfirmarSalidaRrhhController extends Controller
                     $data1['persona_id']                       = $request->input('persona_id');
                     $data1['lugar_dependencia_id_funcionario'] = $request->input('lugar_dependencia_id_funcionario');
 
-
-                    $persona_id_array = explode(",", $data1['persona_id']);
-
-                    print_r($data1);
-                    echo "<br>";
-
-                    print_r($persona_id_array);
-                    // exit($data1['persona_id'][0]);
-
                 //=== CONSULTA BASE DE DATOS ===
-                    $tabla1 = "rrhh_asistencias";
-                    $tabla2 = "rrhh_personas";
-                    $tabla3 = "inst_unidades_desconcentradas";
-                    $tabla4 = "inst_lugares_dependencia";
-                    $tabla5 = "inst_cargos";
-                    $tabla6 = "inst_tipos_cargo";
-
-                    $array_where = "$tabla1.estado <> '2'";
-                    if($request->has('fecha_del'))
-                    {
-                        $array_where .= " AND $tabla1.fecha >= '" . $data1['fecha_del'] . "'";
-                    }
-
-                    if($request->has('fecha_al'))
-                    {
-                        $array_where .= " AND $tabla1.fecha <= '" . $data1['fecha_al'] . "'";
-                    }
-
-                    if($request->has('lugar_dependencia_id_funcionario'))
-                    {
-                        $array_where .= " AND a3.lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
-                    }
-
-                    if($request->has('persona_id'))
-                    {
-                        $array_where .= " AND $tabla1.persona_id=" . $data1['persona_id'];
-                    }
-
-                    $select = "
-                        $tabla1.id,
-                        $tabla1.persona_id,
-
-                        $tabla1.persona_id_rrhh_h1_i,
-                        $tabla1.persona_id_rrhh_h1_s,
-                        $tabla1.persona_id_rrhh_h2_i,
-                        $tabla1.persona_id_rrhh_h2_s,
-
-                        $tabla1.cargo_id,
-                        $tabla1.unidad_desconcentrada_id,
-
-                        $tabla1.log_marcaciones_id_i1,
-                        $tabla1.log_marcaciones_id_s1,
-                        $tabla1.log_marcaciones_id_i2,
-                        $tabla1.log_marcaciones_id_s2,
-
-                        $tabla1.horario_id_1,
-                        $tabla1.horario_id_2,
-
-                        $tabla1.salida_id_i1,
-                        $tabla1.salida_id_s1,
-                        $tabla1.salida_id_i2,
-                        $tabla1.salida_id_s2,
-
-                        $tabla1.fthc_id_h1,
-                        $tabla1.fthc_id_h2,
-
-                        $tabla1.estado,
-                        $tabla1.fecha,
-
-                        $tabla1.h1_i_omitir,
-                        $tabla1.h1_s_omitir,
-                        $tabla1.h2_i_omitir,
-                        $tabla1.h2_s_omitir,
-
-                        $tabla1.h1_min_retrasos,
-                        $tabla1.h2_min_retrasos,
-
-                        $tabla1.h1_descuento,
-                        $tabla1.h2_descuento,
-
-                        $tabla1.h1_i_omision_registro,
-                        $tabla1.h1_s_omision_registro,
-                        $tabla1.h2_i_omision_registro,
-                        $tabla1.h2_s_omision_registro,
-
-                        $tabla1.f_omision_registro,
-                        $tabla1.e_omision_registro,
-
-                        $tabla1.h1_falta,
-                        $tabla1.h2_falta,
-
-                        $tabla1.observaciones,
-                        $tabla1.justificacion,
-
-                        $tabla1.horario_1_i,
-                        $tabla1.horario_1_s,
-
-                        $tabla1.horario_2_i,
-                        $tabla1.horario_2_s,
-
-                        a2.n_documento,
-                        a2.nombre AS nombre_persona,
-                        a2.ap_paterno,
-                        a2.ap_materno,
-
-                        a3.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
-                        a3.nombre AS ud_funcionario,
-
-                        a4.nombre AS lugar_dependencia_funcionario,
-
-                        a6.nombre AS tipo_cargo
-                    ";
-
-                    $consulta1 = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
-                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
-                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
-                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.cargo_id")
-                        ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.tipo_cargo_id")
-                        ->whereRaw($array_where)
-                        ->select(DB::raw($select))
-                        ->orderByRaw("$tabla1.fecha ASC, a2.ap_paterno ASC, a2.ap_materno ASC, a2.nombre ASC")
-                        ->get()
-                        ->toArray();
-
-
-
                     $tabla1 = "rrhh_salidas";
                     $tabla2 = "rrhh_tipos_salida";
                     $tabla3 = "rrhh_personas";
@@ -2634,7 +2503,7 @@ class ConfirmarSalidaRrhhController extends Controller
                     $tabla5 = "inst_unidades_desconcentradas";
                     $tabla6 = "inst_lugares_dependencia";
 
-                    $array_where = "a2.tipo_cronograma=1";
+                    $array_where = "";
                     if($request->has('fecha_del'))
                     {
                         $array_where .= " AND $tabla1.f_salida >= '" . $data1['fecha_del'] . "'";
@@ -2671,7 +2540,26 @@ class ConfirmarSalidaRrhhController extends Controller
 
                     if($request->has('lugar_dependencia_id_funcionario'))
                     {
-                        $array_where .= " AND a3.lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
+                        $lugar_dependencia_id_array = explode(",", $data1['lugar_dependencia_id_funcionario']);
+
+                        $array_where .= " AND (";
+
+                        $lugar_dependencia_sw     = TRUE;
+                        $lugar_dependencia_string = "";
+                        foreach ($lugar_dependencia_id_array as $lugar_dependencia_valor)
+                        {
+                            if($lugar_dependencia_sw)
+                            {
+                                $lugar_dependencia_string .= "a7.lugar_dependencia_id=" . $lugar_dependencia_valor;
+                                $lugar_dependencia_sw     = FALSE;
+                            }
+                            else
+                            {
+                                $lugar_dependencia_string .= " OR a7.lugar_dependencia_id=" . $lugar_dependencia_valor;
+                            }
+                        }
+
+                        $array_where .= $lugar_dependencia_string . ")";
                     }
 
                     $select = "
@@ -2730,184 +2618,398 @@ class ConfirmarSalidaRrhhController extends Controller
                         a8.nombre AS lugar_dependencia_funcionario
                     ";
 
-                    $array_where = "a2.tipo_cronograma=1";
+                    $array_where_1 = "a2.tipo_cronograma=1" . $array_where;
 
-                    $user_id = Auth::user()->id;
-                    $rol_id  = Auth::user()->rol_id;
-
-                    $consulta1 = SegLdUser::where("user_id", "=", $user_id)
-                        ->select('lugar_dependencia_id')
+                    $consulta1 = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
+                        ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
+                        ->whereRaw($array_where_1)
+                        ->select(DB::raw($select))
+                        ->orderBy("$tabla1.f_salida", "ASC")
+                        ->orderBy("$tabla1.h_salida", "ASC")
+                        ->orderBy("$tabla1.codigo", "ASC")
                         ->get()
                         ->toArray();
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.persona_id,
+                        $tabla1.tipo_salida_id,
+                        $tabla1.persona_id_superior,
+                        $tabla1.persona_id_rrhh,
+
+                        $tabla1.estado,
+                        $tabla1.codigo,
+                        $tabla1.destino,
+                        $tabla1.motivo,
+                        $tabla1.f_salida,
+                        $tabla1.f_retorno,
+                        $tabla1.periodo_salida,
+                        $tabla1.periodo_retorno,
+
+                        $tabla1.n_dias,
+                        $tabla1.con_sin_retorno,
+
+                        $tabla1.validar_superior,
+                        $tabla1.f_validar_superior,
+
+                        $tabla1.validar_rrhh,
+                        $tabla1.f_validar_rrhh,
+
+                        $tabla1.pdf,
+                        $tabla1.papeleta_pdf,
+
+                        a2.nombre AS papeleta_salida,
+                        a2.tipo_cronograma,
+                        a2.tipo_salida,
+
+                        a3.n_documento,
+                        a3.nombre AS nombre_persona,
+                        a3.ap_paterno,
+                        a3.ap_materno,
+
+                        a4.n_documento AS n_documento_superior,
+                        a4.nombre AS nombre_superior,
+                        a4.ap_paterno AS ap_paterno_superior,
+                        a4.ap_materno AS ap_materno_superior,
+
+                        a5.n_documento AS n_documento_rrhh,
+                        a5.nombre AS nombre_rrhh,
+                        a5.ap_paterno AS ap_paterno_rrhh,
+                        a5.ap_materno AS ap_materno_rrhh,
+
+                        a7.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
+                        a7.nombre AS ud_funcionario,
+
+                        a8.nombre AS lugar_dependencia_funcionario
+                    ";
+
+                    $array_where_2 = "a2.tipo_cronograma=2" . $array_where;
+
+                    $consulta2 = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
+                        ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
+                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
+                        ->whereRaw($array_where_2)
+                        ->select(DB::raw($select))
+                        ->orderBy("$tabla1.f_salida", "ASC")
+                        ->orderBy("$tabla1.h_salida", "ASC")
+                        ->orderBy("$tabla1.codigo", "ASC")
+                        ->get()
+                        ->toArray();
+
+                //=== EXCEL ===
                     if(count($consulta1) > 0)
                     {
-                        $c_1_sw        = TRUE;
-                        $c_2_sw        = TRUE;
-                        $array_where_1 = '';
-                        foreach ($consulta1 as $valor)
-                        {
-                            if(($valor['lugar_dependencia_id'] == '1') && ($rol_id == '1' || $rol_id == '5'))
-                            {
-                                $c_2_sw = FALSE;
-                                break;
-                            }
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('salidas_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1, $consulta2){
+                            $excel->sheet('Salidas por horas', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'No',
+                                    'ESTADO',
+                                    '¿VALIDADO INMEDIATO SUPERIOR?',
+                                    '¿VALIDADO RRHH?',
+                                    '¿CON PDF?',
+                                    'TIPO DE PAPELETA',
+                                    'TIPO DE SALIDA',
+                                    'CODIGO',
 
-                            if($c_1_sw)
-                            {
-                                $array_where_1 .= " AND (a7.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
-                                $c_1_sw        = FALSE;
-                            }
-                            else
-                            {
-                                $array_where_1 .= " OR a7.lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
-                            }
-                        }
-                        $array_where_1 .= ")";
+                                    'FUNCIONARIO SOLICITANTE',
+                                    'DESTINO',
+                                    'MOTIVO',
+                                    'FECHA DE SALIDA',
+                                    'HORA SALIDA',
+                                    'HORA RETORNO',
+                                    'RETORNO',
+                                    'MINUTOS DE SALIDA',
 
-                        if($c_2_sw)
-                        {
-                            $array_where .= $array_where_1;
-                        }
+                                    'VALIDACION INMEDIATO SUPERIOR',
+                                    'INMEDIATO SUPERIOR',
+
+                                    'VALIDACION RRHH',
+                                    'RECURSOS HUMANOS',
+
+                                    'UNIDAD DESCONCENTRADA',
+                                    'LUGAR DE DEPENDENCIA'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    $funcionario_solicitante = $row1["n_documento"] . " - " . trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]);
+
+                                    $inmediato_superior = '';
+                                    if($row1["n_documento_superior"] != '')
+                                    {
+                                        $inmediato_superior = $row1["n_documento_superior"] . " - " . trim($row1["ap_paterno_superior"] . " " . $row1["ap_materno_superior"]) . " " . trim($row1["nombre_superior"]);
+                                    }
+
+                                    $rrhh = '';
+                                    if($row1["n_documento_rrhh"] != '')
+                                    {
+                                        $rrhh = $row1["n_documento_rrhh"] . " - " . trim($row1["ap_paterno_rrhh"] . " " . $row1["ap_materno_rrhh"]) . " " . trim($row1["nombre_rrhh"]);
+                                    }
+
+                                    $sheet->row($c+1, [
+                                        $c++,
+                                        $this->estado[$row1["estado"]],
+                                        $this->no_si[$row1["validar_superior"]],
+                                        $this->no_si[$row1["validar_rrhh"]],
+                                        $this->no_si[$row1["pdf"]],
+                                        $row1["papeleta_salida"],
+                                        ($row1["tipo_salida"] == '')? '' : $this->tipo_salida[$row1["tipo_salida"]],
+                                        $row1["codigo"],
+
+                                        $funcionario_solicitante,
+                                        $row1["destino"],
+                                        $row1["motivo"],
+                                        $row1["f_salida"],
+                                        $row1["h_salida"],
+                                        $row1["h_retorno"],
+                                        ($row1["con_sin_retorno"] == '')? '' : $this->con_sin_retorno[$row1["con_sin_retorno"]],
+                                        ($row1["n_horas"] == '')? '' : round($row1['n_horas'] * 60, 0),
+
+                                        $row1["f_validar_superior"],
+                                        $inmediato_superior,
+
+                                        $row1["f_validar_rrhh"],
+                                        $rrhh,
+
+                                        $row1["ud_funcionario"],
+                                        $row1["lugar_dependencia_funcionario"]
+                                    ]);
+
+                                    if($row1["pdf"] == 2)
+                                    {
+                                        $sheet->getCell('E' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url("storage/rrhh/salidas/solicitud_salida/" . $row1['papeleta_pdf']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+
+                                $sheet->cells('A2:A' . ($c), function($cells){
+                                    $cells->setAlignment('right');
+                                });
+
+                                $sheet->cells('B1:H' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('I2:K' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->cells('L2:Q' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('R2:R' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->cells('S2:S' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('T2:T' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->cells('U2:V' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->setAutoSize(true);
+                            });
+
+                            $excel->sheet('Salidas por dias', function($sheet) use($consulta2){
+                                $sheet->row(1, [
+                                    'No',
+                                    'ESTADO',
+                                    '¿VALIDADO INMEDIATO SUPERIOR?',
+                                    '¿VALIDADO RRHH?',
+                                    '¿CON PDF?',
+                                    'TIPO DE PAPELETA',
+                                    'TIPO DE SALIDA',
+                                    'CODIGO',
+
+                                    'FUNCIONARIO SOLICITANTE',
+                                    'DESTINO',
+                                    'MOTIVO',
+
+                                    'FECHA SALIDA',
+                                    'PERIODO',
+
+                                    'FECHA RETORNO',
+                                    'PERIODO',
+
+                                    'N° DE DIAS',
+
+                                    'VALIDACION INMEDIATO SUPERIOR',
+                                    'INMEDIATO SUPERIOR',
+
+                                    'VALIDACION RRHH',
+                                    'RECURSOS HUMANOS',
+
+                                    'UNIDAD DESCONCENTRADA',
+                                    'LUGAR DE DEPENDENCIA'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta2 as $index1 => $row1)
+                                {
+                                    $funcionario_solicitante = $row1["n_documento"] . " - " . trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]);
+
+                                    $inmediato_superior = '';
+                                    if($row1["n_documento_superior"] != '')
+                                    {
+                                        $inmediato_superior = $row1["n_documento_superior"] . " - " . trim($row1["ap_paterno_superior"] . " " . $row1["ap_materno_superior"]) . " " . trim($row1["nombre_superior"]);
+                                    }
+
+                                    $rrhh = '';
+                                    if($row1["n_documento_rrhh"] != '')
+                                    {
+                                        $rrhh = $row1["n_documento_rrhh"] . " - " . trim($row1["ap_paterno_rrhh"] . " " . $row1["ap_materno_rrhh"]) . " " . trim($row1["nombre_rrhh"]);
+                                    }
+
+                                    $sheet->row($c+1, [
+                                        $c++,
+                                        $this->estado[$row1["estado"]],
+                                        $this->no_si[$row1["validar_superior"]],
+                                        $this->no_si[$row1["validar_rrhh"]],
+                                        $this->no_si[$row1["pdf"]],
+                                        $row1["papeleta_salida"],
+                                        ($row1["tipo_salida"] == '')? '' : $this->tipo_salida[$row1["tipo_salida"]],
+                                        $row1["codigo"],
+
+                                        $funcionario_solicitante,
+                                        $row1["destino"],
+                                        $row1["motivo"],
+
+                                        $row1["f_salida"],
+                                        ($row1["periodo_salida"] == '')? '' : $this->periodo[$row1["periodo_salida"]],
+
+                                        $row1["f_retorno"],
+                                        ($row1["periodo_retorno"] == '')? '' : $this->periodo[$row1["periodo_retorno"]],
+
+                                        $row1["n_dias"],
+
+                                        $row1["f_validar_superior"],
+                                        $inmediato_superior,
+
+                                        $row1["f_validar_rrhh"],
+                                        $rrhh,
+
+                                        $row1["ud_funcionario"],
+                                        $row1["lugar_dependencia_funcionario"]
+                                    ]);
+
+                                    if($row1["pdf"] == 2)
+                                    {
+                                        $sheet->getCell('E' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url("storage/rrhh/salidas/solicitud_salida/" . $row1['papeleta_pdf']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+
+                                $sheet->cells('A2:A' . ($c), function($cells){
+                                    $cells->setAlignment('right');
+                                });
+
+                                $sheet->cells('B1:H' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('I2:K' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->cells('L2:Q' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('R2:R' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->cells('S2:S' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('T2:T' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->cells('U2:V' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->setAutoSize(true);
+                            });
+
+                            $excel->setActiveSheetIndex(0);
+                        })->export('xlsx');
                     }
                     else
                     {
-                        $array_where .= " AND a7.lugar_dependencia_id=0 AND ";
+                        return "No se encontraron resultados.";
                     }
-
-
-                    $array_where .= $jqgrid->getWhere();
-
-                    $count = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
-                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
-                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
-                        ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
-                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
-                        ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
-                        ->whereRaw($array_where)
-                        ->count();
-
-                    $limit_offset = $jqgrid->getLimitOffset($count);
-
-                    $query = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
-                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
-                        ->leftJoin("$tabla3 AS a4", "a4.id", "=", "$tabla1.persona_id_superior")
-                        ->leftJoin("$tabla3 AS a5", "a5.id", "=", "$tabla1.persona_id_rrhh")
-                        ->leftJoin("$tabla5 AS a7", "a7.id", "=", "$tabla1.unidad_desconcentrada_id")
-                        ->leftJoin("$tabla6 AS a8", "a8.id", "=", "a7.lugar_dependencia_id")
-                        ->whereRaw($array_where)
-                        ->select(DB::raw($select))
-                        ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
-                        ->offset($limit_offset['start'])
-                        ->limit($limit_offset['limit'])
-                        ->get()
-                        ->toArray();
-
-                // //=== EXCEL ===
-                //     if(count($consulta1) > 0)
-                //     {
-                //         set_time_limit(3600);
-                //         ini_set('memory_limit','-1');
-                //         Excel::create('asistencia_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
-                //             $excel->sheet('Resumen Asistencias', function($sheet) use($consulta1){
-                //                 $sheet->row(1, [
-                //                     'No',
-                //                     'FECHA',
-                //                     'CI',
-                //                     'NOMBRE COMPLETO',
-
-                //                     'TIPO DE CARGO',
-
-                //                     'HORARIO 1 INGRESO',
-                //                     'HORARIO 1 SALIDA',
-                //                     'HORARIO 1 RETRASO',
-
-                //                     'HORARIO 2 INGRESO',
-                //                     'HORARIO 2 SALIDA',
-                //                     'HORARIO 2 RETRASO',
-
-                //                     'UNIDAD DESCONCENTRADA',
-                //                     'LUGAR DE DEPENDENCIA'
-                //                 ]);
-
-                //                 $sheet->row(1, function($row){
-                //                     $row->setBackground('#CCCCCC');
-                //                     $row->setFontWeight('bold');
-                //                     $row->setAlignment('center');
-                //                 });
-
-                //                 $sheet->freezeFirstRow();
-                //                 $sheet->setAutoFilter();
-
-                //                 // $sheet->setColumnFormat([
-                //                 //     'A' => 'yyyy-mm-dd hh:mm:ss'
-                //                 // ]);
-
-                //                 $sw = FALSE;
-                //                 $c  = 1;
-
-                //                 foreach($consulta1 as $index1 => $row1)
-                //                 {
-                //                     $n_documento    = $row1["n_documento"];
-                //                     $nombre_persona = trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]);
-                //                     $sheet->row($c+1, [
-                //                         $c++,
-                //                         $row1["fecha"],
-                //                         $n_documento,
-                //                         $nombre_persona,
-
-                //                         $row1["tipo_cargo"],
-
-                //                         $row1["horario_1_i"],
-                //                         $row1["horario_1_s"],
-                //                         $row1["h1_min_retrasos"],
-
-                //                         $row1["horario_2_i"],
-                //                         $row1["horario_2_s"],
-                //                         $row1["h2_min_retrasos"],
-
-                //                         $row1["ud_funcionario"],
-                //                         $row1["lugar_dependencia_funcionario"]
-                //                     ]);
-
-                //                     if($sw)
-                //                     {
-                //                         $sheet->row($c, function($row){
-                //                             $row->setBackground('#deeaf6');
-                //                         });
-
-                //                         $sw = FALSE;
-                //                     }
-                //                     else
-                //                     {
-                //                         $sw = TRUE;
-                //                     }
-                //                 }
-
-                //                 $sheet->cells('A2:A' . ($c), function($cells){
-                //                     $cells->setAlignment('right');
-                //                 });
-
-                //                 $sheet->cells('B1:B' . ($c), function($cells){
-                //                     $cells->setAlignment('center');
-                //                 });
-
-                //                 $sheet->cells('C2:C' . ($c), function($cells){
-                //                     $cells->setAlignment('right');
-                //                 });
-
-                //                 $sheet->cells('E1:M' . ($c), function($cells){
-                //                     $cells->setAlignment('center');
-                //                 });
-
-
-                //                 $sheet->setAutoSize(true);
-                //             });
-                //         })->export('xlsx');
-                //     }
-                //     else
-                //     {
-                //         return "No se encontraron resultados.";
-                //     }
                 break;
             default:
                 break;

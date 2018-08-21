@@ -1411,23 +1411,12 @@
                 if($.trim(lugar_dependencia_id_funcionario) != ''){
                     concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
                 }
-
-                // if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
-                //     if($.trim(persona_id) != ''){
-                //         concatenar_valores += '&persona_id[]=' + persona_id;
-                //     }
-
-                //     if($.trim(lugar_dependencia_id_funcionario) != ''){
-                //         concatenar_valores += '&lugar_dependencia_id_funcionario[]=' + lugar_dependencia_id_funcionario;
-                //     }
-                // }
-                // else{
-                //     valor_sw    = false;
-                //     valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
-                // }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo LUGAR DE DEPENDENCIA es obligatorio.';
+                }
 
                 if(valor_sw){
-                    // alert(concatenar_valores);
                     var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
                     win.focus();
                 }

@@ -213,7 +213,7 @@
 
           <div class="modal-footer">
             <button type="button" class="btn btn-info" onclick="utilitarios([31]);">Limpiar formulario</button>
-            <button type="button" class="btn btn-primary" onclick="utilitarios([32, 1]);">PDF</button>
+{{--             <button type="button" class="btn btn-primary" onclick="utilitarios([32, 1]);">PDF</button> --}}
             <button type="button" class="btn btn-success" onclick="utilitarios([32, 2]);">Excel</button>
             <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
           </div>
