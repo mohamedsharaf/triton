@@ -21,6 +21,8 @@ use App\Models\Rrhh\RrhhBiometrico;
 use App\Models\Rrhh\RrhhPersonaBiometrico;
 use App\User;
 
+use Maatwebsite\Excel\Facades\Excel;
+
 class MarcacionBiometricoController extends Controller
 {
     private $rol_id;
@@ -42,7 +44,8 @@ class MarcacionBiometricoController extends Controller
             '1' => 'POR RED MEDIANTE CRON',
             '2' => 'POR RED PULSANDO BOTON',
             '3' => 'DESDE ARCHIVO SUBIDO',
-            '4' => 'POR DIGITAL PERSONA'
+            '4' => 'POR DIGITAL PERSONA',
+            '5' => 'DESDE BASE DE DATOS'
         ];
     }
 
@@ -314,7 +317,6 @@ class MarcacionBiometricoController extends Controller
                                         ->toArray();
 
                 // === INICIALIZACION DE VARIABLES ===
-                    $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
                         'titulo'     => '<div class="text-center"><strong>ALERTA</strong></div>',
@@ -322,27 +324,84 @@ class MarcacionBiometricoController extends Controller
                         'tipo'       => $tipo
                     );
 
-                    $fs_conexion = date("Y-m-d H:i:s");
-                    $f_actual    = date("Y-m-d");
-
                 // === PERMISOS ===
-                    $id = trim($request->input('id'));
+                    $persona_id = trim($request->input('persona_id'));
                     if(!in_array(['codigo' => '1802'], $this->permisos))
                     {
                         $respuesta['respuesta'] .= "No tiene permiso para OBTENER ASISTENCIAS.";
                         return json_encode($respuesta);
                     }
 
-                // === LIBRERIAS ===
-                    $biometrico = new BiometricoClass();
+                // === VALORES DEL POST ===
+                    $persona_id = trim($request->input('persona_id'));
+                    $fecha_del  = trim($request->input('fecha_del'));
+                    $fecha_al   = trim($request->input('fecha_al'));
 
-                // === LLAMAR A LA LIBRERIA ===
-                    $data1['id'] = $id;
+                // === OPERACION ===
+                    $consulta1 = RrhhPersona::where('id', '=', $persona_id)
+                                    ->select("n_documento")
+                                    ->first();
 
-                    $respuesta1 = $biometrico->getBackupLog($data1);
+                    if(count($consulta1) > 0)
+                    {
+                        $where_concatenar = "";
+                        $where_concatenar .= "n_documento_biometrico=" . $consulta1['n_documento'];
+                        $where_concatenar .= " AND f_marcacion::date >= date '" . $fecha_del . "'";
+                        $where_concatenar .= " AND f_marcacion::date <= date '" . $fecha_al . "'";
 
-                    $respuesta['respuesta'] .= $respuesta1['respuesta'];
-                    $respuesta['sw']        = $respuesta1['sw'];
+                        $consulta2 = RrhhLogMarcacionBackup::whereRaw($where_concatenar)
+                            ->select("id", "f_marcacion", "biometrico_id")
+                            ->orderBy('f_marcacion', 'asc')
+                            ->get()
+                            ->toArray();
+
+                        if(count($consulta2) > 0)
+                        {
+                            $cantidad = 0;
+                            foreach($consulta2 as $row2)
+                            {
+                                $consulta3 = RrhhLogMarcacion::where("persona_id", "=", $persona_id)
+                                    ->where("f_marcacion", "=", $row2['f_marcacion'])
+                                    ->select('id')
+                                    ->first();
+
+                                if(count($consulta3) < 1)
+                                {
+                                    $iu                         = new RrhhLogMarcacion;
+                                    $iu->biometrico_id          = $row2['biometrico_id'];
+                                    $iu->persona_id             = $persona_id;
+                                    $iu->tipo_marcacion         = 5;
+                                    $iu->n_documento_biometrico = $consulta1['n_documento'];
+                                    $iu->f_marcacion            = $row2['f_marcacion'];
+                                    $iu->save();
+
+                                    $iu_2         = RrhhLogMarcacionBackup::find($row2['id']);
+                                    $iu_2->estado = 2;
+                                    $iu_2->save();
+
+                                    $cantidad++;
+                                }
+                            }
+
+                            if($cantidad == 0)
+                            {
+                                $respuesta['respuesta'] .= "No se logró registrar ninguna asistencia de la base de datos.";
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "Se registro " . $cantidad . " asistencia(s) de la base de datos.";
+                                $respuesta['sw']        = 1;
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "La persona no tiene maraciones en el rango de fecha.";
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "La persona no se encuentra registrado.";
+                    }
 
                 //=== RESPUESTA ===
                     return json_encode($respuesta);
@@ -375,6 +434,183 @@ class MarcacionBiometricoController extends Controller
                         return json_encode($respuesta);
                     }
                 }
+                break;
+        }
+    }
+
+    public function reportes(Request $request)
+    {
+        $tipo = $request->input('tipo');
+
+        switch($tipo)
+        {
+            case '10':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1 = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '1803'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                // === ANALISIS DE LAS VARIABLES ===
+                    if( ! (($request->has('fecha_del') && $request->has('fecha_al') && $request->has('persona_id'))))
+                    {
+                        return "La FECHA DEL, FECHA AL y la PERSONA son obligatorios.";
+                    }
+
+                //=== CARGAR VARIABLES ===
+                    $data1['fecha_del']  = trim($request->input('fecha_del'));
+                    $data1['fecha_al']   = trim($request->input('fecha_al'));
+                    $data1['persona_id'] = trim($request->input('persona_id'));
+
+                //=== CONSULTA BASE DE DATOS ===
+                    $consulta1 = RrhhPersona::where('id', '=', $data1['persona_id'])
+                                    ->select("n_documento", "ap_paterno", "ap_materno", "nombre")
+                                    ->first();
+                    if(count($consulta1) > 0)
+                    {
+                        $nombre_persona = trim($consulta1["ap_paterno"] . " " . $consulta1["ap_materno"]) . " " . trim($consulta1["nombre"]);
+
+                        $tabla1 = "rrhh_log_marcaciones_backup";
+                        $tabla2 = "rrhh_biometricos";
+                        $tabla3 = "inst_unidades_desconcentradas";
+                        $tabla4 = "inst_lugares_dependencia";
+
+                        $where_concatenar = "TRUE ";
+                        if($request->has('fecha_del'))
+                        {
+                            $where_concatenar .= " AND f_marcacion::date >= date '" . $request->input('fecha_del') . "'";
+                        }
+
+                        if($request->has('fecha_al'))
+                        {
+                            $where_concatenar .= " AND f_marcacion::date <= date '" . $request->input('fecha_al') . "'";
+                        }
+
+                        if($request->has('persona_id'))
+                        {
+                            $where_concatenar .= " AND $tabla1.n_documento_biometrico=" . $consulta1['n_documento'];
+                        }
+
+                        $select = "
+                            $tabla1.id,
+                            $tabla1.biometrico_id,
+                            $tabla1.tipo_marcacion,
+                            $tabla1.n_documento_biometrico,
+                            $tabla1.f_marcacion,
+                            $tabla1.estado,
+
+                            a2.unidad_desconcentrada_id,
+                            a2.codigo_af,
+                            a2.ip,
+
+                            a3.lugar_dependencia_id,
+                            a3.nombre AS unidad_desconcentrada,
+
+                            a4.nombre AS lugar_dependencia
+                        ";
+
+                        $consulta2 = RrhhLogMarcacionBackup::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.biometrico_id")
+                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.unidad_desconcentrada_id")
+                            ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                            ->whereRaw($where_concatenar)
+                            ->select(DB::raw($select))
+                            ->orderByRaw("$tabla1.n_documento_biometrico ASC")
+                            ->get()
+                            ->toArray();
+
+                        //=== EXCEL ===
+                            if(count($consulta1) > 0)
+                            {
+                                set_time_limit(3600);
+                                ini_set('memory_limit','-1');
+                                Excel::create('marcaciones_' . date('Y-m-d_H-i-s'), function($excel) use($consulta2, $nombre_persona){
+                                    $excel->sheet('Marcaciones', function($sheet) use($consulta2, $nombre_persona){
+                                        $sheet->row(1, [
+                                            'No',
+                                            'ESTADO',
+                                            'TIPO DE MARCACION',
+                                            'FECHA DE MARCACION',
+                                            'C.I.',
+                                            'PERSONA',
+
+                                            'CODIGO AF',
+                                            'IP',
+                                            'UNIDAD DESCONCENTRADA',
+                                            'LUGAR DE DEPENDENCIA'
+                                        ]);
+
+                                        $sheet->row(1, function($row){
+                                            $row->setBackground('#CCCCCC');
+                                            $row->setFontWeight('bold');
+                                            $row->setAlignment('center');
+                                        });
+
+                                        $sheet->freezeFirstRow();
+                                        $sheet->setAutoFilter();
+
+                                        $sw = FALSE;
+                                        $c  = 1;
+
+                                        foreach($consulta2 as $index2 => $row2)
+                                        {
+                                            $sheet->row($c+1, [
+                                                $c++,
+                                                $this->estado[$row2["estado"]],
+                                                $this->tipo_marcacion[$row2["tipo_marcacion"]],
+                                                $row2["f_marcacion"],
+                                                $row2["n_documento_biometrico"],
+                                                $nombre_persona,
+
+                                                'MP-' . $row2["codigo_af"],
+                                                $row2["ip"],
+                                                $row2["unidad_desconcentrada"],
+                                                $row2["lugar_dependencia"]
+                                            ]);
+
+                                            if($sw)
+                                            {
+                                                $sheet->row($c, function($row){
+                                                    $row->setBackground('#deeaf6');
+                                                });
+
+                                                $sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $sw = TRUE;
+                                            }
+                                        }
+
+                                        $sheet->cells('A1:J' . ($c), function($cells){
+                                            $cells->setAlignment('center');
+                                        });
+
+                                        $sheet->setAutoSize(true);
+                                    });
+                                })->export('xlsx');
+                            }
+                            else
+                            {
+                                return "No se encontraron resultados.";
+                            }
+                    }
+                    else
+                    {
+                        return "La PERSONA no esta registrada.";
+                    }
+                break;
+            default:
                 break;
         }
     }

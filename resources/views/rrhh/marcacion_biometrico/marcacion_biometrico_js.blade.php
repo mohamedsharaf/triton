@@ -114,6 +114,7 @@
 
     // === FORMULARIOS ===
         var form_1 = "#form_1";
+        var form_2 = "#form_2";
 
     // === ESTADO ===
         var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
@@ -147,7 +148,7 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#fecha_jqgrid, #fecha_del_1, #fecha_al_1').datepicker({
+            $('#fecha_jqgrid, #fecha_del_1, #fecha_al_1, #fecha_del_2, #fecha_al_2').datepicker({
                 // startView            : 0,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -159,7 +160,7 @@
                 language             : "es"
             });
 
-            $('#persona_id_1').select2({
+            $('#persona_id_1, #persona_id_2').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -183,6 +184,7 @@
                 }
             });
             $("#persona_id_1").appendTo("#persona_id_div_1");
+            $("#persona_id_2").appendTo("#persona_id_div_2");
 
         // === SELECT CHANGE ===
 
@@ -445,6 +447,23 @@
                         }
                     })
                 @endif
+                @if(in_array(['codigo' => '1803'], $permisos))
+                    .navButtonAdd(pjqgrid1,{
+                        "id"          : "imm1",
+                        caption       : "",
+                        title         : 'Imprimir marcaciones',
+                        buttonicon    : "ui-icon ui-icon-print",
+                        onClickButton : function(){
+                            var valor1 = new Array();
+                            valor1[0]  = 16;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 14;
+                            utilitarios(valor1);
+                        }
+                    })
+                @endif
                 ;
                 break;
             // === OBTENER ASISTENCIA MODAL ===
@@ -533,175 +552,20 @@
 
                 $(form_1)[0].reset();
                 break;
-            // === RESETEAR FORMULARIO DE AGREGAR FECHA ===
+            // === IMPRIMIR MARCACIONES ===
             case 14:
-                $('#modal_1_title').empty();
-                $('#modal_1_title').append('Agregar fechas para el controlar asistencia');
-
-                $('#persona_id').select2("val", "");
-                $('#persona_id option').remove();
-
-                $('#lugar_dependencia_id_funcionario').select2("val", "");
-
-                $('#unidad_desconcentrada_id').select2("val", "");
-                $('#unidad_desconcentrada_id option').remove();
-
-                $('#lugar_dependencia_id_cargo').select2("val", "");
-
-                $('#auo_id').select2("val", "");
-                $('#auo_id option').remove();
-
-                $('#cargo_id').select2("val", "");
-                $('#cargo_id option').remove();
-
-                $('#fecha_del, #fecha_al, #fecha_del_2, #fecha_al_2').val("").datepicker("update");
-
-                $(form_1)[0].reset();
+                $('#modal_2').modal();
                 break;
-            // === GUARDAR FECHA DE ASISTENCIAS ===
+            // === IMPRIMIR MARCACIONES ENVIAR ===
             case 15:
                 var concatenar_valores = '';
-                concatenar_valores     += 'tipo=1&_token=' + csrf_token;
-
-                var fecha_del = $("#fecha_del").val();
-                var fecha_al  = $("#fecha_al").val();
-
-                var persona_id = $("#persona_id").val();
-
-                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario").val();
-                var unidad_desconcentrada_id         = $("#unidad_desconcentrada_id").val();
-
-                var horario_id_1 = $("#horario_id_1").val();
-                var horario_id_2 = $("#horario_id_2").val();
-
-                var lugar_dependencia_id_cargo = $("#lugar_dependencia_id_cargo").val();
-                var auo_id                     = $("#auo_id").val();
-                var cargo_id                   = $("#cargo_id").val();
-
-                var valor_sw    = true;
-                var valor_error = '';
-
-                if($.trim(fecha_del) != ''){
-                    concatenar_valores += '&fecha_del=' + fecha_del;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
-                }
-
-                if($.trim(fecha_al) != ''){
-                    concatenar_valores += '&fecha_al=' + fecha_al;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FECHA AL es obligatorio.';
-                }
-
-                if($.trim(lugar_dependencia_id_funcionario) != ''){
-                    concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo LUGAR DE DEPENDENCIA DEL FUNCIONARIO es obligatorio.';
-                }
-
-                if($.trim(persona_id) != ''){
-                    if($.trim(persona_id) != ''){
-                        concatenar_valores += '&persona_id=' + persona_id;
-                    }
-                    else{
-                        valor_sw    = false;
-                        valor_error += '<br>El campo FUNCIONARIO es obligatorio.';
-                    }
-
-                    if($.trim(unidad_desconcentrada_id) != ''){
-                        concatenar_valores += '&unidad_desconcentrada_id=' + unidad_desconcentrada_id;
-                    }
-                    else{
-                        valor_sw    = false;
-                        valor_error += '<br>El campo UNIDAD DESCONCENTRADA es obligatorio.';
-                    }
-
-                    if($.trim(lugar_dependencia_id_cargo) != ''){
-                        concatenar_valores += '&lugar_dependencia_id_cargo=' + lugar_dependencia_id_cargo;
-                    }
-                    else{
-                        valor_sw    = false;
-                        valor_error += '<br>El campo LUGAR DE DEPENDENCIA DEL CARGO es obligatorio.';
-                    }
-
-                    if($.trim(auo_id) != ''){
-                        concatenar_valores += '&auo_id=' + auo_id;
-                    }
-                    else{
-                        valor_sw    = false;
-                        valor_error += '<br>El campo AREA O UNIDAD ORGANIZACIONAL es obligatorio.';
-                    }
-
-                    if($.trim(cargo_id) != ''){
-                        concatenar_valores += '&cargo_id=' + cargo_id;
-                    }
-                    else{
-                        valor_sw    = false;
-                        valor_error += '<br>El campo CARGO es obligatorio.';
-                    }
-
-                    if($.trim(horario_id_1) != ''){
-                        concatenar_valores += '&horario_id_1=' + horario_id_1;
-                    }
-                    else{
-                        valor_sw    = false;
-                        valor_error += '<br>El campo HORARIO 1 es obligatorio.';
-                    }
-
-                    if($.trim(horario_id_2) != ''){
-                        concatenar_valores += '&horario_id_2=' + horario_id_2;
-                    }
-                    // else{
-                    //     valor_sw    = false;
-                    //     valor_error += '<br>El campo HORARIO 2 es obligatorio.';
-                    // }
-                }
-
-                if(valor_sw){
-                    swal({
-                        title             : "CREANDO FECHAS",
-                        text              : "Espere a que se creen las fechas para el control de las asistencias.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = concatenar_valores;
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 101;
-                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                    valor1[2]  = valor_error;
-                    utilitarios(valor1);
-                }
-                break;
-            // === SINCRONIZAR ASISTENCIAS ===
-            case 16:
-                var concatenar_valores = '';
-                concatenar_valores     += 'tipo=2&_token=' + csrf_token;
+                concatenar_valores     += '?tipo=10';
 
                 var fecha_del = $("#fecha_del_2").val();
                 var fecha_al  = $("#fecha_al_2").val();
 
                 var persona_id = $("#persona_id_2").val();
 
-                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_2").val();
-
                 var valor_sw    = true;
                 var valor_error = '';
 
@@ -721,518 +585,19 @@
                     valor_error += '<br>El campo FECHA AL es obligatorio.';
                 }
 
-                if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
-                    if($.trim(persona_id) != ''){
-                        concatenar_valores += '&persona_id=' + persona_id;
-                    }
-
-                    if($.trim(lugar_dependencia_id_funcionario) != ''){
-                        concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
-                    }
+                if(fecha_del <= fecha_al){
                 }
                 else{
                     valor_sw    = false;
-                    valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
+                    valor_error += '<br>La FECHA DEL debe de ser menor o igual a FECHA AL.';
                 }
 
-                if(valor_sw){
-                    swal({
-                        title             : "SINCRONIZANDO ASISTENCIAS",
-                        text              : "Espere a que se sincronicen las asistencias.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = concatenar_valores;
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 101;
-                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                    valor1[2]  = valor_error;
-                    utilitarios(valor1);
-                }
-                break;
-            // === REPORTE SALIDA ===
-            case 17:
-                var concatenar_valores = '';
-                concatenar_valores     += '?tipo=1&salida_id=' + valor[1];
-
-                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
-                win.focus();
-                break;
-            // === DONDE ASISTIO ===
-            case 18:
-                $('#modal_3_title, #modal_3_subtitle, #td_ud, #td_ld').empty();
-                $('#modal_3_title').append('DONDE ASISTIO');
-
-                var ret = $(jqgrid1).jqGrid('getRowData', valor[2]);
-
-                var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
-
-                $('#modal_3_subtitle').append(persona);
-
-                var valor1 = new Array();
-                valor1[0]  = 150;
-                valor1[1]  = url_controller + '/send_ajax';
-                valor1[2]  = 'POST';
-                valor1[3]  = false;
-                valor1[4]  = "tipo=50&id=" + valor[1] + "&_token=" + csrf_token;
-                valor1[5]  = 'json';
-                utilitarios(valor1);
-
-                $('#modal_3').modal();
-                break;
-            // === FERIADO, TOLERANCIA, HORARIO CONTINUO ===
-            case 19:
-                $('#modal_4_title, #modal_4_subtitle, #th_nombre_4, #td_nombre_4, #td_ud_4, #td_ld_4').empty();
-                $('#modal_4_title').append(valor[3]);
-
-                var ret = $(jqgrid1).jqGrid('getRowData', valor[2]);
-
-                var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
-
-                $('#modal_4_subtitle').append(persona);
-                $('#th_nombre_4').append(valor[3]);
-
-                var valor1 = new Array();
-                valor1[0]  = 150;
-                valor1[1]  = url_controller + '/send_ajax';
-                valor1[2]  = 'POST';
-                valor1[3]  = false;
-                valor1[4]  = "tipo=51&id=" + valor[1] + "&_token=" + csrf_token;
-                valor1[5]  = 'json';
-                utilitarios(valor1);
-
-                $('#modal_4').modal();
-                break;
-            // === LICENCIA POR VACACIONES ===
-            case 20:
-                swal({
-                    title             : "LICENCIA POR VACACIONES",
-                    text              : "¿" + valor[3] + " está de VACIONES?",
-                    type              : "warning",
-                    showCancelButton  : true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText : "Vacaciones",
-                    cancelButtonText  : "Cancelar",
-                    closeOnConfirm    : false,
-                    closeOnCancel     : false
-                },
-                function(isConfirm){
-                    if (isConfirm){
-                        // swal.close();
-
-                        swal({
-                            title            : "Modificando VACACIONES",
-                            text             : "Espere a que se modifique las VACACIONES.",
-                            allowEscapeKey   : false,
-                            showConfirmButton: false,
-                            type             : "info"
-                        });
-                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                        var valor1 = new Array();
-                        valor1[0]  = 150;
-                        valor1[1]  = url_controller + '/send_ajax';
-                        valor1[2]  = 'POST';
-                        valor1[3]  = true;
-                        valor1[4]  = "tipo=3&id=" + valor[1] + "&horario=" + valor[2] + "&_token=" + csrf_token;
-                        valor1[5]  = 'json';
-                        utilitarios(valor1);
-                    }
-                    else{
-                        swal.close();
-                    }
-                });
-                break;
-            // === LICENCIA POR MIGRACION ===
-            case 21:
-                swal({
-                    title             : "LICENCIA POR MIGRACION",
-                    text              : "¿Se registrará/quitará LICENCIA POR MIGRACION de " + valor[4] + "?",
-                    type              : "warning",
-                    showCancelButton  : true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText : "Migración",
-                    cancelButtonText  : "Cancelar",
-                    closeOnConfirm    : false,
-                    closeOnCancel     : false
-                },
-                function(isConfirm){
-                    if (isConfirm){
-                        // swal.close();
-
-                        swal({
-                            title            : "REGISTRANDO/QUITANDO MIGRACION",
-                            text             : "Espere a que se registre/quite la MIGRACION.",
-                            allowEscapeKey   : false,
-                            showConfirmButton: false,
-                            type             : "info"
-                        });
-                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                        var valor1 = new Array();
-                        valor1[0]  = 150;
-                        valor1[1]  = url_controller + '/send_ajax';
-                        valor1[2]  = 'POST';
-                        valor1[3]  = true;
-                        valor1[4]  = "tipo=4&id=" + valor[1] + "&horario=" + valor[2] + "&salida_entrada=" + valor[3] + "&_token=" + csrf_token;
-                        valor1[5]  = 'json';
-                        utilitarios(valor1);
-                    }
-                    else{
-                        swal.close();
-                    }
-                });
-                break;
-            // === MODAL ABRIR MARCACIONES ===
-            case 22:
-                $(jqgrid2).jqGrid('setGridParam',{
-                    url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&persona_id=' + valor[3] + '&f_marcacion=' + valor[2],
-                    datatype: 'json'
-                }).trigger('reloadGrid');
-
-                var ret = $(jqgrid1).jqGrid('getRowData', valor[1]);
-
-                var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
-
-                $(jqgrid2).jqGrid('setCaption', "<span class='text-success'>" + persona + "</span>");
-
-                $('#modal_5').modal();
-
-                setTimeout(function(){
-                    $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
-                }, 300);
-                break;
-            // === JQGRID 2 ===
-            case 23:
-                $(jqgrid2).jqGrid({
-                    caption     : '',
-                    datatype    : 'local',
-                    mtype       : 'post',
-                    height      : 'auto',
-                    pager       : pjqgrid2,
-                    rowNum      : 10,
-                    rowList     : [10, 20, 30],
-                    sortname    : 'rrhh_log_marcaciones.f_marcacion',
-                    sortorder   : "desc",
-                    viewrecords : true,
-                    shrinkToFit : false,
-                    hidegrid    : false,
-                    multiboxonly: true,
-                    altRows     : true,
-                    rownumbers  : true,
-                    // subGrid     : subgrid_sw,
-                    // multiselect  : true,
-                    //autowidth     : true,
-                    //gridview      :true,
-                    //forceFit      : true,
-                    //toolbarfilter : true,
-                    colNames :[
-                        "FECHA Y HORA",
-                        "BIOMETRICO",
-                        "UNIDAD DESCONCENTRADA",
-                        "LUGAR DE DEPENDENCIA",
-                        ""
-                    ],
-                    colModel : [
-                        {
-                            name  : "f_marcacion",
-                            index : "rrhh_log_marcaciones.f_marcacion::text",
-                            width : "150",
-                            align : "center"
-                        },
-                        {
-                            name  : "codigo_af",
-                            index : "a2.codigo_af",
-                            width : "100",
-                            align : "center"
-                        },
-                        {
-                            name  : "unidad_desconcentrada",
-                            index : "a3.nombre",
-                            width : "700",
-                            align : "center"
-                        },
-                        {
-                            name       : "lugar_dependencia",
-                            index      : "a4.nombre",
-                            width      : "400",
-                            align      : "center",
-                            stype      : 'select',
-                            editoptions: {value:lugar_dependencia_jqgrid}
-                        },
-
-                        // === OCULTO ===
-                            {
-                                name: 'val_json',
-                                index: '',
-                                width: 10,
-                                search: false,
-                                hidden: true
-                            }
-                    ],
-                    loadComplete : function(){
-                        $("tr.jqgrow:odd").addClass('myAltRowClass');
-                    }
-                });
-
-                $(jqgrid2).jqGrid('setGroupHeaders', {
-                    useColSpanStyle: true,
-                    groupHeaders   :[
-                        {
-                            startColumnName: 'codigo_af',
-                            numberOfColumns: 3,
-                            titleText      : 'UBICACION DEL BIOMETRICO'
-                        }
-                    ]
-                });
-
-                $(jqgrid2).jqGrid('filterToolbar',{
-                    searchOnEnter : true,
-                    stringResult  : true,
-                    defaultSearch : 'cn'
-                });
-
-                $(jqgrid2).jqGrid('navGrid', pjqgrid2, {
-                    edit  : false,
-                    add   : false,
-                    del   : false,
-                    search: false
-                })
-                .navSeparatorAdd(pjqgrid1,{
-                    sepclass : "ui-separator"
-                })
-                ;
-                break;
-            // === MOSTRAR USUARIO QUE MODIFICO LA ASISTENCIA ===
-            case 24:
-                if(valor[2] != undefined){
-                    $('#modal_6_title, #modal_6_subtitle, #td_persona').empty();
-                    // $('#modal_6_title').append('USUARIO QUE MODIFICO LA ASISTENCIA');
-
-                    var ret = $(jqgrid1).jqGrid('getRowData', valor[1]);
-
-                    var persona = ret.n_documento + ' - ' + ret.nombre_persona + ' ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno);
-
-                    $('#modal_6_title').append(persona);
-
-                    // $('#modal_6_subtitle').append(persona);
-
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = false;
-                    valor1[4]  = "tipo=52&id=" + valor[2] + "&_token=" + csrf_token;
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
-
-                    $('#modal_6').modal();
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 101;
-                    valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                    valor1[2]  = "No existe usuario que modifico la asistencia.";
-                    utilitarios(valor1);
-                }
-                break;
-            // === ELIMINAR ASISTENCIA POR FILA ===
-            case 25:
-                swal({
-                    title             : "ELIMINAR ASISTENCIAS",
-                    text              : "¿Está seguro de eliminar la ASISTENCIA de " + valor[2] + " en fecha " + valor[3] + "?",
-                    type              : "warning",
-                    showCancelButton  : true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText : "Eliminar",
-                    cancelButtonText  : "Cancelar",
-                    closeOnConfirm    : false,
-                    closeOnCancel     : false
-                },
-                function(isConfirm){
-                    if (isConfirm){
-                        // swal.close();
-
-                        swal({
-                            title            : "ELIMINANDO ASISTENCIA",
-                            text             : "Espere que se elimine la ASISTENCIA.",
-                            allowEscapeKey   : false,
-                            showConfirmButton: false,
-                            type             : "info"
-                        });
-                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                        var valor1 = new Array();
-                        valor1[0]  = 150;
-                        valor1[1]  = url_controller + '/send_ajax';
-                        valor1[2]  = 'POST';
-                        valor1[3]  = true;
-                        valor1[4]  = "tipo=5&id=" + valor[1] + "&_token=" + csrf_token;
-                        valor1[5]  = 'json';
-                        utilitarios(valor1);
-                    }
-                    else{
-                        swal.close();
-                    }
-                });
-                break;
-            // === MODAL ELIMINAR ASISTENCIA ===
-            case 26:
-                $('#modal_7').modal();
-                break;
-            // === ELIMINAR ASISTENCIA ===
-            case 27:
-                var concatenar_valores = '';
-                concatenar_valores     += 'tipo=5&_token=' + csrf_token;
-
-                var fecha_del = $("#fecha_del_7").val();
-                var fecha_al  = $("#fecha_al_7").val();
-
-                var persona_id = $("#persona_id_7").val();
-
-                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_7").val();
-
-                var valor_sw    = true;
-                var valor_error = '';
-
-                if($.trim(fecha_del) != ''){
-                    concatenar_valores += '&fecha_del=' + fecha_del;
+                if($.trim(persona_id) != ''){
+                    concatenar_valores += '&persona_id=' + persona_id;
                 }
                 else{
                     valor_sw    = false;
-                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
-                }
-
-                if($.trim(fecha_al) != ''){
-                    concatenar_valores += '&fecha_al=' + fecha_al;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FECHA AL es obligatorio.';
-                }
-
-                if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
-                    if($.trim(persona_id) != ''){
-                        concatenar_valores += '&persona_id=' + persona_id;
-                    }
-
-                    if($.trim(lugar_dependencia_id_funcionario) != ''){
-                        concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
-                    }
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
-                }
-
-                if(valor_sw){
-                    swal({
-                        title             : "ELIMINANDO ASISTENCIAS",
-                        text              : "Espere que se eliminen las ASISTENCIAS.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = concatenar_valores;
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 101;
-                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                    valor1[2]  = valor_error;
-                    utilitarios(valor1);
-                }
-                break;
-            // === RESETEAR ELIMINAR ASISTENCIA ===
-            case 28:
-                $('#modal_7_title').empty();
-                $('#modal_7_title').append('Eliminar asistencia');
-
-                $('#persona_id_7').select2("val", "");
-                $('#persona_id_7 option').remove();
-
-                $('#lugar_dependencia_id_funcionario_7').select2("val", "");
-
-                $('#fecha_del_7, #fecha_al_7').val("").datepicker("update");
-
-                $(form_7)[0].reset();
-                break;
-            // === MODAL REPORTES ===
-            case 29:
-                $('#modal_8').modal();
-                break;
-            // === REPORTES EXCEL ===
-            case 31:
-                var estado = $(".estado_class:checked").val();
-
-                var concatenar_valores = '';
-
-                if(estado == 1){
-                    concatenar_valores += '?tipo=10';
-                }
-                else{
-                    concatenar_valores += '?tipo=11';
-                }
-
-                var fecha_del = $("#fecha_del_8").val();
-                var fecha_al  = $("#fecha_al_8").val();
-
-                var persona_id = $("#persona_id_8").val();
-
-                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_8").val();
-
-                var valor_sw    = true;
-                var valor_error = '';
-
-                if($.trim(fecha_del) != ''){
-                    concatenar_valores += '&fecha_del=' + fecha_del;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
-                }
-
-                if($.trim(fecha_al) != ''){
-                    concatenar_valores += '&fecha_al=' + fecha_al;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FECHA AL es obligatorio.';
-                }
-
-                if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
-                    if($.trim(persona_id) != ''){
-                        concatenar_valores += '&persona_id=' + persona_id;
-                    }
-
-                    if($.trim(lugar_dependencia_id_funcionario) != ''){
-                        concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
-                    }
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
+                    valor_error += '<br>Seleccione una persona.';
                 }
 
                 if(valor_sw){
@@ -1247,149 +612,16 @@
                     utilitarios(valor1);
                 }
                 break;
-            // === RESETEAR REPORTES ===
-            case 32:
-                $('#modal_8_title').empty();
-                $('#modal_8_title').append('Generar reportes');
+            // === IMPRIMIR MARCACIONES LIMPIAR ===
+            case 16:
+                $('#modal_2_title').empty();
+                $('#modal_2_title').append('Imprimir marcaciones');
 
-                $('#persona_id_8').select2("val", "");
-                $('#persona_id_8 option').remove();
+                $('#persona_id_2').select2("val", "");
 
-                $('#lugar_dependencia_id_funcionario_8').select2("val", "");
+                $('#fecha_del_2, #fecha_al_2').val("").datepicker("update");
 
-                $('#fecha_del_8, #fecha_al_8').val("").datepicker("update");
-
-                $(form_8)[0].reset();
-                break;
-            // === CERRAR ASISTENCIA POR FILA ===
-            case 33:
-                swal({
-                    title             : "CERRAR ASISTENCIA",
-                    text              : "¿Está seguro de CERRAR la ASISTENCIA de " + valor[2] + " en fecha " + valor[3] + "?\n\nNOTA. No se podrá volver a HABILITAR la ASISTENCIA.",
-                    type              : "warning",
-                    showCancelButton  : true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText : "Cerrar asistencia",
-                    cancelButtonText  : "Cancelar",
-                    closeOnConfirm    : false,
-                    closeOnCancel     : false
-                },
-                function(isConfirm){
-                    if (isConfirm){
-                        // swal.close();
-
-                        swal({
-                            title            : "CERRANDO ASISTENCIA",
-                            text             : "Espere que se cierre la ASISTENCIA.",
-                            allowEscapeKey   : false,
-                            showConfirmButton: false,
-                            type             : "info"
-                        });
-                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                        var valor1 = new Array();
-                        valor1[0]  = 150;
-                        valor1[1]  = url_controller + '/send_ajax';
-                        valor1[2]  = 'POST';
-                        valor1[3]  = true;
-                        valor1[4]  = "tipo=6&id=" + valor[1] + "&_token=" + csrf_token;
-                        valor1[5]  = 'json';
-                        utilitarios(valor1);
-                    }
-                    else{
-                        swal.close();
-                    }
-                });
-                break;
-            // === MODAL ELIMINAR ASISTENCIA ===
-            case 34:
-                $('#modal_9').modal();
-                break;
-            // === CERRAR ASISTENCIA ===
-            case 35:
-                var concatenar_valores = '';
-                concatenar_valores     += 'tipo=6&_token=' + csrf_token;
-
-                var fecha_del = $("#fecha_del_9").val();
-                var fecha_al  = $("#fecha_al_9").val();
-
-                var persona_id = $("#persona_id_9").val();
-
-                var lugar_dependencia_id_funcionario = $("#lugar_dependencia_id_funcionario_9").val();
-
-                var valor_sw    = true;
-                var valor_error = '';
-
-                if($.trim(fecha_del) != ''){
-                    concatenar_valores += '&fecha_del=' + fecha_del;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FECHA DEL es obligatorio.';
-                }
-
-                if($.trim(fecha_al) != ''){
-                    concatenar_valores += '&fecha_al=' + fecha_al;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FECHA AL es obligatorio.';
-                }
-
-                if($.trim(persona_id) != '' || $.trim(lugar_dependencia_id_funcionario) != ''){
-                    if($.trim(persona_id) != ''){
-                        concatenar_valores += '&persona_id=' + persona_id;
-                    }
-
-                    if($.trim(lugar_dependencia_id_funcionario) != ''){
-                        concatenar_valores += '&lugar_dependencia_id_funcionario=' + lugar_dependencia_id_funcionario;
-                    }
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error += '<br>El campo FUNCIONARIO o LUGAR DE DEPENDENCIA es obligatorio.';
-                }
-
-                if(valor_sw){
-                    swal({
-                        title             : "ELIMINANDO ASISTENCIAS",
-                        text              : "Espere que se eliminen las ASISTENCIAS.",
-                        allowEscapeKey    : false,
-                        showConfirmButton : false,
-                        type              : "info"
-                    });
-                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
-
-                    var valor1 = new Array();
-                    valor1[0]  = 150;
-                    valor1[1]  = url_controller + '/send_ajax';
-                    valor1[2]  = 'POST';
-                    valor1[3]  = true;
-                    valor1[4]  = concatenar_valores;
-                    valor1[5]  = 'json';
-                    utilitarios(valor1);
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 101;
-                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                    valor1[2]  = valor_error;
-                    utilitarios(valor1);
-                }
-                break;
-            // === RESETEAR CERRAR ASISTENCIA ===
-            case 36:
-                $('#modal_9_title').empty();
-                $('#modal_9_title').append('Cerrar asistencias');
-
-                $('#persona_id_9').select2("val", "");
-                $('#persona_id_9 option').remove();
-
-                $('#lugar_dependencia_id_funcionario_9').select2("val", "");
-
-                $('#fecha_del_9, #fecha_al_9').val("").datepicker("update");
-
-                $(form_9)[0].reset();
+                $(form_2)[0].reset();
                 break;
 
             // === MENSAJE ERROR ===
@@ -1414,7 +646,7 @@
                     dataType: valor[5],
                     success: function(data){
                         switch(data.tipo){
-                            // === INSERT FECHAS PARA LAS ASISTENCIAS ===
+                            // === OBTENER ASISTENCIA ===
                             case '1':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
@@ -1424,92 +656,6 @@
                                     utilitarios(valor1);
 
                                     $(jqgrid1).trigger("reloadGrid");
-                                    // $('#modal_1').modal('hide');
-                                    // if(data.iu === 1){
-                                    //     var valor1 = new Array();
-                                    //     valor1[0]  = 14;
-                                    //     utilitarios(valor1);
-                                    // }
-                                    // else if(data.iu === 2){
-                                    //     $('#modal_1').modal('hide');
-                                    // }
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === SINCRONIZAR ASISTENCIAS ===
-                            case '2':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                    // $('#modal_2').modal('hide');
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === LICENCIA POR VACACIONES ===
-                            case '3':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
                                 }
                                 else if(data.sw === 0){
                                     var valor1 = new Array();
@@ -1517,180 +663,12 @@
                                     valor1[1]  = data.titulo;
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
                                 }
                                 else if(data.sw === 2){
                                     window.location.reload();
                                 }
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === LICENCIA POR MIGRACION ===
-                            case '4':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === ELIMINAR ASISCTENCIA ===
-                            case '5':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === CERRAR ASISTENCIA ===
-                            case '6':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === DONDE ASISTIO ===
-                            case '50':
-                                if(data.sw === 2){
-                                    $('#td_ud').append(data.consulta.unidad_desconcentrada);
-                                    $('#td_ld').append(data.consulta.lugar_dependencia);
-                                }
-                                break;
-
-                            // === FERIADO, TOLERANCIA, HORARIO CONTINUO ===
-                            case '51':
-                                if(data.sw === 2){
-                                    $('#td_nombre_4').append(data.consulta.nombre);
-                                    $('#td_ld_4').append(data.consulta.lugar_dependencia);
-                                    $('#td_ud_4').append(data.consulta.unidad_desconcentrada);
-                                }
-                                break;
-
-                            // === MOSTRAR USUARIO QUE MODIFICO LA ASISTENCIA ===
-                            case '52':
-                                if(data.sw === 2){
-                                    $('#td_persona').append(data.consulta.text);
-                                }
-                                break;
-
-                            // === SELECT2 AUO POR LUGAR DE DEPENDENCIA ===
-                            case '101':
-                                if(data.sw === 2){
-                                    var auo_select = '';
-                                    $.each(data.consulta, function(index, value) {
-                                        auo_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-                                    });
-                                    $('#auo_id').append(auo_select);
-                                }
-                                break;
-                            // === SELECT2 CARGOS POR AUO ===
-                            case '102':
-                                if(data.sw === 2){
-                                    var cargo_select = '';
-                                    $.each(data.consulta, function(index, value) {
-                                        cargo_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-                                    });
-                                    $('#cargo_id').append(cargo_select);
-                                }
-                                break;
-                            // === SELECT2 UNIDAD DESCONCENTRADA POR LUGAR DE DEPENDENCIA ===
-                            case '103':
-                                if(data.sw === 2){
-                                    var unidad_desconcentrada_select = '';
-                                    $.each(data.consulta, function(index, value) {
-                                        unidad_desconcentrada_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-                                    });
-                                    $('#unidad_desconcentrada_id').append(unidad_desconcentrada_select);
-
-                                    if(data.sw_horario_1 === 2){
-                                        var horario_1_select = '';
-                                        var horario_1_defecto_id = '';
-                                        $.each(data.horario_1, function(index, value) {
-                                            horario_1_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-                                            if(value.defecto == '2'){
-                                                horario_1_defecto_id = value.id;
-                                            }
-                                        });
-                                        $('#horario_id_1').append(horario_1_select);
-                                        if(horario_1_defecto_id != ''){
-                                            $("#horario_id_1").select2("val", horario_1_defecto_id);
-                                        }
-                                    }
-
-                                    if(data.sw_horario_2 === 2){
-                                        var horario_2_select = '';
-                                        var horario_2_defecto_id = '';
-                                        $.each(data.horario_2, function(index, value) {
-                                            horario_2_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-                                            if(value.defecto == '2'){
-                                                horario_2_defecto_id = value.id;
-                                            }
-                                        });
-                                        $('#horario_id_2').append(horario_2_select);
-                                        if(horario_2_defecto_id != ''){
-                                            $("#horario_id_2").select2("val", horario_2_defecto_id);
-                                        }
-                                    }
-                                }
                                 break;
                             default:
                                 break;

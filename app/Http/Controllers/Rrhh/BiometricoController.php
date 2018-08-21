@@ -78,7 +78,8 @@ class BiometricoController extends Controller
             '1' => 'POR RED MEDIANTE CRON',
             '2' => 'POR RED PULSANDO BOTON',
             '3' => 'DESDE ARCHIVO SUBIDO',
-            '4' => 'POR DIGITAL PERSONA'
+            '4' => 'POR DIGITAL PERSONA',
+            '5' => 'DESDE BASE DE DATOS'
         ];
     }
 
