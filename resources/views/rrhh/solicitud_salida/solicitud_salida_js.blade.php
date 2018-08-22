@@ -51,7 +51,9 @@
             "HORA RETORNO",
             "RETORNO",
 
-            ""
+            "",
+
+            "FECHA CREACION"
         );
         var col_m_name_1  = new Array(
             "act",
@@ -77,7 +79,9 @@
             "h_retorno",
             "con_sin_retorno",
 
-            "val_json"
+            "val_json",
+
+            "created_at"
         );
         var col_m_index_1 = new Array(
             "",
@@ -103,7 +107,9 @@
             "rrhh_salidas.h_retorno::text",
             "rrhh_salidas.con_sin_retorno",
 
-            ""
+            "",
+
+            "rrhh_salidas.created_at::text"
         );
         var col_m_width_1 = new Array(
             33,
@@ -129,7 +135,9 @@
             110,
             100,
 
-            10
+            10,
+
+            135
         );
         var col_m_align_1 = new Array(
             "center",
@@ -150,6 +158,8 @@
             "center",
             "center",
             "center",
+            "center",
+
             "center",
 
             "center"
@@ -185,7 +195,9 @@
             "FECHA",
             "PERIODO",
 
-            ""
+            "",
+
+            "FECHA CREACION"
         );
         var col_m_name_2 = new Array(
             "act",
@@ -213,7 +225,9 @@
             "f_retorno",
             "periodo_retorno",
 
-            "val_json"
+            "val_json",
+
+            "created_at"
         );
         var col_m_index_2 = new Array(
             "",
@@ -241,7 +255,9 @@
             "rrhh_salidas.f_retorno::text",
             "rrhh_salidas.periodo_retorno",
 
-            ""
+            "",
+
+            "rrhh_salidas.created_at::text"
         );
         var col_m_width_2 = new Array(
             33,
@@ -269,7 +285,9 @@
             100,
             100,
 
-            10
+            10,
+
+            135
         );
         var col_m_align_2 = new Array(
             "center",
@@ -295,6 +313,8 @@
             "center",
 
             "center",
+            "center",
+
             "center",
 
             "center"
@@ -677,6 +697,7 @@
                         col_name_1[12],
                         col_name_1[13],
 
+                        col_name_1[19],
                         col_name_1[14],
                         col_name_1[15],
                         col_name_1[16],
@@ -788,6 +809,12 @@
                             align: col_m_align_1[13]
                         },
 
+                        {
+                            name : col_m_name_1[19],
+                            index: col_m_index_1[19],
+                            width: col_m_width_1[19],
+                            align: col_m_align_1[19]
+                        },
                         {
                             name : col_m_name_1[14],
                             index: col_m_index_1[14],
@@ -1461,6 +1488,7 @@
                         col_name_2[13],
                         col_name_2[14],
 
+                        col_name_2[20],
                         col_name_2[15],
                         col_name_2[16],
 
@@ -1579,6 +1607,12 @@
                             align: col_m_align_2[14]
                         },
 
+                        {
+                            name : col_m_name_2[20],
+                            index: col_m_index_2[20],
+                            width: col_m_width_2[20],
+                            align: col_m_align_2[20]
+                        },
                         {
                             name : col_m_name_2[15],
                             index: col_m_index_2[15],

@@ -269,6 +269,9 @@ class ConfirmarSalidaController extends Controller
                         $tabla1.pdf,
                         $tabla1.papeleta_pdf,
 
+                        $tabla1.created_at,
+                        $tabla1.updated_at,
+
                         a2.nombre AS papeleta_salida,
                         a2.tipo_cronograma,
                         a2.tipo_salida,
@@ -344,6 +347,7 @@ class ConfirmarSalidaController extends Controller
                             $row["destino"],
                             $row["motivo"],
 
+                            $row["created_at"],
                             $row["f_salida"],
                             $row["h_salida"],
                             $row["h_retorno"],
@@ -402,6 +406,9 @@ class ConfirmarSalidaController extends Controller
 
                         $tabla1.pdf,
                         $tabla1.papeleta_pdf,
+
+                        $tabla1.created_at,
+                        $tabla1.updated_at,
 
                         a2.nombre AS papeleta_salida,
                         a2.tipo_cronograma,
@@ -481,6 +488,7 @@ class ConfirmarSalidaController extends Controller
                             $row["destino"],
                             $row["motivo"],
 
+                            $row["created_at"],
                             $row["f_salida"],
                             ($row["periodo_salida"] == '')? '' : $this->periodo[$row["periodo_salida"]],
 

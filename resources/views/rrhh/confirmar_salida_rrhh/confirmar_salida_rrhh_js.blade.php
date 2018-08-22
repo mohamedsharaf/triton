@@ -66,7 +66,9 @@
             "UNIDAD DESCONCENTRADA",
             "LUGAR DE DEPENDENCIA",
 
-            ""
+            "",
+
+            "FECHA CREACION"
         );
         var col_m_name_1  = new Array(
             "act",
@@ -107,7 +109,9 @@
             "ud_funcionario",
             "lugar_dependencia_funcionario",
 
-            "val_json"
+            "val_json",
+
+            "created_at"
         );
         var col_m_index_1 = new Array(
             "",
@@ -133,13 +137,13 @@
             "rrhh_salidas.h_retorno::text",
             "rrhh_salidas.con_sin_retorno",
 
-            "rrhh_salidas.f_validar_superior",
+            "rrhh_salidas.f_validar_superior::text",
             "a4.n_documento",
             "a4.nombre",
             "a4.ap_paterno",
             "a4.ap_materno",
 
-            "rrhh_salidas.f_validar_rrhh",
+            "rrhh_salidas.f_validar_rrhh::text",
             "a5.n_documento",
             "a5.nombre",
             "a5.ap_paterno",
@@ -148,7 +152,9 @@
             "a7.nombre",
             "a8.nombre",
 
-            ""
+            "",
+
+            "rrhh_salidas.created_at::text"
         );
         var col_m_width_1 = new Array(
             33,
@@ -189,7 +195,9 @@
             300,
             300,
 
-            10
+            10,
+
+            135
         );
         var col_m_align_1 = new Array(
             "center",
@@ -228,6 +236,8 @@
             "center",
 
             "center",
+            "center",
+
             "center",
 
             "center"
@@ -278,7 +288,9 @@
             "UNIDAD DESCONCENTRADA",
             "LUGAR DE DEPENDENCIA",
 
-            ""
+            "",
+
+            "FECHA CREACION"
         );
         var col_m_name_2 = new Array(
             "act",
@@ -321,7 +333,9 @@
             "ud_funcionario",
             "lugar_dependencia_funcionario",
 
-            "val_json"
+            "val_json",
+
+            "created_at"
         );
         var col_m_index_2 = new Array(
             "",
@@ -349,13 +363,13 @@
             "rrhh_salidas.f_retorno::text",
             "rrhh_salidas.periodo_retorno",
 
-            "rrhh_salidas.f_validar_superior",
+            "rrhh_salidas.f_validar_superior::text",
             "a4.n_documento",
             "a4.nombre",
             "a4.ap_paterno",
             "a4.ap_materno",
 
-            "rrhh_salidas.f_validar_rrhh",
+            "rrhh_salidas.f_validar_rrhh::text",
             "a5.n_documento",
             "a5.nombre",
             "a5.ap_paterno",
@@ -364,7 +378,9 @@
             "a7.nombre",
             "a8.nombre",
 
-            ""
+            "",
+
+            "rrhh_salidas.created_at::text"
         );
         var col_m_width_2 = new Array(
             33,
@@ -407,7 +423,9 @@
             300,
             300,
 
-            10
+            10,
+
+            135
         );
         var col_m_align_2 = new Array(
             "center",
@@ -448,6 +466,8 @@
             "center",
 
             "center",
+            "center",
+
             "center",
 
             "center"
@@ -854,6 +874,7 @@
                         col_name_1[12],
                         col_name_1[13],
 
+                        col_name_1[31],
                         col_name_1[14],
                         col_name_1[15],
                         col_name_1[16],
@@ -980,6 +1001,12 @@
                             align: col_m_align_1[13]
                         },
 
+                        {
+                            name : col_m_name_1[31],
+                            index: col_m_index_1[31],
+                            width: col_m_width_1[31],
+                            align: col_m_align_1[31]
+                        },
                         {
                             name : col_m_name_1[14],
                             index: col_m_index_1[14],
@@ -1447,6 +1474,7 @@
                         col_name_2[13],
                         col_name_2[14],
 
+                        col_name_2[32],
                         col_name_2[15],
                         col_name_2[16],
 
@@ -1580,6 +1608,12 @@
                             align: col_m_align_2[14]
                         },
 
+                        {
+                            name : col_m_name_2[32],
+                            index: col_m_index_2[32],
+                            width: col_m_width_2[32],
+                            align: col_m_align_2[32]
+                        },
                         {
                             name : col_m_name_2[15],
                             index: col_m_index_2[15],

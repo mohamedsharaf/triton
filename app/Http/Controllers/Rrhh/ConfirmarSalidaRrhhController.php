@@ -324,6 +324,9 @@ class ConfirmarSalidaRrhhController extends Controller
                         $tabla1.pdf,
                         $tabla1.papeleta_pdf,
 
+                        $tabla1.created_at,
+                        $tabla1.updated_at,
+
                         a2.nombre AS papeleta_salida,
                         a2.tipo_cronograma,
                         a2.tipo_salida,
@@ -469,6 +472,7 @@ class ConfirmarSalidaRrhhController extends Controller
                             $row["destino"],
                             $row["motivo"],
 
+                            $row["created_at"],
                             $row["f_salida"],
                             $row["h_salida"],
                             $row["h_retorno"],
@@ -547,6 +551,12 @@ class ConfirmarSalidaRrhhController extends Controller
 
                         $tabla1.pdf,
                         $tabla1.papeleta_pdf,
+
+                        $tabla1.created_at,
+                        $tabla1.updated_at,
+
+                        $tabla1.created_at,
+                        $tabla1.updated_at,
 
                         a2.nombre AS papeleta_salida,
                         a2.tipo_cronograma,
@@ -693,6 +703,7 @@ class ConfirmarSalidaRrhhController extends Controller
                             $row["destino"],
                             $row["motivo"],
 
+                            $row["created_at"],
                             $row["f_salida"],
                             ($row["periodo_salida"] == '')? '' : $this->periodo[$row["periodo_salida"]],
 
@@ -2593,6 +2604,9 @@ class ConfirmarSalidaRrhhController extends Controller
                         $tabla1.pdf,
                         $tabla1.papeleta_pdf,
 
+                        $tabla1.created_at,
+                        $tabla1.updated_at,
+
                         a2.nombre AS papeleta_salida,
                         a2.tipo_cronograma,
                         a2.tipo_salida,
@@ -2662,6 +2676,9 @@ class ConfirmarSalidaRrhhController extends Controller
                         $tabla1.pdf,
                         $tabla1.papeleta_pdf,
 
+                        $tabla1.created_at,
+                        $tabla1.updated_at,
+
                         a2.nombre AS papeleta_salida,
                         a2.tipo_cronograma,
                         a2.tipo_salida,
@@ -2723,6 +2740,8 @@ class ConfirmarSalidaRrhhController extends Controller
                                     'FUNCIONARIO SOLICITANTE',
                                     'DESTINO',
                                     'MOTIVO',
+
+                                    'FECHA DE CREACION',
                                     'FECHA DE SALIDA',
                                     'HORA SALIDA',
                                     'HORA RETORNO',
@@ -2780,6 +2799,8 @@ class ConfirmarSalidaRrhhController extends Controller
                                         $funcionario_solicitante,
                                         $row1["destino"],
                                         $row1["motivo"],
+
+                                        $row1["created_at"],
                                         $row1["f_salida"],
                                         $row1["h_salida"],
                                         $row1["h_retorno"],
@@ -2830,23 +2851,23 @@ class ConfirmarSalidaRrhhController extends Controller
                                     $cells->setAlignment('left');
                                 });
 
-                                $sheet->cells('L2:Q' . ($c), function($cells){
+                                $sheet->cells('L2:R' . ($c), function($cells){
                                     $cells->setAlignment('center');
-                                });
-
-                                $sheet->cells('R2:R' . ($c), function($cells){
-                                    $cells->setAlignment('left');
                                 });
 
                                 $sheet->cells('S2:S' . ($c), function($cells){
-                                    $cells->setAlignment('center');
-                                });
-
-                                $sheet->cells('T2:T' . ($c), function($cells){
                                     $cells->setAlignment('left');
                                 });
 
-                                $sheet->cells('U2:V' . ($c), function($cells){
+                                $sheet->cells('T2:T' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('U2:U' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->cells('V2:W' . ($c), function($cells){
                                     $cells->setAlignment('center');
                                 });
 
@@ -2868,6 +2889,7 @@ class ConfirmarSalidaRrhhController extends Controller
                                     'DESTINO',
                                     'MOTIVO',
 
+                                    'FECHA DE CREACION',
                                     'FECHA SALIDA',
                                     'PERIODO',
 
@@ -2928,6 +2950,7 @@ class ConfirmarSalidaRrhhController extends Controller
                                         $row1["destino"],
                                         $row1["motivo"],
 
+                                        $row1["created_at"],
                                         $row1["f_salida"],
                                         ($row1["periodo_salida"] == '')? '' : $this->periodo[$row1["periodo_salida"]],
 
@@ -2980,23 +3003,23 @@ class ConfirmarSalidaRrhhController extends Controller
                                     $cells->setAlignment('left');
                                 });
 
-                                $sheet->cells('L2:Q' . ($c), function($cells){
+                                $sheet->cells('L2:R' . ($c), function($cells){
                                     $cells->setAlignment('center');
-                                });
-
-                                $sheet->cells('R2:R' . ($c), function($cells){
-                                    $cells->setAlignment('left');
                                 });
 
                                 $sheet->cells('S2:S' . ($c), function($cells){
-                                    $cells->setAlignment('center');
-                                });
-
-                                $sheet->cells('T2:T' . ($c), function($cells){
                                     $cells->setAlignment('left');
                                 });
 
-                                $sheet->cells('U2:V' . ($c), function($cells){
+                                $sheet->cells('T2:T' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('U2:U' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->cells('V2:W' . ($c), function($cells){
                                     $cells->setAlignment('center');
                                 });
 
