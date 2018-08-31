@@ -159,4 +159,10 @@
         Route::post('/marcacion_biometrico/send_ajax', 'Rrhh\MarcacionBiometricoController@send_ajax');
         Route::match(["get", "post"], '/marcacion_biometrico/reportes', 'Rrhh\MarcacionBiometricoController@reportes');
 
+//=== MARCACION DEL BIOMETRICO ===
+    Route::get('/solicitud_dpvt', 'Dpvt\SolicitudController@index')->name('solicitud_dpvt');
+        Route::match(["get", "post"], '/solicitud_dpvt/view_jqgrid', 'Dpvt\SolicitudController@view_jqgrid');
+        Route::post('/solicitud_dpvt/send_ajax', 'Dpvt\SolicitudController@send_ajax');
+        Route::match(["get", "post"], '/solicitud_dpvt/reportes', 'Dpvt\SolicitudController@reportes');
+
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');

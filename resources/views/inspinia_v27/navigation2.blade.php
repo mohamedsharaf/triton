@@ -123,6 +123,17 @@
                 </li>
             @endif
 
+            @if(in_array(['codigo' => '1901'], $permisos))
+                <li class="{{ isActiveRoute('solicitud_dpvt') }}">
+                    <a href="#"><i class="fa fa-umbrella"></i> <span class="nav-label">DPVTMMP</span> <span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        @if(in_array(['codigo' => '1901'], $permisos))
+                            <li class="{{ isActiveRoute('solicitud_dpvt') }}"><a href="{{ url('/solicitud_dpvt') }}">Solicitud</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
+
             @if(in_array(['codigo' => '0101'], $permisos) || ($rol_id === 1))
                 <li class="{{ isActiveRoute('usuario') }}{{ isActiveRoute('permiso_rol') }}{{ isActiveRoute('rol') }}{{ isActiveRoute('permiso') }}{{ isActiveRoute('modulo') }}">
                     <a href="#"><i class="fa fa-lock"></i> <span class="nav-label">Seguridad</span><span class="fa arrow"></span></a>
