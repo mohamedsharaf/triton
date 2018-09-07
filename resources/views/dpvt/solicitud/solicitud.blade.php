@@ -105,6 +105,28 @@
           width           :2px;
           float           :none
         }
+
+        .wizard>.steps>ul>li:nth-child(1){
+            width: 20%;
+        }
+        .wizard>.steps>ul>li:nth-child(2){
+            width: 20%;
+        }
+        .wizard>.steps>ul>li:nth-child(3){
+            width: 20%;
+        }
+        .wizard>.steps>ul>li:nth-child(4){
+            width: 20%;
+        }
+        .wizard>.steps>ul>li:nth-child(5){
+            width: 20%;
+        }
+
+        #dropzone_1, #dropzone_2, #dropzone_3, #dropzone_4, #dropzone_5, #dropzone_6, #dropzone_7{
+            height    : 135px;
+            min-height: 100px;
+        }
+
     </style>
 @endsection
 
@@ -171,42 +193,488 @@
                         </button>
 
                         <h4 class="modal-title">
-                            <span id="modal_1_title"></span>
+                            Solicitud a la DPVTMMP<span id="modal_1_title"></span>
                         </h4>
                     </div>
 
                     <div class="modal-body">
-                        <div id="wizard">
-                            <h1>First Step</h1>
-                            <div class="step-content">
-                                <div class="text-center m-t-md">
-                                <h2>Hello in Step 1</h2>
-                                <p>
-                                    This is the first content.
-                                </p>
-                                </div>
-                            </div>
+                        <form id="form_1" action="#" class="wizard-big">
+                            <h1>Solicitud</h1>
+                            <fieldset>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="row">
+                                            <div class="col-sm-3">
+                                                <div id="gestion_div" class="form-group">
+                                                    <label for="gestion">Gestión</label>
+                                                    <select name="gestion" id="gestion" data-placeholder="Gestión" multiple="multiple" style="width: 100%;">
+                                                    </select>
+                                                 </div>
+                                            </div>
 
-                            <h1>Second Step</h1>
-                            <div class="step-content">
-                                <div class="text-center m-t-md">
-                                    <h2>This is step 2</h2>
-                                    <p>
-                                        This content is diferent than the first one.
-                                    </p>
-                                </div>
-                            </div>
+                                            <div class="col-sm-9">
+                                                <div id="solicitante_div" class="form-group">
+                                                    <label for="solicitante">Solicitado por</label>
+                                                    <select name="solicitante" id="solicitante" data-placeholder="Solicitado por" multiple="multiple" style="width: 100%;">
+                                                    </select>
+                                                 </div>
+                                            </div>
+                                        </div>
 
-                            <h1>Third Step</h1>
-                            <div class="step-content">
-                                <div class="text-center m-t-md">
-                                    <h2>This is step 3</h2>
-                                    <p>
-                                        This is last content.
-                                    </p>
+                                        <div id="persona_id_solicitante_div" class="form-group">
+                                            <label for="persona_id_solicitante">Nombre del solicitante</label>
+                                            <select name="persona_id_solicitante" id="persona_id_solicitante" data-placeholder="Nombre del solicitante" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
+                                        <div id="municipio_id_div" class="form-group">
+                                            <label for="municipio_id">Lugar</label>
+                                            <select name="municipio_id" id="municipio_id" data-placeholder="Lugar" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="f_solicitud">Fecha de solicitud</label>
+                                                    <input type="text" class="form-control" id="f_solicitud" name="f_solicitud" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="dropzone" id="dropzone_1">
+                                                    <div class="fallback">
+                                                      <input name="file" type="file"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="n_caso">N° de caso</label>
+                                                    <input type="text" class="form-control" id="n_caso" name="n_caso" placeholder="N° de caso">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div id="etapa_proceso_div" class="form-group">
+                                                    <label for="etapa_proceso">Etapa del proceso</label>
+                                                    <select name="etapa_proceso" id="etapa_proceso" data-placeholder="Etapa del proceso" multiple="multiple" style="width: 100%;">
+                                                    </select>
+                                                 </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="denunciante">Denunciante</label>
+                                            <input type="text" class="form-control" id="denunciante" name="denunciante" placeholder="Denunciante">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="denunciado">Denunciado</label>
+                                            <input type="text" class="form-control" id="denunciado" name="denunciado" placeholder="Denunciado">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="victima">Víctima</label>
+                                            <input type="text" class="form-control" id="victima" name="victima" placeholder="Víctima">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="persona_protegida">Persona protegida</label>
+                                            <input type="text" class="form-control" id="persona_protegida" name="persona_protegida" placeholder="Persona protegida">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+
+                                <h3>Delito</h3>
+                                <div class="row">
+                                    <div class="col-sm-9">
+                                        <div id="delito_id_div" class="form-group">
+                                            <select name="delito_id" id="delito_id" data-placeholder="Delito" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <div class="checkbox checkbox-primary checkbox-inline">
+                                            <input type="checkbox" name="tentativa" id="tentativa" value="2">
+                                            <label for="tentativa"> TENTATIVA </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-1">
+                                        <button type="button" class="btn btn-success btn-xs" title="Guardar delito">
+                                            <i class="fa fa-save"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div id="div_jqgrid2" class="jqGrid_wrapper">
+                                            <table id="jqgrid2"></table>
+                                            <div id="pjqgrid2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br>
+
+                                <h3>Recalificación del delito</h3>
+                                <div class="row">
+                                    <div class="col-sm-9">
+                                        <div id="delito_id_r_div" class="form-group">
+                                            <select name="delito_id_r" id="delito_id_r" data-placeholder="Recalificación del delito" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <div class="checkbox checkbox-primary checkbox-inline">
+                                            <input type="checkbox" name="tentativa_r" id="tentativa_r" value="2">
+                                            <label for="tentativa_r"> TENTATIVA </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-1">
+                                        <button type="button" class="btn btn-info btn-xs" title="Guardar recalificación del delito">
+                                            <i class="fa fa-save"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div id="div_jqgrid3" class="jqGrid_wrapper">
+                                            <table id="jqgrid3"></table>
+                                            <div id="pjqgrid3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <h1>Usuario</h1>
+                            <fieldset>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div id="usuario_tipo_div" class="form-group">
+                                            <label for="usuario_tipo">Tipo de usuario</label>
+                                            <select name="usuario_tipo" id="usuario_tipo" data-placeholder="Tipo de usuario" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="usuario_tipo_descripcion">Tipo de usuario descripción</label>
+                                            <input type="text" class="form-control" id="usuario_tipo_descripcion" name="usuario_tipo_descripcion" placeholder="Tipo de usuario descripción">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="usuario_nombre">Nombre de usuario</label>
+                                            <input type="text" class="form-control" id="usuario_nombre" name="usuario_nombre" placeholder="Nombre de usuario">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Sexo</label>
+                                            <br>
+                                            <div class="radio radio-primary radio-inline">
+                                                <input type="radio" id="usuario_sexo_1" value="1" name="usuario_sexo" class="usuario_sexo_class" checked="checked">
+                                                <label for="usuario_sexo_1"> {!! $sexo_array['1'] !!} </label>
+                                            </div>
+                                            <div class="radio radio-info radio-inline">
+                                                <input type="radio" id="usuario_sexo_2" value="2" name="usuario_sexo" class="usuario_sexo_class">
+                                                <label for="usuario_sexo_2"> {!! $sexo_array['2'] !!} </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="usuario_celular">Teléfono y/o celular</label>
+                                            <input type="text" class="form-control" id="usuario_celular" name="usuario_celular" placeholder="Teléfono y/o celular">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="usuario_domicilio">Domicilio usuario</label>
+                                            <input type="text" class="form-control" id="usuario_domicilio" name="usuario_domicilio" placeholder="Domicilio usuario">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="usuario_otra_referencia">Otras referencias</label>
+                                            <input type="text" class="form-control" id="usuario_otra_referencia" name="usuario_otra_referencia" placeholder="Otras referencias">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Edad entre</label>
+                                            <br>
+                                            <div class="radio radio-primary radio-inline">
+                                                <input type="radio" id="usuario_edad_1" value="1" name="usuario_edad" class="usuario_edad_class" checked="checked">
+                                                <label for="usuario_edad_1"> {!! $edad_array['1'] !!} </label>
+                                            </div>
+                                            <div class="radio radio-info radio-inline">
+                                                <input type="radio" id="usuario_edad_2" value="2" name="usuario_edad" class="usuario_edad_class">
+                                                <label for="usuario_edad_2"> {!! $edad_array['2'] !!} </label>
+                                            </div>
+                                            <div class="radio radio-success radio-inline">
+                                                <input type="radio" id="usuario_edad_3" value="3" name="usuario_edad" class="usuario_edad_class">
+                                                <label for="usuario_edad_3"> {!! $edad_array['3'] !!} </label>
+                                            </div>
+                                            <div class="radio radio-inline">
+                                                <input type="radio" id="usuario_edad_4" value="4" name="usuario_edad" class="usuario_edad_class">
+                                                <label for="usuario_edad_4"> {!! $edad_array['4'] !!} </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <h1>Solicitud de trabajo</h1>
+                            <fieldset>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div id="estado_div" class="form-group">
+                                            <label for="estado">Estado</label>
+                                            <select name="estado" id="estado" data-placeholder="Estado" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
+                                        <div id="dirigido_a_div" class="form-group">
+                                            <label for="dirigido_a">Dirigido a</label>
+                                            <select name="dirigido_a" id="dirigido_a" data-placeholder="Dirigido a" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
+                                        <div id="dirigido_psicologia_div" class="form-group">
+                                            <label for="dirigido_psicologia">Psicología trabajo solicitado</label>
+                                            <select name="dirigido_psicologia" id="dirigido_psicologia" data-placeholder="Psicología trabajo solicitado" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <div id="dirigido_trabajo_social_div" class="form-group">
+                                            <label for="dirigido_trabajo_social">Trabajo social trabajo solicitado</label>
+                                            <select name="dirigido_trabajo_social" id="dirigido_trabajo_social" data-placeholder="Trabajo social trabajo solicitado" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="dirigido_otro_trabajo">Otro trabajo solicitado</label>
+                                            <textarea class="form-control" id="dirigido_otro_trabajo" name="dirigido_otro_trabajo" placeholder="Otro trabajo solicitado" rows="4"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <h1>Presentación de informes</h1>
+                            <fieldset>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="plazo_fecha_solicitud">Fecha de solicitud</label>
+                                                    <input type="text" class="form-control" id="plazo_fecha_solicitud" name="plazo_fecha_solicitud" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="plazo_fecha_recepcion">Fecha de recepción de la solicitud de trabajo</label>
+                                                    <input type="text" class="form-control" id="plazo_fecha_recepcion" name="plazo_fecha_recepcion" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h3>Informe psicologico</h3>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="plazo_fecha_entrega_digital">Fecha de entrega digital</label>
+                                                    <input type="text" class="form-control" id="plazo_fecha_entrega_digital" name="plazo_fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="plazo_fecha_entrega_fisico">Fecha de entrega físico</label>
+                                                    <input type="text" class="form-control" id="plazo_fecha_entrega_fisico" name="plazo_fecha_entrega_fisico" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="dropzone" id="dropzone_2">
+                                            <div class="fallback">
+                                              <input name="file2" type="file"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <h3>Informe social</h3>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="plazo_social_fecha">Fecha de entrega digital</label>
+                                                    <input type="text" class="form-control" id="plazo_social_fecha" name="plazo_social_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="plazo_psicologico_fecha">Fecha de entrega físico</label>
+                                                    <input type="text" class="form-control" id="plazo_psicologico_fecha" name="plazo_psicologico_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="dropzone" id="dropzone_3">
+                                            <div class="fallback">
+                                              <input name="file3" type="file"/>
+                                            </div>
+                                        </div>
+
+                                        <br>
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="plazo_complementario_fecha">Fecha informe complementario</label>
+                                                    <input type="text" class="form-control" id="plazo_complementario_fecha" name="plazo_complementario_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="dropzone" id="dropzone_4">
+                                                    <div class="fallback">
+                                                      <input name="file4" type="file"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                            <h1>Resoluciones del MP y seguimiento</h1>
+                            <fieldset>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="resolucion_descripcion">Descripción de la resolución</label>
+                                            <input type="text" class="form-control" id="resolucion_descripcion" name="resolucion_descripcion" placeholder="Descripción de la resolución">
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="resolucion_fecha_emision">Fecha emisión</label>
+                                                    <input type="text" class="form-control" id="resolucion_fecha_emision" name="resolucion_fecha_emision" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="dropzone" id="dropzone_7">
+                                                    <div class="fallback">
+                                                      <input name="file7" type="file"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="resolucion_tipo_disposicion_div" class="form-group">
+                                            <label for="resolucion_tipo_disposicion">Tipo de disposición</label>
+                                            <select name="resolucion_tipo_disposicion" id="resolucion_tipo_disposicion" data-placeholder="Tipo de disposición" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="resolucion_medidas_proteccion">Medida de protección dispuesta</label>
+                                            <input type="text" class="form-control" id="resolucion_medidas_proteccion" name="resolucion_medidas_proteccion" placeholder="Medida de protección dispuesta">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="resolucion_instituciones_coadyuvantes">Instituciones coadyuvantes</label>
+                                            <input type="text" class="form-control" id="resolucion_instituciones_coadyuvantes" name="resolucion_instituciones_coadyuvantes" placeholder="Instituciones coadyuvantes">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <label for="fecha_inicio">Fecha de inicio</label>
+                                                    <input type="text" class="form-control" id="fecha_inicio" name="fecha_inicio" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <label for="fecha_entrega_digital">Fecha de entrega digital</label>
+                                                    <input type="text" class="form-control" id="fecha_entrega_digital" name="fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <label for="fecha_entrega_fisico">Fecha de entrega físico</label>
+                                                    <input type="text" class="form-control" id="fecha_entrega_fisico" name="fecha_entrega_fisico" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="informe_seguimiento_fecha">Fecha informe seguimiento</label>
+                                                    <input type="text" class="form-control" id="informe_seguimiento_fecha" name="informe_seguimiento_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="dropzone" id="dropzone_5">
+                                                    <div class="fallback">
+                                                      <input name="file5" type="file"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <br>
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label for="complementario_fecha">Fecha informe complementario</label>
+                                                    <input type="text" class="form-control" id="complementario_fecha" name="complementario_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <div class="dropzone" id="dropzone_6">
+                                                    <div class="fallback">
+                                                      <input name="file6" type="file"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div id="div_jqgrid4" class="jqGrid_wrapper">
+                                            <table id="jqgrid4"></table>
+                                            <div id="pjqgrid4"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
                     </div>
 
                     {{-- <div class="modal-footer">

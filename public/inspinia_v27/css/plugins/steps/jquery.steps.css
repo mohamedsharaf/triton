@@ -162,7 +162,7 @@
 {
     float: left;
     position: absolute;
-    width: 95%;
+    width: 100%;
     height: 95%;
     padding: 2.5%;
 }
@@ -174,7 +174,7 @@
 
 .wizard > .content > .body ul > li
 {
-    display: list-item;
+    /*display: list-item;*/
 }
 
 .wizard > .content > .body > iframe
@@ -186,7 +186,7 @@
 
 .wizard > .content > .body input
 {
-    display: block;
+    /*display: block;*/
     border: 1px solid #ccc;
 }
 

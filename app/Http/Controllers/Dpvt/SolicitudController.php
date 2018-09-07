@@ -99,6 +99,18 @@ class SolicitudController extends Controller
             '7' => 'OTRO'
         ];
 
+        $this->dirigido_psicologia = [
+            '1' => 'EVALUACION PSICOLOGICA DEL ESTADO COGNITIVO CONDUCTUAL Y EMOCIONAL CON RELACION AL HECHO',
+            '2' => 'IDENTIFICACION DE LOS FACTORES DE RIESGO',
+            '3' => 'IDENTIFICACION DE LAS NECESIDADES DE PROTECCION'
+        ];
+
+        $this->dirigido_trabajo_social = [
+            '1' => 'EVALUACION SOCIAL CON RELACION AL HECHO',
+            '2' => 'IDENTIFICACION DE LOS FACTORES DE RIESGO',
+            '3' => 'IDENTIFICACION DE LAS NECESIDADES DE PROTECCION'
+        ];
+
         $this->resolucion_tipo_disposicion = [
             '1' => 'OTORGA',
             '2' => 'NIEGA',
@@ -142,6 +154,8 @@ class SolicitudController extends Controller
                 'sexo_array'                        => $this->sexo,
                 'edad_array'                        => $this->edad,
                 'dirigido_a_array'                  => $this->dirigido_a,
+                'dirigido_psicologia_array'         => $this->dirigido_psicologia,
+                'dirigido_trabajo_social_array'     => $this->dirigido_trabajo_social,
                 'resolucion_tipo_disposicion_array' => $this->resolucion_tipo_disposicion
             ];
             return view('dpvt.solicitud.solicitud')->with($data);
@@ -149,6 +163,91 @@ class SolicitudController extends Controller
         else
         {
             return back()->withInput();
+        }
+    }
+
+    public function send_ajax(Request $request)
+    {
+        if( ! $request->ajax())
+        {
+            $respuesta = [
+                'sw'        => 0,
+                'titulo'    => 'GESTOR DE PERSONAS',
+                'respuesta' => 'No es solicitud AJAX.'
+            ];
+            return json_encode($respuesta);
+        }
+
+        $tipo = $request->input('tipo');
+
+        switch($tipo)
+        {
+            // === SELECT2 PERSONA ===
+            case '100':
+
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = RrhhPersona::whereRaw("CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) ilike '%$nombre%'")
+                                ->where("estado", "=", $estado)
+                                ->select(DB::raw("id, CONCAT_WS(' - ', n_documento, CONCAT_WS(' ', ap_paterno, ap_materno, nombre)) AS text"))
+                                ->orderByRaw("CONCAT_WS(' ', ap_paterno, ap_materno, nombre) ASC")
+                                ->limit($page_limit)
+                                ->get()
+                                ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
+                break;
+            // === SELECT2 DEPARTAMENTO, PROVINCIA Y MUNICIPIO ===
+            case '101':
+
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = UbgeMunicipio::leftJoin("ubge_provincias", "ubge_provincias.id", "=", "ubge_municipios.provincia_id")
+                                ->leftJoin("ubge_departamentos", "ubge_departamentos.id", "=", "ubge_provincias.departamento_id")
+                                ->whereRaw("CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) ilike '%$nombre%'")
+                                ->where("ubge_municipios.estado", "=", $estado)
+                                ->select(DB::raw("ubge_municipios.id, CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) AS text"))
+                                ->orderByRaw("ubge_municipios.codigo ASC")
+                                ->limit($page_limit)
+                                ->get()
+                                ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                    // else
+                    // {
+                    //     return json_encode(array("id"=>"0","text"=>"No se encontraron resultados"));
+                    // }
+                }
+                break;
+            default:
+                break;
         }
     }
 }
