@@ -107,22 +107,25 @@
         }
 
         .wizard>.steps>ul>li:nth-child(1){
-            width: 20%;
+            width: 15%;
         }
         .wizard>.steps>ul>li:nth-child(2){
-            width: 20%;
+            width: 15%;
         }
         .wizard>.steps>ul>li:nth-child(3){
-            width: 20%;
+            width: 15%;
         }
         .wizard>.steps>ul>li:nth-child(4){
             width: 20%;
         }
         .wizard>.steps>ul>li:nth-child(5){
+            width: 15%;
+        }
+        .wizard>.steps>ul>li:nth-child(6){
             width: 20%;
         }
 
-        #dropzone_1, #dropzone_2, #dropzone_3, #dropzone_4, #dropzone_5, #dropzone_6, #dropzone_7{
+        #dropzone_1, #dropzone_2, #dropzone_3, #dropzone_4, #dropzone_5, #dropzone_6, #dropzone_7, #dropzone_8, #dropzone_9, #dropzone_10, #dropzone_11, #dropzone_12{
             height    : 135px;
             min-height: 100px;
         }
@@ -193,7 +196,7 @@
                         </button>
 
                         <h4 class="modal-title">
-                            Solicitud a la DPVTMMP<span id="modal_1_title"></span>
+                            {{ $title_table }}<span id="modal_1_title"></span>
                         </h4>
                     </div>
 
@@ -435,16 +438,10 @@
                             <h1>Solicitud de trabajo</h1>
                             <fieldset>
                                 <div class="row">
-                                    <div class="col-lg-6">
-                                        <div id="estado_div" class="form-group">
-                                            <label for="estado">Estado</label>
-                                            <select name="estado" id="estado" data-placeholder="Estado" multiple="multiple" style="width: 100%;">
-                                            </select>
-                                        </div>
-
-                                        <div id="dirigido_a_div" class="form-group">
-                                            <label for="dirigido_a">Dirigido a</label>
-                                            <select name="dirigido_a" id="dirigido_a" data-placeholder="Dirigido a" multiple="multiple" style="width: 100%;">
+                                    <div class="col-lg-4">
+                                        <div id="dirigido_a_psicologia_div" class="form-group">
+                                            <label for="dirigido_a_psicologia">Psicología dirigido a</label>
+                                            <select name="dirigido_a_psicologia" id="dirigido_a_psicologia" data-placeholder="Dirigido a" multiple="multiple" style="width: 100%;">
                                             </select>
                                         </div>
 
@@ -453,22 +450,83 @@
                                             <select name="dirigido_psicologia" id="dirigido_psicologia" data-placeholder="Psicología trabajo solicitado" multiple="multiple" style="width: 100%;">
                                             </select>
                                         </div>
+
+                                        <div class="dropzone" id="dropzone_9">
+                                            <div class="fallback">
+                                              <input name="file9" type="file"/>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-4">
+                                        <div id="dirigido_a_trabajo_social_div" class="form-group">
+                                            <label for="dirigido_a_trabajo_social">Trabajo social dirigido a</label>
+                                            <select name="dirigido_a_trabajo_social" id="dirigido_a_trabajo_social" data-placeholder="Dirigido a" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
                                         <div id="dirigido_trabajo_social_div" class="form-group">
                                             <label for="dirigido_trabajo_social">Trabajo social trabajo solicitado</label>
                                             <select name="dirigido_trabajo_social" id="dirigido_trabajo_social" data-placeholder="Trabajo social trabajo solicitado" multiple="multiple" style="width: 100%;">
                                             </select>
                                         </div>
 
+                                        <div class="dropzone" id="dropzone_10">
+                                            <div class="fallback">
+                                              <input name="file10" type="file"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-4">
+                                        <div id="dirigido_a_otro_trabajo_div" class="form-group">
+                                            <label for="dirigido_a_otro_trabajo">Otro trabajo dirigido a</label>
+                                            <select name="dirigido_a_otro_trabajo" id="dirigido_a_otro_trabajo" data-placeholder="Dirigido a" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
                                         <div class="form-group">
                                             <label for="dirigido_otro_trabajo">Otro trabajo solicitado</label>
-                                            <textarea class="form-control" id="dirigido_otro_trabajo" name="dirigido_otro_trabajo" placeholder="Otro trabajo solicitado" rows="4"></textarea>
+                                            <textarea class="form-control" id="dirigido_otro_trabajo" name="dirigido_otro_trabajo" placeholder="Otro trabajo solicitado" rows="2"></textarea>
+                                        </div>
+
+                                        <div class="dropzone" id="dropzone_11">
+                                            <div class="fallback">
+                                              <input name="file11" type="file"/>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </fieldset>
+
+                            <h1>Solicitud trabajo complementario</h1>
+                            <fieldset>
+                                <div class="row">
+                                    <div id="estado_div" class="form-group">
+                                        <label for="estado">Estado</label>
+                                        <select name="estado" id="estado" data-placeholder="Estado" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div id="complementario_dirigido_a_div" class="form-group">
+                                        <label for="complementario_dirigido_a">Dirigido a</label>
+                                        <select name="complementario_dirigido_a" id="complementario_dirigido_a" data-placeholder="Dirigido a" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="complementario_trabajo_solicitado">Trabajo solicitado</label>
+                                        <textarea class="form-control" id="complementario_trabajo_solicitado" name="complementario_trabajo_solicitado" placeholder="Trabajo solicitado" rows="4"></textarea>
+                                    </div>
+
+                                    <div class="dropzone" id="dropzone_12">
+                                        <div class="fallback">
+                                          <input name="file12" type="file"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+
 
                             <h1>Presentación de informes</h1>
                             <fieldset>
@@ -592,14 +650,26 @@
                                             </select>
                                         </div>
 
-                                        <div class="form-group">
+                                        <div id="resolucion_medidas_proteccion_div" class="form-group">
                                             <label for="resolucion_medidas_proteccion">Medida de protección dispuesta</label>
-                                            <input type="text" class="form-control" id="resolucion_medidas_proteccion" name="resolucion_medidas_proteccion" placeholder="Medida de protección dispuesta">
+                                            <select name="resolucion_medidas_proteccion" id="resolucion_medidas_proteccion" data-placeholder="Medida de protección dispuesta" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="resolucion_otra_medidas_proteccion">Otra medida de protección dispuesta</label>
+                                            <input type="text" class="form-control" id="resolucion_otra_medidas_proteccion" name="resolucion_otra_medidas_proteccion" placeholder="Otra medida de protección dispuesta">
                                         </div>
 
                                         <div class="form-group">
                                             <label for="resolucion_instituciones_coadyuvantes">Instituciones coadyuvantes</label>
                                             <input type="text" class="form-control" id="resolucion_instituciones_coadyuvantes" name="resolucion_instituciones_coadyuvantes" placeholder="Instituciones coadyuvantes">
+                                        </div>
+
+                                        <div class="dropzone" id="dropzone_8">
+                                            <div class="fallback">
+                                              <input name="file8" type="file"/>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -662,6 +732,12 @@
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <br>
+
+                                        <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
+
+                                        <button type="button" class="btn btn-success" onclick="utilitarios([15]);">Guardar resolución del MP y seguimiento</button>
                                     </div>
                                 </div>
 

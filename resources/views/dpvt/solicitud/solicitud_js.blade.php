@@ -157,6 +157,16 @@
             resolucion_tipo_disposicion_jqgrid += ';' + index + ':' + value;
         });
 
+    // === MEDIDA DE PROTECCION DISPUESTA ===
+        var resolucion_mpd_json   = $.parseJSON('{!! json_encode($resolucion_mpd_array) !!}');
+        var resolucion_mpd_select = '';
+        var resolucion_mpd_jqgrid = ':Todos';
+
+        $.each(resolucion_mpd_json, function(index, value) {
+            resolucion_mpd_select += '<option value="' + index + '">' + value + '</option>';
+            resolucion_mpd_jqgrid += ';' + index + ':' + value;
+        });
+
     // === CONTADOR DE GESTIONES ===
         var anio_filter = '';
         var gestion_i = {!! $gestion_i !!};
@@ -180,7 +190,7 @@
 
             $('#usuario_tipo').append(usuario_tipo_select);
 
-            $('#dirigido_a').append(dirigido_a_select);
+            $('#dirigido_a_psicologia, #dirigido_a_trabajo_social, #dirigido_a_otro_trabajo, #complementario_dirigido_a').append(dirigido_a_select);
 
             $('#estado').append(estado_select);
 
@@ -189,6 +199,8 @@
             $('#dirigido_trabajo_social').append(dirigido_trabajo_social_select);
 
             $('#resolucion_tipo_disposicion').append(resolucion_tipo_disposicion_select);
+
+            $('#resolucion_medidas_proteccion').append(resolucion_mpd_select);
 
         //=== WIZARDS ===
             $(form_1).steps({
@@ -278,18 +290,24 @@
 
 
         //=== SELECT2 ===
-            $("#gestion, #solicitante, #etapa_proceso, #usuario_tipo, #dirigido_a, #estado, #dirigido_psicologia, #dirigido_trabajo_social, #resolucion_tipo_disposicion").select2({
+            $("#gestion, #solicitante, #etapa_proceso, #usuario_tipo, #estado").select2({
                 maximumSelectionLength: 1
             });
             $("#gestion").appendTo("#gestion_div");
             $("#solicitante").appendTo("#solicitante_div");
             $("#etapa_proceso").appendTo("#etapa_proceso_div");
             $("#usuario_tipo").appendTo("#usuario_tipo_div");
-            $("#dirigido_a").appendTo("#dirigido_a_div");
             $("#estado").appendTo("#estado_div");
+
+            $("#dirigido_a_psicologia, #dirigido_psicologia, #dirigido_a_trabajo_social, #dirigido_trabajo_social, #dirigido_a_otro_trabajo, #complementario_dirigido_a, #resolucion_tipo_disposicion, #resolucion_medidas_proteccion").select2();
+            $("#dirigido_a_psicologia").appendTo("#dirigido_a_psicologia_div");
+            $("#dirigido_a_trabajo_social").appendTo("#dirigido_a_trabajo_social_div");
+            $("#dirigido_a_otro_trabajo").appendTo("#dirigido_a_otro_trabajo_div");
             $("#dirigido_psicologia").appendTo("#dirigido_psicologia_div");
             $("#dirigido_trabajo_social").appendTo("#dirigido_trabajo_social_div");
+            $("#complementario_dirigido_a").appendTo("#complementario_dirigido_a_div");
             $("#resolucion_tipo_disposicion").appendTo("#resolucion_tipo_disposicion_div");
+            $("#resolucion_medidas_proteccion").appendTo("#resolucion_medidas_proteccion_div");
 
             $('#persona_id_solicitante').select2({
                 maximumSelectionLength: 1,
@@ -408,6 +426,26 @@
             valor1[0]  = 57;
             utilitarios(valor1);
 
+            var valor1 = new Array();
+            valor1[0]  = 58;
+            utilitarios(valor1);
+
+            var valor1 = new Array();
+            valor1[0]  = 59;
+            utilitarios(valor1);
+
+            var valor1 = new Array();
+            valor1[0]  = 60;
+            utilitarios(valor1);
+
+            var valor1 = new Array();
+            valor1[0]  = 61;
+            utilitarios(valor1);
+
+            var valor1 = new Array();
+            valor1[0]  = 62;
+            utilitarios(valor1);
+
         // === JQGRID ===
             var valor1 = new Array();
             valor1[0]  = 41;
@@ -415,6 +453,10 @@
 
             var valor1 = new Array();
             valor1[0]  = 42;
+            utilitarios(valor1);
+
+            var valor1 = new Array();
+            valor1[0]  = 43;
             utilitarios(valor1);
 
         $('#modal_1').modal();
@@ -1162,6 +1204,456 @@
                     dictResponseError: "Ha ocurrido un error en el server.",
                     acceptedFiles:'application/pdf',
                     paramName: "file7", // The name that will be used to transfer the file
+                    maxFiles:1,
+                    clickable:true,
+                    parallelUploads:1,
+                    params: {
+                        tipo: 2,
+                        _token: csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize: 1,
+                    autoProcessQueue:true,
+
+                    dictRemoveFile:'Eliminar',
+                    dictCancelUpload:'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig:'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
+                    init: function(){
+                        // this.on("sending", function(file, xhr, formData){
+                        //     formData.append("usuario_id", $("#usuario_id").val());
+                        //     formData.append("estado", $(".estado_class:checked").val());
+                        //     formData.append("persona_id", $("#persona_id").val());
+                        //     formData.append("email", $("#email").val());
+                        //     formData.append("password", $("#password").val());
+                        //     formData.append("rol_id", $("#rol_id").val());
+                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
+                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
+                        // });
+                    },
+                    success: function(file, response){
+                        // var data = $.parseJSON(response);
+                        // if(data.sw === 1){
+                        //     var valor1 = new Array();
+                        //     valor1[0]  = 100;
+                        //     valor1[1]  = data.titulo;
+                        //     valor1[2]  = data.respuesta;
+                        //     utilitarios(valor1);
+
+                        //     $(jqgrid1).trigger("reloadGrid");
+                        //     if(data.iu === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 14;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else if(data.iu === 2){
+                        //         $('#modal_1').modal('hide');
+                        //     }
+                        // }
+                        // else if(data.sw === 0){
+                        //     if(data.error_sw === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = data.respuesta;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else
+                        //     {
+                        //         var respuesta_server = '';
+                        //         $.each(data.error.response.original, function(index, value) {
+                        //             respuesta_server += value + '<br>';
+                        //         });
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = respuesta_server;
+                        //         utilitarios(valor1);
+                        //     }
+                        // }
+                        // else if(data.sw === 2){
+                        //     window.location.reload();
+                        // }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
+            // === DROPZONE 8 ===
+            case 58:
+                $("#dropzone_8").dropzone({
+                    url: url_controller + "/send_ajax",
+                    method:'post',
+                    addRemoveLinks: true,
+                    maxFilesize: 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles:'application/pdf',
+                    paramName: "file8", // The name that will be used to transfer the file
+                    maxFiles:1,
+                    clickable:true,
+                    parallelUploads:1,
+                    params: {
+                        tipo: 2,
+                        _token: csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize: 1,
+                    autoProcessQueue:true,
+
+                    dictRemoveFile:'Eliminar',
+                    dictCancelUpload:'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig:'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
+                    init: function(){
+                        // this.on("sending", function(file, xhr, formData){
+                        //     formData.append("usuario_id", $("#usuario_id").val());
+                        //     formData.append("estado", $(".estado_class:checked").val());
+                        //     formData.append("persona_id", $("#persona_id").val());
+                        //     formData.append("email", $("#email").val());
+                        //     formData.append("password", $("#password").val());
+                        //     formData.append("rol_id", $("#rol_id").val());
+                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
+                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
+                        // });
+                    },
+                    success: function(file, response){
+                        // var data = $.parseJSON(response);
+                        // if(data.sw === 1){
+                        //     var valor1 = new Array();
+                        //     valor1[0]  = 100;
+                        //     valor1[1]  = data.titulo;
+                        //     valor1[2]  = data.respuesta;
+                        //     utilitarios(valor1);
+
+                        //     $(jqgrid1).trigger("reloadGrid");
+                        //     if(data.iu === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 14;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else if(data.iu === 2){
+                        //         $('#modal_1').modal('hide');
+                        //     }
+                        // }
+                        // else if(data.sw === 0){
+                        //     if(data.error_sw === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = data.respuesta;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else
+                        //     {
+                        //         var respuesta_server = '';
+                        //         $.each(data.error.response.original, function(index, value) {
+                        //             respuesta_server += value + '<br>';
+                        //         });
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = respuesta_server;
+                        //         utilitarios(valor1);
+                        //     }
+                        // }
+                        // else if(data.sw === 2){
+                        //     window.location.reload();
+                        // }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
+            // === DROPZONE 9 ===
+            case 59:
+                $("#dropzone_9").dropzone({
+                    url: url_controller + "/send_ajax",
+                    method:'post',
+                    addRemoveLinks: true,
+                    maxFilesize: 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles:'application/pdf',
+                    paramName: "file9", // The name that will be used to transfer the file
+                    maxFiles:1,
+                    clickable:true,
+                    parallelUploads:1,
+                    params: {
+                        tipo: 2,
+                        _token: csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize: 1,
+                    autoProcessQueue:true,
+
+                    dictRemoveFile:'Eliminar',
+                    dictCancelUpload:'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig:'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
+                    init: function(){
+                        // this.on("sending", function(file, xhr, formData){
+                        //     formData.append("usuario_id", $("#usuario_id").val());
+                        //     formData.append("estado", $(".estado_class:checked").val());
+                        //     formData.append("persona_id", $("#persona_id").val());
+                        //     formData.append("email", $("#email").val());
+                        //     formData.append("password", $("#password").val());
+                        //     formData.append("rol_id", $("#rol_id").val());
+                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
+                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
+                        // });
+                    },
+                    success: function(file, response){
+                        // var data = $.parseJSON(response);
+                        // if(data.sw === 1){
+                        //     var valor1 = new Array();
+                        //     valor1[0]  = 100;
+                        //     valor1[1]  = data.titulo;
+                        //     valor1[2]  = data.respuesta;
+                        //     utilitarios(valor1);
+
+                        //     $(jqgrid1).trigger("reloadGrid");
+                        //     if(data.iu === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 14;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else if(data.iu === 2){
+                        //         $('#modal_1').modal('hide');
+                        //     }
+                        // }
+                        // else if(data.sw === 0){
+                        //     if(data.error_sw === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = data.respuesta;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else
+                        //     {
+                        //         var respuesta_server = '';
+                        //         $.each(data.error.response.original, function(index, value) {
+                        //             respuesta_server += value + '<br>';
+                        //         });
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = respuesta_server;
+                        //         utilitarios(valor1);
+                        //     }
+                        // }
+                        // else if(data.sw === 2){
+                        //     window.location.reload();
+                        // }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
+            // === DROPZONE 10 ===
+            case 60:
+                $("#dropzone_10").dropzone({
+                    url: url_controller + "/send_ajax",
+                    method:'post',
+                    addRemoveLinks: true,
+                    maxFilesize: 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles:'application/pdf',
+                    paramName: "file10", // The name that will be used to transfer the file
+                    maxFiles:1,
+                    clickable:true,
+                    parallelUploads:1,
+                    params: {
+                        tipo: 2,
+                        _token: csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize: 1,
+                    autoProcessQueue:true,
+
+                    dictRemoveFile:'Eliminar',
+                    dictCancelUpload:'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig:'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
+                    init: function(){
+                        // this.on("sending", function(file, xhr, formData){
+                        //     formData.append("usuario_id", $("#usuario_id").val());
+                        //     formData.append("estado", $(".estado_class:checked").val());
+                        //     formData.append("persona_id", $("#persona_id").val());
+                        //     formData.append("email", $("#email").val());
+                        //     formData.append("password", $("#password").val());
+                        //     formData.append("rol_id", $("#rol_id").val());
+                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
+                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
+                        // });
+                    },
+                    success: function(file, response){
+                        // var data = $.parseJSON(response);
+                        // if(data.sw === 1){
+                        //     var valor1 = new Array();
+                        //     valor1[0]  = 100;
+                        //     valor1[1]  = data.titulo;
+                        //     valor1[2]  = data.respuesta;
+                        //     utilitarios(valor1);
+
+                        //     $(jqgrid1).trigger("reloadGrid");
+                        //     if(data.iu === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 14;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else if(data.iu === 2){
+                        //         $('#modal_1').modal('hide');
+                        //     }
+                        // }
+                        // else if(data.sw === 0){
+                        //     if(data.error_sw === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = data.respuesta;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else
+                        //     {
+                        //         var respuesta_server = '';
+                        //         $.each(data.error.response.original, function(index, value) {
+                        //             respuesta_server += value + '<br>';
+                        //         });
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = respuesta_server;
+                        //         utilitarios(valor1);
+                        //     }
+                        // }
+                        // else if(data.sw === 2){
+                        //     window.location.reload();
+                        // }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
+            // === DROPZONE 11 ===
+            case 61:
+                $("#dropzone_11").dropzone({
+                    url: url_controller + "/send_ajax",
+                    method:'post',
+                    addRemoveLinks: true,
+                    maxFilesize: 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles:'application/pdf',
+                    paramName: "file11", // The name that will be used to transfer the file
+                    maxFiles:1,
+                    clickable:true,
+                    parallelUploads:1,
+                    params: {
+                        tipo: 2,
+                        _token: csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize: 1,
+                    autoProcessQueue:true,
+
+                    dictRemoveFile:'Eliminar',
+                    dictCancelUpload:'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig:'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
+                    init: function(){
+                        // this.on("sending", function(file, xhr, formData){
+                        //     formData.append("usuario_id", $("#usuario_id").val());
+                        //     formData.append("estado", $(".estado_class:checked").val());
+                        //     formData.append("persona_id", $("#persona_id").val());
+                        //     formData.append("email", $("#email").val());
+                        //     formData.append("password", $("#password").val());
+                        //     formData.append("rol_id", $("#rol_id").val());
+                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
+                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
+                        // });
+                    },
+                    success: function(file, response){
+                        // var data = $.parseJSON(response);
+                        // if(data.sw === 1){
+                        //     var valor1 = new Array();
+                        //     valor1[0]  = 100;
+                        //     valor1[1]  = data.titulo;
+                        //     valor1[2]  = data.respuesta;
+                        //     utilitarios(valor1);
+
+                        //     $(jqgrid1).trigger("reloadGrid");
+                        //     if(data.iu === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 14;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else if(data.iu === 2){
+                        //         $('#modal_1').modal('hide');
+                        //     }
+                        // }
+                        // else if(data.sw === 0){
+                        //     if(data.error_sw === 1){
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = data.respuesta;
+                        //         utilitarios(valor1);
+                        //     }
+                        //     else
+                        //     {
+                        //         var respuesta_server = '';
+                        //         $.each(data.error.response.original, function(index, value) {
+                        //             respuesta_server += value + '<br>';
+                        //         });
+                        //         var valor1 = new Array();
+                        //         valor1[0]  = 101;
+                        //         valor1[1]  = data.titulo;
+                        //         valor1[2]  = respuesta_server;
+                        //         utilitarios(valor1);
+                        //     }
+                        // }
+                        // else if(data.sw === 2){
+                        //     window.location.reload();
+                        // }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
+            // === DROPZONE 12 ===
+            case 62:
+                $("#dropzone_12").dropzone({
+                    url: url_controller + "/send_ajax",
+                    method:'post',
+                    addRemoveLinks: true,
+                    maxFilesize: 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles:'application/pdf',
+                    paramName: "file12", // The name that will be used to transfer the file
                     maxFiles:1,
                     clickable:true,
                     parallelUploads:1,

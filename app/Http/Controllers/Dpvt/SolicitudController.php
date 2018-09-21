@@ -36,10 +36,11 @@ class SolicitudController extends Controller
 
         $this->estado = [
             '1' => 'SIN ESTADO',
-            '2' => 'PENDIENTE DE INFORME DE LA UPVT U OTRA INSTANCIA',
-            '3' => 'PENDIENTE RESOLUCION',
+            '2' => 'PENDIENTE DE INFORME PSICOLOGICO',
+            '3' => 'PENDIENTE DE INFORME SOCIAL',
             '4' => 'ARCHIVO DE OBRADOS',
-            '5' => 'PENDIENTE DE INFORME DE SEGUIMIENTO'
+            '5' => 'PENDIENTE DE INFORME DE SEGUIMIENTO',
+            '6' => 'PENDIENTE DE RESOLUCION'
         ];
 
         $this->cerrado_abierto = [
@@ -51,9 +52,10 @@ class SolicitudController extends Controller
             '1' => 'MINISTERIO DE TRABAJO EMPLEO Y PREVISION SOCIAL',
             '2' => 'MINISTERIO DE JUSTICIA',
             '3' => 'MINSITERIO DE GOBIERNO',
-            '4' => 'FISCAL DEPARTAMENTAL',
-            '5' => 'FISCAL DE MATERIA',
-            '6' => 'CUALQUIER PERSONA'
+            '4' => 'FISCAL GENERAL DEL ESTADO',
+            '5' => 'FISCAL DEPARTAMENTAL',
+            '6' => 'FISCAL DE MATERIA',
+            '7' => 'CUALQUIER PERSONA'
         ];
 
         $this->etapa_proceso = [
@@ -78,7 +80,7 @@ class SolicitudController extends Controller
         ];
 
         $this->sexo = [
-            '1' => 'VARON',
+            '1' => 'HOMBRE',
             '2' => 'MUJER'
         ];
 
@@ -102,13 +104,15 @@ class SolicitudController extends Controller
         $this->dirigido_psicologia = [
             '1' => 'EVALUACION PSICOLOGICA DEL ESTADO COGNITIVO CONDUCTUAL Y EMOCIONAL CON RELACION AL HECHO',
             '2' => 'IDENTIFICACION DE LOS FACTORES DE RIESGO',
-            '3' => 'IDENTIFICACION DE LAS NECESIDADES DE PROTECCION'
+            '3' => 'IDENTIFICACION DE LAS NECESIDADES DE PROTECCION',
+            '4' => 'OTRO'
         ];
 
         $this->dirigido_trabajo_social = [
             '1' => 'EVALUACION SOCIAL CON RELACION AL HECHO',
             '2' => 'IDENTIFICACION DE LOS FACTORES DE RIESGO',
-            '3' => 'IDENTIFICACION DE LAS NECESIDADES DE PROTECCION'
+            '3' => 'IDENTIFICACION DE LAS NECESIDADES DE PROTECCION',
+            '4' => 'OTRO'
         ];
 
         $this->resolucion_tipo_disposicion = [
@@ -118,6 +122,18 @@ class SolicitudController extends Controller
             '4' => 'RETIRA/SUSPENDE',
             '5' => 'PRORROGA',
             '6' => 'ELIMINA'
+        ];
+
+        $this->resolucion_mpd = [
+            '1' => 'PRESERVACION DE LA IDENTIDAD Y LA CONFIDENCIALIDAD DE LOS DATOS PERSONALES',
+            '2' => 'PRESERVACION DE SUS DERECHOS LABORALES',
+            '3' => 'PROTECCION POLICIAL PARA EL TRASLADO A FIN DE CUMPLIR DILIGENCIAS ADMINISTRATIVAS Y/O JUDICIALES',
+            '4' => 'CUSTODIA POLICIAL EN EL DOMICILIO DE LA PERSONA',
+            '5' => 'USO DE SISTEMAS TECNOLOGICOS QUE IMPIDAN QUE LA IDENTIDAD DE LA PERSONA SEA CONOCIDA',
+            '6' => 'METODOS DE DISTORSION DEL ASPECTO FISICO O DE LA VOZ',
+            '7' => 'ALOJAMIENTO TEMPORAL EN ALBERGUES DESTINADOS A PROTECCION DE VICTIMAS Y TESTIGOS; CUYA UBICACION DEBE SER RESERVADA Y CON CUSTODIA POLICIAL',
+            '8' => 'ATENCION PSICOLOGICA',
+            '9' => 'SEPARACION DEL RESTO DE LA POBLACION CARCELARIA O SU TRASLADO, BAJO RESERVA, A OTRO RECINTO PENITENCIARIO, DONDE SE LE BRINDE MAYOR SEGURIDAD EN EL CASO DE PERSONA PROTEGIDA QUE SE ENCUENTRE PRIVADA DE LIBERTAD'
         ];
 
         $this->public_dir = 'storage/dpvt/solicitud/pdf/';
@@ -137,11 +153,11 @@ class SolicitudController extends Controller
             $data = [
                 'rol_id'                            => $this->rol_id,
                 'permisos'                          => $this->permisos,
-                'title'                             => 'Solicitud a la DPVTMMP',
+                'title'                             => 'Medidas de protección',
                 'home'                              => 'Inicio',
                 'sistema'                           => 'DPVTMMP',
-                'modulo'                            => 'Solicitud a la DPVTMMP',
-                'title_table'                       => 'Solicitudes a la DPVTMMP',
+                'modulo'                            => 'Medidas de protección',
+                'title_table'                       => 'Medidas de protección',
                 'gestion_i'                         => 2012,
                 'gestion_f'                         => date('Y'),
                 'public_dir'                        => $this->public_dir,
@@ -156,7 +172,8 @@ class SolicitudController extends Controller
                 'dirigido_a_array'                  => $this->dirigido_a,
                 'dirigido_psicologia_array'         => $this->dirigido_psicologia,
                 'dirigido_trabajo_social_array'     => $this->dirigido_trabajo_social,
-                'resolucion_tipo_disposicion_array' => $this->resolucion_tipo_disposicion
+                'resolucion_tipo_disposicion_array' => $this->resolucion_tipo_disposicion,
+                'resolucion_mpd_array'              => $this->resolucion_mpd
             ];
             return view('dpvt.solicitud.solicitud')->with($data);
         }

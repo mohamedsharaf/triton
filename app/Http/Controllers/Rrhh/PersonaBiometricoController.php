@@ -561,7 +561,7 @@ class PersonaBiometricoController extends Controller
                                 {
                                     $res = $tad->set_user_info([
                                         'pin'       => $n_documento_biometrico,
-                                        'name'      => $nombre,
+                                        'name'      => $util->getNoEne($nombre),
                                         'privilege' => $privilegio,
                                         'password'  => $password
                                     ]);
@@ -650,7 +650,7 @@ class PersonaBiometricoController extends Controller
                             {
                                 $res = $tad->set_user_info([
                                     'pin'       => $consulta5['n_documento_biometrico'],
-                                    'name'      => $nombre,
+                                    'name'      => $util->getNoEne($nombre),
                                     'privilege' => $privilegio,
                                     'password'  => $password
                                 ]);
@@ -743,6 +743,9 @@ class PersonaBiometricoController extends Controller
                                         ->get()
                                         ->toArray();
 
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
                 // === INICIALIZACION DE VARIABLES ===
                     $data1     = array();
                     $respuesta = array(
@@ -798,7 +801,7 @@ class PersonaBiometricoController extends Controller
                         {
                             $res = $tad->set_user_info([
                                 'pin'       => $consulta1['n_documento_biometrico'],
-                                'name'      => $nombre,
+                                'name'      => $util->getNoEne($nombre),
                                 'privilege' => $consulta1['privilegio'],
                                 'password'  => rand(1000, 9999)
                             ]);

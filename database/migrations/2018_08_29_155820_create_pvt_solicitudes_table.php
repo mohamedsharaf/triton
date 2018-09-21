@@ -46,10 +46,31 @@ class CreatePvtSolicitudesTable extends Migration
             $table->string('usuario_domicilio', 500)->nullable();
             $table->string('usuario_otra_referencia', 500)->nullable();
 
-            $table->smallInteger('dirigido_a')->unsigned()->nullable();
-            $table->smallInteger('dirigido_psicologia')->unsigned()->nullable();
-            $table->smallInteger('dirigido_trabajo_social')->unsigned()->nullable();
-            $table->string('dirigido_otro_trabajo', 500)->nullable();
+            $table->string('dirigido_a_psicologia', 50)->nullable();
+            $table->string('dirigido_a_psicologia_1', 1000)->nullable();
+            $table->string('dirigido_psicologia', 50)->nullable();
+            $table->string('dirigido_psicologia_1', 1000)->nullable();
+            $table->smallInteger('dirigido_psicologia_estado_pdf')->default('1')->unsigned();
+            $table->string('dirigido_psicologia_archivo_pdf', 100)->nullable();
+
+            $table->string('dirigido_a_trabajo_social', 50)->nullable();
+            $table->string('dirigido_a_trabajo_social_1', 1000)->nullable();
+            $table->string('dirigido_trabajo_social', 50)->nullable();
+            $table->string('dirigido_trabajo_social_1', 1000)->nullable();
+            $table->smallInteger('dirigido_trabajo_social_estado_pdf')->default('1')->unsigned();
+            $table->string('dirigido_trabajo_social_archivo_pdf', 100)->nullable();
+
+            $table->string('dirigido_a_otro_trabajo', 50)->nullable();
+            $table->string('dirigido_a_otro_trabajo_1', 1000)->nullable();
+            $table->string('dirigido_otro_trabajo', 1000)->nullable();
+            $table->smallInteger('dirigido_otro_trabajo_estado_pdf')->default('1')->unsigned();
+            $table->string('dirigido_otro_trabajo_archivo_pdf', 100)->nullable();
+
+            $table->string('complementario_dirigido_a', 50)->nullable();
+            $table->string('complementario_dirigido_a_1', 1000)->nullable();
+            $table->string('complementario_trabajo_solicitado', 1000)->nullable();
+            $table->smallInteger('complementario_trabajo_solicitado_estado_pdf')->default('1')->unsigned();
+            $table->string('complementario_trabajo_solicitado_archivo_pdf', 100)->nullable();
 
             $table->date('plazo_fecha_solicitud')->nullable();
             $table->date('plazo_psicologico_fecha')->nullable();

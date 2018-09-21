@@ -20,6 +20,19 @@ class CreatePvtResolucionesTable extends Migration
 
             $table->smallInteger('estado')->default('1')->unsigned();
 
+            $table->string('resolucion_descripcion', 500)->nullable();
+            $table->date('resolucion_fecha_emision')->nullable();
+            $table->smallInteger('resolucion_estado_pdf')->default('1')->unsigned();
+            $table->string('resolucion_archivo_pdf', 100)->nullable();
+            $table->string('resolucion_tipo_disposicion', 50)->nullable();
+            $table->string('resolucion_tipo_disposicion_1', 1000)->nullable();
+            $table->string('resolucion_medidas_proteccion', 1000)->nullable();
+            $table->string('resolucion_medidas_proteccion_1', 1000)->nullable();
+            $table->string('resolucion_otra_medidas_proteccion', 1000)->nullable();
+            $table->string('resolucion_instituciones_coadyuvantes', 1000)->nullable();
+            $table->smallInteger('resolucion_estado_pdf_2')->default('1')->unsigned();
+            $table->string('resolucion_archivo_pdf_2', 100)->nullable();
+
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_entrega_digital')->nullable();
             $table->date('fecha_entrega_fisico')->nullable();
@@ -29,14 +42,6 @@ class CreatePvtResolucionesTable extends Migration
             $table->date('complementario_fecha')->nullable();
             $table->smallInteger('complementario_estado_pdf')->default('1')->unsigned();
             $table->string('complementario_archivo_pdf', 100)->nullable();
-
-            $table->string('resolucion_descripcion', 500)->nullable();
-            $table->date('resolucion_fecha_emision')->nullable();
-            $table->smallInteger('resolucion_estado_pdf')->default('1')->unsigned();
-            $table->string('resolucion_archivo_pdf', 100)->nullable();
-            $table->smallInteger('resolucion_tipo_disposicion')->unsigned()->nullable();
-            $table->string('resolucion_medidas_proteccion', 500)->nullable();
-            $table->string('resolucion_instituciones_coadyuvantes', 500)->nullable();
 
             $table->timestamps();
 
