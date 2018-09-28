@@ -73,26 +73,21 @@ class CreatePvtSolicitudesTable extends Migration
             $table->string('complementario_trabajo_solicitado_archivo_pdf', 100)->nullable();
 
             $table->date('plazo_fecha_solicitud')->nullable();
-            $table->date('plazo_psicologico_fecha')->nullable();
+            $table->date('plazo_fecha_recepcion')->nullable();
+
+            $table->date('plazo_psicologico_fecha_entrega_digital')->nullable();
+            $table->date('plazo_psicologico_fecha_entrega_fisico')->nullable();
             $table->smallInteger('plazo_psicologico_estado_pdf')->default('1')->unsigned();
             $table->string('plazo_psicologico_archivo_pdf', 100)->nullable();
-            $table->date('plazo_social_fecha')->nullable();
+
+            $table->date('plazo_social_fecha_entrega_digital')->nullable();
+            $table->date('plazo_social_fecha_entrega_fisico')->nullable();
             $table->smallInteger('plazo_social_estado_pdf')->default('1')->unsigned();
             $table->string('plazo_social_archivo_pdf', 100)->nullable();
+
             $table->date('plazo_complementario_fecha')->nullable();
             $table->smallInteger('plazo_complementario_estado_pdf')->default('1')->unsigned();
             $table->string('plazo_complementario_archivo_pdf', 100)->nullable();
-            $table->date('plazo_fecha_recepcion')->nullable();
-            $table->date('plazo_fecha_entrega_digital')->nullable();
-            $table->date('plazo_fecha_entrega_fisico')->nullable();
-
-            // $table->string('resolucion_descripcion', 500)->nullable();
-            // $table->date('resolucion_fecha_emision')->nullable();
-            // $table->smallInteger('resolucion_estado_pdf')->default('1')->unsigned();
-            // $table->string('resolucion_archivo_pdf', 100)->nullable();
-            // $table->smallInteger('resolucion_tipo_disposicion')->unsigned()->nullable();
-            // $table->string('resolucion_medidas_proteccion', 500)->nullable();
-            // $table->string('resolucion_instituciones_coadyuvantes', 500)->nullable();
 
             $table->timestamps();
 
@@ -103,8 +98,8 @@ class CreatePvtSolicitudesTable extends Migration
 
             $table->foreign('municipio_id')
                 ->references('id')
-                ->on('inst_auos')
-                ->onDelete('ubge_municipios');
+                ->on('ubge_municipios')
+                ->onDelete('cascade');
         });
     }
 

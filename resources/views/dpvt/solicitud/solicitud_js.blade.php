@@ -37,6 +37,9 @@
         var jqgrid3  = "#jqgrid3";
         var pjqgrid3 = "#pjqgrid3";
 
+        var jqgrid4  = "#jqgrid4";
+        var pjqgrid4 = "#pjqgrid4";
+
     // === ESTADO ===
         var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
         var estado_select = '';
@@ -169,12 +172,13 @@
 
     // === CONTADOR DE GESTIONES ===
         var anio_filter = '';
+        var anio_filter_jqgrid = ':Todos';
         var gestion_i = {!! $gestion_i !!};
         var gestion_f = {!! $gestion_f !!};
         for (var i = gestion_i; i <= gestion_f; i++){
-            anio_filter += '<option value="' + i + '">' + i + '</option>';
+            anio_filter        += '<option value="' + i + '">' + i + '</option>';
+            anio_filter_jqgrid += ';' + i + ':' + i;
         }
-
 
     // === DROPZONE ===
         Dropzone.autoDiscover = false;
@@ -448,6 +452,10 @@
 
         // === JQGRID ===
             var valor1 = new Array();
+            valor1[0]  = 40;
+            utilitarios(valor1);
+
+            var valor1 = new Array();
             valor1[0]  = 41;
             utilitarios(valor1);
 
@@ -459,13 +467,39 @@
             valor1[0]  = 43;
             utilitarios(valor1);
 
-        $('#modal_1').modal();
+            var valor1 = new Array();
+            valor1[0]  = 44;
+            utilitarios(valor1);
 
-        setTimeout(function(){
-            $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
-            $(jqgrid3).jqGrid('setGridWidth', $("#div_jqgrid3").width());
-            $(jqgrid4).jqGrid('setGridWidth', $("#div_jqgrid2").width());
-        }, 300);
+        // Add responsive to jqGrid
+            $(window).bind('resize', function () {
+                var width = $('.tab-content').width() - 35;
+                $(jqgrid1).setGridWidth(width);
+            });
+
+            setTimeout(function(){
+                $('.wrapper-content').removeClass('animated fadeInRight');
+                var valor1 = new Array();
+                valor1[0]  = 0;
+                utilitarios(valor1);
+            },300);
+
+            $("#navbar-minimalize-button" ).on( "click", function() {
+                setTimeout(function(){
+                    $('.wrapper-content').removeClass('animated fadeInRight');
+                    var valor1 = new Array();
+                    valor1[0]  = 0;
+                    utilitarios(valor1);
+                },500);
+            });
+
+        // $('#modal_1').modal();
+
+        // setTimeout(function(){
+        //     $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
+        //     $(jqgrid3).jqGrid('setGridWidth', $("#div_jqgrid3").width());
+        //     $(jqgrid4).jqGrid('setGridWidth', $("#div_jqgrid2").width());
+        // }, 300);
     });
 
     $(window).on('resize.jqGrid', function() {
@@ -482,6 +516,317 @@
                 $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
                 $(jqgrid3).jqGrid('setGridWidth', $("#div_jqgrid3").width());
                 $(jqgrid4).jqGrid('setGridWidth', $("#div_jqgrid4").width());
+                break;
+            // === MODAL MEDIDAS DE PROTECCION ===
+            case 10:
+                $('#modal_1').modal();
+                break;
+
+            // === JQGRID 1 ===
+            case 40:
+                var edit1      = true;
+                var ancho1     = 5;
+                var ancho_d    = 29;
+                @if(in_array(['codigo' => '1903'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
+                $(jqgrid1).jqGrid({
+                    // caption     : title_table,
+                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                    datatype    : 'json',
+                    mtype       : 'post',
+                    height      : 'auto',
+                    pager       : pjqgrid1,
+                    rowNum      : 10,
+                    rowList     : [10, 20, 30],
+                    sortname    : 'pvt_solicitudes.codigo',
+                    sortorder   : "desc",
+                    viewrecords : true,
+                    shrinkToFit : false,
+                    hidegrid    : false,
+                    multiboxonly: true,
+                    altRows     : true,
+                    rownumbers  : true,
+                    // subGrid     : subgrid_sw,
+                    // multiselect  : true,
+                    //autowidth     : true,
+                    //gridview      :true,
+                    //forceFit      : true,
+                    //toolbarfilter : true,
+                    colNames : [
+                        "",
+
+                        "ESTADO",
+                        "ABIERTO/CERRADO",
+                        "GESTION",
+                        "CODIGO",
+
+                        "SOLICITANTE",
+                        "C.I.",
+                        "NOMBRE(S)",
+                        "AP. PATERNO",
+                        "AP. MATERNO",
+                        "MUNICIPIO",
+                        "PROVINCIA",
+                        "DEPARTAMENTO",
+                        "SOLICITUD",
+                        "¿CON PDF?",
+
+                        "N° DE CASO",
+                        "ETAPA DEL PROCESO",
+                        "DENUNCIANTE",
+                        "DENUNCIADO",
+                        "VICTIMA",
+                        "PERSONA PROTEGIDA",
+
+                        "DELITO",
+                        "RECALIFICACION DEL DELITO",
+
+                        ""
+                    ],
+                    colModel : [
+                        {
+                            name    : "act",
+                            index   : "",
+                            width   : ancho1,
+                            align   : "center",
+                            fixed   : true,
+                            sortable: false,
+                            resize  : false,
+                            search  : false,
+                            hidden  : edit1
+                        },
+
+                        {
+                            name       : "estado",
+                            index      : "pvt_solicitudes.estado",
+                            width      : 200,
+                            align      : "center",
+                            stype      :'select',
+                            editoptions: {value:estado_jqgrid}
+                        },
+                        {
+                            name       : "cerrado_abierto",
+                            index      : "pvt_solicitudes.cerrado_abierto",
+                            width      : 150,
+                            align      : "center",
+                            stype      :'select',
+                            editoptions: {value:cerrado_abierto_jqgrid}
+                        },
+                        {
+                            name       : "gestion",
+                            index      : "pvt_solicitudes.gestion",
+                            width      : 90,
+                            align      : "center",
+                            stype      :'select',
+                            editoptions: {value:anio_filter_jqgrid}
+                        },
+                        {
+                            name : "codigo",
+                            index: "pvt_solicitudes.codigo",
+                            width: 100,
+                            align: "center"
+                        },
+
+                        {
+                            name : "solicitante",
+                            index: "pvt_solicitudes.solicitante",
+                            width: 300,
+                            align: "center"
+                        },
+                        {
+                            name : "n_documento",
+                            index: "a2.n_documento",
+                            width: 80,
+                            align: "right"
+                        },
+                        {
+                            name : "nombre_persona",
+                            index: "a2.nombre",
+                            width: 180,
+                            align: "center"
+                        },
+                        {
+                            name : "ap_paterno",
+                            index: "a2.ap_paterno",
+                            width: 150,
+                            align: "center"
+                        },
+                        {
+                            name : "ap_materno",
+                            index: "a2.ap_materno",
+                            width: 150,
+                            align: "center"
+                        },
+                        {
+                            name : "municipio",
+                            index: "a3.nombre",
+                            width: 150,
+                            align: "center"
+                        },
+                        {
+                            name : "provincia",
+                            index: "a4.nombre",
+                            width: 150,
+                            align: "center"
+                        },
+                        {
+                            name : "departamento",
+                            index: "a5.nombre",
+                            width: 150,
+                            align: "center"
+                        },
+                        {
+                            name : "f_solicitud",
+                            index: "pvt_solicitudes.f_solicitud::text",
+                            width: 125,
+                            align: "center"
+                        },
+                        {
+                            name       : "solicitud_estado_pdf",
+                            index      : "pvt_solicitudes.solicitud_estado_pdf",
+                            width      : 90,
+                            align      : "center",
+                            stype      : 'select',
+                            editoptions: {value:estado_pdf_jqgrid}
+                        },
+
+
+                        {
+                            name : "n_caso",
+                            index: "rrhh_salidas.n_caso",
+                            width: 150,
+                            align: "center"
+                        },
+                        {
+                            name       : "etapa_proceso",
+                            index      : "pvt_solicitudes.etapa_proceso",
+                            width      : 150,
+                            align      : "center",
+                            stype      : 'select',
+                            editoptions: {value:etapa_proceso_jqgrid}
+                        },
+                        {
+                            name : "denunciante",
+                            index: "pvt_solicitudes.denunciante",
+                            width: 300,
+                            align: "center"
+                        },
+                        {
+                            name : "denunciado",
+                            index: "pvt_solicitudes.denunciado",
+                            width: 300,
+                            align: "center"
+                        },
+                        {
+                            name : "victima",
+                            index: "pvt_solicitudes.victima",
+                            width: 300,
+                            align: "center"
+                        },
+                        {
+                            name : "persona_protegida",
+                            index: "pvt_solicitudes.persona_protegida",
+                            width: 300,
+                            align: "center"
+                        },
+
+                        {
+                            name : "delitos",
+                            index: "pvt_solicitudes.delitos",
+                            width: 500,
+                            align: "center"
+                        },
+                        {
+                            name : "recalificacion_delitos",
+                            index: "pvt_solicitudes.recalificacion_delitos",
+                            width: 500,
+                            align: "center"
+                        },
+
+                        // === OCULTO ===
+                            {
+                                name  : "val_json",
+                                index : "",
+                                width : 10,
+                                align : "center",
+                                search: false,
+                                hidden: true
+                            }
+                    ],
+                    loadComplete : function(){
+                        $("tr.jqgrow:odd").addClass('myAltRowClass');
+                    },
+                    gridComplete : function() {
+                        var ids = $(jqgrid1).jqGrid('getDataIDs');
+                        for(var i = 0; i < ids.length; i++){
+                            var cl       = ids[i];
+                            var ret      = $(jqgrid1).jqGrid('getRowData', cl);
+                            var val_json = $.parseJSON(ret.val_json);
+
+                            var pdf1 = "";
+                            @if(in_array(['codigo' => '1003'], $permisos))
+                                pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([11, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
+                            @endif
+
+                            $(jqgrid1).jqGrid('setRowData', ids[i], {
+                                act : $.trim(pdf1)
+                            });
+                        }
+                    }
+                });
+
+                $(jqgrid1).jqGrid('setGroupHeaders', {
+                    useColSpanStyle: true,
+                    groupHeaders   :[
+                        {
+                            startColumnName: 'n_documento',
+                            numberOfColumns: 4,
+                            titleText      : 'PERSONA SOLICITANTE'
+                        },
+                        {
+                            startColumnName: 'municipio',
+                            numberOfColumns: 3,
+                            titleText      : 'UBICACION'
+                        }
+                    ]
+                });
+
+                $(jqgrid1).jqGrid('filterToolbar',{
+                    searchOnEnter : true,
+                    stringResult  : true,
+                    defaultSearch : 'cn'
+                });
+
+                $(jqgrid1).jqGrid('navGrid', pjqgrid1, {
+                    edit  : false,
+                    add   : false,
+                    del   : false,
+                    search: false
+                })
+                @if(in_array(['codigo' => '1902'], $permisos))
+                    .navSeparatorAdd(pjqgrid1,{
+                        sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid1,{
+                        "id"          : "add1",
+                        caption       : "",
+                        title         : 'Agregar nueva fila',
+                        buttonicon    : "ui-icon ui-icon-plusthick",
+                        onClickButton : function(){
+                            var valor1 = new Array();
+                            valor1[0]  = 11;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 10;
+                            utilitarios(valor1);
+                        }
+                    })
+                @endif
+                ;
                 break;
             // === JQGRID 2 ===
             case 41:
@@ -528,13 +873,13 @@
                         {
                             name  : "nombre",
                             index : "pvt_delitos.nombre",
-                            width : "700",
+                            width : 700,
                             align : "center"
                         },
                         {
                             name       : "tentativa",
                             index      : "a2.tentativa",
-                            width      : "90",
+                            width      : 90,
                             align      : "center",
                             stype      : 'select',
                             editoptions: {value:estado_pdf_jqgrid}
@@ -616,13 +961,13 @@
                         {
                             name  : "nombre",
                             index : "pvt_delitos.nombre",
-                            width : "700",
+                            width : 700,
                             align : "center"
                         },
                         {
                             name       : "tentativa",
                             index      : "a2.tentativa",
-                            width      : "90",
+                            width      : 90,
                             align      : "center",
                             stype      : 'select',
                             editoptions: {value:estado_pdf_jqgrid}
@@ -649,6 +994,188 @@
                     search: false
                 })
                 .navSeparatorAdd(pjqgrid3,{
+                    sepclass : "ui-separator"
+                })
+                ;
+                break;
+            // === JQGRID 4 ===
+            case 44:
+                $(jqgrid4).jqGrid({
+                    caption     : '',
+                    datatype    : 'local',
+                    mtype       : 'post',
+                    height      : 'auto',
+                    pager       : pjqgrid4,
+                    rowNum      : 10,
+                    rowList     : [10, 20, 30],
+                    sortname    : 'pvt_resoluciones.created_at',
+                    sortorder   : "desc",
+                    viewrecords : true,
+                    shrinkToFit : false,
+                    hidegrid    : false,
+                    multiboxonly: true,
+                    altRows     : true,
+                    rownumbers  : true,
+                    // subGrid     : subgrid_sw,
+                    // multiselect  : true,
+                    //autowidth     : true,
+                    //gridview      :true,
+                    //forceFit      : true,
+                    //toolbarfilter : true,
+                    colNames :[
+                        "",
+                        "RESOLUCION",
+                        "EMISION",
+                        "¿PDF?",
+                        "TIPO DE DISPOSICION",
+                        "MEDIDA DE PROTECCION DISPUESTA",
+                        "OTRA MEDIDA",
+                        "INSTITUCION COADYUVANTE",
+                        "¿PDF?",
+
+                        "FECHA DE INICIO",
+                        "ENTREGA DIGITAL",
+                        "ENTREGA FISICO",
+                        "INFORME SEGUIMIENTO",
+                        "¿PDF?",
+                        "INFORME COMPLEMENTARIO",
+                        "¿PDF?",
+
+                        ""
+                    ],
+                    colModel : [
+                        {
+                            name    : "act",
+                            index   : "",
+                            width   : 34,
+                            align   : "center",
+                            fixed   : true,
+                            sortable: false,
+                            resize  : false,
+                            search  : false,
+                            hidden  : false
+                        },
+                        {
+                            name  : "resolucion_descripcion",
+                            index : "pvt_resoluciones.resolucion_descripcion",
+                            width : 300,
+                            align : "center"
+                        },
+                        {
+                            name       : "resolucion_fecha_emision",
+                            index      : "pvt_resoluciones.resolucion_fecha_emision",
+                            width      : 100,
+                            align      : "center"
+                        },
+                        {
+                            name       : "resolucion_estado_pdf",
+                            index      : "pvt_resoluciones.resolucion_estado_pdf",
+                            width      : 90,
+                            align      : "center",
+                            stype      : 'select',
+                            editoptions: {value:estado_pdf_jqgrid}
+                        },
+                        {
+                            name  : "resolucion_tipo_disposicion",
+                            index : "pvt_resoluciones.resolucion_tipo_disposicion_1",
+                            width : 200,
+                            align : "left"
+                        },
+                        {
+                            name  : "resolucion_medidas_proteccion",
+                            index : "pvt_resoluciones.resolucion_medidas_proteccion_1",
+                            width : 300,
+                            align : "left"
+                        },
+                        {
+                            name  : "resolucion_otra_medidas_proteccion",
+                            index : "pvt_resoluciones.resolucion_otra_medidas_proteccion",
+                            width : 300,
+                            align : "left"
+                        },
+                        {
+                            name  : "resolucion_instituciones_coadyuvantes",
+                            index : "pvt_resoluciones.resolucion_instituciones_coadyuvantes",
+                            width : 300,
+                            align : "left"
+                        },
+                        {
+                            name       : "resolucion_estado_pdf_2",
+                            index      : "pvt_resoluciones.resolucion_estado_pdf_2",
+                            width      : 90,
+                            align      : "center",
+                            stype      : 'select',
+                            editoptions: {value:estado_pdf_jqgrid}
+                        },
+
+                        {
+                            name       : "fecha_inicio",
+                            index      : "pvt_resoluciones.fecha_inicio",
+                            width      : 100,
+                            align      : "center"
+                        },
+                        {
+                            name       : "fecha_entrega_digital",
+                            index      : "pvt_resoluciones.fecha_entrega_digital",
+                            width      : 100,
+                            align      : "center"
+                        },
+                        {
+                            name       : "fecha_entrega_fisico",
+                            index      : "pvt_resoluciones.fecha_entrega_fisico",
+                            width      : 100,
+                            align      : "center"
+                        },
+                        {
+                            name       : "informe_seguimiento_fecha",
+                            index      : "pvt_resoluciones.informe_seguimiento_fecha",
+                            width      : 100,
+                            align      : "center"
+                        },
+                        {
+                            name       : "informe_seguimiento_estado_pdf",
+                            index      : "pvt_resoluciones.informe_seguimiento_estado_pdf",
+                            width      : 90,
+                            align      : "center",
+                            stype      : 'select',
+                            editoptions: {value:estado_pdf_jqgrid}
+                        },
+                        {
+                            name       : "complementario_fecha",
+                            index      : "pvt_resoluciones.complementario_fecha",
+                            width      : "100",
+                            align      : "center"
+                        },
+                        {
+                            name       : "complementario_estado_pdf",
+                            index      : "pvt_resoluciones.complementario_estado_pdf",
+                            width      : 90,
+                            align      : "center",
+                            stype      : 'select',
+                            editoptions: {value:estado_pdf_jqgrid}
+                        },
+
+                        // === OCULTO ===
+                            {
+                                name  : 'val_json',
+                                index : '',
+                                width : 10,
+                                search: false,
+                                hidden: true
+                            }
+                    ],
+                    loadComplete: function(){
+                        $("tr.jqgrow:odd").addClass('myAltRowClass');
+                    }
+                });
+
+                $(jqgrid4).jqGrid('navGrid', pjqgrid4, {
+                    edit  : false,
+                    add   : false,
+                    del   : false,
+                    search: false
+                })
+                .navSeparatorAdd(pjqgrid4,{
                     sepclass : "ui-separator"
                 })
                 ;

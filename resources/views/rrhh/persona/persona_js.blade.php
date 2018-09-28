@@ -586,43 +586,43 @@
                 })
                 @if(in_array(['codigo' => '0502'], $permisos))
                     .navButtonAdd(pjqgrid1,{
-                    "id"          : "add1",
-                    caption       : "",
-                    title         : 'Agregar nueva fila',
-                    buttonicon    : "ui-icon ui-icon-plusthick",
-                    onClickButton : function(){
-                        var valor1 = new Array();
-                        valor1[0]  = 14;
-                        utilitarios(valor1);
+                        "id"          : "add1",
+                        caption       : "",
+                        title         : 'Agregar nueva fila',
+                        buttonicon    : "ui-icon ui-icon-plusthick",
+                        onClickButton : function(){
+                            var valor1 = new Array();
+                            valor1[0]  = 14;
+                            utilitarios(valor1);
 
-                        var valor1 = new Array();
-                        valor1[0]  = 11;
-                        utilitarios(valor1);
-                    }
-                })
+                            var valor1 = new Array();
+                            valor1[0]  = 11;
+                            utilitarios(valor1);
+                        }
+                    })
                 @endif
                 @if(in_array(['codigo' => '0503'], $permisos))
                     .navButtonAdd(pjqgrid1,{
-                    "id"          : "edit1",
-                    caption       : "",
-                    title         : 'Editar fila',
-                    buttonicon    : "ui-icon ui-icon-pencil",
-                    onClickButton : function(){
-                        var id = $(jqgrid1).jqGrid('getGridParam','selrow');
-                        if(id == null)
-                        {
-                            var valor1 = new Array();
-                            valor1[0]  = 101;
-                            valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                            valor1[2]  = "¡Favor seleccione una fila!";
-                            utilitarios(valor1);
+                        "id"          : "edit1",
+                        caption       : "",
+                        title         : 'Editar fila',
+                        buttonicon    : "ui-icon ui-icon-pencil",
+                        onClickButton : function(){
+                            var id = $(jqgrid1).jqGrid('getGridParam','selrow');
+                            if(id == null)
+                            {
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
+                                valor1[2]  = "¡Favor seleccione una fila!";
+                                utilitarios(valor1);
+                            }
+                            else
+                            {
+                                utilitarios([12, id]);
+                            }
                         }
-                        else
-                        {
-                            utilitarios([12, id]);
-                        }
-                    }
-                })
+                    })
                 @endif
                 // .navSeparatorAdd(pjqgrid1,{
                 //   sepclass : "ui-separator"

@@ -527,7 +527,6 @@
                                 </div>
                             </fieldset>
 
-
                             <h1>Presentación de informes</h1>
                             <fieldset>
                                 <div class="row">
@@ -552,15 +551,15 @@
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label for="plazo_fecha_entrega_digital">Fecha de entrega digital</label>
-                                                    <input type="text" class="form-control" id="plazo_fecha_entrega_digital" name="plazo_fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                    <label for="plazo_psicologico_fecha_entrega_digital">Fecha de entrega digital</label>
+                                                    <input type="text" class="form-control" id="plazo_psicologico_fecha_entrega_digital" name="plazo_psicologico_fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
                                                 </div>
                                             </div>
 
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label for="plazo_fecha_entrega_fisico">Fecha de entrega físico</label>
-                                                    <input type="text" class="form-control" id="plazo_fecha_entrega_fisico" name="plazo_fecha_entrega_fisico" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                    <label for="plazo_psicologico_fecha_entrega_fisico">Fecha de entrega físico</label>
+                                                    <input type="text" class="form-control" id="plazo_psicologico_fecha_entrega_fisico" name="plazo_psicologico_fecha_entrega_fisico" placeholder="año-mes-día" data-mask="9999-99-99">
                                                 </div>
                                             </div>
                                         </div>
@@ -577,15 +576,15 @@
                                         <div class="row">
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label for="plazo_social_fecha">Fecha de entrega digital</label>
-                                                    <input type="text" class="form-control" id="plazo_social_fecha" name="plazo_social_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                    <label for="plazo_social_fecha_entrega_digital">Fecha de entrega digital</label>
+                                                    <input type="text" class="form-control" id="plazo_social_fecha_entrega_digital" name="plazo_social_fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
                                                 </div>
                                             </div>
 
                                             <div class="col-sm-6">
                                                 <div class="form-group">
-                                                    <label for="plazo_psicologico_fecha">Fecha de entrega físico</label>
-                                                    <input type="text" class="form-control" id="plazo_psicologico_fecha" name="plazo_psicologico_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                    <label for="plazo_social_fecha_entrega_fisico">Fecha de entrega físico</label>
+                                                    <input type="text" class="form-control" id="plazo_social_fecha_entrega_fisico" name="plazo_social_fecha_entrega_fisico" placeholder="año-mes-día" data-mask="9999-99-99">
                                                 </div>
                                             </div>
                                         </div>
@@ -740,6 +739,8 @@
                                         <button type="button" class="btn btn-success" onclick="utilitarios([15]);">Guardar resolución del MP y seguimiento</button>
                                     </div>
                                 </div>
+
+                                <br>
 
                                 <div class="row">
                                     <div class="col-sm-12">

@@ -13,6 +13,7 @@ class PvtSolicitud extends Model
         'municipio_id',
 
         'estado',
+        'cerrado_abierto',
         'gestion',
         'codigo',
 
@@ -38,24 +39,48 @@ class PvtSolicitud extends Model
         'usuario_domicilio',
         'usuario_otra_referencia',
 
-        'dirigido_a',
+        'dirigido_a_psicologia',
+        'dirigido_a_psicologia_1',
         'dirigido_psicologia',
+        'dirigido_psicologia_1',
+        'dirigido_psicologia_estado_pdf',
+        'dirigido_psicologia_archivo_pdf',
+
+        'dirigido_a_trabajo_social',
+        'dirigido_a_trabajo_social_1',
         'dirigido_trabajo_social',
+        'dirigido_trabajo_social_1',
+        'dirigido_trabajo_social_estado_pdf',
+        'dirigido_trabajo_social_archivo_pdf',
+
+        'dirigido_a_otro_trabajo',
+        'dirigido_a_otro_trabajo_1',
         'dirigido_otro_trabajo',
+        'dirigido_otro_trabajo_estado_pdf',
+        'dirigido_otro_trabajo_archivo_pdf',
+
+        'complementario_dirigido_a',
+        'complementario_dirigido_a_1',
+        'complementario_trabajo_solicitado',
+        'complementario_trabajo_solicitado_estado_pdf',
+        'complementario_trabajo_solicitado_archivo_pdf',
 
         'plazo_fecha_solicitud',
-        'plazo_psicologico_fecha',
+        'plazo_fecha_recepcion',
+
+        'plazo_psicologico_fecha_entrega_digital',
+        'plazo_psicologico_fecha_entrega_fisico',
         'plazo_psicologico_estado_pdf',
         'plazo_psicologico_archivo_pdf',
-        'plazo_social_fecha',
+
+        'plazo_social_fecha_entrega_digital',
+        'plazo_social_fecha_entrega_fisico',
         'plazo_social_estado_pdf',
         'plazo_social_archivo_pdf',
+
         'plazo_complementario_fecha',
         'plazo_complementario_estado_pdf',
-        'plazo_complementario_archivo_pdf',
-        'plazo_fecha_recepcion',
-        'plazo_fecha_entrega_digital',
-        'plazo_fecha_entrega_fisico'
+        'plazo_complementario_archivo_pdf'
     ];
 
     protected $guarded  = [];

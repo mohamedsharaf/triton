@@ -20,7 +20,7 @@ class CreatePvtResolucionesTable extends Migration
 
             $table->smallInteger('estado')->default('1')->unsigned();
 
-            $table->string('resolucion_descripcion', 500)->nullable();
+            $table->string('resolucion_descripcion', 1000)->nullable();
             $table->date('resolucion_fecha_emision')->nullable();
             $table->smallInteger('resolucion_estado_pdf')->default('1')->unsigned();
             $table->string('resolucion_archivo_pdf', 100)->nullable();
@@ -47,7 +47,7 @@ class CreatePvtResolucionesTable extends Migration
 
             $table->foreign('solicitud_id')
                 ->references('id')
-                ->on('vpt_solicitudes')
+                ->on('pvt_solicitudes')
                 ->onDelete('cascade');
         });
     }
