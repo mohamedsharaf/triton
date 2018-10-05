@@ -202,6 +202,8 @@
 
                     <div class="modal-body">
                         <form id="form_1" action="#" class="wizard-big">
+                            <input type="hidden" id="solicitud_id" name="id" value=""/>
+
                             <h1>Solicitud</h1>
                             <fieldset>
                                 <div class="row">
@@ -247,7 +249,7 @@
                                             <div class="col-sm-6">
                                                 <div class="dropzone" id="dropzone_1">
                                                     <div class="fallback">
-                                                      <input name="file" type="file"/>
+                                                      <input name="file1" type="file"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -311,7 +313,7 @@
                                     </div>
 
                                     <div class="col-sm-1">
-                                        <button type="button" class="btn btn-success btn-xs" title="Guardar delito">
+                                        <button type="button" class="btn btn-success btn-xs" title="Guardar delito" onclick="utilitarios([70]);">
                                             <i class="fa fa-save"></i>
                                         </button>
                                     </div>
@@ -345,7 +347,7 @@
                                     </div>
 
                                     <div class="col-sm-1">
-                                        <button type="button" class="btn btn-info btn-xs" title="Guardar recalificación del delito">
+                                        <button type="button" class="btn btn-info btn-xs" title="Guardar recalificación del delito" onclick="utilitarios([71]);">
                                             <i class="fa fa-save"></i>
                                         </button>
                                     </div>
@@ -779,7 +781,7 @@
         <script src="{{ asset('inspinia_v27/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
 
     <!-- Steps -->
-        <script src="{{ asset('inspinia_v27/js/plugins/steps/jquery.steps.min.js') }}"></script>
+        <script src="{{ asset('inspinia_v27/js/plugins/steps/jquery.steps.js') }}"></script>
 
     <!-- Jquery Validate -->
         <script src="{{ asset('inspinia_v27/js/plugins/validate/jquery.validate.min.js') }}"></script>

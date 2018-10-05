@@ -136,7 +136,9 @@ class SolicitudController extends Controller
             '9' => 'SEPARACION DEL RESTO DE LA POBLACION CARCELARIA O SU TRASLADO, BAJO RESERVA, A OTRO RECINTO PENITENCIARIO, DONDE SE LE BRINDE MAYOR SEGURIDAD EN EL CASO DE PERSONA PROTEGIDA QUE SE ENCUENTRE PRIVADA DE LIBERTAD'
         ];
 
-        $this->public_dir = 'storage/dpvt/solicitud/pdf/';
+        $this->public_dir = '/storage/dpvt/solicitud/pdf/';
+        $this->public_url = 'storage/dpvt/solicitud/pdf/';
+        $this->link_pdf   = asset($this->public_url );
     }
 
     public function index()
@@ -340,7 +342,7 @@ class SolicitudController extends Controller
                         'estado'          => $row["estado"],
                         'cerrado_abierto' => $row["cerrado_abierto"],
 
-                        'solicitante'             => $row["municipio_id"],
+                        'solicitante'             => $row["solicitante"],
                         'etapa_proceso'           => $row["etapa_proceso"],
                         'solicitud_estado_pdf'    => $row["solicitud_estado_pdf"],
                         'solicitud_documento_pdf' => $row["solicitud_documento_pdf"],
@@ -410,7 +412,8 @@ class SolicitudController extends Controller
                         $row["gestion"],
                         $row["codigo"],
 
-                        $row["solicitante"],
+
+                        ($row["solicitante"] =="") ? "" : $this->solicitante[$row["solicitante"]],
                         $row["n_documento"],
                         $row["nombre"],
                         $row["ap_paterno"],
@@ -455,7 +458,7 @@ class SolicitudController extends Controller
         {
             $respuesta = [
                 'sw'        => 0,
-                'titulo'    => 'GESTOR DE PERSONAS',
+                'titulo'    => 'ERROR 500',
                 'respuesta' => 'No es solicitud AJAX.'
             ];
             return json_encode($respuesta);
@@ -465,6 +468,272 @@ class SolicitudController extends Controller
 
         switch($tipo)
         {
+            // === INSERT UPDATE ===
+            case '1':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SOLICITUD</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion      = 'n';
+                    $anio_actual = date("Y");
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'gestion'           => 'required|integer',
+                            // 'f_solicitud'       => 'date',
+                            'n_caso'            => 'max:50',
+                            'denunciante'       => 'max:500',
+                            'denunciado'        => 'max:500',
+                            'victima'           => 'max:500',
+                            'persona_protegida' => 'max:500'
+                        ],
+                        [
+                            'gestion.required' => 'El campo GESTION es obligatorio.',
+                            'gestion.integer'  => 'El campo GESTION debe ser un número entero.',
+
+                            // 'f_solicitud.date' => 'El campo FECHA DE SOLICITUD no corresponde a una fecha válida.',
+
+                            'n_caso.max' => 'El campo NUMERO DE CASO debe contener :max caracteres como máximo.',
+
+                            'denunciante.max' => 'El campo DENUNCIANTE debe contener :max caracteres como máximo.',
+
+                            'denunciado.max' => 'El campo DENUNCIADO debe contener :max caracteres como máximo.',
+
+                            'victima.max' => 'El campo VICTIMA debe contener :max caracteres como máximo.',
+
+                            'persona_protegida.max' => 'El campo PERSONA PROTEGIDA debe contener :max caracteres como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['gestion']                = trim($request->input('gestion'));
+                    $data1['solicitante']            = trim($request->input('solicitante'));
+                    $data1['persona_id_solicitante'] = trim($request->input('persona_id_solicitante'));
+                    $data1['municipio_id']           = trim($request->input('municipio_id'));
+                    $data1['f_solicitud']            = trim($request->input('f_solicitud'));
+                    $data1['n_caso']                 = strtoupper($util->getNoAcentoNoComilla(trim($request->input('n_caso'))));
+                    $data1['etapa_proceso']          = trim($request->input('etapa_proceso'));
+                    $data1['denunciante']            = strtoupper($util->getNoAcentoNoComilla(trim($request->input('denunciante'))));
+                    $data1['denunciado']             = strtoupper($util->getNoAcentoNoComilla(trim($request->input('denunciado'))));
+                    $data1['victima']                = strtoupper($util->getNoAcentoNoComilla(trim($request->input('victima'))));
+                    $data1['persona_protegida']      = strtoupper($util->getNoAcentoNoComilla(trim($request->input('persona_protegida'))));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                        $iu                         = new PvtSolicitud;
+                        $iu->gestion                = $data1['gestion'];
+                        $iu->solicitante            = $data1['solicitante'];
+                        $iu->persona_id_solicitante = $data1['persona_id_solicitante'];
+                        $iu->municipio_id           = $data1['municipio_id'];
+                        $iu->f_solicitud            = $data1['f_solicitud'];
+                        $iu->n_caso                 = $data1['n_caso'];
+                        $iu->etapa_proceso          = $data1['etapa_proceso'];
+                        $iu->denunciante            = $data1['denunciante'];
+                        $iu->denunciado             = $data1['denunciado'];
+                        $iu->victima                = $data1['victima'];
+                        $iu->persona_protegida      = $data1['persona_protegida'];
+                        $iu->codigo                 = str_pad((PvtSolicitud::where('gestion', '=', $data1['gestion'])->count())+1, 4, "0", STR_PAD_LEFT) . "/" . $data1['gestion'];
+                        $iu->save();
+
+                        $id = $iu->id;
+
+                        $respuesta['respuesta'] .= "La SOLICITUD fue registrada con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['id']         = $id;
+                        $respuesta['codigo']     = $iu->codigo;
+                    }
+                    else
+                    {
+                        $iu                         = PvtSolicitud::find($id);
+                        $iu->gestion                = $data1['gestion'];
+                        $iu->solicitante            = $data1['solicitante'];
+                        $iu->persona_id_solicitante = $data1['persona_id_solicitante'];
+                        $iu->municipio_id           = $data1['municipio_id'];
+                        $iu->f_solicitud            = $data1['f_solicitud'];
+                        $iu->n_caso                 = $data1['n_caso'];
+                        $iu->etapa_proceso          = $data1['etapa_proceso'];
+                        $iu->denunciante            = $data1['denunciante'];
+                        $iu->denunciado             = $data1['denunciado'];
+                        $iu->victima                = $data1['victima'];
+                        $iu->persona_protegida      = $data1['persona_protegida'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "La SOLICITUD se edito con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+                    }
+                return json_encode($respuesta);
+                break;
+
+
+
+
+            // === UPLOAD PDF ===
+            case '11':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SUBIR DOCUMENTO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'error_sw'   => 1
+                    );
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('solicitud_id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "La ID de la MEDIDA DE PROTECCION es obligatorio.";
+                        return json_encode($respuesta);
+                    }
+
+                // === VALIDATE ===
+                    $file_name = trim($request->input('file_name'));
+
+                    try
+                    {
+                       $validator = $this->validate($request,[
+                            $file_name => 'mimes:pdf|max:5120'
+                        ],
+                        [
+                            $file_name . '.mimes' => 'El archivo subido debe de ser de tipo :values.',
+                            $file_name . '.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $col_name = trim($request->input('col_name'));
+
+                    $consulta1 = PvtSolicitud::where('id', '=', $id)
+                        ->select($col_name)
+                        ->first()
+                        ->toArray();
+                    if($consulta1[$col_name] != '')
+                    {
+                        if(file_exists(public_path($this->public_dir) . '/' . $consulta1[$col_name]))
+                        {
+                            unlink(public_path($this->public_dir) . '/' . $consulta1[$col_name]);
+                        }
+                    }
+
+                    if($request->hasFile($file_name))
+                    {
+                        $archivo = $request->file($file_name);
+
+                        switch($request->input('tipo_file'))
+                        {
+                            case 1:
+                                $nombre_archivo = uniqid('solicitud_', true) . '.' . $archivo->getClientOriginalExtension();
+                                break;
+                            default:
+                                # code...
+                                break;
+                        }
+
+                        $direccion_archivo = public_path($this->public_dir);
+
+                        $archivo->move($direccion_archivo, $nombre_archivo);
+
+                        $iu = PvtSolicitud::find($id);
+                        switch($request->input('tipo_file'))
+                        {
+                            case 1:
+                                $iu->solicitud_estado_pdf    = 2;
+                                $iu->solicitud_documento_pdf = $nombre_archivo;
+                                break;
+                            default:
+                                # code...
+                                break;
+                        }
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "El DOCUMENTO se subio con éxito.";
+                        $respuesta['sw']         = 1;
+                    }
+
+                return json_encode($respuesta);
+                break;
+
             // === SELECT2 PERSONA ===
             case '100':
 

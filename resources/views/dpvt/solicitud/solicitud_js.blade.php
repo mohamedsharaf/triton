@@ -1,5 +1,19 @@
 <script>
     // === PLUGINS ===
+        // $.fn.steps.reset = function () {
+        //     var wizard = this,
+        //     options    = getOptions(this),
+        //     state      = getState(this);
+        //     goToStep(wizard, options, state, 0);
+
+        //     for (i = 1; i < state.stepCount; i++) {
+        //         var stepAnchor = getStepAnchor(wizard, i);
+        //         stepAnchor.parent().removeClass("done")._enableAria(false);
+        //     }
+        // };
+
+        // $.fn.steps.reset=function(){var wizard=this,options=getOptions(this),state=getState(this);goToStep(wizard,options,state,0);for(i=1;i<state.stepCount;i++){var stepAnchor=getStepAnchor(wizard, i);stepAnchor.parent().removeClass("done")._enableAria(false);}};
+
     // === CONSTANTES NO TOCAR ===
         var options1 = {
             "closeButton"      : true,
@@ -22,7 +36,7 @@
         var url_controller = "{!! url('/solicitud_dpvt') !!}";
         var csrf_token     = "{!! csrf_token() !!}";
         var public_dir     = "{!! asset($public_dir) !!}";
-
+        var uso_step       = true;
 
     // === FORMULARIOS ===
         var form_1 = "#form_1";
@@ -219,75 +233,305 @@
                 },
                 onStepChanging: function (event, currentIndex, newIndex)
                 {
-                    // Always allow going backward even if the current step contains invalid fields!
-                    if (currentIndex > newIndex)
-                    {
-                        return true;
+                    switch(currentIndex){
+                        // === PASO 1 ===
+                        case 0:
+                            if(uso_step){
+                                var concatenar_valores = '';
+
+                                concatenar_valores += "tipo=1&_token=" + csrf_token;
+
+                                var id                     = $("#solicitud_id").val();
+                                var gestion                = $("#gestion").val();
+                                var solicitante            = $("#solicitante").val();
+                                var persona_id_solicitante = $("#persona_id_solicitante").val();
+                                var municipio_id           = $("#municipio_id").val();
+                                var f_solicitud            = $("#f_solicitud").val();
+                                var n_caso                 = $("#n_caso").val();
+                                var etapa_proceso          = $("#etapa_proceso").val();
+                                var denunciante            = $("#denunciante").val();
+                                var denunciado             = $("#denunciado").val();
+                                var victima                = $("#victima").val();
+                                var persona_protegida      = $("#persona_protegida").val();
+
+                                var valor_sw    = true;
+                                var valor_error = '';
+
+                                if($.trim(gestion) != ''){
+                                    concatenar_valores += '&gestion=' + gestion;
+                                }
+                                else{
+                                    valor_sw    = false;
+                                    valor_error += '<br>El campo GESTION es obligatorio.';
+                                }
+
+                                concatenar_valores += '&id=' + id;
+                                concatenar_valores += '&solicitante=' + solicitante;
+                                concatenar_valores += '&persona_id_solicitante=' + persona_id_solicitante;
+                                concatenar_valores += '&municipio_id=' + municipio_id;
+                                concatenar_valores += '&f_solicitud=' + f_solicitud;
+                                concatenar_valores += '&n_caso=' + n_caso;
+                                concatenar_valores += '&etapa_proceso=' + etapa_proceso;
+                                concatenar_valores += '&denunciante=' + denunciante;
+                                concatenar_valores += '&denunciado=' + denunciado;
+                                concatenar_valores += '&victima=' + victima;
+                                concatenar_valores += '&persona_protegida=' + persona_protegida;
+
+                                if(valor_sw){
+                                    swal({
+                                        title             : "ENVIANDO INFORMACIÓN",
+                                        text              : "Espere a que guarde la información.",
+                                        allowEscapeKey    : false,
+                                        showConfirmButton : false,
+                                        type              : "info"
+                                    });
+                                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                                    var valor1    = new Array();
+                                    valor1[0]     = 150;
+                                    valor1[1]     = url_controller + '/send_ajax';
+                                    valor1[2]     = 'POST';
+                                    valor1[3]     = false;
+                                    valor1[4]     = concatenar_valores;
+                                    valor1[5]     = 'json';
+                                    var respuesta = utilitarios(valor1);
+
+                                    return respuesta;
+                                }
+                                else{
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                                    valor1[2]  = valor_error;
+                                    utilitarios(valor1);
+
+                                    return false;
+                                }
+                            }
+                            else{
+                                uso_step = true;
+                                return true;
+                            }
+                            break;
+                        // === PASO 2 ===
+                        case 1:
+                            var concatenar_valores = '';
+
+                            concatenar_valores += '?tipo=2';
+
+                            var id                       = $("#solicitud_id").val();
+                            var usuario_tipo             = $("#usuario_tipo").val();
+                            var usuario_tipo_descripcion = $("#usuario_tipo_descripcion").val();
+                            var usuario_nombre           = $("#usuario_nombre").val();
+                            var usuario_sexo             = $(".usuario_sexo_class:checked").val();
+                            var usuario_celular          = $("#usuario_celular").val();
+                            var usuario_domicilio        = $("#usuario_domicilio").val();
+                            var usuario_otra_referencia  = $("#usuario_otra_referencia").val();
+                            var usuario_edad             = $(".usuario_edad:checked").val();
+
+                            var valor_sw    = true;
+                            var valor_error = '';
+
+                            concatenar_valores += '&id=' + id;
+                            concatenar_valores += '&usuario_tipo=' + usuario_tipo;
+                            concatenar_valores += '&usuario_tipo_descripcion=' + usuario_tipo_descripcion;
+                            concatenar_valores += '&usuario_nombre=' + usuario_nombre;
+                            concatenar_valores += '&usuario_sexo=' + usuario_sexo;
+                            concatenar_valores += '&usuario_celular=' + usuario_celular;
+                            concatenar_valores += '&usuario_domicilio=' + usuario_domicilio;
+                            concatenar_valores += '&usuario_otra_referencia=' + usuario_otra_referencia;
+                            concatenar_valores += '&usuario_edad=' + usuario_edad;
+
+                            if(valor_sw){
+                                return true;
+                            }
+                            else{
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                                valor1[2]  = valor_error;
+                                utilitarios(valor1);
+
+                                return false;
+                            }
+                            break;
+                        // === PASO 3 ===
+                        case 2:
+                            var concatenar_valores = '';
+
+                            concatenar_valores += '?tipo=3';
+
+                            var id                        = $("#solicitud_id").val();
+                            var dirigido_a_psicologia     = $("#dirigido_a_psicologia").val();
+                            var dirigido_psicologia       = $("#dirigido_psicologia").val();
+                            var dirigido_a_trabajo_social = $("#dirigido_a_trabajo_social").val();
+                            var dirigido_trabajo_social   = $("#dirigido_trabajo_social").val();
+                            var dirigido_a_otro_trabajo   = $("#dirigido_a_otro_trabajo").val();
+                            var dirigido_otro_trabajo     = $("#dirigido_otro_trabajo").val();
+
+                            var valor_sw    = true;
+                            var valor_error = '';
+
+                            concatenar_valores += '&id=' + id;
+                            concatenar_valores += '&dirigido_a_psicologia=' + dirigido_a_psicologia;
+                            concatenar_valores += '&dirigido_psicologia=' + dirigido_psicologia;
+                            concatenar_valores += '&dirigido_a_trabajo_social=' + dirigido_a_trabajo_social;
+                            concatenar_valores += '&dirigido_trabajo_social=' + dirigido_trabajo_social;
+                            concatenar_valores += '&dirigido_a_otro_trabajo=' + dirigido_a_otro_trabajo;
+                            concatenar_valores += '&dirigido_otro_trabajo=' + dirigido_otro_trabajo;
+
+                            if(valor_sw){
+                                return true;
+                            }
+                            else{
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                                valor1[2]  = valor_error;
+                                utilitarios(valor1);
+
+                                return false;
+                            }
+                            break;
+                        // === PASO 4 ===
+                        case 3:
+                            var concatenar_valores = '';
+
+                            concatenar_valores += '?tipo=4';
+
+                            var id                                = $("#solicitud_id").val();
+                            var estado                            = $("#estado").val();
+                            var complementario_dirigido_a         = $("#complementario_dirigido_a").val();
+                            var complementario_trabajo_solicitado = $("#complementario_trabajo_solicitado").val();
+
+                            var valor_sw    = true;
+                            var valor_error = '';
+
+                            concatenar_valores += '&id=' + id;
+                            concatenar_valores += '&estado=' + estado;
+                            concatenar_valores += '&complementario_dirigido_a=' + complementario_dirigido_a;
+                            concatenar_valores += '&complementario_trabajo_solicitado=' + complementario_trabajo_solicitado;
+
+                            if(valor_sw){
+                                return true;
+                            }
+                            else{
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                                valor1[2]  = valor_error;
+                                utilitarios(valor1);
+
+                                return false;
+                            }
+                            break;
+                        // === PASO 5 ===
+                        case 4:
+                            var concatenar_valores = '';
+
+                            concatenar_valores += '?tipo=5';
+
+                            var id                                      = $("#solicitud_id").val();
+                            var plazo_fecha_solicitud                   = $("#plazo_fecha_solicitud").val();
+                            var plazo_fecha_recepcion                   = $("#plazo_fecha_recepcion").val();
+                            var plazo_psicologico_fecha_entrega_digital = $("#plazo_psicologico_fecha_entrega_digital").val();
+                            var plazo_psicologico_fecha_entrega_fisico  = $("#plazo_psicologico_fecha_entrega_fisico").val();
+                            var plazo_social_fecha_entrega_digital      = $("#plazo_social_fecha_entrega_digital").val();
+                            var plazo_social_fecha_entrega_fisico       = $("#plazo_social_fecha_entrega_fisico").val();
+                            var plazo_complementario_fecha              = $("#plazo_complementario_fecha").val();
+
+                            var valor_sw    = true;
+                            var valor_error = '';
+
+                            concatenar_valores += '&id=' + id;
+                            concatenar_valores += '&plazo_fecha_solicitud=' + plazo_fecha_solicitud;
+                            concatenar_valores += '&plazo_fecha_recepcion=' + plazo_fecha_recepcion;
+                            concatenar_valores += '&plazo_psicologico_fecha_entrega_digital=' + plazo_psicologico_fecha_entrega_digital;
+                            concatenar_valores += '&plazo_psicologico_fecha_entrega_fisico=' + plazo_psicologico_fecha_entrega_fisico;
+                            concatenar_valores += '&plazo_social_fecha_entrega_digital=' + plazo_social_fecha_entrega_digital;
+                            concatenar_valores += '&plazo_social_fecha_entrega_fisico=' + plazo_social_fecha_entrega_fisico;
+                            concatenar_valores += '&plazo_complementario_fecha=' + plazo_complementario_fecha;
+
+                            if(valor_sw){
+                                return true;
+                            }
+                            else{
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                                valor1[2]  = valor_error;
+                                utilitarios(valor1);
+
+                                return false;
+                            }
+                            break;
+                        default:
+                            return true;
+                            break;
                     }
 
-                    // Forbid suppressing "Warning" step if the user is to young
-                    if (newIndex === 3 && Number($("#age").val()) < 18)
-                    {
-                        return false;
-                    }
+                    // // Always allow going backward even if the current step contains invalid fields!
+                    // if (currentIndex > newIndex)
+                    // {
+                    //     return true;
+                    // }
 
-                    var form = $(this);
+                    // // Forbid suppressing "Warning" step if the user is to young
+                    // if (newIndex === 3 && Number($("#age").val()) < 18)
+                    // {
+                    //     return false;
+                    // }
 
-                    // Clean up if user went backward before
-                    if (currentIndex < newIndex)
-                    {
-                        // To remove error styles
-                        $(".body:eq(" + newIndex + ") label.error", form).remove();
-                        $(".body:eq(" + newIndex + ") .error", form).removeClass("error");
-                    }
+                    // var form = $(this);
 
-                    // Disable validation on fields that are disabled or hidden.
-                    form.validate().settings.ignore = ":disabled,:hidden";
+                    // // Clean up if user went backward before
+                    // if (currentIndex < newIndex)
+                    // {
+                    //     // To remove error styles
+                    //     $(".body:eq(" + newIndex + ") label.error", form).remove();
+                    //     $(".body:eq(" + newIndex + ") .error", form).removeClass("error");
+                    // }
 
-                    // Start validation; Prevent going forward if false
-                    return form.valid();
+                    // // Disable validation on fields that are disabled or hidden.
+                    // form.validate().settings.ignore = ":disabled,:hidden";
+
+                    // // Start validation; Prevent going forward if false
+                    // return form.valid();
                 },
                 onStepChanged: function (event, currentIndex, priorIndex)
                 {
-                    // Suppress (skip) "Warning" step if the user is old enough.
-                    if (currentIndex === 2 && Number($("#age").val()) >= 18)
-                    {
-                        $(this).steps("next");
-                    }
+                    // return true;
+                    // // Suppress (skip) "Warning" step if the user is old enough.
+                    // if (currentIndex === 2 && Number($("#age").val()) >= 18)
+                    // {
+                    //     $(this).steps("next");
+                    // }
 
-                    // Suppress (skip) "Warning" step if the user is old enough and wants to the previous step.
-                    if (currentIndex === 2 && priorIndex === 3)
-                    {
-                        $(this).steps("previous");
-                    }
+                    // // Suppress (skip) "Warning" step if the user is old enough and wants to the previous step.
+                    // if (currentIndex === 2 && priorIndex === 3)
+                    // {
+                    //     $(this).steps("previous");
+                    // }
                 },
                 onFinishing: function (event, currentIndex)
                 {
-                    var form = $(this);
+                    $('#modal_1').modal('hide');
+                    // return true;
+                    // var form = $(this);
 
-                    // Disable validation on fields that are disabled.
-                    // At this point it's recommended to do an overall check (mean ignoring only disabled fields)
-                    form.validate().settings.ignore = ":disabled";
+                    // // Disable validation on fields that are disabled.
+                    // // At this point it's recommended to do an overall check (mean ignoring only disabled fields)
+                    // form.validate().settings.ignore = ":disabled";
 
-                    // Start validation; Prevent form submission if false
-                    return form.valid();
+                    // // Start validation; Prevent form submission if false
+                    // return form.valid();
                 },
                 onFinished: function (event, currentIndex)
                 {
-                    var form = $(this);
+                    // var form = $(this);
 
-                    // Submit form input
-                    form.submit();
-                }
-            }).validate({
-                errorPlacement: function (error, element)
-                {
-                    element.before(error);
-                },
-                rules: {
-                    confirm: {
-                        equalTo: "#password"
-                    }
+                    // // Submit form input
+                    // form.submit();
                 }
             });
             // $(form_1).steps(configuraciones);
@@ -404,50 +648,110 @@
         // === DROPZONE ===
             var valor1 = new Array();
             valor1[0]  = 51;
+            valor1[1]  = "#dropzone_1";
+            valor1[2]  = "file1";
+            valor1[3]  = 11;
+            valor1[4]  = 1;
+            valor1[5]  = "solicitud_documento_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 52;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_2";
+            valor1[2]  = "file2";
+            valor1[3]  = 11;
+            valor1[4]  = 2;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 53;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_3";
+            valor1[2]  = "file3";
+            valor1[3]  = 11;
+            valor1[4]  = 3;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 54;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_4";
+            valor1[2]  = "file4";
+            valor1[3]  = 11;
+            valor1[4]  = 4;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 55;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_5";
+            valor1[2]  = "file5";
+            valor1[3]  = 11;
+            valor1[4]  = 5;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 56;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_6";
+            valor1[2]  = "file6";
+            valor1[3]  = 11;
+            valor1[4]  = 6;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 57;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_7";
+            valor1[2]  = "file7";
+            valor1[3]  = 11;
+            valor1[4]  = 7;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 58;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_8";
+            valor1[2]  = "file8";
+            valor1[3]  = 11;
+            valor1[4]  = 8;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 59;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_9";
+            valor1[2]  = "file9";
+            valor1[3]  = 11;
+            valor1[4]  = 9;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 60;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_10";
+            valor1[2]  = "file10";
+            valor1[3]  = 11;
+            valor1[4]  = 10;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 61;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_11";
+            valor1[2]  = "file11";
+            valor1[3]  = 11;
+            valor1[4]  = 11;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 62;
+            valor1[0]  = 51;
+            valor1[1]  = "#dropzone_12";
+            valor1[2]  = "file12";
+            valor1[3]  = 11;
+            valor1[4]  = 12;
+            valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
 
         // === JQGRID ===
@@ -470,6 +774,11 @@
             var valor1 = new Array();
             valor1[0]  = 44;
             utilitarios(valor1);
+
+        // === VALIDATE 1 ===
+            // var valor1 = new Array();
+            // valor1[0]  = 20;
+            // utilitarios(valor1);
 
         // Add responsive to jqGrid
             $(window).bind('resize', function () {
@@ -520,6 +829,149 @@
             // === MODAL MEDIDAS DE PROTECCION ===
             case 10:
                 $('#modal_1').modal();
+
+                setTimeout(function(){
+                    $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
+                    $(jqgrid3).jqGrid('setGridWidth', $("#div_jqgrid3").width());
+                }, 300);
+                break;
+
+            // === EDICION MODAL ===
+            case 20:
+                var valor1 = new Array();
+                valor1[0]  = 30;
+                utilitarios(valor1);
+
+                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                $('#modal_1_title').append(' - ' + ret.codigo);
+                $("#solicitud_id").val(valor[1]);
+
+                // === SOLICITUD ===
+
+                    $("#gestion").select2("val", ret.gestion);
+                    $("#gestion").select2("enable", false);
+                    $("#solicitante").select2("val", val_json.solicitante);
+                    if(ret.n_documento != ""){
+                        var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre_persona;
+
+                        $('#persona_id_solicitante').append('<option value="' + val_json.persona_id_solicitante + '">' + persona + '</option>');
+                        $("#persona_id_solicitante").select2("val", val_json.persona_id_solicitante);
+                    }
+                    if(ret.municipio != ""){
+                        var dpm = ret.departamento + ', ' + ret.provincia + ', ' + ret.municipio;
+                        $('#municipio_id').append('<option value="' + val_json.municipio_id + '">' + dpm + '</option>');
+                        $("#municipio_id").select2("val", val_json.municipio_id);
+                    }
+                    $("#f_solicitud").val(ret.f_solicitud);
+
+                    $("#n_caso").val(ret.n_caso);
+                    $("#etapa_proceso").select2("val", val_json.etapa_proceso);
+                    $("#denunciante").val(ret.denunciante);
+                    $("#denunciado").val(ret.denunciado);
+                    $("#victima").val(ret.victima);
+                    $("#persona_protegida").val(ret.persona_protegida);
+
+                // $('#modal_1_title').empty();
+
+                // if(val_json.funcionario_id == null){
+                //     $('#modal_1_title').append('Agregar información del funcionario con ' + ret.tipo_cargo);
+                // }
+                // else{
+                //     $('#modal_1_title').append('Modificar información del funcionario con ' + ret.tipo_cargo);
+                // }
+
+                // $("#id_funcionario").val(val_json.funcionario_id);
+                // $("#cargo_id").val(valor[1]);
+                // $("#tipo_cargo_id").val(val_json.tipo_cargo_id);
+
+                // if(val_json.situacion != ''){
+                //     $(".situacion_class[value=" + val_json.situacion + "]").prop('checked', true);
+                // }
+
+                // if(ret.n_documento != ""){
+                //     var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre_persona;
+
+                //     $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
+                //     $("#persona_id").select2("val", val_json.persona_id);
+                // }
+
+                // $("#f_ingreso").val(ret.f_ingreso);
+                // $("#f_salida").val(ret.f_salida);
+                // $("#sueldo").val(ret.sueldo);
+                // $("#observaciones").val(ret.observaciones);
+
+                // if(ret.lugar_dependencia_funcionario != ""){
+                //     $("#lugar_dependencia_id_funcionario").select2("val", val_json.lugar_dependencia_id_funcionario);
+
+                //     $("#unidad_desconcentrada_id").select2("val", val_json.unidad_desconcentrada_id);
+
+                //     $("#horario_id_1").select2("val", val_json.horario_id_1);
+                //     $("#horario_id_2").select2("val", val_json.horario_id_2);
+                // }
+
+                // if(ret.cargo != ""){
+                //     $("#lugar_dependencia_id_cargo").select2("val", val_json.lugar_dependencia_id_cargo);
+
+                //     $('#auo_id').append('<option value="' + val_json.auo_id + '">' + ret.auo_cargo + '</option>');
+                //     $("#auo_id").select2("val", val_json.auo_id);
+
+                //     $('#cargo_id_d').append('<option value="' + valor[1] + '">' + ret.cargo + '</option>');
+                //     $("#cargo_id_d").select2("val", valor[1]);
+                // }
+
+                // $("#lugar_dependencia_id_cargo").select2("enable", false);
+                // $("#auo_id").select2("enable", false);
+                // $("#cargo_id_d").select2("enable", false);
+
+                var valor1 = new Array();
+                valor1[0]  = 10;
+                utilitarios(valor1);
+                break;
+
+            // === RESETEAR FORMULARIO ===
+            case 30:
+                $('#modal_1_title').empty();
+
+                $("#solicitud_id").val('');
+
+                // === SOLICITUD ===
+                    $('#gestion').select2("val", "");
+                    $("#gestion").select2("enable", true);
+                    $('#solicitante').select2("val", "");
+                    $('#persona_id_solicitante').select2("val", "");
+                    $('#persona_id_solicitante option').remove();
+                    $('#municipio_id').select2("val", "");
+                    $('#municipio_id option').remove();
+
+                    $('#etapa_proceso').select2("val", "");
+
+                // $("#solicitud_id").val('');
+
+                // $("#cargo_id").val('');
+                // $("#tipo_cargo_id").val('');
+
+                // $('#persona_id').select2("val", "");
+                // $('#persona_id option').remove();
+
+                // $('#lugar_dependencia_id_funcionario').select2("val", "");
+
+                // $('#unidad_desconcentrada_id').select2("val", "");
+                // $('#unidad_desconcentrada_id option').remove();
+
+                // $('#lugar_dependencia_id_cargo').select2("val", "");
+
+                // $('#auo_id').select2("val", "");
+                // $('#auo_id option').remove();
+
+                // $('#cargo_id_d').select2("val", "");
+                // $('#cargo_id_d option').remove();
+
+                $(form_1)[0].reset();
+
+                uso_step = false;
+                $(form_1).steps('reset');
                 break;
 
             // === JQGRID 1 ===
@@ -610,7 +1062,7 @@
                         {
                             name       : "cerrado_abierto",
                             index      : "pvt_solicitudes.cerrado_abierto",
-                            width      : 150,
+                            width      : 135,
                             align      : "center",
                             stype      :'select',
                             editoptions: {value:cerrado_abierto_jqgrid}
@@ -626,15 +1078,17 @@
                         {
                             name : "codigo",
                             index: "pvt_solicitudes.codigo",
-                            width: 100,
+                            width: 80,
                             align: "center"
                         },
 
                         {
-                            name : "solicitante",
-                            index: "pvt_solicitudes.solicitante",
-                            width: 300,
-                            align: "center"
+                            name       : "solicitante",
+                            index      : "pvt_solicitudes.solicitante",
+                            width      : 300,
+                            align      : "center",
+                            stype      :'select',
+                            editoptions: {value:solicitante_jqgrid}
                         },
                         {
                             name : "n_documento",
@@ -681,13 +1135,13 @@
                         {
                             name : "f_solicitud",
                             index: "pvt_solicitudes.f_solicitud::text",
-                            width: 125,
+                            width: 100,
                             align: "center"
                         },
                         {
                             name       : "solicitud_estado_pdf",
                             index      : "pvt_solicitudes.solicitud_estado_pdf",
-                            width      : 90,
+                            width      : 80,
                             align      : "center",
                             stype      : 'select',
                             editoptions: {value:estado_pdf_jqgrid}
@@ -766,13 +1220,13 @@
                             var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                             var val_json = $.parseJSON(ret.val_json);
 
-                            var pdf1 = "";
-                            @if(in_array(['codigo' => '1003'], $permisos))
-                                pdf1 = " <button type='button' class='btn btn-xs btn-primary' title='Generar PAPELETA DE SALIDA' onclick=\"utilitarios([11, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
+                            var ed = "";
+                            @if(in_array(['codigo' => '1903'], $permisos))
+                                ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                             @endif
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(pdf1)
+                                act : $.trim(ed)
                             });
                         }
                     }
@@ -817,7 +1271,7 @@
                         buttonicon    : "ui-icon ui-icon-plusthick",
                         onClickButton : function(){
                             var valor1 = new Array();
-                            valor1[0]  = 11;
+                            valor1[0]  = 30;
                             utilitarios(valor1);
 
                             var valor1 = new Array();
@@ -1183,115 +1637,28 @@
 
             // === DROPZONE 1 ===
             case 51:
-                $("#dropzone_1").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
+                $(valor[1]).dropzone({
+                    url              : url_controller + "/send_ajax",
+                    method           :'post',
+                    addRemoveLinks   : true,
+                    maxFilesize      : 5, // MB
                     dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
+                    acceptedFiles    :'application/pdf',
+                    paramName        : valor[2], // The name that will be used to transfer the file
+                    maxFiles         :1,
+                    clickable        :true,
+                    parallelUploads  :1,
+                    params           : {
+                        tipo     : valor[3],
+                        tipo_file: valor[4],
+                        col_name : valor[5],
+                        file_name: valor[2],
+                        _token   : csrf_token
                     },
                     // forceFallback:true,
                     createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if(data.sw === 1){
-                        //     var valor1 = new Array();
-                        //     valor1[0]  = 100;
-                        //     valor1[1]  = data.titulo;
-                        //     valor1[2]  = data.respuesta;
-                        //     utilitarios(valor1);
-
-                        //     $(jqgrid1).trigger("reloadGrid");
-                        //     if(data.iu === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 14;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else if(data.iu === 2){
-                        //         $('#modal_1').modal('hide');
-                        //     }
-                        // }
-                        // else if(data.sw === 0){
-                        //     if(data.error_sw === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = data.respuesta;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else
-                        //     {
-                        //         var respuesta_server = '';
-                        //         $.each(data.error.response.original, function(index, value) {
-                        //             respuesta_server += value + '<br>';
-                        //         });
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = respuesta_server;
-                        //         utilitarios(valor1);
-                        //     }
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === DROPZONE 2 ===
-            case 52:
-                $("#dropzone_2").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file2", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
+                    maxThumbnailFilesize : 1,
+                    autoProcessQueue     :true,
 
                     dictRemoveFile:'Eliminar',
                     dictCancelUpload:'Cancelar',
@@ -1304,14 +1671,7 @@
                     dictMaxFilesExceeded:'Número máximo de archivos superado.',
                     init: function(){
                         this.on("sending", function(file, xhr, formData){
-                            formData.append("usuario_id", $("#usuario_id").val());
-                            formData.append("estado", $(".estado_class:checked").val());
-                            formData.append("persona_id", $("#persona_id").val());
-                            formData.append("email", $("#email").val());
-                            formData.append("password", $("#password").val());
-                            formData.append("rol_id", $("#rol_id").val());
-                            formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                            formData.append("enviar_mail", $("#enviar_mail:checked").val());
+                            formData.append("solicitud_id", $("#solicitud_id").val());
                         });
                     },
                     success: function(file, response){
@@ -1324,14 +1684,14 @@
                             utilitarios(valor1);
 
                             $(jqgrid1).trigger("reloadGrid");
-                            if(data.iu === 1){
-                                var valor1 = new Array();
-                                valor1[0]  = 14;
-                                utilitarios(valor1);
-                            }
-                            else if(data.iu === 2){
-                                $('#modal_1').modal('hide');
-                            }
+                            // if(data.iu === 1){
+                            //     var valor1 = new Array();
+                            //     valor1[0]  = 14;
+                            //     utilitarios(valor1);
+                            // }
+                            // else if(data.iu === 2){
+                            //     $('#modal_1').modal('hide');
+                            // }
                         }
                         else if(data.sw === 0){
                             if(data.error_sw === 1){
@@ -1361,905 +1721,161 @@
                     }
                 });
                 break;
-            // === DROPZONE 3 ===
-            case 53:
-                $("#dropzone_3").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file3", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
 
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        this.on("sending", function(file, xhr, formData){
-                            formData.append("usuario_id", $("#usuario_id").val());
-                            formData.append("estado", $(".estado_class:checked").val());
-                            formData.append("persona_id", $("#persona_id").val());
-                            formData.append("email", $("#email").val());
-                            formData.append("password", $("#password").val());
-                            formData.append("rol_id", $("#rol_id").val());
-                            formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                            formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        });
-                    },
-                    success: function(file, response){
-                        var data = $.parseJSON(response);
-                        if(data.sw === 1){
-                            var valor1 = new Array();
-                            valor1[0]  = 100;
-                            valor1[1]  = data.titulo;
-                            valor1[2]  = data.respuesta;
-                            utilitarios(valor1);
+            // === GUARDAR DELITO ===
+            case 70:
+                alert("70");
+                break;
+            // === GUARDAR RECALIFICACION DEL DELITO ===
+            case 71:
+                alert("71");
+                break;
 
-                            $(jqgrid1).trigger("reloadGrid");
-                            if(data.iu === 1){
-                                var valor1 = new Array();
-                                valor1[0]  = 14;
-                                utilitarios(valor1);
-                            }
-                            else if(data.iu === 2){
-                                $('#modal_1').modal('hide');
-                            }
+            // === MENSAJE ERROR ===
+            case 100:
+                toastr.success(valor[2], valor[1], options1);
+                break;
+            // === MENSAJE ERROR ===
+            case 101:
+                toastr.error(valor[2], valor[1], options1);
+                break;
+            // === AJAX ===
+            case 150:
+                var respuesta_ajax = false;
+                $.ajax({
+                    url     : valor[1],
+                    type    : valor[2],
+                    async   : valor[3],
+                    data    : valor[4],
+                    dataType: valor[5],
+                    success : function(data){
+                        switch(data.tipo){
+                            // === INSERT UPDATE ===
+                            case '1':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+
+                                    if(data.iu === 1){
+                                        $("#solicitud_id").val(data.id);
+                                        $("#gestion").select2("enable", false);
+
+                                        $('#modal_1_title').append(' - ' + data.codigo);
+                                    }
+                                    // else if(data.iu === 2){
+                                    //     $('#modal_1').modal('hide');
+                                    // }
+
+                                    // if(data.iu === 1){
+                                    //     var valor1 = new Array();
+                                    //     valor1[0]  = 14;
+                                    //     utilitarios(valor1);
+                                    // }
+                                    // else if(data.iu === 2){
+                                    //     $('#modal_1').modal('hide');
+                                    // }
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === VALIDAR PERSONA POR EL SEGIP ===
+                            case '2':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === CERTIFICACION SEGIP ===
+                            case '3':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $('#div_pdf').empty();
+                                    $('#div_pdf').append('<object id="object_pdf" data="data:application/pdf;base64,' + data.pdf + '" type="application/pdf" style="min-height:500px;width:100%"></object>');
+
+                                    $('#modal_2').modal();
+                                    setTimeout(function(){
+                                        $("#object_pdf").css("height", $( window ).height()-150 + 'px');
+                                    }, 300);
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            default:
+                                break;
                         }
-                        else if(data.sw === 0){
-                            if(data.error_sw === 1){
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = data.respuesta;
-                                utilitarios(valor1);
-                            }
-                            else
-                            {
-                                var respuesta_server = '';
-                                $.each(data.error.response.original, function(index, value) {
-                                    respuesta_server += value + '<br>';
-                                });
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = respuesta_server;
-                                utilitarios(valor1);
-                            }
-                        }
-                        else if(data.sw === 2){
-                            window.location.reload();
-                        }
-                        this.removeAllFiles(true);
+                    },
+                    error: function(result) {
+                        alert(result.responseText);
+                        window.location.reload();
+                        //console.error("Este callback maneja los errores", result);
                     }
                 });
+
+                return respuesta_ajax;
                 break;
-            // === DROPZONE 4 ===
-            case 54:
-                $("#dropzone_4").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file4", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        this.on("sending", function(file, xhr, formData){
-                            formData.append("usuario_id", $("#usuario_id").val());
-                            formData.append("estado", $(".estado_class:checked").val());
-                            formData.append("persona_id", $("#persona_id").val());
-                            formData.append("email", $("#email").val());
-                            formData.append("password", $("#password").val());
-                            formData.append("rol_id", $("#rol_id").val());
-                            formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                            formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        });
-                    },
-                    success: function(file, response){
-                        var data = $.parseJSON(response);
-                        if(data.sw === 1){
-                            var valor1 = new Array();
-                            valor1[0]  = 100;
-                            valor1[1]  = data.titulo;
-                            valor1[2]  = data.respuesta;
-                            utilitarios(valor1);
-
-                            $(jqgrid1).trigger("reloadGrid");
-                            if(data.iu === 1){
-                                var valor1 = new Array();
-                                valor1[0]  = 14;
-                                utilitarios(valor1);
-                            }
-                            else if(data.iu === 2){
-                                $('#modal_1').modal('hide');
-                            }
-                        }
-                        else if(data.sw === 0){
-                            if(data.error_sw === 1){
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = data.respuesta;
-                                utilitarios(valor1);
-                            }
-                            else
-                            {
-                                var respuesta_server = '';
-                                $.each(data.error.response.original, function(index, value) {
-                                    respuesta_server += value + '<br>';
-                                });
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = respuesta_server;
-                                utilitarios(valor1);
-                            }
-                        }
-                        else if(data.sw === 2){
-                            window.location.reload();
-                        }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === DROPZONE 5 ===
-            case 55:
-                $("#dropzone_5").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file5", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if(data.sw === 1){
-                        //     var valor1 = new Array();
-                        //     valor1[0]  = 100;
-                        //     valor1[1]  = data.titulo;
-                        //     valor1[2]  = data.respuesta;
-                        //     utilitarios(valor1);
-
-                        //     $(jqgrid1).trigger("reloadGrid");
-                        //     if(data.iu === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 14;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else if(data.iu === 2){
-                        //         $('#modal_1').modal('hide');
-                        //     }
-                        // }
-                        // else if(data.sw === 0){
-                        //     if(data.error_sw === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = data.respuesta;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else
-                        //     {
-                        //         var respuesta_server = '';
-                        //         $.each(data.error.response.original, function(index, value) {
-                        //             respuesta_server += value + '<br>';
-                        //         });
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = respuesta_server;
-                        //         utilitarios(valor1);
-                        //     }
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === DROPZONE 6 ===
-            case 56:
-                $("#dropzone_6").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file6", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if(data.sw === 1){
-                        //     var valor1 = new Array();
-                        //     valor1[0]  = 100;
-                        //     valor1[1]  = data.titulo;
-                        //     valor1[2]  = data.respuesta;
-                        //     utilitarios(valor1);
-
-                        //     $(jqgrid1).trigger("reloadGrid");
-                        //     if(data.iu === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 14;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else if(data.iu === 2){
-                        //         $('#modal_1').modal('hide');
-                        //     }
-                        // }
-                        // else if(data.sw === 0){
-                        //     if(data.error_sw === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = data.respuesta;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else
-                        //     {
-                        //         var respuesta_server = '';
-                        //         $.each(data.error.response.original, function(index, value) {
-                        //             respuesta_server += value + '<br>';
-                        //         });
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = respuesta_server;
-                        //         utilitarios(valor1);
-                        //     }
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === DROPZONE 7 ===
-            case 57:
-                $("#dropzone_7").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file7", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if(data.sw === 1){
-                        //     var valor1 = new Array();
-                        //     valor1[0]  = 100;
-                        //     valor1[1]  = data.titulo;
-                        //     valor1[2]  = data.respuesta;
-                        //     utilitarios(valor1);
-
-                        //     $(jqgrid1).trigger("reloadGrid");
-                        //     if(data.iu === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 14;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else if(data.iu === 2){
-                        //         $('#modal_1').modal('hide');
-                        //     }
-                        // }
-                        // else if(data.sw === 0){
-                        //     if(data.error_sw === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = data.respuesta;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else
-                        //     {
-                        //         var respuesta_server = '';
-                        //         $.each(data.error.response.original, function(index, value) {
-                        //             respuesta_server += value + '<br>';
-                        //         });
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = respuesta_server;
-                        //         utilitarios(valor1);
-                        //     }
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === DROPZONE 8 ===
-            case 58:
-                $("#dropzone_8").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file8", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if(data.sw === 1){
-                        //     var valor1 = new Array();
-                        //     valor1[0]  = 100;
-                        //     valor1[1]  = data.titulo;
-                        //     valor1[2]  = data.respuesta;
-                        //     utilitarios(valor1);
-
-                        //     $(jqgrid1).trigger("reloadGrid");
-                        //     if(data.iu === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 14;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else if(data.iu === 2){
-                        //         $('#modal_1').modal('hide');
-                        //     }
-                        // }
-                        // else if(data.sw === 0){
-                        //     if(data.error_sw === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = data.respuesta;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else
-                        //     {
-                        //         var respuesta_server = '';
-                        //         $.each(data.error.response.original, function(index, value) {
-                        //             respuesta_server += value + '<br>';
-                        //         });
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = respuesta_server;
-                        //         utilitarios(valor1);
-                        //     }
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === DROPZONE 9 ===
-            case 59:
-                $("#dropzone_9").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file9", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if(data.sw === 1){
-                        //     var valor1 = new Array();
-                        //     valor1[0]  = 100;
-                        //     valor1[1]  = data.titulo;
-                        //     valor1[2]  = data.respuesta;
-                        //     utilitarios(valor1);
-
-                        //     $(jqgrid1).trigger("reloadGrid");
-                        //     if(data.iu === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 14;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else if(data.iu === 2){
-                        //         $('#modal_1').modal('hide');
-                        //     }
-                        // }
-                        // else if(data.sw === 0){
-                        //     if(data.error_sw === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = data.respuesta;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else
-                        //     {
-                        //         var respuesta_server = '';
-                        //         $.each(data.error.response.original, function(index, value) {
-                        //             respuesta_server += value + '<br>';
-                        //         });
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = respuesta_server;
-                        //         utilitarios(valor1);
-                        //     }
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === DROPZONE 10 ===
-            case 60:
-                $("#dropzone_10").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file10", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if(data.sw === 1){
-                        //     var valor1 = new Array();
-                        //     valor1[0]  = 100;
-                        //     valor1[1]  = data.titulo;
-                        //     valor1[2]  = data.respuesta;
-                        //     utilitarios(valor1);
-
-                        //     $(jqgrid1).trigger("reloadGrid");
-                        //     if(data.iu === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 14;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else if(data.iu === 2){
-                        //         $('#modal_1').modal('hide');
-                        //     }
-                        // }
-                        // else if(data.sw === 0){
-                        //     if(data.error_sw === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = data.respuesta;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else
-                        //     {
-                        //         var respuesta_server = '';
-                        //         $.each(data.error.response.original, function(index, value) {
-                        //             respuesta_server += value + '<br>';
-                        //         });
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = respuesta_server;
-                        //         utilitarios(valor1);
-                        //     }
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === DROPZONE 11 ===
-            case 61:
-                $("#dropzone_11").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file11", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if(data.sw === 1){
-                        //     var valor1 = new Array();
-                        //     valor1[0]  = 100;
-                        //     valor1[1]  = data.titulo;
-                        //     valor1[2]  = data.respuesta;
-                        //     utilitarios(valor1);
-
-                        //     $(jqgrid1).trigger("reloadGrid");
-                        //     if(data.iu === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 14;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else if(data.iu === 2){
-                        //         $('#modal_1').modal('hide');
-                        //     }
-                        // }
-                        // else if(data.sw === 0){
-                        //     if(data.error_sw === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = data.respuesta;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else
-                        //     {
-                        //         var respuesta_server = '';
-                        //         $.each(data.error.response.original, function(index, value) {
-                        //             respuesta_server += value + '<br>';
-                        //         });
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = respuesta_server;
-                        //         utilitarios(valor1);
-                        //     }
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
-            // === DROPZONE 12 ===
-            case 62:
-                $("#dropzone_12").dropzone({
-                    url: url_controller + "/send_ajax",
-                    method:'post',
-                    addRemoveLinks: true,
-                    maxFilesize: 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles:'application/pdf',
-                    paramName: "file12", // The name that will be used to transfer the file
-                    maxFiles:1,
-                    clickable:true,
-                    parallelUploads:1,
-                    params: {
-                        tipo: 2,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize: 1,
-                    autoProcessQueue:true,
-
-                    dictRemoveFile:'Eliminar',
-                    dictCancelUpload:'Cancelar',
-                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
-                    dictDefaultMessage: "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage:'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText:'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType:'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig:'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded:'Número máximo de archivos superado.',
-                    init: function(){
-                        // this.on("sending", function(file, xhr, formData){
-                        //     formData.append("usuario_id", $("#usuario_id").val());
-                        //     formData.append("estado", $(".estado_class:checked").val());
-                        //     formData.append("persona_id", $("#persona_id").val());
-                        //     formData.append("email", $("#email").val());
-                        //     formData.append("password", $("#password").val());
-                        //     formData.append("rol_id", $("#rol_id").val());
-                        //     formData.append("lugar_dependencia", $("#lugar_dependencia").val());
-                        //     formData.append("enviar_mail", $("#enviar_mail:checked").val());
-                        // });
-                    },
-                    success: function(file, response){
-                        // var data = $.parseJSON(response);
-                        // if(data.sw === 1){
-                        //     var valor1 = new Array();
-                        //     valor1[0]  = 100;
-                        //     valor1[1]  = data.titulo;
-                        //     valor1[2]  = data.respuesta;
-                        //     utilitarios(valor1);
-
-                        //     $(jqgrid1).trigger("reloadGrid");
-                        //     if(data.iu === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 14;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else if(data.iu === 2){
-                        //         $('#modal_1').modal('hide');
-                        //     }
-                        // }
-                        // else if(data.sw === 0){
-                        //     if(data.error_sw === 1){
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = data.respuesta;
-                        //         utilitarios(valor1);
-                        //     }
-                        //     else
-                        //     {
-                        //         var respuesta_server = '';
-                        //         $.each(data.error.response.original, function(index, value) {
-                        //             respuesta_server += value + '<br>';
-                        //         });
-                        //         var valor1 = new Array();
-                        //         valor1[0]  = 101;
-                        //         valor1[1]  = data.titulo;
-                        //         valor1[2]  = respuesta_server;
-                        //         utilitarios(valor1);
-                        //     }
-                        // }
-                        // else if(data.sw === 2){
-                        //     window.location.reload();
-                        // }
-                        this.removeAllFiles(true);
-                    }
-                });
+            default:
                 break;
         }
     }
