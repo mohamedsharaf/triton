@@ -16,7 +16,7 @@ class CreatePvtSolicitudesTable extends Migration
         Schema::create('pvt_solicitudes', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->integer('persona_id_solicitante')->unsigned()->nullable();
+            $table->integer('persona_id_usuario')->unsigned()->nullable();
             $table->integer('municipio_id')->unsigned()->nullable();
 
             $table->smallInteger('estado')->default('1')->unsigned();
@@ -25,6 +25,7 @@ class CreatePvtSolicitudesTable extends Migration
             $table->string('codigo', 10)->nullable();
 
             $table->smallInteger('solicitante')->unsigned()->nullable();
+            $table->string('nombre_solicitante', 500)->nullable();
             $table->text('delitos')->nullable();
             $table->text('recalificacion_delitos')->nullable();
             $table->string('n_caso', 50)->nullable();
@@ -37,9 +38,8 @@ class CreatePvtSolicitudesTable extends Migration
             $table->smallInteger('solicitud_estado_pdf')->default('1')->unsigned();
             $table->string('solicitud_documento_pdf', 100)->nullable();
 
-            $table->smallInteger('usuario_tipo')->unsigned()->nullable();
+            $table->string('usuario_tipo', 50)->nullable();
             $table->string('usuario_tipo_descripcion', 1000)->nullable();
-            $table->string('usuario_nombre', 500)->nullable();
             $table->smallInteger('usuario_sexo')->unsigned()->nullable();
             $table->smallInteger('usuario_edad')->unsigned()->nullable();
             $table->string('usuario_celular', 100)->nullable();
@@ -91,7 +91,7 @@ class CreatePvtSolicitudesTable extends Migration
 
             $table->timestamps();
 
-            $table->foreign('persona_id_solicitante')
+            $table->foreign('persona_id_usuario')
                 ->references('id')
                 ->on('rrhh_personas')
                 ->onDelete('cascade');

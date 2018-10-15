@@ -9,7 +9,7 @@ class PvtSolicitud extends Model
     protected $table = 'pvt_solicitudes';
 
     protected $fillable = [
-        'persona_id_solicitante',
+        'persona_id_usuario',
         'municipio_id',
 
         'estado',
@@ -18,6 +18,7 @@ class PvtSolicitud extends Model
         'codigo',
 
         'solicitante',
+        'nombre_solicitante',
         'delitos',
         'recalificacion_delitos',
         'n_caso',
@@ -32,7 +33,6 @@ class PvtSolicitud extends Model
 
         'usuario_tipo',
         'usuario_tipo_descripcion',
-        'usuario_nombre',
         'usuario_sexo',
         'usuario_edad',
         'usuario_celular',

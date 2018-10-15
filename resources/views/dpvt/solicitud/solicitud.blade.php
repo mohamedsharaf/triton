@@ -226,10 +226,9 @@
                                             </div>
                                         </div>
 
-                                        <div id="persona_id_solicitante_div" class="form-group">
-                                            <label for="persona_id_solicitante">Nombre del solicitante</label>
-                                            <select name="persona_id_solicitante" id="persona_id_solicitante" data-placeholder="Nombre del solicitante" multiple="multiple" style="width: 100%;">
-                                            </select>
+                                        <div class="form-group">
+                                            <label for="solicitante">Nombre del solicitante</label>
+                                            <textarea class="form-control" id="nombre_solicitante" name="nombre_solicitante" placeholder="Nombre del solicitante" rows="2"></textarea>
                                         </div>
 
                                         <div id="municipio_id_div" class="form-group">
@@ -238,20 +237,23 @@
                                             </select>
                                         </div>
 
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="f_solicitud">Fecha de solicitud</label>
-                                                    <input type="text" class="form-control" id="f_solicitud" name="f_solicitud" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="f_solicitud">Fecha de solicitud</label>
+                                            <input type="text" class="form-control" id="f_solicitud" name="f_solicitud" placeholder="año-mes-día" data-mask="9999-99-99">
+                                        </div>
 
-                                            <div class="col-sm-6">
+                                        <div class="row">
+                                            <div class="col-sm-8">
                                                 <div class="dropzone" id="dropzone_1">
                                                     <div class="fallback">
                                                       <input name="file1" type="file"/>
                                                     </div>
                                                 </div>
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
@@ -295,6 +297,8 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <br>
 
                                 <h3>Delito</h3>
                                 <div class="row">
@@ -378,9 +382,10 @@
                                             <input type="text" class="form-control" id="usuario_tipo_descripcion" name="usuario_tipo_descripcion" placeholder="Tipo de usuario descripción">
                                         </div>
 
-                                        <div class="form-group">
-                                            <label for="usuario_nombre">Nombre de usuario</label>
-                                            <input type="text" class="form-control" id="usuario_nombre" name="usuario_nombre" placeholder="Nombre de usuario">
+                                        <div id="persona_id_usuario_div" class="form-group">
+                                            <label for="persona_id_usuario">Nombre de usuario</label>
+                                            <select name="persona_id_usuario" id="persona_id_usuario" data-placeholder="Nombre de usuario" multiple="multiple" style="width: 100%;">
+                                            </select>
                                         </div>
 
                                         <div class="form-group">
@@ -453,9 +458,9 @@
                                             </select>
                                         </div>
 
-                                        <div class="dropzone" id="dropzone_9">
+                                        <div class="dropzone" id="dropzone_2">
                                             <div class="fallback">
-                                              <input name="file9" type="file"/>
+                                              <input name="file2" type="file"/>
                                             </div>
                                         </div>
                                     </div>
@@ -473,9 +478,9 @@
                                             </select>
                                         </div>
 
-                                        <div class="dropzone" id="dropzone_10">
+                                        <div class="dropzone" id="dropzone_3">
                                             <div class="fallback">
-                                              <input name="file10" type="file"/>
+                                              <input name="file3" type="file"/>
                                             </div>
                                         </div>
                                     </div>
@@ -492,9 +497,9 @@
                                             <textarea class="form-control" id="dirigido_otro_trabajo" name="dirigido_otro_trabajo" placeholder="Otro trabajo solicitado" rows="2"></textarea>
                                         </div>
 
-                                        <div class="dropzone" id="dropzone_11">
+                                        <div class="dropzone" id="dropzone_4">
                                             <div class="fallback">
-                                              <input name="file11" type="file"/>
+                                              <input name="file4" type="file"/>
                                             </div>
                                         </div>
                                     </div>
@@ -521,9 +526,9 @@
                                         <textarea class="form-control" id="complementario_trabajo_solicitado" name="complementario_trabajo_solicitado" placeholder="Trabajo solicitado" rows="4"></textarea>
                                     </div>
 
-                                    <div class="dropzone" id="dropzone_12">
+                                    <div class="dropzone" id="dropzone_5">
                                         <div class="fallback">
-                                          <input name="file12" type="file"/>
+                                          <input name="file5" type="file"/>
                                         </div>
                                     </div>
                                 </div>
@@ -566,9 +571,9 @@
                                             </div>
                                         </div>
 
-                                        <div class="dropzone" id="dropzone_2">
+                                        <div class="dropzone" id="dropzone_6">
                                             <div class="fallback">
-                                              <input name="file2" type="file"/>
+                                              <input name="file6" type="file"/>
                                             </div>
                                         </div>
                                     </div>
@@ -591,9 +596,9 @@
                                             </div>
                                         </div>
 
-                                        <div class="dropzone" id="dropzone_3">
+                                        <div class="dropzone" id="dropzone_7">
                                             <div class="fallback">
-                                              <input name="file3" type="file"/>
+                                              <input name="file7" type="file"/>
                                             </div>
                                         </div>
 
@@ -608,9 +613,9 @@
                                             </div>
 
                                             <div class="col-sm-6">
-                                                <div class="dropzone" id="dropzone_4">
+                                                <div class="dropzone" id="dropzone_8">
                                                     <div class="fallback">
-                                                      <input name="file4" type="file"/>
+                                                      <input name="file8" type="file"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -621,6 +626,7 @@
 
                             <h1>Resoluciones del MP y seguimiento</h1>
                             <fieldset>
+                                <input type="hidden" id="resolucion_id" name="resolucion_id" value=""/>
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <div class="form-group">
@@ -637,9 +643,9 @@
                                             </div>
 
                                             <div class="col-sm-6">
-                                                <div class="dropzone" id="dropzone_7">
+                                                <div class="dropzone" id="dropzone_9">
                                                     <div class="fallback">
-                                                      <input name="file7" type="file"/>
+                                                      <input name="file9" type="file"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -664,12 +670,12 @@
 
                                         <div class="form-group">
                                             <label for="resolucion_instituciones_coadyuvantes">Instituciones coadyuvantes</label>
-                                            <input type="text" class="form-control" id="resolucion_instituciones_coadyuvantes" name="resolucion_instituciones_coadyuvantes" placeholder="Instituciones coadyuvantes">
+                                            <textarea class="form-control" id="resolucion_instituciones_coadyuvantes" name="resolucion_instituciones_coadyuvantes" placeholder="Trabajo solicitado" rows="4"></textarea>
                                         </div>
 
-                                        <div class="dropzone" id="dropzone_8">
+                                        <div class="dropzone" id="dropzone_10">
                                             <div class="fallback">
-                                              <input name="file8" type="file"/>
+                                              <input name="file10" type="file"/>
                                             </div>
                                         </div>
                                     </div>
@@ -707,9 +713,9 @@
                                             </div>
 
                                             <div class="col-sm-6">
-                                                <div class="dropzone" id="dropzone_5">
+                                                <div class="dropzone" id="dropzone_11">
                                                     <div class="fallback">
-                                                      <input name="file5" type="file"/>
+                                                      <input name="file11" type="file"/>
                                                     </div>
                                                 </div>
                                             </div>
@@ -726,9 +732,9 @@
                                             </div>
 
                                             <div class="col-sm-6">
-                                                <div class="dropzone" id="dropzone_6">
+                                                <div class="dropzone" id="dropzone_12">
                                                     <div class="fallback">
-                                                      <input name="file6" type="file"/>
+                                                      <input name="file12" type="file"/>
                                                     </div>
                                                 </div>
                                             </div>

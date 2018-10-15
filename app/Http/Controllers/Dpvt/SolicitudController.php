@@ -51,7 +51,7 @@ class SolicitudController extends Controller
         $this->solicitante = [
             '1' => 'MINISTERIO DE TRABAJO EMPLEO Y PREVISION SOCIAL',
             '2' => 'MINISTERIO DE JUSTICIA',
-            '3' => 'MINSITERIO DE GOBIERNO',
+            '3' => 'MINISTERIO DE GOBIERNO',
             '4' => 'FISCAL GENERAL DEL ESTADO',
             '5' => 'FISCAL DEPARTAMENTAL',
             '6' => 'FISCAL DE MATERIA',
@@ -92,13 +92,22 @@ class SolicitudController extends Controller
         ];
 
         $this->dirigido_a = [
-            '1' => 'UPVT',
-            '2' => 'SLIM',
-            '3' => 'DNA',
-            '4' => 'SIGPLU',
-            '5' => 'SEPDAVI',
-            '6' => 'ADULTO MAYOR',
-            '7' => 'OTRO'
+            '1'  => 'DPVTMMP',
+            '2'  => 'SLIM',
+            '3'  => 'DNA',
+            '4'  => 'SIJPLU',
+            '5'  => 'SEPDAVI',
+            '6'  => 'IDIF',
+            '7'  => 'CONALPEDIS',
+            '8'  => 'CENTROS HOSPITALARIOS',
+            '9'  => 'ONG',
+            '10' => 'REGIMEN PENITENCIARIO',
+            '11' => 'REGIMIENTO MILITAR',
+            '12' => 'DIRECCION FGE',
+            '13' => 'JEFATURA FGE',
+            '14' => 'MINISTERIO',
+            '15' => 'JEFATURA DE TRABAJO',
+            '16' => 'OTRO'
         ];
 
         $this->dirigido_psicologia = [
@@ -202,6 +211,12 @@ class SolicitudController extends Controller
         switch($tipo)
         {
             case '1':
+                $where_concatenar = "";
+                if($request->has('anio_filter'))
+                {
+                    $where_concatenar = " AND pvt_solicitudes.gestion='" . $request->input('anio_filter') . "'";
+                }
+
                 $jqgrid = new JqgridClass($request);
 
                 $tabla1 = "pvt_solicitudes";
@@ -212,7 +227,7 @@ class SolicitudController extends Controller
 
                 $select = "
                     $tabla1.id,
-                    $tabla1.persona_id_solicitante,
+                    $tabla1.persona_id_usuario,
                     $tabla1.municipio_id,
 
                     $tabla1.estado,
@@ -221,6 +236,7 @@ class SolicitudController extends Controller
                     $tabla1.codigo,
 
                     $tabla1.solicitante,
+                    $tabla1.nombre_solicitante,
                     $tabla1.delitos,
                     $tabla1.recalificacion_delitos,
                     $tabla1.n_caso,
@@ -235,7 +251,6 @@ class SolicitudController extends Controller
 
                     $tabla1.usuario_tipo,
                     $tabla1.usuario_tipo_descripcion,
-                    $tabla1.usuario_nombre,
                     $tabla1.usuario_sexo,
                     $tabla1.usuario_edad,
                     $tabla1.usuario_celular,
@@ -289,7 +304,7 @@ class SolicitudController extends Controller
                     $tabla1.updated_at,
 
                     a2.n_documento,
-                    a2.nombre,
+                    a2.nombre AS nombre_persona,
                     a2.ap_paterno,
                     a2.ap_materno,
 
@@ -302,10 +317,10 @@ class SolicitudController extends Controller
                     a5.nombre AS departamento
                 ";
 
-                $array_where = "TRUE";
+                $array_where = "TRUE" . $where_concatenar;
                 $array_where .= $jqgrid->getWhere();
 
-                $count = PvtSolicitud::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id_solicitante")
+                $count = PvtSolicitud::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id_usuario")
                     ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.municipio_id")
                     ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.provincia_id")
                     ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.departamento_id")
@@ -314,7 +329,7 @@ class SolicitudController extends Controller
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
-                $query = PvtSolicitud::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id_solicitante")
+                $query = PvtSolicitud::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id_usuario")
                     ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.municipio_id")
                     ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.provincia_id")
                     ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.departamento_id")
@@ -336,8 +351,8 @@ class SolicitudController extends Controller
                 foreach ($query as $row)
                 {
                     $val_array = array(
-                        'persona_id_solicitante' => $row["persona_id_solicitante"],
-                        'municipio_id'           => $row["municipio_id"],
+                        'persona_id_usuario' => $row["persona_id_usuario"],
+                        'municipio_id'       => $row["municipio_id"],
 
                         'estado'          => $row["estado"],
                         'cerrado_abierto' => $row["cerrado_abierto"],
@@ -349,7 +364,10 @@ class SolicitudController extends Controller
 
                         'usuario_tipo'             => $row["usuario_tipo"],
                         'usuario_tipo_descripcion' => $row["usuario_tipo_descripcion"],
-                        'usuario_nombre'           => $row["usuario_nombre"],
+                        'n_documento'              => $row["n_documento"],
+                        'nombre_persona'           => $row["nombre_persona"],
+                        'ap_paterno'               => $row["ap_paterno"],
+                        'ap_materno'               => $row["ap_materno"],
                         'usuario_sexo'             => $row["usuario_sexo"],
                         'usuario_edad'             => $row["usuario_edad"],
                         'usuario_celular'          => $row["usuario_celular"],
@@ -408,21 +426,18 @@ class SolicitudController extends Controller
                         '',
 
                         ($row["estado"] =="") ? "" : $this->estado[$row["estado"]],
-                        ($row["cerrado_abierto"] =="") ? "" : $this->cerrado_abierto[$row["cerrado_abierto"]],
+                        $this->utilitarios(array('tipo' => '2', 'cerrado_abierto' => $row["cerrado_abierto"])),
                         $row["gestion"],
                         $row["codigo"],
 
 
                         ($row["solicitante"] =="") ? "" : $this->solicitante[$row["solicitante"]],
-                        $row["n_documento"],
-                        $row["nombre"],
-                        $row["ap_paterno"],
-                        $row["ap_materno"],
+                        $row["nombre_solicitante"],
                         $row["municipio"],
                         $row["provincia"],
                         $row["departamento"],
                         $row["f_solicitud"],
-                        ($row["solicitud_estado_pdf"] =="") ? "" : $this->estado_pdf[$row["solicitud_estado_pdf"]],
+                        $this->utilitarios(array('tipo' => '1', 'estado_pdf' => $row["solicitud_estado_pdf"], 'id' => $row["id"], 'tipo_pdf' => 1)),
 
                         $row["n_caso"],
                         ($row["etapa_proceso"] =="") ? "" : $this->etapa_proceso[$row["etapa_proceso"]],
@@ -433,6 +448,152 @@ class SolicitudController extends Controller
 
                         $row["delitos"],
                         $row["recalificacion_delitos"],
+
+                        //=== VARIABLES OCULTOS ===
+                            json_encode($val_array)
+                    );
+                    $i++;
+                }
+                return json_encode($respuesta);
+                break;
+            case '2':
+                $where_concatenar = "";
+                if($request->has('solicitud_id'))
+                {
+                    $where_concatenar = " AND pvt_solicitudes_delitos.solicitud_id=" . $request->input('solicitud_id') . "";
+                }
+
+                $jqgrid = new JqgridClass($request);
+
+                $tabla1 = "pvt_solicitudes_delitos";
+                $tabla2 = "pvt_delitos";
+
+                $select = "
+                    $tabla1.id,
+
+                    $tabla1.solicitud_id,
+                    $tabla1.delito_id,
+
+                    $tabla1.estado,
+                    $tabla1.tentativa,
+
+                    a2.nombre
+                ";
+
+                $array_where = "TRUE AND pvt_solicitudes_delitos.estado=1" . $where_concatenar;
+                $array_where .= $jqgrid->getWhere();
+
+                $count = PvtSolicitudDelito::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.delito_id")
+                    ->whereRaw($array_where)
+                    ->count();
+
+                $limit_offset = $jqgrid->getLimitOffset($count);
+
+                $query = PvtSolicitudDelito::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.delito_id")
+                    ->whereRaw($array_where)
+                    ->select(DB::raw($select))
+                    ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                    ->offset($limit_offset['start'])
+                    ->limit($limit_offset['limit'])
+                    ->get()
+                    ->toArray();
+
+                $respuesta = [
+                    'page'    => $limit_offset['page'],
+                    'total'   => $limit_offset['total_pages'],
+                    'records' => $count
+                ];
+
+                $i = 0;
+                foreach ($query as $row)
+                {
+                    $val_array = array(
+                        'solicitud_id' => $row["solicitud_id"],
+                        'delito_id'    => $row["delito_id"],
+
+                        'estado'    => $row["estado"],
+                        'tentativa' => $row["tentativa"]
+                    );
+
+                    $respuesta['rows'][$i]['id']   = $row["id"];
+                    $respuesta['rows'][$i]['cell'] = array(
+                        '',
+
+                        $row["nombre"],
+                        ($row["tentativa"] =="") ? "" : $this->estado_pdf[$row["tentativa"]],
+
+                        //=== VARIABLES OCULTOS ===
+                            json_encode($val_array)
+                    );
+                    $i++;
+                }
+                return json_encode($respuesta);
+                break;
+            case '3':
+                $where_concatenar = "";
+                if($request->has('solicitud_id'))
+                {
+                    $where_concatenar = " AND pvt_solicitudes_delitos.solicitud_id=" . $request->input('solicitud_id') . "";
+                }
+
+                $jqgrid = new JqgridClass($request);
+
+                $tabla1 = "pvt_solicitudes_delitos";
+                $tabla2 = "pvt_delitos";
+
+                $select = "
+                    $tabla1.id,
+
+                    $tabla1.solicitud_id,
+                    $tabla1.delito_id,
+
+                    $tabla1.estado,
+                    $tabla1.tentativa,
+
+                    a2.nombre
+                ";
+
+                $array_where = "TRUE AND pvt_solicitudes_delitos.estado=2" . $where_concatenar;
+                $array_where .= $jqgrid->getWhere();
+
+                $count = PvtSolicitudDelito::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.delito_id")
+                    ->whereRaw($array_where)
+                    ->count();
+
+                $limit_offset = $jqgrid->getLimitOffset($count);
+
+                $query = PvtSolicitudDelito::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.delito_id")
+                    ->whereRaw($array_where)
+                    ->select(DB::raw($select))
+                    ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                    ->offset($limit_offset['start'])
+                    ->limit($limit_offset['limit'])
+                    ->get()
+                    ->toArray();
+
+                $respuesta = [
+                    'page'    => $limit_offset['page'],
+                    'total'   => $limit_offset['total_pages'],
+                    'records' => $count
+                ];
+
+                $i = 0;
+                foreach ($query as $row)
+                {
+                    $val_array = array(
+                        'solicitud_id' => $row["solicitud_id"],
+                        'delito_id'    => $row["delito_id"],
+
+                        'estado'    => $row["estado"],
+                        'tentativa' => $row["tentativa"]
+                    );
+
+                    $respuesta['rows'][$i]['id']   = $row["id"];
+                    $respuesta['rows'][$i]['cell'] = array(
+                        '',
+
+                        $row["nombre"],
+                        ($row["tentativa"] =="") ? "" : $this->estado_pdf[$row["tentativa"]],
 
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
@@ -468,7 +629,7 @@ class SolicitudController extends Controller
 
         switch($tipo)
         {
-            // === INSERT UPDATE ===
+            // === PASO 1 - INSERT UPDATE ===
             case '1':
                 // === SEGURIDAD ===
                     $this->rol_id   = Auth::user()->rol_id;
@@ -477,6 +638,7 @@ class SolicitudController extends Controller
                                         ->select("seg_permisos.codigo")
                                         ->get()
                                         ->toArray();
+
                 // === LIBRERIAS ===
                     $util = new UtilClass();
 
@@ -551,17 +713,17 @@ class SolicitudController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $data1['gestion']                = trim($request->input('gestion'));
-                    $data1['solicitante']            = trim($request->input('solicitante'));
-                    $data1['persona_id_solicitante'] = trim($request->input('persona_id_solicitante'));
-                    $data1['municipio_id']           = trim($request->input('municipio_id'));
-                    $data1['f_solicitud']            = trim($request->input('f_solicitud'));
-                    $data1['n_caso']                 = strtoupper($util->getNoAcentoNoComilla(trim($request->input('n_caso'))));
-                    $data1['etapa_proceso']          = trim($request->input('etapa_proceso'));
-                    $data1['denunciante']            = strtoupper($util->getNoAcentoNoComilla(trim($request->input('denunciante'))));
-                    $data1['denunciado']             = strtoupper($util->getNoAcentoNoComilla(trim($request->input('denunciado'))));
-                    $data1['victima']                = strtoupper($util->getNoAcentoNoComilla(trim($request->input('victima'))));
-                    $data1['persona_protegida']      = strtoupper($util->getNoAcentoNoComilla(trim($request->input('persona_protegida'))));
+                    $data1['gestion']            = trim($request->input('gestion'));
+                    $data1['solicitante']        = trim($request->input('solicitante'));
+                    $data1['nombre_solicitante'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre_solicitante'))));
+                    $data1['municipio_id']       = trim($request->input('municipio_id'));
+                    $data1['f_solicitud']        = trim($request->input('f_solicitud'));
+                    $data1['n_caso']             = strtoupper($util->getNoAcentoNoComilla(trim($request->input('n_caso'))));
+                    $data1['etapa_proceso']      = trim($request->input('etapa_proceso'));
+                    $data1['denunciante']        = strtoupper($util->getNoAcentoNoComilla(trim($request->input('denunciante'))));
+                    $data1['denunciado']         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('denunciado'))));
+                    $data1['victima']            = strtoupper($util->getNoAcentoNoComilla(trim($request->input('victima'))));
+                    $data1['persona_protegida']  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('persona_protegida'))));
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
                     foreach ($data1 as $llave => $valor)
@@ -573,19 +735,19 @@ class SolicitudController extends Controller
                 // === REGISTRAR MODIFICAR VALORES ===
                     if($opcion == 'n')
                     {
-                        $iu                         = new PvtSolicitud;
-                        $iu->gestion                = $data1['gestion'];
-                        $iu->solicitante            = $data1['solicitante'];
-                        $iu->persona_id_solicitante = $data1['persona_id_solicitante'];
-                        $iu->municipio_id           = $data1['municipio_id'];
-                        $iu->f_solicitud            = $data1['f_solicitud'];
-                        $iu->n_caso                 = $data1['n_caso'];
-                        $iu->etapa_proceso          = $data1['etapa_proceso'];
-                        $iu->denunciante            = $data1['denunciante'];
-                        $iu->denunciado             = $data1['denunciado'];
-                        $iu->victima                = $data1['victima'];
-                        $iu->persona_protegida      = $data1['persona_protegida'];
-                        $iu->codigo                 = str_pad((PvtSolicitud::where('gestion', '=', $data1['gestion'])->count())+1, 4, "0", STR_PAD_LEFT) . "/" . $data1['gestion'];
+                        $iu                     = new PvtSolicitud;
+                        $iu->gestion            = $data1['gestion'];
+                        $iu->solicitante        = $data1['solicitante'];
+                        $iu->nombre_solicitante = $data1['nombre_solicitante'];
+                        $iu->municipio_id       = $data1['municipio_id'];
+                        $iu->f_solicitud        = $data1['f_solicitud'];
+                        $iu->n_caso             = $data1['n_caso'];
+                        $iu->etapa_proceso      = $data1['etapa_proceso'];
+                        $iu->denunciante        = $data1['denunciante'];
+                        $iu->denunciado         = $data1['denunciado'];
+                        $iu->victima            = $data1['victima'];
+                        $iu->persona_protegida  = $data1['persona_protegida'];
+                        $iu->codigo             = str_pad((PvtSolicitud::where('gestion', '=', $data1['gestion'])->count())+1, 4, "0", STR_PAD_LEFT) . "/" . $data1['gestion'];
                         $iu->save();
 
                         $id = $iu->id;
@@ -597,18 +759,18 @@ class SolicitudController extends Controller
                     }
                     else
                     {
-                        $iu                         = PvtSolicitud::find($id);
-                        $iu->gestion                = $data1['gestion'];
-                        $iu->solicitante            = $data1['solicitante'];
-                        $iu->persona_id_solicitante = $data1['persona_id_solicitante'];
-                        $iu->municipio_id           = $data1['municipio_id'];
-                        $iu->f_solicitud            = $data1['f_solicitud'];
-                        $iu->n_caso                 = $data1['n_caso'];
-                        $iu->etapa_proceso          = $data1['etapa_proceso'];
-                        $iu->denunciante            = $data1['denunciante'];
-                        $iu->denunciado             = $data1['denunciado'];
-                        $iu->victima                = $data1['victima'];
-                        $iu->persona_protegida      = $data1['persona_protegida'];
+                        $iu                     = PvtSolicitud::find($id);
+                        $iu->gestion            = $data1['gestion'];
+                        $iu->solicitante        = $data1['solicitante'];
+                        $iu->nombre_solicitante = $data1['nombre_solicitante'];
+                        $iu->municipio_id       = $data1['municipio_id'];
+                        $iu->f_solicitud        = $data1['f_solicitud'];
+                        $iu->n_caso             = $data1['n_caso'];
+                        $iu->etapa_proceso      = $data1['etapa_proceso'];
+                        $iu->denunciante        = $data1['denunciante'];
+                        $iu->denunciado         = $data1['denunciado'];
+                        $iu->victima            = $data1['victima'];
+                        $iu->persona_protegida  = $data1['persona_protegida'];
                         $iu->save();
 
                         $respuesta['respuesta'] .= "La SOLICITUD se edito con éxito.";
@@ -617,7 +779,475 @@ class SolicitudController extends Controller
                     }
                 return json_encode($respuesta);
                 break;
+            // === PASO 2 - UPDATE ===
+            case '2':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
 
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>USUARIO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion      = 'n';
+                    $anio_actual = date("Y");
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'usuario_tipo_descripcion' => 'max:1000',
+                            'usuario_celular'          => 'max:100',
+                            'usuario_domicilio'        => 'max:500',
+                            'usuario_otra_referencia'  => 'max:500'
+                        ],
+                        [
+                            'usuario_tipo_descripcion.max' => 'El campo NOMBRE DE USUARIO debe contener :max caracteres como máximo.',
+
+                            'usuario_celular.max' => 'El campo TELEFONO Y/O CELULAR debe contener :max caracteres como máximo.',
+
+                            'usuario_domicilio.max' => 'El campo DOMICILIO USUARIO debe contener :max caracteres como máximo.',
+
+                            'usuario_otra_referencia.max' => 'El campo OTRAS REFERENCIAS debe contener :max caracteres como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['usuario_tipo']             = trim($request->input('usuario_tipo'));
+                    $data1['usuario_tipo_descripcion'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('usuario_tipo_descripcion'))));
+                    $data1['persona_id_usuario']       = trim($request->input('persona_id_usuario'));
+                    $data1['usuario_sexo']             = trim($request->input('usuario_sexo'));
+                    $data1['usuario_celular']          = strtoupper($util->getNoAcentoNoComilla(trim($request->input('usuario_celular'))));
+                    $data1['usuario_domicilio']        = strtoupper($util->getNoAcentoNoComilla(trim($request->input('usuario_domicilio'))));
+                    $data1['usuario_otra_referencia']  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('usuario_otra_referencia'))));
+                    $data1['usuario_edad']             = trim($request->input('usuario_edad'));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                        $iu                           = new PvtSolicitud;
+                        $iu->usuario_tipo             = $data1['usuario_tipo'];
+                        $iu->usuario_tipo_descripcion = $data1['usuario_tipo_descripcion'];
+                        $iu->persona_id_usuario       = $data1['persona_id_usuario'];
+                        $iu->usuario_sexo             = $data1['usuario_sexo'];
+                        $iu->usuario_celular          = $data1['usuario_celular'];
+                        $iu->usuario_domicilio        = $data1['usuario_domicilio'];
+                        $iu->usuario_otra_referencia  = $data1['usuario_otra_referencia'];
+                        $iu->usuario_edad             = $data1['usuario_edad'];
+                        $iu->save();
+
+                        $id = $iu->id;
+
+                        $respuesta['respuesta'] .= "El USUARIO fue registrada con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['id']         = $id;
+                        $respuesta['codigo']     = $iu->codigo;
+                    }
+                    else
+                    {
+                        $iu                           = PvtSolicitud::find($id);
+                        $iu->usuario_tipo             = $data1['usuario_tipo'];
+                        $iu->usuario_tipo_descripcion = $data1['usuario_tipo_descripcion'];
+                        $iu->persona_id_usuario       = $data1['persona_id_usuario'];
+                        $iu->usuario_sexo             = $data1['usuario_sexo'];
+                        $iu->usuario_celular          = $data1['usuario_celular'];
+                        $iu->usuario_domicilio        = $data1['usuario_domicilio'];
+                        $iu->usuario_otra_referencia  = $data1['usuario_otra_referencia'];
+                        $iu->usuario_edad             = $data1['usuario_edad'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "El USUARIO se edito con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+                    }
+                return json_encode($respuesta);
+                break;
+            // === PASO 3 - UPDATE ===
+            case '3':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SOLICITUD DE TRABAJO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion      = 'n';
+                    $anio_actual = date("Y");
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'dirigido_otro_trabajo' => 'max:1000'
+                        ],
+                        [
+                            'dirigido_otro_trabajo.max' => 'El campo OTRO TRABAJO SOLICITADO debe contener :max caracteres como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['dirigido_a_psicologia']     = $request->input('dirigido_a_psicologia');
+                    $data1['dirigido_psicologia']       = $request->input('dirigido_psicologia');
+                    $data1['dirigido_a_trabajo_social'] = $request->input('dirigido_a_trabajo_social');
+                    $data1['dirigido_trabajo_social']   = $request->input('dirigido_trabajo_social');
+                    $data1['dirigido_a_otro_trabajo']   = $request->input('dirigido_a_otro_trabajo');
+                    $data1['dirigido_otro_trabajo']     = strtoupper($util->getNoAcentoNoComilla(trim($request->input('dirigido_otro_trabajo'))));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                        $iu                            = new PvtSolicitud;
+                        $iu->dirigido_a_psicologia     = $data1['dirigido_a_psicologia'];
+                        $iu->dirigido_psicologia       = $data1['dirigido_psicologia'];
+                        $iu->dirigido_a_trabajo_social = $data1['dirigido_a_trabajo_social'];
+                        $iu->dirigido_trabajo_social   = $data1['dirigido_trabajo_social'];
+                        $iu->dirigido_a_otro_trabajo   = $data1['dirigido_a_otro_trabajo'];
+                        $iu->dirigido_otro_trabajo     = $data1['dirigido_otro_trabajo'];
+                        $iu->save();
+
+                        $id = $iu->id;
+
+                        $respuesta['respuesta'] .= "El SOLICITUD DE TRABAJO fue registrada con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['id']         = $id;
+                        $respuesta['codigo']     = $iu->codigo;
+                    }
+                    else
+                    {
+                        $iu                            = PvtSolicitud::find($id);
+                        $iu->dirigido_a_psicologia     = $data1['dirigido_a_psicologia'];
+                        $iu->dirigido_psicologia       = $data1['dirigido_psicologia'];
+                        $iu->dirigido_a_trabajo_social = $data1['dirigido_a_trabajo_social'];
+                        $iu->dirigido_trabajo_social   = $data1['dirigido_trabajo_social'];
+                        $iu->dirigido_a_otro_trabajo   = $data1['dirigido_a_otro_trabajo'];
+                        $iu->dirigido_otro_trabajo     = $data1['dirigido_otro_trabajo'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "El SOLICITUD DE TRABAJO se edito con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+                    }
+                return json_encode($respuesta);
+                break;
+            // === PASO 4 - UPDATE ===
+            case '4':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SOLICITUD TRABAJO COMPLEMENTARIO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion      = 'n';
+                    $anio_actual = date("Y");
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'complementario_trabajo_solicitado' => 'max:1000'
+                        ],
+                        [
+                            'complementario_trabajo_solicitado.max' => 'El campo TRABAJO SOLICITADO debe contener :max caracteres como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['estado']                            = $request->input('estado');
+                    $data1['complementario_dirigido_a']         = $request->input('complementario_dirigido_a');
+                    $data1['complementario_trabajo_solicitado'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('complementario_trabajo_solicitado'))));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                        $iu                                    = new PvtSolicitud;
+                        $iu->estado                            = $data1['estado'];
+                        $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
+                        $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
+                        $iu->save();
+
+                        $id = $iu->id;
+
+                        $respuesta['respuesta'] .= "La SOLICITUD TRABAJO COMPLEMENTARIO fue registrada con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['id']         = $id;
+                        $respuesta['codigo']     = $iu->codigo;
+                    }
+                    else
+                    {
+                        $iu                                    = PvtSolicitud::find($id);
+                        $iu->estado                            = $data1['estado'];
+                        $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
+                        $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "La SOLICITUD TRABAJO COMPLEMENTARIO se edito con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+                    }
+                return json_encode($respuesta);
+                break;
+            // === PASO 5 - UPDATE ===
+            case '5':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>PRESENTACION DE INFORMES</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion      = 'n';
+                    $anio_actual = date("Y");
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'complementario_trabajo_solicitado' => 'max:1000'
+                        ],
+                        [
+                            'complementario_trabajo_solicitado.max' => 'El campo TRABAJO SOLICITADO debe contener :max caracteres como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['plazo_fecha_solicitud']                   = trim($request->input('plazo_fecha_solicitud'));
+                    $data1['plazo_fecha_recepcion']                   = trim($request->input('plazo_fecha_recepcion'));
+                    $data1['plazo_psicologico_fecha_entrega_digital'] = trim($request->input('plazo_psicologico_fecha_entrega_digital'));
+                    $data1['plazo_psicologico_fecha_entrega_fisico']  = trim($request->input('plazo_psicologico_fecha_entrega_fisico'));
+                    $data1['plazo_social_fecha_entrega_digital']      = trim($request->input('plazo_social_fecha_entrega_digital'));
+                    $data1['plazo_social_fecha_entrega_fisico']       = trim($request->input('plazo_social_fecha_entrega_fisico'));
+                    $data1['plazo_complementario_fecha']              = trim($request->input('plazo_complementario_fecha'));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                        $iu                                          = new PvtSolicitud;
+                        $iu->plazo_fecha_solicitud                   = $data1['plazo_fecha_solicitud'];
+                        $iu->plazo_fecha_recepcion                   = $data1['plazo_fecha_recepcion'];
+                        $iu->plazo_psicologico_fecha_entrega_digital = $data1['plazo_psicologico_fecha_entrega_digital'];
+                        $iu->plazo_psicologico_fecha_entrega_fisico  = $data1['plazo_psicologico_fecha_entrega_fisico'];
+                        $iu->plazo_social_fecha_entrega_digital      = $data1['plazo_social_fecha_entrega_digital'];
+                        $iu->plazo_social_fecha_entrega_fisico       = $data1['plazo_social_fecha_entrega_fisico'];
+                        $iu->plazo_complementario_fecha              = $data1['plazo_complementario_fecha'];
+                        $iu->save();
+
+                        $id = $iu->id;
+
+                        $respuesta['respuesta'] .= "La PRESENTACION DE INFORMES fue registrada con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['id']         = $id;
+                        $respuesta['codigo']     = $iu->codigo;
+                    }
+                    else
+                    {
+                        $iu                                          = PvtSolicitud::find($id);
+                        $iu->plazo_fecha_solicitud                   = $data1['plazo_fecha_solicitud'];
+                        $iu->plazo_fecha_recepcion                   = $data1['plazo_fecha_recepcion'];
+                        $iu->plazo_psicologico_fecha_entrega_digital = $data1['plazo_psicologico_fecha_entrega_digital'];
+                        $iu->plazo_psicologico_fecha_entrega_fisico  = $data1['plazo_psicologico_fecha_entrega_fisico'];
+                        $iu->plazo_social_fecha_entrega_digital      = $data1['plazo_social_fecha_entrega_digital'];
+                        $iu->plazo_social_fecha_entrega_fisico       = $data1['plazo_social_fecha_entrega_fisico'];
+                        $iu->plazo_complementario_fecha              = $data1['plazo_complementario_fecha'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "La PRESENTACION DE INFORMES se edito con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+                    }
+                return json_encode($respuesta);
+                break;
 
 
 
@@ -705,6 +1335,27 @@ class SolicitudController extends Controller
                             case 1:
                                 $nombre_archivo = uniqid('solicitud_', true) . '.' . $archivo->getClientOriginalExtension();
                                 break;
+                            case 2:
+                                $nombre_archivo = uniqid('dirigido_psicologia_', true) . '.' . $archivo->getClientOriginalExtension();
+                                break;
+                            case 3:
+                                $nombre_archivo = uniqid('dirigido_trabajo_social_', true) . '.' . $archivo->getClientOriginalExtension();
+                                break;
+                            case 4:
+                                $nombre_archivo = uniqid('dirigido_otro_trabajo_', true) . '.' . $archivo->getClientOriginalExtension();
+                                break;
+                            case 5:
+                                $nombre_archivo = uniqid('complementario_trabajo_solicitado_', true) . '.' . $archivo->getClientOriginalExtension();
+                                break;
+                            case 6:
+                                $nombre_archivo = uniqid('plazo_psicologico_', true) . '.' . $archivo->getClientOriginalExtension();
+                                break;
+                            case 7:
+                                $nombre_archivo = uniqid('plazo_social_', true) . '.' . $archivo->getClientOriginalExtension();
+                                break;
+                            case 8:
+                                $nombre_archivo = uniqid('plazo_complementario_', true) . '.' . $archivo->getClientOriginalExtension();
+                                break;
                             default:
                                 # code...
                                 break;
@@ -721,6 +1372,34 @@ class SolicitudController extends Controller
                                 $iu->solicitud_estado_pdf    = 2;
                                 $iu->solicitud_documento_pdf = $nombre_archivo;
                                 break;
+                            case 2:
+                                $iu->dirigido_psicologia_estado_pdf  = 2;
+                                $iu->dirigido_psicologia_archivo_pdf = $nombre_archivo;
+                                break;
+                            case 3:
+                                $iu->dirigido_trabajo_social_estado_pdf  = 2;
+                                $iu->dirigido_trabajo_social_archivo_pdf = $nombre_archivo;
+                                break;
+                            case 4:
+                                $iu->dirigido_otro_trabajo_estado_pdf  = 2;
+                                $iu->dirigido_otro_trabajo_archivo_pdf = $nombre_archivo;
+                                break;
+                            case 5:
+                                $iu->complementario_trabajo_solicitado_estado_pdf  = 2;
+                                $iu->complementario_trabajo_solicitado_archivo_pdf = $nombre_archivo;
+                                break;
+                            case 6:
+                                $iu->plazo_psicologico_estado_pdf  = 2;
+                                $iu->plazo_psicologico_archivo_pdf = $nombre_archivo;
+                                break;
+                            case 7:
+                                $iu->plazo_social_estado_pdf  = 2;
+                                $iu->plazo_social_archivo_pdf = $nombre_archivo;
+                                break;
+                            case 8:
+                                $iu->plazo_complementario_estado_pdf  = 2;
+                                $iu->plazo_complementario_archivo_pdf = $nombre_archivo;
+                                break;
                             default:
                                 # code...
                                 break;
@@ -734,9 +1413,517 @@ class SolicitudController extends Controller
                 return json_encode($respuesta);
                 break;
 
+            // === DELITO - INSERT UPDATE ===
+            case '21':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>DELITO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'solicitud_id' => 'required',
+                            'delito_id'    => 'required'
+                        ],
+                        [
+                            'solicitud_id.required' => 'MEDIDAS DE PROTECCION debe de existir.',
+                            'delito_id.required'    => 'El campo DELITO es obligatorio.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['solicitud_id'] = trim($request->input('solicitud_id'));
+                    $data1['delito_id']    = trim($request->input('delito_id'));
+                    $data1['tentativa']    = trim($request->input('tentativa'));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                        $consulta1 = PvtSolicitudDelito::where('solicitud_id', '=', $data1['solicitud_id'])->where('delito_id', '=', $data1['delito_id'])->where('estado', '=', 1)->count();
+                        if($consulta1 < 1)
+                        {
+                            $iu               = new PvtSolicitudDelito;
+                            $iu->estado       = 1;
+                            $iu->solicitud_id = $data1['solicitud_id'];
+                            $iu->delito_id    = $data1['delito_id'];
+                            if($data1['tentativa'] != "")
+                            {
+                                $iu->tentativa    = $data1['tentativa'];
+                            }
+                            $iu->save();
+
+                            $respuesta['respuesta'] .= "El DELITO fue registrada con éxito.";
+                            $respuesta['sw']         = 1;
+
+                            $tabla1 = "pvt_solicitudes_delitos";
+                            $tabla2 = "pvt_delitos";
+
+                            $select = "
+                                $tabla1.id,
+
+                                $tabla1.solicitud_id,
+                                $tabla1.delito_id,
+
+                                $tabla1.estado,
+                                $tabla1.tentativa,
+
+                                a2.nombre
+                            ";
+
+                            $where_concatenar = "$tabla1.solicitud_id=" . $data1['solicitud_id'] . " AND $tabla1.estado=1";
+
+                            $consulta2 = PvtSolicitudDelito::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.delito_id")
+                                ->whereRaw($where_concatenar)
+                                ->select(DB::raw($select))
+                                ->get()
+                                ->toArray();
+
+                            $delitos = "";
+                            foreach($consulta2 as $row2)
+                            {
+                                if($delitos == "")
+                                {
+                                    $delitos .= $row2["nombre"];
+                                }
+                                else
+                                {
+                                    $delitos .= "||" . $row2["nombre"];
+                                }
+                            }
+
+                            $iu          = PvtSolicitud::find($data1['solicitud_id']);
+                            $iu->delitos = $delitos;
+                            $iu->save();
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El DELITO ya fue registrada.";
+                        }
+                    }
+                    else
+                    {
+                        $iu               = PvtSolicitudDelito::find($id);
+                        $iu->solicitud_id = $data1['solicitud_id'];
+                        $iu->delito_id    = $data1['delito_id'];
+                        $iu->tentativa    = $data1['tentativa'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "El DELITO se edito con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+                    }
+                return json_encode($respuesta);
+                break;
+            // === DELITO - DELETE ===
+            case '211':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ELIMINAR DELITO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('solicitud_delito_id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para ELIMINAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    $de = PvtSolicitudDelito::find($id);
+                    $de->delete();
+
+                    $respuesta['respuesta'] .= "El DELITO fue eliminado con éxito.";
+                    $respuesta['sw']         = 1;
+
+
+                    $tabla1 = "pvt_solicitudes_delitos";
+                    $tabla2 = "pvt_delitos";
+
+                    $select = "
+                        $tabla1.id,
+
+                        $tabla1.solicitud_id,
+                        $tabla1.delito_id,
+
+                        $tabla1.estado,
+                        $tabla1.tentativa,
+
+                        a2.nombre
+                    ";
+
+                    $where_concatenar = "$tabla1.solicitud_id=" . trim($request->input('solicitud_id')) . " AND $tabla1.estado=1";
+
+                    $consulta2 = PvtSolicitudDelito::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.delito_id")
+                        ->whereRaw($where_concatenar)
+                        ->select(DB::raw($select))
+                        ->get()
+                        ->toArray();
+
+                    $delitos = "";
+                    if(count($consulta2) > 0)
+                    {
+                        foreach($consulta2 as $row2)
+                        {
+                            if($delitos == "")
+                            {
+                                $delitos .= $row2["nombre"];
+                            }
+                            else
+                            {
+                                $delitos .= "||" . $row2["nombre"];
+                            }
+                        }
+                    }
+
+                    $iu          = PvtSolicitud::find(trim($request->input('solicitud_id')));
+                    $iu->delitos = $delitos;
+                    $iu->save();
+
+                return json_encode($respuesta);
+                break;
+            // === RECALIFICACION DEL DELITO - INSERT UPDATE ===
+            case '22':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>RECALIFICACION DEL DELITO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'solicitud_id' => 'required',
+                            'delito_id'    => 'required'
+                        ],
+                        [
+                            'solicitud_id.required' => 'MEDIDAS DE PROTECCION debe de existir.',
+                            'delito_id.required'    => 'El campo DELITO es obligatorio.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['solicitud_id'] = trim($request->input('solicitud_id'));
+                    $data1['delito_id']    = trim($request->input('delito_id'));
+                    $data1['tentativa']    = trim($request->input('tentativa'));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                        $consulta1 = PvtSolicitudDelito::where('solicitud_id', '=', $data1['solicitud_id'])->where('delito_id', '=', $data1['delito_id'])->where('estado', '=', 2)->count();
+                        if($consulta1 < 1)
+                        {
+                            $iu               = new PvtSolicitudDelito;
+                            $iu->estado       = 2;
+                            $iu->solicitud_id = $data1['solicitud_id'];
+                            $iu->delito_id    = $data1['delito_id'];
+                            if($data1['tentativa'] != "")
+                            {
+                                $iu->tentativa    = $data1['tentativa'];
+                            }
+                            $iu->save();
+
+                            $respuesta['respuesta'] .= "RECALIFICACION DEL DELITO fue registrada con éxito.";
+                            $respuesta['sw']         = 1;
+
+                            $tabla1 = "pvt_solicitudes_delitos";
+                            $tabla2 = "pvt_delitos";
+
+                            $select = "
+                                $tabla1.id,
+
+                                $tabla1.solicitud_id,
+                                $tabla1.delito_id,
+
+                                $tabla1.estado,
+                                $tabla1.tentativa,
+
+                                a2.nombre
+                            ";
+
+                            $where_concatenar = "$tabla1.solicitud_id=" . $data1['solicitud_id'] . " AND $tabla1.estado=2";
+
+                            $consulta2 = PvtSolicitudDelito::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.delito_id")
+                                ->whereRaw($where_concatenar)
+                                ->select(DB::raw($select))
+                                ->get()
+                                ->toArray();
+
+                            $delitos = "";
+                            foreach($consulta2 as $row2)
+                            {
+                                if($delitos == "")
+                                {
+                                    $delitos .= $row2["nombre"];
+                                }
+                                else
+                                {
+                                    $delitos .= "||" . $row2["nombre"];
+                                }
+                            }
+
+                            $iu                         = PvtSolicitud::find($data1['solicitud_id']);
+                            $iu->recalificacion_delitos = $delitos;
+                            $iu->save();
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "RECALIFICACION DEL DELITO ya fue registrada.";
+                        }
+                    }
+                    else
+                    {
+                        $iu               = PvtSolicitudDelito::find($id);
+                        $iu->solicitud_id = $data1['solicitud_id'];
+                        $iu->delito_id    = $data1['delito_id'];
+                        $iu->tentativa    = $data1['tentativa'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "El DELITO se edito con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+                    }
+                return json_encode($respuesta);
+                break;
+            // === RECALIFICACION DEL DELITO - DELETE ===
+            case '221':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ELIMINAR RECALIFICACION DEL DELITO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('solicitud_delito_id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para ELIMINAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    $de = PvtSolicitudDelito::find($id);
+                    $de->delete();
+
+                    $respuesta['respuesta'] .= "RECALIFICACION DEL DELITO fue eliminado con éxito.";
+                    $respuesta['sw']         = 1;
+
+
+                    $tabla1 = "pvt_solicitudes_delitos";
+                    $tabla2 = "pvt_delitos";
+
+                    $select = "
+                        $tabla1.id,
+
+                        $tabla1.solicitud_id,
+                        $tabla1.delito_id,
+
+                        $tabla1.estado,
+                        $tabla1.tentativa,
+
+                        a2.nombre
+                    ";
+
+                    $where_concatenar = "$tabla1.solicitud_id=" . trim($request->input('solicitud_id')) . " AND $tabla1.estado=2";
+
+                    $consulta2 = PvtSolicitudDelito::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.delito_id")
+                        ->whereRaw($where_concatenar)
+                        ->select(DB::raw($select))
+                        ->get()
+                        ->toArray();
+
+                    $delitos = "";
+                    if(count($consulta2) > 0)
+                    {
+                        foreach($consulta2 as $row2)
+                        {
+                            if($delitos == "")
+                            {
+                                $delitos .= $row2["nombre"];
+                            }
+                            else
+                            {
+                                $delitos .= "||" . $row2["nombre"];
+                            }
+                        }
+                    }
+
+                    $iu                         = PvtSolicitud::find(trim($request->input('solicitud_id')));
+                    $iu->recalificacion_delitos = $delitos;
+                    $iu->save();
+
+                return json_encode($respuesta);
+                break;
+
             // === SELECT2 PERSONA ===
             case '100':
-
                 if($request->has('q'))
                 {
                     $nombre     = $request->input('q');
@@ -765,7 +1952,6 @@ class SolicitudController extends Controller
                 break;
             // === SELECT2 DEPARTAMENTO, PROVINCIA Y MUNICIPIO ===
             case '101':
-
                 if($request->has('q'))
                 {
                     $nombre     = $request->input('q');
@@ -797,6 +1983,169 @@ class SolicitudController extends Controller
                     //     return json_encode(array("id"=>"0","text"=>"No se encontraron resultados"));
                     // }
                 }
+                break;
+            // === SELECT2 DELITOS ===
+            case '102':
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = PvtDelito::whereRaw("nombre ilike '%$nombre%'")
+                        ->where("estado", "=", $estado)
+                        ->select(DB::raw("id, nombre AS text"))
+                        ->orderByRaw("nombre ASC")
+                        ->limit($page_limit)
+                        ->get()
+                        ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private function utilitarios($valor)
+    {
+        switch($valor['tipo'])
+        {
+            case '1':
+                switch($valor['estado_pdf'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->estado_pdf[$valor['estado_pdf']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<button class="btn btn-xs btn-primary" onclick="utilitarios([80, ' . $valor['id'] . ', ' . $valor['tipo_pdf'] . ']);" title="Clic para ver documento">
+                            <strong>' . $this->estado_pdf[$valor['estado_pdf']] . '</strong>
+                        </button>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '2':
+                switch($valor['cerrado_abierto'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->cerrado_abierto[$valor['cerrado_abierto']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<span class="label label-primary font-sm">' . $this->cerrado_abierto[$valor['cerrado_abierto']] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '3':
+                switch($valor['documento_sw'])
+                {
+                    case '1':
+                        $respuesta = '<button class="btn btn-xs btn-danger" onclick="utilitarios([19, ' . $valor['id'] . ', \'' . $valor['ci_nombre'] . '\']);" title="Clic para subir documento">
+                            <i class="fa fa-upload"></i>
+                            <strong>' . $this->documento_sw[$valor['documento_sw']] . '</strong>
+                        </button>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<button class="btn btn-xs btn-primary" onclick="utilitarios([19, ' . $valor['id'] . ']);" title="Clic para remplazar el documento">
+                            <i class="fa fa-upload"></i>
+                            <strong>' . $this->documento_sw[$valor['documento_sw']] . '</strong>
+                        </button>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '4':
+                switch($valor['acefalia'])
+                {
+                    case '1':
+                        $respuesta = $this->acefalia[$valor['acefalia']];
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = $this->acefalia[$valor['acefalia']];
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '5':
+                switch($valor['documento_sw'])
+                {
+                    case '1':
+                        $respuesta = $this->documento_sw[$valor['documento_sw']];
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = $this->documento_sw[$valor['documento_sw']];
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+
+            case '10':
+                $organigrama_array = [];
+                $consulta1 = InstCargo::leftJoin("inst_tipos_cargo AS a2", "a2.id", "=", "inst_cargos.tipo_cargo_id")
+                    ->where("inst_cargos.estado", "=", 1)
+                    ->where("inst_cargos.cargo_id", "=", $valor['cargo_id'])
+                    ->select('inst_cargos.id', 'inst_cargos.tipo_cargo_id', 'inst_cargos.item_contrato', 'inst_cargos.nombre', 'inst_cargos.acefalia', 'a2.nombre AS tipo_cargo')
+                    ->orderBy("inst_cargos.nombre")
+                    ->get()
+                    ->toArray();
+
+                if(count($consulta1) > 0)
+                {
+                    foreach ($consulta1 as $row1)
+                    {
+                        if($row1['tipo_cargo_id'] == 1)
+                        {
+                            $name = $row1['tipo_cargo'] . ' ' . $row1['item_contrato'] . ' - ¿ACEFALO? ' . $this->acefalia[$row1['acefalia']];
+                        }
+                        else
+                        {
+                            $name = $row1['tipo_cargo'] . ' - ¿ACEFALO? ' . $this->acefalia[$row1['acefalia']];
+                        }
+                        $organigrama_array[] = [
+
+                            'name'     => $name,
+                            'title'    => $row1['nombre'],
+                            'children' => $this->utilitarios(['tipo' => '10', 'cargo_id' => $row1['id']])
+                        ];
+                    }
+                }
+                return $organigrama_array;
                 break;
             default:
                 break;

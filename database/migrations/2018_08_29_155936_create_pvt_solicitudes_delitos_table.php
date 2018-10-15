@@ -31,7 +31,7 @@ class CreatePvtSolicitudesDelitosTable extends Migration
 
             $table->foreign('delito_id')
                 ->references('id')
-                ->on('pvt_solicitudes')
+                ->on('pvt_delitos')
                 ->onDelete('cascade');
         });
     }

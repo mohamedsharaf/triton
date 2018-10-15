@@ -1,18 +1,5 @@
 <script>
     // === PLUGINS ===
-        // $.fn.steps.reset = function () {
-        //     var wizard = this,
-        //     options    = getOptions(this),
-        //     state      = getState(this);
-        //     goToStep(wizard, options, state, 0);
-
-        //     for (i = 1; i < state.stepCount; i++) {
-        //         var stepAnchor = getStepAnchor(wizard, i);
-        //         stepAnchor.parent().removeClass("done")._enableAria(false);
-        //     }
-        // };
-
-        // $.fn.steps.reset=function(){var wizard=this,options=getOptions(this),state=getState(this);goToStep(wizard,options,state,0);for(i=1;i<state.stepCount;i++){var stepAnchor=getStepAnchor(wizard, i);stepAnchor.parent().removeClass("done")._enableAria(false);}};
 
     // === CONSTANTES NO TOCAR ===
         var options1 = {
@@ -31,6 +18,7 @@
             "showMethod"       : "fadeIn",
             "hideMethod"       : "fadeOut"
         };
+
     // === VARIABLES GLOBALES ===
         var base_url       = "{!! url('') !!}";
         var url_controller = "{!! url('/solicitud_dpvt') !!}";
@@ -241,18 +229,18 @@
 
                                 concatenar_valores += "tipo=1&_token=" + csrf_token;
 
-                                var id                     = $("#solicitud_id").val();
-                                var gestion                = $("#gestion").val();
-                                var solicitante            = $("#solicitante").val();
-                                var persona_id_solicitante = $("#persona_id_solicitante").val();
-                                var municipio_id           = $("#municipio_id").val();
-                                var f_solicitud            = $("#f_solicitud").val();
-                                var n_caso                 = $("#n_caso").val();
-                                var etapa_proceso          = $("#etapa_proceso").val();
-                                var denunciante            = $("#denunciante").val();
-                                var denunciado             = $("#denunciado").val();
-                                var victima                = $("#victima").val();
-                                var persona_protegida      = $("#persona_protegida").val();
+                                var id                 = $("#solicitud_id").val();
+                                var gestion            = $("#gestion").val();
+                                var solicitante        = $("#solicitante").val();
+                                var nombre_solicitante = $("#nombre_solicitante").val();
+                                var municipio_id       = $("#municipio_id").val();
+                                var f_solicitud        = $("#f_solicitud").val();
+                                var n_caso             = $("#n_caso").val();
+                                var etapa_proceso      = $("#etapa_proceso").val();
+                                var denunciante        = $("#denunciante").val();
+                                var denunciado         = $("#denunciado").val();
+                                var victima            = $("#victima").val();
+                                var persona_protegida  = $("#persona_protegida").val();
 
                                 var valor_sw    = true;
                                 var valor_error = '';
@@ -267,7 +255,8 @@
 
                                 concatenar_valores += '&id=' + id;
                                 concatenar_valores += '&solicitante=' + solicitante;
-                                concatenar_valores += '&persona_id_solicitante=' + persona_id_solicitante;
+                                // concatenar_valores += '&persona_id_solicitante=' + persona_id_solicitante;
+                                concatenar_valores += '&nombre_solicitante=' + nombre_solicitante;
                                 concatenar_valores += '&municipio_id=' + municipio_id;
                                 concatenar_valores += '&f_solicitud=' + f_solicitud;
                                 concatenar_valores += '&n_caso=' + n_caso;
@@ -317,17 +306,17 @@
                         case 1:
                             var concatenar_valores = '';
 
-                            concatenar_valores += '?tipo=2';
+                            concatenar_valores += "tipo=2&_token=" + csrf_token;
 
                             var id                       = $("#solicitud_id").val();
                             var usuario_tipo             = $("#usuario_tipo").val();
                             var usuario_tipo_descripcion = $("#usuario_tipo_descripcion").val();
-                            var usuario_nombre           = $("#usuario_nombre").val();
+                            var persona_id_usuario       = $("#persona_id_usuario").val();
                             var usuario_sexo             = $(".usuario_sexo_class:checked").val();
                             var usuario_celular          = $("#usuario_celular").val();
                             var usuario_domicilio        = $("#usuario_domicilio").val();
                             var usuario_otra_referencia  = $("#usuario_otra_referencia").val();
-                            var usuario_edad             = $(".usuario_edad:checked").val();
+                            var usuario_edad             = $(".usuario_edad_class:checked").val();
 
                             var valor_sw    = true;
                             var valor_error = '';
@@ -335,7 +324,7 @@
                             concatenar_valores += '&id=' + id;
                             concatenar_valores += '&usuario_tipo=' + usuario_tipo;
                             concatenar_valores += '&usuario_tipo_descripcion=' + usuario_tipo_descripcion;
-                            concatenar_valores += '&usuario_nombre=' + usuario_nombre;
+                            concatenar_valores += '&persona_id_usuario=' + persona_id_usuario;
                             concatenar_valores += '&usuario_sexo=' + usuario_sexo;
                             concatenar_valores += '&usuario_celular=' + usuario_celular;
                             concatenar_valores += '&usuario_domicilio=' + usuario_domicilio;
@@ -343,7 +332,25 @@
                             concatenar_valores += '&usuario_edad=' + usuario_edad;
 
                             if(valor_sw){
-                                return true;
+                                swal({
+                                    title             : "ENVIANDO INFORMACIÓN",
+                                    text              : "Espere a que guarde la información.",
+                                    allowEscapeKey    : false,
+                                    showConfirmButton : false,
+                                    type              : "info"
+                                });
+                                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                                var valor1    = new Array();
+                                valor1[0]     = 150;
+                                valor1[1]     = url_controller + '/send_ajax';
+                                valor1[2]     = 'POST';
+                                valor1[3]     = false;
+                                valor1[4]     = concatenar_valores;
+                                valor1[5]     = 'json';
+                                var respuesta = utilitarios(valor1);
+
+                                return respuesta;
                             }
                             else{
                                 var valor1 = new Array();
@@ -359,7 +366,7 @@
                         case 2:
                             var concatenar_valores = '';
 
-                            concatenar_valores += '?tipo=3';
+                            concatenar_valores += "tipo=3&_token=" + csrf_token;
 
                             var id                        = $("#solicitud_id").val();
                             var dirigido_a_psicologia     = $("#dirigido_a_psicologia").val();
@@ -381,7 +388,25 @@
                             concatenar_valores += '&dirigido_otro_trabajo=' + dirigido_otro_trabajo;
 
                             if(valor_sw){
-                                return true;
+                                swal({
+                                    title             : "ENVIANDO INFORMACIÓN",
+                                    text              : "Espere a que guarde la información.",
+                                    allowEscapeKey    : false,
+                                    showConfirmButton : false,
+                                    type              : "info"
+                                });
+                                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                                var valor1    = new Array();
+                                valor1[0]     = 150;
+                                valor1[1]     = url_controller + '/send_ajax';
+                                valor1[2]     = 'POST';
+                                valor1[3]     = false;
+                                valor1[4]     = concatenar_valores;
+                                valor1[5]     = 'json';
+                                var respuesta = utilitarios(valor1);
+
+                                return respuesta;
                             }
                             else{
                                 var valor1 = new Array();
@@ -397,7 +422,7 @@
                         case 3:
                             var concatenar_valores = '';
 
-                            concatenar_valores += '?tipo=4';
+                            concatenar_valores += "tipo=4&_token=" + csrf_token;
 
                             var id                                = $("#solicitud_id").val();
                             var estado                            = $("#estado").val();
@@ -413,7 +438,25 @@
                             concatenar_valores += '&complementario_trabajo_solicitado=' + complementario_trabajo_solicitado;
 
                             if(valor_sw){
-                                return true;
+                                swal({
+                                    title             : "ENVIANDO INFORMACIÓN",
+                                    text              : "Espere a que guarde la información.",
+                                    allowEscapeKey    : false,
+                                    showConfirmButton : false,
+                                    type              : "info"
+                                });
+                                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                                var valor1    = new Array();
+                                valor1[0]     = 150;
+                                valor1[1]     = url_controller + '/send_ajax';
+                                valor1[2]     = 'POST';
+                                valor1[3]     = false;
+                                valor1[4]     = concatenar_valores;
+                                valor1[5]     = 'json';
+                                var respuesta = utilitarios(valor1);
+
+                                return respuesta;
                             }
                             else{
                                 var valor1 = new Array();
@@ -429,7 +472,7 @@
                         case 4:
                             var concatenar_valores = '';
 
-                            concatenar_valores += '?tipo=5';
+                            concatenar_valores += "tipo=5&_token=" + csrf_token;
 
                             var id                                      = $("#solicitud_id").val();
                             var plazo_fecha_solicitud                   = $("#plazo_fecha_solicitud").val();
@@ -453,7 +496,28 @@
                             concatenar_valores += '&plazo_complementario_fecha=' + plazo_complementario_fecha;
 
                             if(valor_sw){
-                                return true;
+                                swal({
+                                    title             : "ENVIANDO INFORMACIÓN",
+                                    text              : "Espere a que guarde la información.",
+                                    allowEscapeKey    : false,
+                                    showConfirmButton : false,
+                                    type              : "info"
+                                });
+                                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                                var valor1    = new Array();
+                                valor1[0]     = 150;
+                                valor1[1]     = url_controller + '/send_ajax';
+                                valor1[2]     = 'POST';
+                                valor1[3]     = false;
+                                valor1[4]     = concatenar_valores;
+                                valor1[5]     = 'json';
+                                var respuesta = utilitarios(valor1);
+
+                                setTimeout(function(){
+                                    $(jqgrid4).jqGrid('setGridWidth', $("#div_jqgrid4").width());
+                                }, 300);
+                                return respuesta;
                             }
                             else{
                                 var valor1 = new Array();
@@ -557,7 +621,7 @@
             $("#resolucion_tipo_disposicion").appendTo("#resolucion_tipo_disposicion_div");
             $("#resolucion_medidas_proteccion").appendTo("#resolucion_medidas_proteccion_div");
 
-            $('#persona_id_solicitante').select2({
+            $('#persona_id_usuario').select2({
                 maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -580,7 +644,7 @@
                     }
                 }
             });
-            $("#persona_id_solicitante").appendTo("#persona_id_solicitante_div");
+            $("#persona_id_usuario").appendTo("#persona_id_usuario_div");
 
             $('#municipio_id').select2({
                 maximumSelectionLength: 1,
@@ -631,9 +695,10 @@
                 }
             });
             $("#delito_id").appendTo("#delito_id_div");
+            $("#delito_id_r").appendTo("#delito_id_r_div");
 
         //=== datepicker3 ===
-            $('#f_solicitud, #plazo_fecha_solicitud, #plazo_fecha_recepcion, #plazo_fecha_entrega_digital, #plazo_fecha_entrega_fisico, #plazo_psicologico_fecha, #plazo_social_fecha, #plazo_complementario_fecha, #fecha_inicio, #fecha_entrega_digital, #fecha_entrega_fisico, #informe_seguimiento_fecha, #complementario_fecha, #resolucion_fecha_emision').datepicker({
+            $('#f_solicitud, #plazo_fecha_solicitud, #plazo_fecha_recepcion, #plazo_psicologico_fecha_entrega_digital, #plazo_psicologico_fecha_entrega_fisico, #plazo_psicologico_fecha, #plazo_social_fecha_entrega_digital, #plazo_social_fecha_entrega_fisico, #plazo_complementario_fecha, #fecha_inicio, #fecha_entrega_digital, #fecha_entrega_fisico, #informe_seguimiento_fecha, #complementario_fecha, #resolucion_fecha_emision').datepicker({
                 startView            : 2,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -661,7 +726,7 @@
             valor1[2]  = "file2";
             valor1[3]  = 11;
             valor1[4]  = 2;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[5]  = "dirigido_psicologia_archivo_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
@@ -670,7 +735,7 @@
             valor1[2]  = "file3";
             valor1[3]  = 11;
             valor1[4]  = 3;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[5]  = "dirigido_trabajo_social_archivo_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
@@ -679,7 +744,7 @@
             valor1[2]  = "file4";
             valor1[3]  = 11;
             valor1[4]  = 4;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[5]  = "dirigido_otro_trabajo_archivo_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
@@ -688,7 +753,7 @@
             valor1[2]  = "file5";
             valor1[3]  = 11;
             valor1[4]  = 5;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[5]  = "complementario_trabajo_solicitado_archivo_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
@@ -697,7 +762,7 @@
             valor1[2]  = "file6";
             valor1[3]  = 11;
             valor1[4]  = 6;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[5]  = "plazo_psicologico_archivo_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
@@ -706,7 +771,7 @@
             valor1[2]  = "file7";
             valor1[3]  = 11;
             valor1[4]  = 7;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[5]  = "plazo_social_archivo_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
@@ -715,11 +780,11 @@
             valor1[2]  = "file8";
             valor1[3]  = 11;
             valor1[4]  = 8;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[5]  = "plazo_complementario_archivo_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 51;
+            valor1[0]  = 52;
             valor1[1]  = "#dropzone_9";
             valor1[2]  = "file9";
             valor1[3]  = 11;
@@ -728,7 +793,7 @@
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 51;
+            valor1[0]  = 52;
             valor1[1]  = "#dropzone_10";
             valor1[2]  = "file10";
             valor1[3]  = 11;
@@ -737,7 +802,7 @@
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 51;
+            valor1[0]  = 52;
             valor1[1]  = "#dropzone_11";
             valor1[2]  = "file11";
             valor1[3]  = 11;
@@ -746,13 +811,29 @@
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 51;
+            valor1[0]  = 52;
             valor1[1]  = "#dropzone_12";
             valor1[2]  = "file12";
             valor1[3]  = 11;
             valor1[4]  = 12;
             valor1[5]  = "solicitud_estado_pdf";
             utilitarios(valor1);
+
+        // === CHANGE SELECT GESTION ===
+            $("#anio_filter").on("change", function(){
+                if(this.value != ''){
+                    $(jqgrid1).jqGrid('setGridParam',{
+                        url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1&anio_filter=' + this.value,
+                        datatype: 'json'
+                    }).trigger('reloadGrid');
+                }
+                else{
+                    $(jqgrid1).jqGrid('setGridParam',{
+                        url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                        datatype: 'json'
+                    }).trigger('reloadGrid');
+                }
+            });
 
         // === JQGRID ===
             var valor1 = new Array();
@@ -849,16 +930,11 @@
                 $("#solicitud_id").val(valor[1]);
 
                 // === SOLICITUD ===
-
                     $("#gestion").select2("val", ret.gestion);
                     $("#gestion").select2("enable", false);
                     $("#solicitante").select2("val", val_json.solicitante);
-                    if(ret.n_documento != ""){
-                        var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre_persona;
-
-                        $('#persona_id_solicitante').append('<option value="' + val_json.persona_id_solicitante + '">' + persona + '</option>');
-                        $("#persona_id_solicitante").select2("val", val_json.persona_id_solicitante);
-                    }
+                    $("#solicitante").select2("val", val_json.solicitante);
+                    $("#nombre_solicitante").val(ret.nombre_solicitante);
                     if(ret.municipio != ""){
                         var dpm = ret.departamento + ', ' + ret.provincia + ', ' + ret.municipio;
                         $('#municipio_id').append('<option value="' + val_json.municipio_id + '">' + dpm + '</option>');
@@ -873,60 +949,98 @@
                     $("#victima").val(ret.victima);
                     $("#persona_protegida").val(ret.persona_protegida);
 
-                // $('#modal_1_title').empty();
+                // === USUARIO ===
+                    $("#usuario_tipo").select2("val", val_json.usuario_tipo);
+                    $("#usuario_tipo_descripcion").val(val_json.usuario_tipo_descripcion);
+                    if(val_json.n_documento != "null"){
+                        var persona = val_json.n_documento + ' - ' + $.trim(val_json.ap_paterno + ' ' +  val_json.ap_materno) + ' ' + val_json.nombre_persona;
 
-                // if(val_json.funcionario_id == null){
-                //     $('#modal_1_title').append('Agregar información del funcionario con ' + ret.tipo_cargo);
-                // }
-                // else{
-                //     $('#modal_1_title').append('Modificar información del funcionario con ' + ret.tipo_cargo);
-                // }
+                        $('#persona_id_usuario').append('<option value="' + val_json.persona_id_usuario + '">' + persona + '</option>');
+                        $("#persona_id_usuario").select2("val", val_json.persona_id_usuario);
+                    }
+                    if(val_json.usuario_sexo != "null"){
+                        $(".usuario_sexo_class[value=" + val_json.usuario_sexo + "]").prop('checked', true);
+                    }
 
-                // $("#id_funcionario").val(val_json.funcionario_id);
-                // $("#cargo_id").val(valor[1]);
-                // $("#tipo_cargo_id").val(val_json.tipo_cargo_id);
+                    $("#usuario_celular").val(val_json.usuario_celular);
+                    $("#usuario_domicilio").val(val_json.usuario_domicilio);
+                    $("#usuario_otra_referencia").val(val_json.usuario_otra_referencia);
+                    if(val_json.usuario_edad != "null"){
+                        $(".usuario_edad_class[value=" + val_json.usuario_edad + "]").prop('checked', true);
+                    }
 
-                // if(val_json.situacion != ''){
-                //     $(".situacion_class[value=" + val_json.situacion + "]").prop('checked', true);
-                // }
+                // === SOLICITUD DE TRABAJO ===
+                    if(val_json.dirigido_a_psicologia != null){
+                        var dirigido_a_psicologia       = val_json.dirigido_a_psicologia;
+                        var dirigido_a_psicologia_array = dirigido_a_psicologia.split(",");
+                        $("#dirigido_a_psicologia").select2().val(dirigido_a_psicologia_array).trigger("change");
+                    }
+                    if(val_json.dirigido_psicologia != null){
+                        var dirigido_psicologia       = val_json.dirigido_psicologia;
+                        var dirigido_psicologia_array = dirigido_psicologia.split(",");
+                        $("#dirigido_psicologia").select2().val(dirigido_psicologia_array).trigger("change");
+                    }
 
-                // if(ret.n_documento != ""){
-                //     var persona = ret.n_documento + ' - ' + $.trim(ret.ap_paterno + ' ' +  ret.ap_materno) + ' ' + ret.nombre_persona;
+                    if(val_json.dirigido_a_trabajo_social != null){
+                        var dirigido_a_trabajo_social       = val_json.dirigido_a_trabajo_social;
+                        var dirigido_a_trabajo_social_array = dirigido_a_trabajo_social.split(",");
+                        $("#dirigido_a_trabajo_social").select2().val(dirigido_a_trabajo_social_array).trigger("change");
+                    }
+                    if(val_json.dirigido_trabajo_social != null){
+                        var dirigido_trabajo_social       = val_json.dirigido_trabajo_social;
+                        var dirigido_trabajo_social_array = dirigido_trabajo_social.split(",");
+                        $("#dirigido_trabajo_social").select2().val(dirigido_trabajo_social_array).trigger("change");
+                    }
 
-                //     $('#persona_id').append('<option value="' + val_json.persona_id + '">' + persona + '</option>');
-                //     $("#persona_id").select2("val", val_json.persona_id);
-                // }
+                    if(val_json.dirigido_a_otro_trabajo != null){
+                        var dirigido_a_otro_trabajo       = val_json.dirigido_a_otro_trabajo;
+                        var dirigido_a_otro_trabajo_array = dirigido_a_otro_trabajo.split(",");
+                        $("#dirigido_a_otro_trabajo").select2().val(dirigido_a_otro_trabajo_array).trigger("change");
+                    }
+                    $("#dirigido_otro_trabajo").val(val_json.dirigido_otro_trabajo);
 
-                // $("#f_ingreso").val(ret.f_ingreso);
-                // $("#f_salida").val(ret.f_salida);
-                // $("#sueldo").val(ret.sueldo);
-                // $("#observaciones").val(ret.observaciones);
+                // === SOLICITUD TRABAJO COMPLEMENTARIO ===
+                    $("#estado").select2("val", val_json.estado);
+                    if(val_json.complementario_dirigido_a != null){
+                        var complementario_dirigido_a       = val_json.complementario_dirigido_a;
+                        var complementario_dirigido_a_array = complementario_dirigido_a.split(",");
+                        $("#complementario_dirigido_a").select2().val(complementario_dirigido_a_array).trigger("change");
+                    }
+                    $("#complementario_trabajo_solicitado").val(val_json.complementario_trabajo_solicitado);
 
-                // if(ret.lugar_dependencia_funcionario != ""){
-                //     $("#lugar_dependencia_id_funcionario").select2("val", val_json.lugar_dependencia_id_funcionario);
+                // === PRESENTACION DE INFORMES ===
+                    $("#plazo_fecha_solicitud").val(val_json.plazo_fecha_solicitud);
+                    $("#plazo_fecha_recepcion").val(val_json.plazo_fecha_recepcion);
+                    $("#plazo_psicologico_fecha_entrega_digital").val(val_json.plazo_psicologico_fecha_entrega_digital);
+                    $("#plazo_psicologico_fecha_entrega_fisico").val(val_json.plazo_psicologico_fecha_entrega_fisico);
+                    $("#plazo_social_fecha_entrega_digital").val(val_json.plazo_social_fecha_entrega_digital);
+                    $("#plazo_social_fecha_entrega_fisico").val(val_json.plazo_social_fecha_entrega_fisico);
+                    $("#plazo_complementario_fecha").val(val_json.plazo_complementario_fecha);
 
-                //     $("#unidad_desconcentrada_id").select2("val", val_json.unidad_desconcentrada_id);
+                var valor1 = new Array();
+                valor1[0]  = 31;
+                utilitarios(valor1);
 
-                //     $("#horario_id_1").select2("val", val_json.horario_id_1);
-                //     $("#horario_id_2").select2("val", val_json.horario_id_2);
-                // }
+                var valor1 = new Array();
+                valor1[0]  = 32;
+                utilitarios(valor1);
 
-                // if(ret.cargo != ""){
-                //     $("#lugar_dependencia_id_cargo").select2("val", val_json.lugar_dependencia_id_cargo);
-
-                //     $('#auo_id').append('<option value="' + val_json.auo_id + '">' + ret.auo_cargo + '</option>');
-                //     $("#auo_id").select2("val", val_json.auo_id);
-
-                //     $('#cargo_id_d').append('<option value="' + valor[1] + '">' + ret.cargo + '</option>');
-                //     $("#cargo_id_d").select2("val", valor[1]);
-                // }
-
-                // $("#lugar_dependencia_id_cargo").select2("enable", false);
-                // $("#auo_id").select2("enable", false);
-                // $("#cargo_id_d").select2("enable", false);
+                var valor1 = new Array();
+                valor1[0]  = 33;
+                utilitarios(valor1);
 
                 var valor1 = new Array();
                 valor1[0]  = 10;
+                utilitarios(valor1);
+
+                var valor1 = new Array();
+                valor1[0]  = 411;
+                valor1[1]  = valor[1];
+                utilitarios(valor1);
+
+                var valor1 = new Array();
+                valor1[0]  = 421;
+                valor1[1]  = valor[1];
                 utilitarios(valor1);
                 break;
 
@@ -940,38 +1054,69 @@
                     $('#gestion').select2("val", "");
                     $("#gestion").select2("enable", true);
                     $('#solicitante').select2("val", "");
-                    $('#persona_id_solicitante').select2("val", "");
-                    $('#persona_id_solicitante option').remove();
                     $('#municipio_id').select2("val", "");
                     $('#municipio_id option').remove();
 
                     $('#etapa_proceso').select2("val", "");
 
-                // $("#solicitud_id").val('');
+                // === USUARIO ===
+                    $('#usuario_tipo').select2("val", "");
+                    $('#persona_id_usuario').select2("val", "");
+                    $('#persona_id_usuario option').remove();
 
-                // $("#cargo_id").val('');
-                // $("#tipo_cargo_id").val('');
+                // === SOLICITUD DE TRABAJO ===
+                    $('#dirigido_a_psicologia').select2("val", "");
+                    $('#dirigido_psicologia').select2("val", "");
 
-                // $('#persona_id').select2("val", "");
-                // $('#persona_id option').remove();
+                    $('#dirigido_a_trabajo_social').select2("val", "");
+                    $('#dirigido_trabajo_social').select2("val", "");
 
-                // $('#lugar_dependencia_id_funcionario').select2("val", "");
+                    $('#dirigido_a_otro_trabajo').select2("val", "");
 
-                // $('#unidad_desconcentrada_id').select2("val", "");
-                // $('#unidad_desconcentrada_id option').remove();
-
-                // $('#lugar_dependencia_id_cargo').select2("val", "");
-
-                // $('#auo_id').select2("val", "");
-                // $('#auo_id option').remove();
-
-                // $('#cargo_id_d').select2("val", "");
-                // $('#cargo_id_d option').remove();
+                // === SOLICITUD TRABAJO COMPLEMENTARIO ===
+                    $('#estado').select2("val", "");
+                    $('#complementario_dirigido_a').select2("val", "");
 
                 $(form_1)[0].reset();
 
+                var valor1 = new Array();
+                valor1[0]  = 412;
+                utilitarios(valor1);
+
+                var valor1 = new Array();
+                valor1[0]  = 422;
+                utilitarios(valor1);
+
                 uso_step = false;
                 $(form_1).steps('reset');
+                break;
+            // === RESETEAR DELITO ===
+            case 31:
+                $('#delito_id').select2("val", "");
+                $('#delito_id option').remove();
+                $('#tentativa').prop('checked', false);
+                break;
+            // === RESETEAR RECALIFICACION DEL DELITO ===
+            case 32:
+                $('#delito_id_r').select2("val", "");
+                $('#delito_id_r option').remove();
+                $('#tentativa_r').prop('checked', false);
+                break;
+            // === RESOLUCIONES DEL MP Y SEGUIMIENTO ===
+            case 33:
+                $("#resolucion_id").val('');
+                $("#resolucion_descripcion").val('');
+                $("#resolucion_fecha_emision").val('');
+                $('#resolucion_tipo_disposicion').select2("val", "");
+                $('#resolucion_medidas_proteccion').select2("val", "");
+                $("#resolucion_otra_medidas_proteccion").val('');
+                $("#resolucion_instituciones_coadyuvantes").val('');
+
+                $("#fecha_inicio").val('');
+                $("#fecha_entrega_digital").val('');
+                $("#fecha_entrega_fisico").val('');
+                $("#informe_seguimiento_fecha").val('');
+                $("#complementario_fecha").val('');
                 break;
 
             // === JQGRID 1 ===
@@ -986,7 +1131,7 @@
 
                 $(jqgrid1).jqGrid({
                     // caption     : title_table,
-                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1&anio_filter=' + $("#anio_filter").val(),
                     datatype    : 'json',
                     mtype       : 'post',
                     height      : 'auto',
@@ -1016,10 +1161,7 @@
                         "CODIGO",
 
                         "SOLICITANTE",
-                        "C.I.",
-                        "NOMBRE(S)",
-                        "AP. PATERNO",
-                        "AP. MATERNO",
+                        "NOMBRE DEL SOLICITANTE",
                         "MUNICIPIO",
                         "PROVINCIA",
                         "DEPARTAMENTO",
@@ -1091,27 +1233,9 @@
                             editoptions: {value:solicitante_jqgrid}
                         },
                         {
-                            name : "n_documento",
-                            index: "a2.n_documento",
-                            width: 80,
-                            align: "right"
-                        },
-                        {
-                            name : "nombre_persona",
-                            index: "a2.nombre",
-                            width: 180,
-                            align: "center"
-                        },
-                        {
-                            name : "ap_paterno",
-                            index: "a2.ap_paterno",
-                            width: 150,
-                            align: "center"
-                        },
-                        {
-                            name : "ap_materno",
-                            index: "a2.ap_materno",
-                            width: 150,
+                            name : "nombre_solicitante",
+                            index: "pvt_solicitudes.nombre_solicitante",
+                            width: 300,
                             align: "center"
                         },
                         {
@@ -1236,11 +1360,6 @@
                     useColSpanStyle: true,
                     groupHeaders   :[
                         {
-                            startColumnName: 'n_documento',
-                            numberOfColumns: 4,
-                            titleText      : 'PERSONA SOLICITANTE'
-                        },
-                        {
                             startColumnName: 'municipio',
                             numberOfColumns: 3,
                             titleText      : 'UBICACION'
@@ -1275,6 +1394,18 @@
                             utilitarios(valor1);
 
                             var valor1 = new Array();
+                            valor1[0]  = 31;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 32;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 33;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
                             valor1[0]  = 10;
                             utilitarios(valor1);
                         }
@@ -1284,6 +1415,14 @@
                 break;
             // === JQGRID 2 ===
             case 41:
+                var edit1      = true;
+                var ancho1     = 5;
+                var ancho_d    = 29;
+                @if(in_array(['codigo' => '1903'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
                 $(jqgrid2).jqGrid({
                     caption     : '',
                     datatype    : 'local',
@@ -1292,7 +1431,7 @@
                     pager       : pjqgrid2,
                     rowNum      : 10,
                     rowList     : [10, 20, 30],
-                    sortname    : 'pvt_delitos.created_at',
+                    sortname    : 'pvt_solicitudes_delitos.created_at',
                     sortorder   : "desc",
                     viewrecords : true,
                     shrinkToFit : false,
@@ -1316,18 +1455,18 @@
                         {
                             name    : "act",
                             index   : "",
-                            width   : 34,
+                            width   : ancho1,
                             align   : "center",
                             fixed   : true,
                             sortable: false,
                             resize  : false,
                             search  : false,
-                            hidden  : false
+                            hidden  : edit1
                         },
                         {
                             name  : "nombre",
                             index : "pvt_delitos.nombre",
-                            width : 700,
+                            width : 1000,
                             align : "center"
                         },
                         {
@@ -1350,14 +1489,23 @@
                     ],
                     loadComplete: function(){
                         $("tr.jqgrow:odd").addClass('myAltRowClass');
+                    },
+                    gridComplete : function() {
+                        var ids = $(jqgrid2).jqGrid('getDataIDs');
+                        for(var i = 0; i < ids.length; i++){
+                            var cl       = ids[i];
+
+                            var del1 = "";
+                            @if(in_array(['codigo' => '1903'], $permisos))
+                                del1 = "<button type='button' class='btn btn-xs btn-danger' title='Eliminar fila' onclick=\"utilitarios([701, " + cl + "]);\"><i class='fa fa-trash'></i></button>";
+                            @endif
+
+                            $(jqgrid2).jqGrid('setRowData', ids[i], {
+                                act : $.trim(del1)
+                            });
+                        }
                     }
                 });
-
-                // $(jqgrid2).jqGrid('filterToolbar',{
-                //     searchOnEnter : true,
-                //     stringResult  : true,
-                //     defaultSearch : 'cn'
-                // });
 
                 $(jqgrid2).jqGrid('navGrid', pjqgrid2, {
                     edit  : false,
@@ -1370,8 +1518,29 @@
                 })
                 ;
                 break;
+            // === JQGRID 2 - RELOAD ===
+            case 411:
+                $(jqgrid2).jqGrid('setGridParam',{
+                    url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&solicitud_id=' + valor[1],
+                    datatype: 'json'
+                }).trigger('reloadGrid');
+                break;
+            // === JQGRID 2 - RELOAD SIN VALOR ===
+            case 412:
+                $(jqgrid2).jqGrid('setGridParam',{
+                    datatype: 'local'
+                }).trigger('reloadGrid');
+                break;
             // === JQGRID 3 ===
             case 42:
+                var edit1      = true;
+                var ancho1     = 5;
+                var ancho_d    = 29;
+                @if(in_array(['codigo' => '1903'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
                 $(jqgrid3).jqGrid({
                     caption     : '',
                     datatype    : 'local',
@@ -1380,7 +1549,7 @@
                     pager       : pjqgrid3,
                     rowNum      : 10,
                     rowList     : [10, 20, 30],
-                    sortname    : 'pvt_delitos.created_at',
+                    sortname    : 'pvt_solicitudes_delitos.created_at',
                     sortorder   : "desc",
                     viewrecords : true,
                     shrinkToFit : false,
@@ -1404,18 +1573,18 @@
                         {
                             name    : "act",
                             index   : "",
-                            width   : 34,
+                            width   : ancho1,
                             align   : "center",
                             fixed   : true,
                             sortable: false,
                             resize  : false,
                             search  : false,
-                            hidden  : false
+                            hidden  : edit1
                         },
                         {
                             name  : "nombre",
                             index : "pvt_delitos.nombre",
-                            width : 700,
+                            width : 1000,
                             align : "center"
                         },
                         {
@@ -1438,6 +1607,21 @@
                     ],
                     loadComplete: function(){
                         $("tr.jqgrow:odd").addClass('myAltRowClass');
+                    },
+                    gridComplete : function() {
+                        var ids = $(jqgrid3).jqGrid('getDataIDs');
+                        for(var i = 0; i < ids.length; i++){
+                            var cl       = ids[i];
+
+                            var del1 = "";
+                            @if(in_array(['codigo' => '1903'], $permisos))
+                                del1 = "<button type='button' class='btn btn-xs btn-danger' title='Eliminar fila' onclick=\"utilitarios([711, " + cl + "]);\"><i class='fa fa-trash'></i></button>";
+                            @endif
+
+                            $(jqgrid3).jqGrid('setRowData', ids[i], {
+                                act : $.trim(del1)
+                            });
+                        }
                     }
                 });
 
@@ -1451,6 +1635,19 @@
                     sepclass : "ui-separator"
                 })
                 ;
+                break;
+            // === JQGRID 3 - RELOAD ===
+            case 421:
+                $(jqgrid3).jqGrid('setGridParam',{
+                    url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=3&solicitud_id=' + valor[1],
+                    datatype: 'json'
+                }).trigger('reloadGrid');
+                break;
+            // === JQGRID 3 - RELOAD SIN VALOR ===
+            case 422:
+                $(jqgrid3).jqGrid('setGridParam',{
+                    datatype: 'local'
+                }).trigger('reloadGrid');
                 break;
             // === JQGRID 4 ===
             case 44:
@@ -1724,11 +1921,189 @@
 
             // === GUARDAR DELITO ===
             case 70:
-                alert("70");
+                var concatenar_valores = '';
+
+                concatenar_valores += "tipo=21&_token=" + csrf_token;
+
+                var solicitud_id = $("#solicitud_id").val();
+                var delito_id    = $("#delito_id").val();
+                var tentativa    = $("#tentativa:checked").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(solicitud_id) != ''){
+                    concatenar_valores += '&solicitud_id=' + solicitud_id;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>Debe de existir el codigo de la MEDIDAS DE PROTECCION para guardar el DELITO.';
+                }
+
+                if($.trim(delito_id) != ''){
+                    concatenar_valores += '&delito_id=' + delito_id;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo DELITO es obligatorio.';
+                }
+
+                if($.trim(tentativa) != ''){
+                    concatenar_valores += '&tentativa=' + tentativa;
+                }
+
+                if(valor_sw){
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1    = new Array();
+                    valor1[0]     = 150;
+                    valor1[1]     = url_controller + '/send_ajax';
+                    valor1[2]     = 'POST';
+                    valor1[3]     = false;
+                    valor1[4]     = concatenar_valores;
+                    valor1[5]     = 'json';
+                    var respuesta = utilitarios(valor1);
+
+                    return respuesta;
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+
+                    return false;
+                }
+                break;
+            // === ELIMINAR DELITO ===
+            case 701:
+                var concatenar_valores = '';
+
+                var ret      = $(jqgrid2).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                concatenar_valores += "tipo=211&_token=" + csrf_token + "&solicitud_delito_id=" + valor[1] + "&solicitud_id=" + val_json.solicitud_id;
+
+                swal({
+                    title             : "ENVIANDO INFORMACIÓN",
+                    text              : "Espere a que elimine la información.",
+                    allowEscapeKey    : false,
+                    showConfirmButton : false,
+                    type              : "info"
+                });
+                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                var valor1    = new Array();
+                valor1[0]     = 150;
+                valor1[1]     = url_controller + '/send_ajax';
+                valor1[2]     = 'POST';
+                valor1[3]     = false;
+                valor1[4]     = concatenar_valores;
+                valor1[5]     = 'json';
+                var respuesta = utilitarios(valor1);
+
+                return respuesta;
                 break;
             // === GUARDAR RECALIFICACION DEL DELITO ===
             case 71:
-                alert("71");
+                var concatenar_valores = '';
+
+                concatenar_valores += "tipo=22&_token=" + csrf_token;
+
+                var solicitud_id = $("#solicitud_id").val();
+                var delito_id    = $("#delito_id_r").val();
+                var tentativa    = $("#tentativa_r:checked").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(solicitud_id) != ''){
+                    concatenar_valores += '&solicitud_id=' + solicitud_id;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>Debe de existir el codigo de la MEDIDAS DE PROTECCION para guardar el DELITO.';
+                }
+
+                if($.trim(delito_id) != ''){
+                    concatenar_valores += '&delito_id=' + delito_id;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo DELITO es obligatorio.';
+                }
+
+                if($.trim(tentativa) != ''){
+                    concatenar_valores += '&tentativa=' + tentativa;
+                }
+
+                if(valor_sw){
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1    = new Array();
+                    valor1[0]     = 150;
+                    valor1[1]     = url_controller + '/send_ajax';
+                    valor1[2]     = 'POST';
+                    valor1[3]     = false;
+                    valor1[4]     = concatenar_valores;
+                    valor1[5]     = 'json';
+                    var respuesta = utilitarios(valor1);
+
+                    return respuesta;
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+
+                    return false;
+                }
+                break;
+            // === ELIMINAR RECALIFICACION DEL DELITO ===
+            case 711:
+                var concatenar_valores = '';
+
+                var ret      = $(jqgrid3).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                concatenar_valores += "tipo=221&_token=" + csrf_token + "&solicitud_delito_id=" + valor[1] + "&solicitud_id=" + val_json.solicitud_id;
+
+                swal({
+                    title             : "ENVIANDO INFORMACIÓN",
+                    text              : "Espere a que elimine la información.",
+                    allowEscapeKey    : false,
+                    showConfirmButton : false,
+                    type              : "info"
+                });
+                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                var valor1    = new Array();
+                valor1[0]     = 150;
+                valor1[1]     = url_controller + '/send_ajax';
+                valor1[2]     = 'POST';
+                valor1[3]     = false;
+                valor1[4]     = concatenar_valores;
+                valor1[5]     = 'json';
+                var respuesta = utilitarios(valor1);
+
+                return respuesta;
                 break;
 
             // === MENSAJE ERROR ===
@@ -1750,7 +2125,7 @@
                     dataType: valor[5],
                     success : function(data){
                         switch(data.tipo){
-                            // === INSERT UPDATE ===
+                            // === PASO 1 - INSERT UPDATE ===
                             case '1':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
@@ -1767,18 +2142,6 @@
 
                                         $('#modal_1_title').append(' - ' + data.codigo);
                                     }
-                                    // else if(data.iu === 2){
-                                    //     $('#modal_1').modal('hide');
-                                    // }
-
-                                    // if(data.iu === 1){
-                                    //     var valor1 = new Array();
-                                    //     valor1[0]  = 14;
-                                    //     utilitarios(valor1);
-                                    // }
-                                    // else if(data.iu === 2){
-                                    //     $('#modal_1').modal('hide');
-                                    // }
 
                                     respuesta_ajax = true;
                                 }
@@ -1808,7 +2171,7 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === VALIDAR PERSONA POR EL SEGIP ===
+                            // === PASO 2 - INSERT UPDATE ===
                             case '2':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
@@ -1818,13 +2181,28 @@
                                     utilitarios(valor1);
 
                                     $(jqgrid1).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
                                 }
                                 else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
                                 }
                                 else if(data.sw === 2){
                                     window.location.reload();
@@ -1832,7 +2210,7 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === CERTIFICACION SEGIP ===
+                            // === PASO 3 - INSERT UPDATE ===
                             case '3':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
@@ -1841,20 +2219,29 @@
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
 
-                                    $('#div_pdf').empty();
-                                    $('#div_pdf').append('<object id="object_pdf" data="data:application/pdf;base64,' + data.pdf + '" type="application/pdf" style="min-height:500px;width:100%"></object>');
+                                    $(jqgrid1).trigger("reloadGrid");
 
-                                    $('#modal_2').modal();
-                                    setTimeout(function(){
-                                        $("#object_pdf").css("height", $( window ).height()-150 + 'px');
-                                    }, 300);
+                                    respuesta_ajax = true;
                                 }
                                 else if(data.sw === 0){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 101;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
                                 }
                                 else if(data.sw === 2){
                                     window.location.reload();
@@ -1862,6 +2249,285 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
+                            // === PASO 4 - INSERT UPDATE ===
+                            case '4':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === PASO 5 - INSERT UPDATE ===
+                            case '5':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
+                            // === DELITO - INSERT UPDATE ===
+                            case '21':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                    $(jqgrid2).trigger("reloadGrid");
+
+                                    var valor1 = new Array();
+                                    valor1[0]  = 31;
+                                    utilitarios(valor1);
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === DELITO - ELIMINAR ===
+                            case '211':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                    $(jqgrid2).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
+                            // === RECALIFICACION DEL DELITO - INSERT UPDATE ===
+                            case '22':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                    $(jqgrid3).trigger("reloadGrid");
+
+                                    var valor1 = new Array();
+                                    valor1[0]  = 32;
+                                    utilitarios(valor1);
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === RECALIFICACION DEL DELITO - ELIMINAR ===
+                            case '221':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                    $(jqgrid3).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
+                            // === CERTIFICACION SEGIP ===
+                            // case '3':
+                            //     if(data.sw === 1){
+                            //         var valor1 = new Array();
+                            //         valor1[0]  = 100;
+                            //         valor1[1]  = data.titulo;
+                            //         valor1[2]  = data.respuesta;
+                            //         utilitarios(valor1);
+
+                            //         $('#div_pdf').empty();
+                            //         $('#div_pdf').append('<object id="object_pdf" data="data:application/pdf;base64,' + data.pdf + '" type="application/pdf" style="min-height:500px;width:100%"></object>');
+
+                            //         $('#modal_2').modal();
+                            //         setTimeout(function(){
+                            //             $("#object_pdf").css("height", $( window ).height()-150 + 'px');
+                            //         }, 300);
+                            //     }
+                            //     else if(data.sw === 0){
+                            //         var valor1 = new Array();
+                            //         valor1[0]  = 101;
+                            //         valor1[1]  = data.titulo;
+                            //         valor1[2]  = data.respuesta;
+                            //         utilitarios(valor1);
+                            //     }
+                            //     else if(data.sw === 2){
+                            //         window.location.reload();
+                            //     }
+                            //     swal.close();
+                            //     $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                            //     break;
                             default:
                                 break;
                         }
