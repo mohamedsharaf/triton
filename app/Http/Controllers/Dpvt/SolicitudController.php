@@ -88,7 +88,8 @@ class SolicitudController extends Controller
             '1' => '0-11 AÑOS',
             '2' => '12-17 AÑOS',
             '3' => '18-59 AÑOS',
-            '4' => 'MAS DE 60 AÑOS'
+            '4' => 'MAS DE 60 AÑOS',
+            '5' => 'SIN DATOS'
         ];
 
         $this->dirigido_a = [
@@ -172,6 +173,7 @@ class SolicitudController extends Controller
                 'gestion_i'                         => 2012,
                 'gestion_f'                         => date('Y'),
                 'public_dir'                        => $this->public_dir,
+                'public_url'                        => $this->public_url,
                 'estado_array'                      => $this->estado,
                 'cerrado_abierto_array'             => $this->cerrado_abierto,
                 'solicitante_array'                 => $this->solicitante,
@@ -220,14 +222,12 @@ class SolicitudController extends Controller
                 $jqgrid = new JqgridClass($request);
 
                 $tabla1 = "pvt_solicitudes";
-                $tabla2 = "rrhh_personas";
                 $tabla3 = "ubge_municipios";
                 $tabla4 = "ubge_provincias";
                 $tabla5 = "ubge_departamentos";
 
                 $select = "
                     $tabla1.id,
-                    $tabla1.persona_id_usuario,
                     $tabla1.municipio_id,
 
                     $tabla1.estado,
@@ -251,6 +251,7 @@ class SolicitudController extends Controller
 
                     $tabla1.usuario_tipo,
                     $tabla1.usuario_tipo_descripcion,
+                    $tabla1.usuario_nombre,
                     $tabla1.usuario_sexo,
                     $tabla1.usuario_edad,
                     $tabla1.usuario_celular,
@@ -258,41 +259,28 @@ class SolicitudController extends Controller
                     $tabla1.usuario_otra_referencia,
 
                     $tabla1.dirigido_a_psicologia,
-                    $tabla1.dirigido_a_psicologia_1,
                     $tabla1.dirigido_psicologia,
-                    $tabla1.dirigido_psicologia_1,
                     $tabla1.dirigido_psicologia_estado_pdf,
                     $tabla1.dirigido_psicologia_archivo_pdf,
 
                     $tabla1.dirigido_a_trabajo_social,
-                    $tabla1.dirigido_a_trabajo_social_1,
                     $tabla1.dirigido_trabajo_social,
-                    $tabla1.dirigido_trabajo_social_1,
                     $tabla1.dirigido_trabajo_social_estado_pdf,
                     $tabla1.dirigido_trabajo_social_archivo_pdf,
 
                     $tabla1.dirigido_a_otro_trabajo,
-                    $tabla1.dirigido_a_otro_trabajo_1,
                     $tabla1.dirigido_otro_trabajo,
                     $tabla1.dirigido_otro_trabajo_estado_pdf,
                     $tabla1.dirigido_otro_trabajo_archivo_pdf,
-
-                    $tabla1.complementario_dirigido_a,
-                    $tabla1.complementario_dirigido_a_1,
-                    $tabla1.complementario_trabajo_solicitado,
-                    $tabla1.complementario_trabajo_solicitado_estado_pdf,
-                    $tabla1.complementario_trabajo_solicitado_archivo_pdf,
 
                     $tabla1.plazo_fecha_solicitud,
                     $tabla1.plazo_fecha_recepcion,
 
                     $tabla1.plazo_psicologico_fecha_entrega_digital,
-                    $tabla1.plazo_psicologico_fecha_entrega_fisico,
                     $tabla1.plazo_psicologico_estado_pdf,
                     $tabla1.plazo_psicologico_archivo_pdf,
 
                     $tabla1.plazo_social_fecha_entrega_digital,
-                    $tabla1.plazo_social_fecha_entrega_fisico,
                     $tabla1.plazo_social_estado_pdf,
                     $tabla1.plazo_social_archivo_pdf,
 
@@ -302,11 +290,6 @@ class SolicitudController extends Controller
 
                     $tabla1.created_at,
                     $tabla1.updated_at,
-
-                    a2.n_documento,
-                    a2.nombre AS nombre_persona,
-                    a2.ap_paterno,
-                    a2.ap_materno,
 
                     a3.nombre AS municipio,
                     a3.provincia_id,
@@ -320,8 +303,7 @@ class SolicitudController extends Controller
                 $array_where = "TRUE" . $where_concatenar;
                 $array_where .= $jqgrid->getWhere();
 
-                $count = PvtSolicitud::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id_usuario")
-                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.municipio_id")
+                $count = PvtSolicitud::leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.municipio_id")
                     ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.provincia_id")
                     ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.departamento_id")
                     ->whereRaw($array_where)
@@ -329,8 +311,7 @@ class SolicitudController extends Controller
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 
-                $query = PvtSolicitud::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id_usuario")
-                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.municipio_id")
+                $query = PvtSolicitud::leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.municipio_id")
                     ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.provincia_id")
                     ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.departamento_id")
                     ->whereRaw($array_where)
@@ -351,7 +332,6 @@ class SolicitudController extends Controller
                 foreach ($query as $row)
                 {
                     $val_array = array(
-                        'persona_id_usuario' => $row["persona_id_usuario"],
                         'municipio_id'       => $row["municipio_id"],
 
                         'estado'          => $row["estado"],
@@ -364,10 +344,7 @@ class SolicitudController extends Controller
 
                         'usuario_tipo'             => $row["usuario_tipo"],
                         'usuario_tipo_descripcion' => $row["usuario_tipo_descripcion"],
-                        'n_documento'              => $row["n_documento"],
-                        'nombre_persona'           => $row["nombre_persona"],
-                        'ap_paterno'               => $row["ap_paterno"],
-                        'ap_materno'               => $row["ap_materno"],
+                        'usuario_nombre'           => $row["usuario_nombre"],
                         'usuario_sexo'             => $row["usuario_sexo"],
                         'usuario_edad'             => $row["usuario_edad"],
                         'usuario_celular'          => $row["usuario_celular"],
@@ -375,41 +352,28 @@ class SolicitudController extends Controller
                         'usuario_otra_referencia'  => $row["usuario_otra_referencia"],
 
                         'dirigido_a_psicologia'           => $row["dirigido_a_psicologia"],
-                        'dirigido_a_psicologia_1'         => $row["dirigido_a_psicologia_1"],
                         'dirigido_psicologia'             => $row["dirigido_psicologia"],
-                        'dirigido_psicologia_1'           => $row["dirigido_psicologia_1"],
                         'dirigido_psicologia_estado_pdf'  => $row["dirigido_psicologia_estado_pdf"],
                         'dirigido_psicologia_archivo_pdf' => $row["dirigido_psicologia_archivo_pdf"],
 
                         'dirigido_a_trabajo_social'           => $row["dirigido_a_trabajo_social"],
-                        'dirigido_a_trabajo_social_1'         => $row["dirigido_a_trabajo_social_1"],
                         'dirigido_trabajo_social'             => $row["dirigido_trabajo_social"],
-                        'dirigido_trabajo_social_1'           => $row["dirigido_trabajo_social_1"],
                         'dirigido_trabajo_social_estado_pdf'  => $row["dirigido_trabajo_social_estado_pdf"],
                         'dirigido_trabajo_social_archivo_pdf' => $row["dirigido_trabajo_social_archivo_pdf"],
 
                         'dirigido_a_otro_trabajo'           => $row["dirigido_a_otro_trabajo"],
-                        'dirigido_a_otro_trabajo_1'         => $row["dirigido_a_otro_trabajo_1"],
                         'dirigido_otro_trabajo'             => $row["dirigido_otro_trabajo"],
                         'dirigido_otro_trabajo_estado_pdf'  => $row["dirigido_otro_trabajo_estado_pdf"],
                         'dirigido_otro_trabajo_archivo_pdf' => $row["dirigido_otro_trabajo_archivo_pdf"],
-
-                        'complementario_dirigido_a'                     => $row["complementario_dirigido_a"],
-                        'complementario_dirigido_a_1'                   => $row["complementario_dirigido_a_1"],
-                        'complementario_trabajo_solicitado'             => $row["complementario_trabajo_solicitado"],
-                        'complementario_trabajo_solicitado_estado_pdf'  => $row["complementario_trabajo_solicitado_estado_pdf"],
-                        'complementario_trabajo_solicitado_archivo_pdf' => $row["complementario_trabajo_solicitado_archivo_pdf"],
 
                         'plazo_fecha_solicitud' => $row["plazo_fecha_solicitud"],
                         'plazo_fecha_recepcion' => $row["plazo_fecha_recepcion"],
 
                         'plazo_psicologico_fecha_entrega_digital' => $row["plazo_psicologico_fecha_entrega_digital"],
-                        'plazo_psicologico_fecha_entrega_fisico'  => $row["plazo_psicologico_fecha_entrega_fisico"],
                         'plazo_psicologico_estado_pdf'            => $row["plazo_psicologico_estado_pdf"],
                         'plazo_psicologico_archivo_pdf'           => $row["plazo_psicologico_archivo_pdf"],
 
                         'plazo_social_fecha_entrega_digital' => $row["plazo_social_fecha_entrega_digital"],
-                        'plazo_social_fecha_entrega_fisico'  => $row["plazo_social_fecha_entrega_fisico"],
                         'plazo_social_estado_pdf'            => $row["plazo_social_estado_pdf"],
                         'plazo_social_archivo_pdf'           => $row["plazo_social_archivo_pdf"],
 
@@ -831,12 +795,15 @@ class SolicitudController extends Controller
                     {
                         $validator = $this->validate($request,[
                             'usuario_tipo_descripcion' => 'max:1000',
+                            'usuario_nombre'           => 'max:1000',
                             'usuario_celular'          => 'max:100',
                             'usuario_domicilio'        => 'max:500',
                             'usuario_otra_referencia'  => 'max:500'
                         ],
                         [
-                            'usuario_tipo_descripcion.max' => 'El campo NOMBRE DE USUARIO debe contener :max caracteres como máximo.',
+                            'usuario_tipo_descripcion.max' => 'El campo TIPO DESCRIPCION debe contener :max caracteres como máximo.',
+
+                            'usuario_nombre.max' => 'El campo NOMBRE DE USUARIO debe contener :max caracteres como máximo.',
 
                             'usuario_celular.max' => 'El campo TELEFONO Y/O CELULAR debe contener :max caracteres como máximo.',
 
@@ -853,9 +820,9 @@ class SolicitudController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $data1['usuario_tipo']             = trim($request->input('usuario_tipo'));
+                    $data1['usuario_tipo']             = $request->input('usuario_tipo');
                     $data1['usuario_tipo_descripcion'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('usuario_tipo_descripcion'))));
-                    $data1['persona_id_usuario']       = trim($request->input('persona_id_usuario'));
+                    $data1['usuario_nombre']           = strtoupper($util->getNoAcentoNoComilla(trim($request->input('usuario_nombre'))));
                     $data1['usuario_sexo']             = trim($request->input('usuario_sexo'));
                     $data1['usuario_celular']          = strtoupper($util->getNoAcentoNoComilla(trim($request->input('usuario_celular'))));
                     $data1['usuario_domicilio']        = strtoupper($util->getNoAcentoNoComilla(trim($request->input('usuario_domicilio'))));
@@ -875,7 +842,7 @@ class SolicitudController extends Controller
                         $iu                           = new PvtSolicitud;
                         $iu->usuario_tipo             = $data1['usuario_tipo'];
                         $iu->usuario_tipo_descripcion = $data1['usuario_tipo_descripcion'];
-                        $iu->persona_id_usuario       = $data1['persona_id_usuario'];
+                        $iu->usuario_nombre           = $data1['usuario_nombre'];
                         $iu->usuario_sexo             = $data1['usuario_sexo'];
                         $iu->usuario_celular          = $data1['usuario_celular'];
                         $iu->usuario_domicilio        = $data1['usuario_domicilio'];
@@ -895,7 +862,7 @@ class SolicitudController extends Controller
                         $iu                           = PvtSolicitud::find($id);
                         $iu->usuario_tipo             = $data1['usuario_tipo'];
                         $iu->usuario_tipo_descripcion = $data1['usuario_tipo_descripcion'];
-                        $iu->persona_id_usuario       = $data1['persona_id_usuario'];
+                        $iu->usuario_nombre           = $data1['usuario_nombre'];
                         $iu->usuario_sexo             = $data1['usuario_sexo'];
                         $iu->usuario_celular          = $data1['usuario_celular'];
                         $iu->usuario_domicilio        = $data1['usuario_domicilio'];
@@ -1090,8 +1057,11 @@ class SolicitudController extends Controller
 
                 //=== OPERACION ===
                     $data1['estado']                            = $request->input('estado');
-                    $data1['complementario_dirigido_a']         = $request->input('complementario_dirigido_a');
-                    $data1['complementario_trabajo_solicitado'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('complementario_trabajo_solicitado'))));
+
+                    if($data1['estado'] ==  '')
+                    {
+                        $data1['estado'] = 1;
+                    }
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
                     foreach ($data1 as $llave => $valor)
@@ -1103,10 +1073,8 @@ class SolicitudController extends Controller
                 // === REGISTRAR MODIFICAR VALORES ===
                     if($opcion == 'n')
                     {
-                        $iu                                    = new PvtSolicitud;
-                        $iu->estado                            = $data1['estado'];
-                        $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
-                        $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
+                        $iu         = new PvtSolicitud;
+                        $iu->estado = $data1['estado'];
                         $iu->save();
 
                         $id = $iu->id;
@@ -1118,10 +1086,8 @@ class SolicitudController extends Controller
                     }
                     else
                     {
-                        $iu                                    = PvtSolicitud::find($id);
-                        $iu->estado                            = $data1['estado'];
-                        $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
-                        $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
+                        $iu         = PvtSolicitud::find($id);
+                        $iu->estado = $data1['estado'];
                         $iu->save();
 
                         $respuesta['respuesta'] .= "La SOLICITUD TRABAJO COMPLEMENTARIO se edito con éxito.";
@@ -1248,8 +1214,6 @@ class SolicitudController extends Controller
                     }
                 return json_encode($respuesta);
                 break;
-
-
 
             // === UPLOAD PDF ===
             case '11':
@@ -1410,6 +1374,154 @@ class SolicitudController extends Controller
                         $respuesta['sw']         = 1;
                     }
 
+                return json_encode($respuesta);
+                break;
+            // === ELIMINAR PDF ===
+            case '12':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ELIMINAR PDF</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'error_sw'   => 1
+                    );
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para ELIMINAR PDF.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "No se tiene CODIGO.";
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    if($request->hasFile('tipo_del'))
+                    {
+                        $select = "
+                            id,
+                            municipio_id,
+
+                            estado,
+                            cerrado_abierto,
+                            gestion,
+                            codigo,
+
+                            solicitante,
+                            nombre_solicitante,
+                            delitos,
+                            recalificacion_delitos,
+                            n_caso,
+                            denunciante,
+                            denunciado,
+                            victima,
+                            persona_protegida,
+                            etapa_proceso,
+                            f_solicitud,
+                            solicitud_estado_pdf,
+                            solicitud_documento_pdf,
+
+                            usuario_tipo,
+                            usuario_tipo_descripcion,
+                            usuario_nombre,
+                            usuario_sexo,
+                            usuario_edad,
+                            usuario_celular,
+                            usuario_domicilio,
+                            usuario_otra_referencia,
+
+                            dirigido_a_psicologia,
+                            dirigido_psicologia,
+                            dirigido_psicologia_estado_pdf,
+                            dirigido_psicologia_archivo_pdf,
+
+                            dirigido_a_trabajo_social,
+                            dirigido_trabajo_social,
+                            dirigido_trabajo_social_estado_pdf,
+                            dirigido_trabajo_social_archivo_pdf,
+
+                            dirigido_a_otro_trabajo,
+                            dirigido_otro_trabajo,
+                            dirigido_otro_trabajo_estado_pdf,
+                            dirigido_otro_trabajo_archivo_pdf,
+
+                            plazo_fecha_solicitud,
+                            plazo_fecha_recepcion,
+
+                            plazo_psicologico_fecha_entrega_digital,
+                            plazo_psicologico_estado_pdf,
+                            plazo_psicologico_archivo_pdf,
+
+                            plazo_social_fecha_entrega_digital,
+                            plazo_social_estado_pdf,
+                            plazo_social_archivo_pdf,
+
+                            plazo_complementario_fecha,
+                            plazo_complementario_estado_pdf,
+                            plazo_complementario_archivo_pdf,
+
+                            created_at,
+                            updated_at
+                        ";
+
+                        $consulta1 = PvtSolicitud::where('id', '=', $id)
+                            ->select(DB::raw($select))
+                            ->first()
+                            ->toArray();
+
+                        $del_sw   = FALSE;
+                        $del_file = '';
+
+                        switch($request->input('tipo_del'))
+                        {
+                            case '1':
+                                if($consulta1['solicitud_documento_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['solicitud_documento_pdf'];
+
+                                    $iu                          = PvtSolicitud::find($id);
+                                    $iu->solicitud_estado_pdf    = 1;
+                                    $iu->solicitud_documento_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            default:
+                                # code...
+                                break;
+                        }
+
+                        if($del_sw)
+                        {
+                            if(file_exists(public_path($this->public_dir) . '/' . $del_file))
+                            {
+                                unlink(public_path($this->public_dir) . '/' . $del_file);
+                            }
+
+                            $respuesta['respuesta'] .= "Se ELIMINO con éxito.";
+                            $respuesta['sw']        = 1;
+                        }
+                    }
                 return json_encode($respuesta);
                 break;
 

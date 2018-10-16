@@ -252,8 +252,8 @@
                                             </div>
 
                                             <div class="col-sm-4">
-                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
-                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                                <button type="button" class="btn btn-block btn-success"  onclick="utilitarios([60, 1]);">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger"  onclick="utilitarios([61, 1]);">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
@@ -382,10 +382,9 @@
                                             <input type="text" class="form-control" id="usuario_tipo_descripcion" name="usuario_tipo_descripcion" placeholder="Tipo de usuario descripción">
                                         </div>
 
-                                        <div id="persona_id_usuario_div" class="form-group">
-                                            <label for="persona_id_usuario">Nombre de usuario</label>
-                                            <select name="persona_id_usuario" id="persona_id_usuario" data-placeholder="Nombre de usuario" multiple="multiple" style="width: 100%;">
-                                            </select>
+                                        <div class="form-group">
+                                            <label for="usuario_nombre">Nombre de usuario</label>
+                                            <input type="text" class="form-control" id="usuario_nombre" name="usuario_nombre" placeholder="Nombre de usuario">
                                         </div>
 
                                         <div class="form-group">
@@ -422,7 +421,7 @@
                                             <label>Edad entre</label>
                                             <br>
                                             <div class="radio radio-primary radio-inline">
-                                                <input type="radio" id="usuario_edad_1" value="1" name="usuario_edad" class="usuario_edad_class" checked="checked">
+                                                <input type="radio" id="usuario_edad_1" value="1" name="usuario_edad" class="usuario_edad_class">
                                                 <label for="usuario_edad_1"> {!! $edad_array['1'] !!} </label>
                                             </div>
                                             <div class="radio radio-info radio-inline">
@@ -433,9 +432,13 @@
                                                 <input type="radio" id="usuario_edad_3" value="3" name="usuario_edad" class="usuario_edad_class">
                                                 <label for="usuario_edad_3"> {!! $edad_array['3'] !!} </label>
                                             </div>
-                                            <div class="radio radio-inline">
+                                            <div class="radio  radio-inline">
                                                 <input type="radio" id="usuario_edad_4" value="4" name="usuario_edad" class="usuario_edad_class">
                                                 <label for="usuario_edad_4"> {!! $edad_array['4'] !!} </label>
+                                            </div>
+                                            <div class="radio radio-danger radio-inline">
+                                                <input type="radio" id="usuario_edad_5" value="5" name="usuario_edad" class="usuario_edad_class" checked="checked">
+                                                <label for="usuario_edad_5"> {!! $edad_array['5'] !!} </label>
                                             </div>
                                         </div>
                                     </div>
@@ -463,6 +466,18 @@
                                               <input name="file2" type="file"/>
                                             </div>
                                         </div>
+
+                                        <br>
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="col-lg-4">
@@ -483,6 +498,18 @@
                                               <input name="file3" type="file"/>
                                             </div>
                                         </div>
+
+                                        <br>
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="col-lg-4">
@@ -500,6 +527,18 @@
                                         <div class="dropzone" id="dropzone_4">
                                             <div class="fallback">
                                               <input name="file4" type="file"/>
+                                            </div>
+                                        </div>
+
+                                        <br>
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
@@ -526,9 +565,31 @@
                                         <textarea class="form-control" id="complementario_trabajo_solicitado" name="complementario_trabajo_solicitado" placeholder="Trabajo solicitado" rows="4"></textarea>
                                     </div>
 
-                                    <div class="dropzone" id="dropzone_5">
-                                        <div class="fallback">
-                                          <input name="file5" type="file"/>
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <div class="dropzone" id="dropzone_5">
+                                                <div class="fallback">
+                                                  <input name="file5" type="file"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-4">
+                                            <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                            <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                            <button type="button" class="btn btn-block btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
+                                            <button type="button" class="btn btn-block btn-primary" onclick="utilitarios([15]);">Guardar</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div id="div_jqgrid5" class="jqGrid_wrapper">
+                                            <table id="jqgrid5"></table>
+                                            <div id="pjqgrid5"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -538,86 +599,77 @@
                             <fieldset>
                                 <div class="row">
                                     <div class="col-lg-6">
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="plazo_fecha_solicitud">Fecha de solicitud</label>
-                                                    <input type="text" class="form-control" id="plazo_fecha_solicitud" name="plazo_fecha_solicitud" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="plazo_fecha_recepcion">Fecha de recepción de la solicitud de trabajo</label>
-                                                    <input type="text" class="form-control" id="plazo_fecha_recepcion" name="plazo_fecha_recepcion" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="plazo_fecha_solicitud">Fecha de solicitud</label>
+                                            <input type="text" class="form-control" id="plazo_fecha_solicitud" name="plazo_fecha_solicitud" placeholder="año-mes-día" data-mask="9999-99-99">
                                         </div>
 
-                                        <h3>Informe psicologico</h3>
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="plazo_psicologico_fecha_entrega_digital">Fecha de entrega digital</label>
-                                                    <input type="text" class="form-control" id="plazo_psicologico_fecha_entrega_digital" name="plazo_psicologico_fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="plazo_psicologico_fecha_entrega_fisico">Fecha de entrega físico</label>
-                                                    <input type="text" class="form-control" id="plazo_psicologico_fecha_entrega_fisico" name="plazo_psicologico_fecha_entrega_fisico" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="plazo_fecha_recepcion">Fecha de recepción de la solicitud de trabajo</label>
+                                            <input type="text" class="form-control" id="plazo_fecha_recepcion" name="plazo_fecha_recepcion" placeholder="año-mes-día" data-mask="9999-99-99">
                                         </div>
 
-                                        <div class="dropzone" id="dropzone_6">
-                                            <div class="fallback">
-                                              <input name="file6" type="file"/>
+                                        <div class="form-group">
+                                            <label for="plazo_psicologico_fecha_entrega_digital">Informe psicologico fecha de entrega</label>
+                                            <input type="text" class="form-control" id="plazo_psicologico_fecha_entrega_digital" name="plazo_psicologico_fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-8">
+                                                <div class="dropzone" id="dropzone_6">
+                                                    <div class="fallback">
+                                                      <input name="file6" type="file"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="col-lg-6">
-                                        <h3>Informe social</h3>
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="plazo_social_fecha_entrega_digital">Fecha de entrega digital</label>
-                                                    <input type="text" class="form-control" id="plazo_social_fecha_entrega_digital" name="plazo_social_fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="plazo_social_fecha_entrega_fisico">Fecha de entrega físico</label>
-                                                    <input type="text" class="form-control" id="plazo_social_fecha_entrega_fisico" name="plazo_social_fecha_entrega_fisico" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="plazo_social_fecha_entrega_digital">Informe social fecha de entrega</label>
+                                            <input type="text" class="form-control" id="plazo_social_fecha_entrega_digital" name="plazo_social_fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
                                         </div>
 
-                                        <div class="dropzone" id="dropzone_7">
-                                            <div class="fallback">
-                                              <input name="file7" type="file"/>
+                                        <div class="row">
+                                            <div class="col-sm-8">
+                                                <div class="dropzone" id="dropzone_7">
+                                                    <div class="fallback">
+                                                      <input name="file7" type="file"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
                                             </div>
                                         </div>
 
                                         <br>
 
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="plazo_complementario_fecha">Fecha informe complementario</label>
-                                                    <input type="text" class="form-control" id="plazo_complementario_fecha" name="plazo_complementario_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="plazo_complementario_fecha">Fecha informe complementario</label>
+                                            <input type="text" class="form-control" id="plazo_complementario_fecha" name="plazo_complementario_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
+                                        </div>
 
-                                            <div class="col-sm-6">
+                                        <div class="row">
+                                            <div class="col-sm-8">
                                                 <div class="dropzone" id="dropzone_8">
                                                     <div class="fallback">
                                                       <input name="file8" type="file"/>
                                                     </div>
                                                 </div>
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
@@ -634,20 +686,23 @@
                                             <input type="text" class="form-control" id="resolucion_descripcion" name="resolucion_descripcion" placeholder="Descripción de la resolución">
                                         </div>
 
-                                        <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="resolucion_fecha_emision">Fecha emisión</label>
-                                                    <input type="text" class="form-control" id="resolucion_fecha_emision" name="resolucion_fecha_emision" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="resolucion_fecha_emision">Fecha emisión</label>
+                                            <input type="text" class="form-control" id="resolucion_fecha_emision" name="resolucion_fecha_emision" placeholder="año-mes-día" data-mask="9999-99-99">
+                                        </div>
 
-                                            <div class="col-sm-6">
+                                        <div class="row">
+                                            <div class="col-sm-8">
                                                 <div class="dropzone" id="dropzone_9">
                                                     <div class="fallback">
                                                       <input name="file9" type="file"/>
                                                     </div>
                                                 </div>
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
                                             </div>
                                         </div>
 
@@ -673,78 +728,84 @@
                                             <textarea class="form-control" id="resolucion_instituciones_coadyuvantes" name="resolucion_instituciones_coadyuvantes" placeholder="Trabajo solicitado" rows="4"></textarea>
                                         </div>
 
-                                        <div class="dropzone" id="dropzone_10">
-                                            <div class="fallback">
-                                              <input name="file10" type="file"/>
+                                        <div class="row">
+                                            <div class="col-sm-8">
+                                                <div class="dropzone" id="dropzone_10">
+                                                    <div class="fallback">
+                                                      <input name="file10" type="file"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="col-lg-6">
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <label for="fecha_inicio">Fecha de inicio</label>
-                                                    <input type="text" class="form-control" id="fecha_inicio" name="fecha_inicio" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="fecha_inicio">Fecha de inicio</label>
+                                            <input type="text" class="form-control" id="fecha_inicio" name="fecha_inicio" placeholder="año-mes-día" data-mask="9999-99-99">
+                                        </div>
 
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <label for="fecha_entrega_digital">Fecha de entrega digital</label>
-                                                    <input type="text" class="form-control" id="fecha_entrega_digital" name="fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="fecha_entrega_digital">Fecha de entrega</label>
+                                            <input type="text" class="form-control" id="fecha_entrega_digital" name="fecha_entrega_digital" placeholder="año-mes-día" data-mask="9999-99-99">
+                                        </div>
 
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <label for="fecha_entrega_fisico">Fecha de entrega físico</label>
-                                                    <input type="text" class="form-control" id="fecha_entrega_fisico" name="fecha_entrega_fisico" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
+                                        <div class="form-group">
+                                            <label for="informe_seguimiento_fecha">Fecha informe seguimiento</label>
+                                            <input type="text" class="form-control" id="informe_seguimiento_fecha" name="informe_seguimiento_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
                                         </div>
 
                                         <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="informe_seguimiento_fecha">Fecha informe seguimiento</label>
-                                                    <input type="text" class="form-control" id="informe_seguimiento_fecha" name="informe_seguimiento_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-8">
                                                 <div class="dropzone" id="dropzone_11">
                                                     <div class="fallback">
                                                       <input name="file11" type="file"/>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                            </div>
                                         </div>
 
-                                        <br>
+                                        <div class="form-group">
+                                            <label for="complementario_fecha">Fecha informe complementario</label>
+                                            <input type="text" class="form-control" id="complementario_fecha" name="complementario_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
+                                        </div>
 
                                         <div class="row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="complementario_fecha">Fecha informe complementario</label>
-                                                    <input type="text" class="form-control" id="complementario_fecha" name="complementario_fecha" placeholder="año-mes-día" data-mask="9999-99-99">
-                                                </div>
-                                            </div>
-
-                                            <div class="col-sm-6">
+                                            <div class="col-sm-8">
                                                 <div class="dropzone" id="dropzone_12">
                                                     <div class="fallback">
                                                       <input name="file12" type="file"/>
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                            </div>
                                         </div>
 
                                         <br>
 
-                                        <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <button type="button" class="btn btn-block btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
+                                            </div>
 
-                                        <button type="button" class="btn btn-success" onclick="utilitarios([15]);">Guardar resolución del MP y seguimiento</button>
+                                            <div class="col-sm-6">
+                                                <button type="button" class="btn btn-block btn-success" onclick="utilitarios([15]);">Guardar</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

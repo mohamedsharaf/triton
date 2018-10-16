@@ -25,9 +25,7 @@ class CreatePvtResolucionesTable extends Migration
             $table->smallInteger('resolucion_estado_pdf')->default('1')->unsigned();
             $table->string('resolucion_archivo_pdf', 100)->nullable();
             $table->string('resolucion_tipo_disposicion', 50)->nullable();
-            $table->string('resolucion_tipo_disposicion_1', 1000)->nullable();
             $table->string('resolucion_medidas_proteccion', 1000)->nullable();
-            $table->string('resolucion_medidas_proteccion_1', 1000)->nullable();
             $table->string('resolucion_otra_medidas_proteccion', 1000)->nullable();
             $table->string('resolucion_instituciones_coadyuvantes', 1000)->nullable();
             $table->smallInteger('resolucion_estado_pdf_2')->default('1')->unsigned();
@@ -35,7 +33,6 @@ class CreatePvtResolucionesTable extends Migration
 
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_entrega_digital')->nullable();
-            $table->date('fecha_entrega_fisico')->nullable();
             $table->date('informe_seguimiento_fecha')->nullable();
             $table->smallInteger('informe_seguimiento_estado_pdf')->default('1')->unsigned();
             $table->string('informe_seguimiento_archivo_pdf', 100)->nullable();
