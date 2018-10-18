@@ -471,11 +471,11 @@
 
                                         <div class="row">
                                             <div class="col-sm-6">
-                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-success"  onclick="utilitarios([60, 2]);">Ver PDF</button>
                                             </div>
 
                                             <div class="col-sm-6">
-                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger"  onclick="utilitarios([61, 2]);">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
@@ -503,11 +503,11 @@
 
                                         <div class="row">
                                             <div class="col-sm-6">
-                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-success"  onclick="utilitarios([60, 3]);">Ver PDF</button>
                                             </div>
 
                                             <div class="col-sm-6">
-                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger"  onclick="utilitarios([61, 3]);">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
@@ -534,11 +534,11 @@
 
                                         <div class="row">
                                             <div class="col-sm-6">
-                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-success"  onclick="utilitarios([60, 4]);">Ver PDF</button>
                                             </div>
 
                                             <div class="col-sm-6">
-                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger"  onclick="utilitarios([61, 4]);">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
@@ -554,10 +554,11 @@
                                         </select>
                                     </div>
 
-                                    <div id="complementario_dirigido_a_div" class="form-group">
+                                    <input type="hidden" id="solicitud_complementaria_id" name="id" value=""/>
+
+                                    <div class="form-group">
                                         <label for="complementario_dirigido_a">Dirigido a</label>
-                                        <select name="complementario_dirigido_a" id="complementario_dirigido_a" data-placeholder="Dirigido a" multiple="multiple" style="width: 100%;">
-                                        </select>
+                                        <textarea class="form-control" id="complementario_dirigido_a" name="complementario_dirigido_a" placeholder="Dirigido a" rows="4"></textarea>
                                     </div>
 
                                     <div class="form-group">
@@ -575,10 +576,10 @@
                                         </div>
 
                                         <div class="col-sm-4">
-                                            <button type="button" class="btn btn-block btn-success">Ver PDF</button>
-                                            <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
-                                            <button type="button" class="btn btn-block btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
-                                            <button type="button" class="btn btn-block btn-primary" onclick="utilitarios([15]);">Guardar</button>
+                                            <button type="button" class="btn btn-block btn-success"  onclick="utilitarios([62, 1]);">Ver PDF</button>
+                                            <button type="button" class="btn btn-block btn-danger" onclick="utilitarios([62, 1]);">Eliminar PDF</button>
+                                            <button type="button" class="btn btn-block btn-info" onclick="utilitarios([34]);">Limpiar formulario</button>
+                                            <button type="button" class="btn btn-block btn-primary" onclick="utilitarios([72]);">Guardar</button>
                                         </div>
                                     </div>
                                 </div>
@@ -624,8 +625,8 @@
                                             </div>
 
                                             <div class="col-sm-4">
-                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
-                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                                <button type="button" class="btn btn-block btn-success"  onclick="utilitarios([60, 5]);">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger"  onclick="utilitarios([61, 5]);">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
@@ -646,8 +647,8 @@
                                             </div>
 
                                             <div class="col-sm-4">
-                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
-                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                                <button type="button" class="btn btn-block btn-success"  onclick="utilitarios([60, 6]);">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger"  onclick="utilitarios([61, 6]);">Eliminar PDF</button>
                                             </div>
                                         </div>
 
@@ -668,8 +669,8 @@
                                             </div>
 
                                             <div class="col-sm-4">
-                                                <button type="button" class="btn btn-block btn-success">Ver PDF</button>
-                                                <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
+                                                <button type="button" class="btn btn-block btn-success"  onclick="utilitarios([60, 7]);">Ver PDF</button>
+                                                <button type="button" class="btn btn-block btn-danger"  onclick="utilitarios([61, 7]);">Eliminar PDF</button>
                                             </div>
                                         </div>
                                     </div>
@@ -705,6 +706,8 @@
                                                 <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
                                             </div>
                                         </div>
+
+                                        <br>
 
                                         <div id="resolucion_tipo_disposicion_div" class="form-group">
                                             <label for="resolucion_tipo_disposicion">Tipo de disposición</label>
@@ -774,6 +777,8 @@
                                                 <button type="button" class="btn btn-block btn-danger">Eliminar PDF</button>
                                             </div>
                                         </div>
+
+                                        <br>
 
                                         <div class="form-group">
                                             <label for="complementario_fecha">Fecha informe complementario</label>

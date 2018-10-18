@@ -43,6 +43,9 @@
         var jqgrid4  = "#jqgrid4";
         var pjqgrid4 = "#pjqgrid4";
 
+        var jqgrid5  = "#jqgrid5";
+        var pjqgrid5 = "#pjqgrid5";
+
     // === ESTADO ===
         var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
         var estado_select = '';
@@ -197,7 +200,7 @@
 
             $('#usuario_tipo').append(usuario_tipo_select);
 
-            $('#dirigido_a_psicologia, #dirigido_a_trabajo_social, #dirigido_a_otro_trabajo, #complementario_dirigido_a').append(dirigido_a_select);
+            $('#dirigido_a_psicologia, #dirigido_a_trabajo_social, #dirigido_a_otro_trabajo').append(dirigido_a_select);
 
             $('#estado').append(estado_select);
 
@@ -407,6 +410,9 @@
                                 valor1[5]     = 'json';
                                 var respuesta = utilitarios(valor1);
 
+                                setTimeout(function(){
+                                    $(jqgrid5).jqGrid('setGridWidth', $("#div_jqgrid5").width());
+                                }, 300);
                                 return respuesta;
                             }
                             else{
@@ -602,14 +608,13 @@
             $("#etapa_proceso").appendTo("#etapa_proceso_div");
             $("#estado").appendTo("#estado_div");
 
-            $("#usuario_tipo, #dirigido_a_psicologia, #dirigido_psicologia, #dirigido_a_trabajo_social, #dirigido_trabajo_social, #dirigido_a_otro_trabajo, #complementario_dirigido_a, #resolucion_tipo_disposicion, #resolucion_medidas_proteccion").select2();
+            $("#usuario_tipo, #dirigido_a_psicologia, #dirigido_psicologia, #dirigido_a_trabajo_social, #dirigido_trabajo_social, #dirigido_a_otro_trabajo, #resolucion_tipo_disposicion, #resolucion_medidas_proteccion").select2();
             $("#usuario_tipo").appendTo("#usuario_tipo_div");
             $("#dirigido_a_psicologia").appendTo("#dirigido_a_psicologia_div");
             $("#dirigido_a_trabajo_social").appendTo("#dirigido_a_trabajo_social_div");
             $("#dirigido_a_otro_trabajo").appendTo("#dirigido_a_otro_trabajo_div");
             $("#dirigido_psicologia").appendTo("#dirigido_psicologia_div");
             $("#dirigido_trabajo_social").appendTo("#dirigido_trabajo_social_div");
-            $("#complementario_dirigido_a").appendTo("#complementario_dirigido_a_div");
             $("#resolucion_tipo_disposicion").appendTo("#resolucion_tipo_disposicion_div");
             $("#resolucion_medidas_proteccion").appendTo("#resolucion_medidas_proteccion_div");
 
@@ -714,14 +719,14 @@
             valor1[5]  = "dirigido_otro_trabajo_archivo_pdf";
             utilitarios(valor1);
 
-            // var valor1 = new Array();
-            // valor1[0]  = 51;
-            // valor1[1]  = "#dropzone_5";
-            // valor1[2]  = "file5";
-            // valor1[3]  = 11;
-            // valor1[4]  = 5;
-            // valor1[5]  = "complementario_trabajo_solicitado_archivo_pdf";
-            // utilitarios(valor1);
+            var valor1 = new Array();
+            valor1[0]  = 52;
+            valor1[1]  = "#dropzone_5";
+            valor1[2]  = "file5";
+            valor1[3]  = 13;
+            valor1[4]  = 1;
+            valor1[5]  = "complementario_archivo_pdf";
+            utilitarios(valor1);
 
             var valor1 = new Array();
             valor1[0]  = 51;
@@ -751,39 +756,39 @@
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 52;
+            valor1[0]  = 53;
             valor1[1]  = "#dropzone_9";
             valor1[2]  = "file9";
-            valor1[3]  = 11;
-            valor1[4]  = 9;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[3]  = 15;
+            valor1[4]  = 1;
+            valor1[5]  = "resolucion_archivo_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 52;
+            valor1[0]  = 53;
             valor1[1]  = "#dropzone_10";
             valor1[2]  = "file10";
-            valor1[3]  = 11;
-            valor1[4]  = 10;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[3]  = 15;
+            valor1[4]  = 2;
+            valor1[5]  = "resolucion_archivo_pdf_2";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 52;
+            valor1[0]  = 53;
             valor1[1]  = "#dropzone_11";
             valor1[2]  = "file11";
-            valor1[3]  = 11;
-            valor1[4]  = 11;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[3]  = 15;
+            valor1[4]  = 3;
+            valor1[5]  = "informe_seguimiento_archivo_pdf";
             utilitarios(valor1);
 
             var valor1 = new Array();
-            valor1[0]  = 52;
+            valor1[0]  = 53;
             valor1[1]  = "#dropzone_12";
             valor1[2]  = "file12";
-            valor1[3]  = 11;
-            valor1[4]  = 12;
-            valor1[5]  = "solicitud_estado_pdf";
+            valor1[3]  = 15;
+            valor1[4]  = 4;
+            valor1[5]  = "complementario_archivo_pdf";
             utilitarios(valor1);
 
         // === CHANGE SELECT GESTION ===
@@ -821,6 +826,10 @@
 
             var valor1 = new Array();
             valor1[0]  = 44;
+            utilitarios(valor1);
+
+            var valor1 = new Array();
+            valor1[0]  = 45;
             utilitarios(valor1);
 
         // === VALIDATE 1 ===
@@ -988,6 +997,10 @@
                 utilitarios(valor1);
 
                 var valor1 = new Array();
+                valor1[0]  = 34;
+                utilitarios(valor1);
+
+                var valor1 = new Array();
                 valor1[0]  = 10;
                 utilitarios(valor1);
 
@@ -1000,9 +1013,14 @@
                 valor1[0]  = 421;
                 valor1[1]  = valor[1];
                 utilitarios(valor1);
+
+                var valor1 = new Array();
+                valor1[0]  = 451;
+                valor1[1]  = valor[1];
+                utilitarios(valor1);
                 break;
 
-            // === RESETEAR FORMULARIO ===
+            // === RESETEAR - FORMULARIO ===
             case 30:
                 $('#modal_1_title').empty();
 
@@ -1045,19 +1063,19 @@
                 uso_step = false;
                 $(form_1).steps('reset');
                 break;
-            // === RESETEAR DELITO ===
+            // === RESETEAR - DELITO ===
             case 31:
                 $('#delito_id').select2("val", "");
                 $('#delito_id option').remove();
                 $('#tentativa').prop('checked', false);
                 break;
-            // === RESETEAR RECALIFICACION DEL DELITO ===
+            // === RESETEAR - RECALIFICACION DEL DELITO ===
             case 32:
                 $('#delito_id_r').select2("val", "");
                 $('#delito_id_r option').remove();
                 $('#tentativa_r').prop('checked', false);
                 break;
-            // === RESOLUCIONES DEL MP Y SEGUIMIENTO ===
+            // === RESETEAR - RESOLUCIONES DEL MP Y SEGUIMIENTO ===
             case 33:
                 $("#resolucion_id").val('');
                 $("#resolucion_descripcion").val('');
@@ -1072,6 +1090,12 @@
                 $("#fecha_entrega_fisico").val('');
                 $("#informe_seguimiento_fecha").val('');
                 $("#complementario_fecha").val('');
+                break;
+            // === RESETEAR - SOLICITUD TRABAJO COMPLEMENTARIO ===
+            case 34:
+                $("#solicitud_complementaria_id").val('');
+                $("#complementario_dirigido_a").val('');
+                $("#complementario_trabajo_solicitado").val('');
                 break;
 
             // === JQGRID 1 ===
@@ -1358,6 +1382,10 @@
 
                             var valor1 = new Array();
                             valor1[0]  = 33;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 34;
                             utilitarios(valor1);
 
                             var valor1 = new Array();
@@ -1786,6 +1814,131 @@
                 })
                 ;
                 break;
+            // === JQGRID 5 ===
+            case 45:
+                var edit1      = true;
+                var ancho1     = 5;
+                var ancho_d    = 29;
+                @if(in_array(['codigo' => '1903'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
+
+                $(jqgrid5).jqGrid({
+                    caption     : '',
+                    datatype    : 'local',
+                    mtype       : 'post',
+                    height      : 'auto',
+                    pager       : pjqgrid5,
+                    rowNum      : 10,
+                    rowList     : [10, 20, 30],
+                    sortname    : 'pvt_solicitudes_complementarias.created_at',
+                    sortorder   : "desc",
+                    viewrecords : true,
+                    shrinkToFit : false,
+                    hidegrid    : false,
+                    multiboxonly: true,
+                    altRows     : true,
+                    rownumbers  : true,
+                    // subGrid     : subgrid_sw,
+                    // multiselect  : true,
+                    //autowidth     : true,
+                    //gridview      :true,
+                    //forceFit      : true,
+                    //toolbarfilter : true,
+                    colNames :[
+                        "",
+                        "¿CON PDF?",
+                        "DIRIGIDO A",
+                        "TRABAJO SOLICITADO",
+                        ""
+                    ],
+                    colModel : [
+                        {
+                            name    : "act",
+                            index   : "",
+                            width   : ancho1,
+                            align   : "center",
+                            fixed   : true,
+                            sortable: false,
+                            resize  : false,
+                            search  : false,
+                            hidden  : edit1
+                        },
+                        {
+                            name       : "complementario_estado_pdf",
+                            index      : "pvt_solicitudes_complementarias.complementario_estado_pdf",
+                            width      : 90,
+                            align      : "center",
+                            stype      : 'select',
+                            editoptions: {value:estado_pdf_jqgrid}
+                        },
+                        {
+                            name  : "complementario_dirigido_a",
+                            index : "pvt_solicitudes_complementarias.complementario_dirigido_a",
+                            width : 500,
+                            align : "center"
+                        },
+                        {
+                            name  : "complementario_trabajo_solicitado",
+                            index : "pvt_solicitudes_complementarias.complementario_trabajo_solicitado",
+                            width : 500,
+                            align : "center"
+                        },
+
+                        // === OCULTO ===
+                            {
+                                name: 'val_json',
+                                index: '',
+                                width: 10,
+                                search: false,
+                                hidden: true
+                            }
+                    ],
+                    loadComplete: function(){
+                        $("tr.jqgrow:odd").addClass('myAltRowClass');
+                    },
+                    gridComplete : function() {
+                        var ids = $(jqgrid5).jqGrid('getDataIDs');
+                        for(var i = 0; i < ids.length; i++){
+                            var cl       = ids[i];
+
+                            var del1 = "";
+                            @if(in_array(['codigo' => '1903'], $permisos))
+                                del1 = "<button type='button' class='btn btn-xs btn-danger' title='Eliminar fila' onclick=\"utilitarios([711, " + cl + "]);\"><i class='fa fa-trash'></i></button>";
+                            @endif
+
+                            $(jqgrid5).jqGrid('setRowData', ids[i], {
+                                act : $.trim(del1)
+                            });
+                        }
+                    }
+                });
+
+                $(jqgrid5).jqGrid('navGrid', pjqgrid5, {
+                    edit  : false,
+                    add   : false,
+                    del   : false,
+                    search: false
+                })
+                .navSeparatorAdd(pjqgrid5,{
+                    sepclass : "ui-separator"
+                })
+                ;
+                break;
+            // === JQGRID 5 - RELOAD ===
+            case 451:
+                $(jqgrid5).jqGrid('setGridParam',{
+                    url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=5&solicitud_id=' + valor[1],
+                    datatype: 'json'
+                }).trigger('reloadGrid');
+                break;
+            // === JQGRID 5 - RELOAD SIN VALOR ===
+            case 452:
+                $(jqgrid5).jqGrid('setGridParam',{
+                    datatype: 'local'
+                }).trigger('reloadGrid');
+                break;
 
             // === DROPZONE 1 ===
             case 51:
@@ -1873,6 +2026,186 @@
                     }
                 });
                 break;
+            // === DROPZONE 2 ===
+            case 52:
+                $(valor[1]).dropzone({
+                    url              : url_controller + "/send_ajax",
+                    method           :'post',
+                    addRemoveLinks   : true,
+                    maxFilesize      : 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles    :'application/pdf',
+                    paramName        : valor[2], // The name that will be used to transfer the file
+                    maxFiles         :1,
+                    clickable        :true,
+                    parallelUploads  :1,
+                    params           : {
+                        tipo     : valor[3],
+                        tipo_file: valor[4],
+                        col_name : valor[5],
+                        file_name: valor[2],
+                        _token   : csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize : 1,
+                    autoProcessQueue     :true,
+
+                    dictRemoveFile              :'Eliminar',
+                    dictCancelUpload            :'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage          : "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage         :'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText            :'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType         :'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig              :'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded        :'Número máximo de archivos superado.',
+                    init                        : function(){
+                        this.on("sending", function(file, xhr, formData){
+                            formData.append("solicitud_id", $("#solicitud_id").val());
+                            formData.append("solicitud_complementaria_id", $("#solicitud_complementaria_id").val());
+                            formData.append("complementario_dirigido_a", $("#complementario_dirigido_a").val());
+                            formData.append("complementario_trabajo_solicitado", $("#complementario_trabajo_solicitado").val());
+                        });
+                    },
+                    success: function(file, response){
+                        var data = $.parseJSON(response);
+                        if(data.sw === 1){
+                            var valor1 = new Array();
+                            valor1[0]  = 100;
+                            valor1[1]  = data.titulo;
+                            valor1[2]  = data.respuesta;
+                            utilitarios(valor1);
+
+                            $("#solicitud_complementaria_id").val(data.id);
+
+                            $(jqgrid5).trigger("reloadGrid");
+                        }
+                        else if(data.sw === 0){
+                            if(data.error_sw === 1){
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = data.respuesta;
+                                utilitarios(valor1);
+                            }
+                            else
+                            {
+                                var respuesta_server = '';
+                                $.each(data.error.response.original, function(index, value) {
+                                    respuesta_server += value + '<br>';
+                                });
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = respuesta_server;
+                                utilitarios(valor1);
+                            }
+                        }
+                        else if(data.sw === 2){
+                            window.location.reload();
+                        }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
+            // === DROPZONE 3 ===
+            case 53:
+                $(valor[1]).dropzone({
+                    url              : url_controller + "/send_ajax",
+                    method           :'post',
+                    addRemoveLinks   : true,
+                    maxFilesize      : 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles    :'application/pdf',
+                    paramName        : valor[2], // The name that will be used to transfer the file
+                    maxFiles         :1,
+                    clickable        :true,
+                    parallelUploads  :1,
+                    params           : {
+                        tipo     : valor[3],
+                        tipo_file: valor[4],
+                        col_name : valor[5],
+                        file_name: valor[2],
+                        _token   : csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize : 1,
+                    autoProcessQueue     :true,
+
+                    dictRemoveFile              :'Eliminar',
+                    dictCancelUpload            :'Cancelar',
+                    dictCancelUploadConfirmation:'¿Confirme la cancelación?',
+                    dictDefaultMessage          : "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage         :'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText            :'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType         :'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig              :'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded        :'Número máximo de archivos superado.',
+                    init                        : function(){
+                        this.on("sending", function(file, xhr, formData){
+                            formData.append("solicitud_id", $("#solicitud_id").val());
+                            formData.append("resolucion_id", $("#resolucion_id").val());
+                            formData.append("resolucion_descripcion", $("#resolucion_descripcion").val());
+                            formData.append("resolucion_fecha_emision", $("#resolucion_fecha_emision").val());
+                            formData.append("resolucion_tipo_disposicion", $("#resolucion_tipo_disposicion").val());
+                            formData.append("resolucion_medidas_proteccion", $("#resolucion_medidas_proteccion").val());
+                            formData.append("resolucion_otra_medidas_proteccion", $("#resolucion_otra_medidas_proteccion").val());
+                            formData.append("resolucion_instituciones_coadyuvantes", $("#resolucion_instituciones_coadyuvantes").val());
+                            formData.append("fecha_inicio", $("#fecha_inicio").val());
+                            formData.append("fecha_entrega_digital", $("#fecha_entrega_digital").val());
+                            formData.append("informe_seguimiento_fecha", $("#informe_seguimiento_fecha").val());
+                            formData.append("complementario_fecha", $("#complementario_fecha").val());
+                        });
+                    },
+                    success: function(file, response){
+                        var data = $.parseJSON(response);
+                        if(data.sw === 1){
+                            var valor1 = new Array();
+                            valor1[0]  = 100;
+                            valor1[1]  = data.titulo;
+                            valor1[2]  = data.respuesta;
+                            utilitarios(valor1);
+
+                            $(jqgrid4).trigger("reloadGrid");
+                            // if(data.iu === 1){
+                            //     var valor1 = new Array();
+                            //     valor1[0]  = 14;
+                            //     utilitarios(valor1);
+                            // }
+                            // else if(data.iu === 2){
+                            //     $('#modal_1').modal('hide');
+                            // }
+                        }
+                        else if(data.sw === 0){
+                            if(data.error_sw === 1){
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = data.respuesta;
+                                utilitarios(valor1);
+                            }
+                            else
+                            {
+                                var respuesta_server = '';
+                                $.each(data.error.response.original, function(index, value) {
+                                    respuesta_server += value + '<br>';
+                                });
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = respuesta_server;
+                                utilitarios(valor1);
+                            }
+                        }
+                        else if(data.sw === 2){
+                            window.location.reload();
+                        }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
 
             // === VER PDF ===
             case 60:
@@ -1885,6 +2218,48 @@
                         case 1:
                             if(val_json.solicitud_estado_pdf == '2'){
                                 var win = window.open(public_url + '/' + val_json.solicitud_documento_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                        case 2:
+                            if(val_json.dirigido_psicologia_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.dirigido_psicologia_archivo_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                        case 3:
+                            if(val_json.dirigido_trabajo_social_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.dirigido_trabajo_social_archivo_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                        case 4:
+                            if(val_json.dirigido_otro_trabajo_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.dirigido_otro_trabajo_archivo_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                        case 5:
+                            if(val_json.plazo_psicologico_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.plazo_psicologico_archivo_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                        case 6:
+                            if(val_json.plazo_social_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.plazo_social_archivo_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                        case 7:
+                            if(val_json.plazo_complementario_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.plazo_complementario_archivo_pdf,  '_blank');
                                 win.focus();
                                 respado_pdf_sw = false;
                             }
@@ -1917,6 +2292,24 @@
                         case 1:
                             concatenar_valores += '&tipo_del=1'
                             break;
+                        case 2:
+                            concatenar_valores += '&tipo_del=2'
+                            break;
+                        case 3:
+                            concatenar_valores += '&tipo_del=3'
+                            break;
+                        case 4:
+                            concatenar_valores += '&tipo_del=4'
+                            break;
+                        case 5:
+                            concatenar_valores += '&tipo_del=5'
+                            break;
+                        case 6:
+                            concatenar_valores += '&tipo_del=6'
+                            break;
+                        case 7:
+                            concatenar_valores += '&tipo_del=7'
+                            break;
                     }
 
                     swal({
@@ -1946,7 +2339,7 @@
                 }
                 break;
 
-            // === GUARDAR DELITO ===
+            // === GUARDAR - DELITO ===
             case 70:
                 var concatenar_valores = '';
 
@@ -2010,7 +2403,7 @@
                     return false;
                 }
                 break;
-            // === ELIMINAR DELITO ===
+            // === ELIMINAR - DELITO ===
             case 701:
                 var concatenar_valores = '';
 
@@ -2039,7 +2432,7 @@
 
                 return respuesta;
                 break;
-            // === GUARDAR RECALIFICACION DEL DELITO ===
+            // === GUARDAR - RECALIFICACION DEL DELITO ===
             case 71:
                 var concatenar_valores = '';
 
@@ -2103,7 +2496,7 @@
                     return false;
                 }
                 break;
-            // === ELIMINAR RECALIFICACION DEL DELITO ===
+            // === ELIMINAR - RECALIFICACION DEL DELITO ===
             case 711:
                 var concatenar_valores = '';
 
@@ -2131,6 +2524,77 @@
                 var respuesta = utilitarios(valor1);
 
                 return respuesta;
+                break;
+            // === GUARDAR - SOLICITUD TRABAJO COMPLEMENTARIO ===
+            case 72:
+                var concatenar_valores = '';
+
+                concatenar_valores += "tipo=23&_token=" + csrf_token;
+
+                var solicitud_id                      = $("#solicitud_id").val();
+                var solicitud_complementaria_id       = $("#solicitud_complementaria_id").val();
+                var complementario_dirigido_a         = $("#complementario_dirigido_a").val();
+                var complementario_trabajo_solicitado = $("#complementario_trabajo_solicitado").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(solicitud_id) != ''){
+                    concatenar_valores += '&solicitud_id=' + solicitud_id;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>Debe de existir el codigo de la MEDIDAS DE PROTECCION para guardar el TRABAJO COMPLEMENTARIO.';
+                }
+
+                if($.trim(complementario_dirigido_a) != ''){
+                    concatenar_valores += '&complementario_dirigido_a=' + complementario_dirigido_a;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo DIRIGIDO A es obligatorio.';
+                }
+
+                if($.trim(complementario_trabajo_solicitado) != ''){
+                    concatenar_valores += '&complementario_trabajo_solicitado=' + complementario_trabajo_solicitado;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo TRABAJO SOLICITADO es obligatorio.';
+                }
+
+                concatenar_valores += '&id=' + solicitud_complementaria_id;
+
+                if(valor_sw){
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1    = new Array();
+                    valor1[0]     = 150;
+                    valor1[1]     = url_controller + '/send_ajax';
+                    valor1[2]     = 'POST';
+                    valor1[3]     = false;
+                    valor1[4]     = concatenar_valores;
+                    valor1[5]     = 'json';
+                    var respuesta = utilitarios(valor1);
+
+                    return respuesta;
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+
+                    return false;
+                }
                 break;
 
             // === MENSAJE ERROR ===
@@ -2168,6 +2632,11 @@
                                         $("#gestion").select2("enable", false);
 
                                         $('#modal_1_title').append(' - ' + data.codigo);
+
+                                        var valor1 = new Array();
+                                        valor1[0]  = 451;
+                                        valor1[1]  = valor[1];
+                                        utilitarios(valor1);
                                     }
 
                                     respuesta_ajax = true;
@@ -2535,6 +3004,48 @@
 
                                     $(jqgrid1).trigger("reloadGrid");
                                     $(jqgrid3).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
+                            // === SOLICITUD TRABAJO COMPLEMENTARIO - INSERT UPDATE ===
+                            case '23':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $("#solicitud_complementaria_id").val(data.id);
+
+                                    $(jqgrid5).trigger("reloadGrid");
 
                                     respuesta_ajax = true;
                                 }

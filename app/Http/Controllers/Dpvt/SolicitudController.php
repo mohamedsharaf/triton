@@ -18,6 +18,7 @@ use App\Models\Dpvt\PvtDelito;
 use App\Models\Dpvt\PvtSolicitud;
 use App\Models\Dpvt\PvtResolucion;
 use App\Models\Dpvt\PvtSolicitudDelito;
+use App\Models\Dpvt\PvtSolicitudComplementaria;
 
 use App\Models\UbicacionGeografica\UbgeMunicipio;
 use App\Models\Rrhh\RrhhPersona;
@@ -558,6 +559,79 @@ class SolicitudController extends Controller
 
                         $row["nombre"],
                         ($row["tentativa"] =="") ? "" : $this->estado_pdf[$row["tentativa"]],
+
+                        //=== VARIABLES OCULTOS ===
+                            json_encode($val_array)
+                    );
+                    $i++;
+                }
+                return json_encode($respuesta);
+                break;
+
+
+            case '5':
+                $where_concatenar = "";
+                if($request->has('solicitud_id'))
+                {
+                    $where_concatenar = " AND pvt_solicitudes_complementarias.solicitud_id=" . $request->input('solicitud_id') . "";
+                }
+
+                $jqgrid = new JqgridClass($request);
+
+                $tabla1 = "pvt_solicitudes_complementarias";
+
+                $select = "
+                    $tabla1.id,
+
+                    $tabla1.solicitud_id,
+
+                    $tabla1.estado,
+
+                    $tabla1.complementario_dirigido_a,
+                    $tabla1.complementario_trabajo_solicitado,
+                    $tabla1.complementario_estado_pdf,
+                    $tabla1.complementario_archivo_pdf
+                ";
+
+                $array_where = "TRUE" . $where_concatenar;
+                $array_where .= $jqgrid->getWhere();
+
+                $count = PvtSolicitudComplementaria::whereRaw($array_where)
+                    ->count();
+
+                $limit_offset = $jqgrid->getLimitOffset($count);
+
+                $query = PvtSolicitudComplementaria::whereRaw($array_where)
+                    ->select(DB::raw($select))
+                    ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                    ->offset($limit_offset['start'])
+                    ->limit($limit_offset['limit'])
+                    ->get()
+                    ->toArray();
+
+                $respuesta = [
+                    'page'    => $limit_offset['page'],
+                    'total'   => $limit_offset['total_pages'],
+                    'records' => $count
+                ];
+
+                $i = 0;
+                foreach ($query as $row)
+                {
+                    $val_array = array(
+                        'solicitud_id'               => $row["solicitud_id"],
+                        'estado'                     => $row["estado"],
+                        'complementario_estado_pdf'  => $row["complementario_estado_pdf"],
+                        'complementario_archivo_pdf' => $row["complementario_archivo_pdf"]
+                    );
+
+                    $respuesta['rows'][$i]['id']   = $row["id"];
+                    $respuesta['rows'][$i]['cell'] = array(
+                        '',
+
+                        $row["complementario_estado_pdf"],
+                        $row["complementario_dirigido_a"],
+                        $row["complementario_trabajo_solicitado"],
 
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
@@ -1164,9 +1238,7 @@ class SolicitudController extends Controller
                     $data1['plazo_fecha_solicitud']                   = trim($request->input('plazo_fecha_solicitud'));
                     $data1['plazo_fecha_recepcion']                   = trim($request->input('plazo_fecha_recepcion'));
                     $data1['plazo_psicologico_fecha_entrega_digital'] = trim($request->input('plazo_psicologico_fecha_entrega_digital'));
-                    $data1['plazo_psicologico_fecha_entrega_fisico']  = trim($request->input('plazo_psicologico_fecha_entrega_fisico'));
                     $data1['plazo_social_fecha_entrega_digital']      = trim($request->input('plazo_social_fecha_entrega_digital'));
-                    $data1['plazo_social_fecha_entrega_fisico']       = trim($request->input('plazo_social_fecha_entrega_fisico'));
                     $data1['plazo_complementario_fecha']              = trim($request->input('plazo_complementario_fecha'));
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
@@ -1183,9 +1255,7 @@ class SolicitudController extends Controller
                         $iu->plazo_fecha_solicitud                   = $data1['plazo_fecha_solicitud'];
                         $iu->plazo_fecha_recepcion                   = $data1['plazo_fecha_recepcion'];
                         $iu->plazo_psicologico_fecha_entrega_digital = $data1['plazo_psicologico_fecha_entrega_digital'];
-                        $iu->plazo_psicologico_fecha_entrega_fisico  = $data1['plazo_psicologico_fecha_entrega_fisico'];
                         $iu->plazo_social_fecha_entrega_digital      = $data1['plazo_social_fecha_entrega_digital'];
-                        $iu->plazo_social_fecha_entrega_fisico       = $data1['plazo_social_fecha_entrega_fisico'];
                         $iu->plazo_complementario_fecha              = $data1['plazo_complementario_fecha'];
                         $iu->save();
 
@@ -1202,9 +1272,7 @@ class SolicitudController extends Controller
                         $iu->plazo_fecha_solicitud                   = $data1['plazo_fecha_solicitud'];
                         $iu->plazo_fecha_recepcion                   = $data1['plazo_fecha_recepcion'];
                         $iu->plazo_psicologico_fecha_entrega_digital = $data1['plazo_psicologico_fecha_entrega_digital'];
-                        $iu->plazo_psicologico_fecha_entrega_fisico  = $data1['plazo_psicologico_fecha_entrega_fisico'];
                         $iu->plazo_social_fecha_entrega_digital      = $data1['plazo_social_fecha_entrega_digital'];
-                        $iu->plazo_social_fecha_entrega_fisico       = $data1['plazo_social_fecha_entrega_fisico'];
                         $iu->plazo_complementario_fecha              = $data1['plazo_complementario_fecha'];
                         $iu->save();
 
@@ -1215,7 +1283,7 @@ class SolicitudController extends Controller
                 return json_encode($respuesta);
                 break;
 
-            // === UPLOAD PDF ===
+            // === UPLOAD PDF - 1 ===
             case '11':
                 // === SEGURIDAD ===
                     $this->rol_id   = Auth::user()->rol_id;
@@ -1376,7 +1444,7 @@ class SolicitudController extends Controller
 
                 return json_encode($respuesta);
                 break;
-            // === ELIMINAR PDF ===
+            // === ELIMINAR PDF - 1 ===
             case '12':
                 // === SEGURIDAD ===
                     $this->rol_id   = Auth::user()->rol_id;
@@ -1416,7 +1484,7 @@ class SolicitudController extends Controller
                     }
 
                 //=== OPERACION ===
-                    if($request->hasFile('tipo_del'))
+                    if($request->has('tipo_del'))
                     {
                         $select = "
                             id,
@@ -1486,8 +1554,7 @@ class SolicitudController extends Controller
 
                         $consulta1 = PvtSolicitud::where('id', '=', $id)
                             ->select(DB::raw($select))
-                            ->first()
-                            ->toArray();
+                            ->first();
 
                         $del_sw   = FALSE;
                         $del_file = '';
@@ -1506,6 +1573,78 @@ class SolicitudController extends Controller
                                     $iu->save();
                                 }
                                 break;
+                            case '2':
+                                if($consulta1['dirigido_psicologia_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['dirigido_psicologia_archivo_pdf'];
+
+                                    $iu                                  = PvtSolicitud::find($id);
+                                    $iu->dirigido_psicologia_estado_pdf  = 1;
+                                    $iu->dirigido_psicologia_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            case '3':
+                                if($consulta1['dirigido_trabajo_social_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['dirigido_trabajo_social_archivo_pdf'];
+
+                                    $iu                                      = PvtSolicitud::find($id);
+                                    $iu->dirigido_trabajo_social_estado_pdf  = 1;
+                                    $iu->dirigido_trabajo_social_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            case '4':
+                                if($consulta1['dirigido_otro_trabajo_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['dirigido_otro_trabajo_archivo_pdf'];
+
+                                    $iu                                    = PvtSolicitud::find($id);
+                                    $iu->dirigido_otro_trabajo_estado_pdf  = 1;
+                                    $iu->dirigido_otro_trabajo_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            case '5':
+                                if($consulta1['plazo_psicologico_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['plazo_psicologico_archivo_pdf'];
+
+                                    $iu                                = PvtSolicitud::find($id);
+                                    $iu->plazo_psicologico_estado_pdf  = 1;
+                                    $iu->plazo_psicologico_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            case '6':
+                                if($consulta1['plazo_social_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['plazo_social_archivo_pdf'];
+
+                                    $iu                           = PvtSolicitud::find($id);
+                                    $iu->plazo_social_estado_pdf  = 1;
+                                    $iu->plazo_social_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            case '7':
+                                if($consulta1['plazo_complementario_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['plazo_complementario_archivo_pdf'];
+
+                                    $iu                                   = PvtSolicitud::find($id);
+                                    $iu->plazo_complementario_estado_pdf  = 1;
+                                    $iu->plazo_complementario_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
                             default:
                                 # code...
                                 break;
@@ -1520,6 +1659,285 @@ class SolicitudController extends Controller
 
                             $respuesta['respuesta'] .= "Se ELIMINO con éxito.";
                             $respuesta['sw']        = 1;
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El PDF no existe.";
+                        }
+                    }
+                return json_encode($respuesta);
+                break;
+            // === UPLOAD PDF - 2 ===
+            case '13':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SUBIR DOCUMENTO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'error_sw'   => 1
+                    );
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('solicitud_complementaria_id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    $file_name = trim($request->input('file_name'));
+
+                    try
+                    {
+                       $validator = $this->validate($request,[
+                            'solicitud_id'                      => 'required',
+                            'complementario_dirigido_a'         => 'required|max:1000',
+                            'complementario_trabajo_solicitado' => 'required|max:1000',
+                            $file_name                          => 'mimes:pdf|max:5120'
+                        ],
+                        [
+                            'solicitud_id.required' => 'El campo SOLICITUD es obligatorio.',
+
+                            'complementario_dirigido_a.required' => 'El campo DIRIGIDO A es obligatorio.',
+                            'complementario_dirigido_a.max'      => 'El campo DIRIGIDO A debe contener :max caracteres como máximo.',
+
+                            'complementario_trabajo_solicitado.required' => 'El campo TRABAJO SOLICITADO es obligatorio.',
+                            'complementario_trabajo_solicitado.max'      => 'El campo TRABAJO SOLICITADO debe contener :max caracteres como máximo.',
+
+                            $file_name . '.mimes' => 'El archivo subido debe de ser de tipo :values.',
+                            $file_name . '.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['solicitud_id']                      = trim($request->input('solicitud_id'));
+                    $data1['complementario_dirigido_a']         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('complementario_dirigido_a'))));
+                    $data1['complementario_trabajo_solicitado'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('complementario_trabajo_solicitado'))));
+
+                    $col_name = trim($request->input('col_name'));
+
+                    if($opcion == 'n')
+                    {
+                        if($request->hasFile($file_name))
+                        {
+                            $archivo = $request->file($file_name);
+
+                            switch($request->input('tipo_file'))
+                            {
+                                case 1:
+                                    $nombre_archivo = uniqid('solicitud_complementaria_', true) . '.' . $archivo->getClientOriginalExtension();
+                                    break;
+                                    break;
+                                default:
+                                    # code...
+                                    break;
+                            }
+
+                            $direccion_archivo = public_path($this->public_dir);
+
+                            $archivo->move($direccion_archivo, $nombre_archivo);
+
+                            $iu                                    = new PvtSolicitudComplementaria;
+                            $iu->solicitud_id                      = $data1['solicitud_id'];
+                            $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
+                            $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
+                            switch($request->input('tipo_file'))
+                            {
+                                case 1:
+                                    $iu->complementario_estado_pdf    = 2;
+                                    $iu->complementario_archivo_pdf = $nombre_archivo;
+                                    break;
+                                default:
+                                    # code...
+                                    break;
+                            }
+                            $iu->save();
+
+                            $respuesta['respuesta'] .= "El DOCUMENTO se subio con éxito, además, fue agregada nueva fila.";
+                            $respuesta['sw']         = 1;
+
+                            $id              = $iu->id;
+                            $respuesta['id'] = $id;
+                        }
+                    }
+                    else
+                    {
+                        $consulta1 = PvtSolicitudComplementaria::where('id', '=', $id)
+                            ->select($col_name)
+                            ->first()
+                            ->toArray();
+                        if($consulta1[$col_name] != '')
+                        {
+                            if(file_exists(public_path($this->public_dir) . '/' . $consulta1[$col_name]))
+                            {
+                                unlink(public_path($this->public_dir) . '/' . $consulta1[$col_name]);
+                            }
+                        }
+
+                        if($request->hasFile($file_name))
+                        {
+                            $archivo = $request->file($file_name);
+
+                            switch($request->input('tipo_file'))
+                            {
+                                case 1:
+                                    $nombre_archivo = uniqid('solicitud_complementaria_', true) . '.' . $archivo->getClientOriginalExtension();
+                                    break;
+                                    break;
+                                default:
+                                    # code...
+                                    break;
+                            }
+
+                            $direccion_archivo = public_path($this->public_dir);
+
+                            $archivo->move($direccion_archivo, $nombre_archivo);
+
+                            $iu                                    = PvtSolicitudComplementaria::find($id);
+                            $iu->solicitud_id                      = $data1['solicitud_id'];
+                            $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
+                            $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
+                            switch($request->input('tipo_file'))
+                            {
+                                case 1:
+                                    $iu->complementario_estado_pdf    = 2;
+                                    $iu->complementario_archivo_pdf = $nombre_archivo;
+                                    break;
+                                default:
+                                    # code...
+                                    break;
+                            }
+                            $iu->save();
+
+                            $respuesta['respuesta'] .= "El DOCUMENTO se subio con éxito, además, se edito.";
+                            $respuesta['sw']         = 1;
+
+                            $respuesta['id'] = $id;
+                        }
+                    }
+
+                return json_encode($respuesta);
+                break;
+            // === ELIMINAR PDF - 2 ===
+            case '14':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ELIMINAR PDF</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'error_sw'   => 1
+                    );
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para ELIMINAR PDF.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "No existe la SOLICITUD COMPLEMENTARIA.";
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    if($request->has('tipo_del'))
+                    {
+                        $select = "
+                            id,
+
+                            complementario_estado_pdf,
+                            complementario_archivo_pdf
+                        ";
+
+                        $consulta1 = PvtSolicitudComplementaria::where('id', '=', $id)
+                            ->select(DB::raw($select))
+                            ->first();
+
+                        $del_sw   = FALSE;
+                        $del_file = '';
+
+                        switch($request->input('tipo_del'))
+                        {
+                            case '1':
+                                if($consulta1['complementario_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['complementario_archivo_pdf'];
+
+                                    $iu                             = PvtSolicitudComplementaria::find($id);
+                                    $iu->solicitud_estado_pdf       = 1;
+                                    $iu->complementario_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            default:
+                                # code...
+                                break;
+                        }
+
+                        if($del_sw)
+                        {
+                            if(file_exists(public_path($this->public_dir) . '/' . $del_file))
+                            {
+                                unlink(public_path($this->public_dir) . '/' . $del_file);
+                            }
+
+                            $respuesta['respuesta'] .= "Se ELIMINO con éxito.";
+                            $respuesta['sw']        = 1;
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El PDF no existe.";
                         }
                     }
                 return json_encode($respuesta);
@@ -2030,6 +2448,171 @@ class SolicitudController extends Controller
                     $iu                         = PvtSolicitud::find(trim($request->input('solicitud_id')));
                     $iu->recalificacion_delitos = $delitos;
                     $iu->save();
+
+                return json_encode($respuesta);
+                break;
+            // === SOLICITUD TRABAJO COMPLEMENTARIO - INSERT UPDATE ===
+            case '23':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SOLICITUD TRABAJO COMPLEMENTARIO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'solicitud_id'                      => 'required',
+                            'complementario_dirigido_a'         => 'required',
+                            'complementario_trabajo_solicitado' => 'required'
+                        ],
+                        [
+                            'solicitud_id.required'                      => 'MEDIDAS DE PROTECCION debe de existir.',
+                            'complementario_dirigido_a.required'         => 'El campo DIRIGIDO A es obligatorio.',
+                            'complementario_trabajo_solicitado.required' => 'El campo TRABAJO SOLICITADO es obligatorio.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['solicitud_id']                      = trim($request->input('solicitud_id'));
+                    $data1['complementario_dirigido_a']         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('complementario_dirigido_a'))));
+                    $data1['complementario_trabajo_solicitado'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('complementario_trabajo_solicitado'))));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                        $iu                                    = new PvtSolicitudComplementaria;
+                        $iu->solicitud_id                      = $data1['solicitud_id'];
+                        $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
+                        $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "La SOLICITUD TRABAJO COMPLEMENTARIO fue registrada con éxito.";
+                        $respuesta['sw']         = 1;
+
+                        $id              = $iu->id;
+                        $respuesta['id'] = $id;
+                    }
+                    else
+                    {
+                        $iu                                    = PvtSolicitudComplementaria::find($id);
+                        $iu->solicitud_id                      = $data1['solicitud_id'];
+                        $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
+                        $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "La SOLICITUD TRABAJO COMPLEMENTARIO se edito con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+
+                        $respuesta['id'] = $id;
+                    }
+                return json_encode($respuesta);
+                break;
+            // === SOLICITUD TRABAJO COMPLEMENTARIO - DELETE ===
+            case '231':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ELIMINAR SOLICITUD TRABAJO COMPLEMENTARIO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('solicitud_complementaria_id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para ELIMINAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === REGISTRAR MODIFICAR ELIMINAR VALORES ===
+                    $de = PvtSolicitudComplementaria::find($id);
+                    $de->delete();
+
+                    $respuesta['respuesta'] .= "La SOLICITUD TRABAJO COMPLEMENTARIO fue eliminado con éxito.";
+                    $respuesta['sw']         = 1;
 
                 return json_encode($respuesta);
                 break;
