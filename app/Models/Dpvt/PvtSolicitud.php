@@ -55,7 +55,6 @@ class PvtSolicitud extends Model
         'dirigido_otro_trabajo_archivo_pdf',
 
         'plazo_fecha_solicitud',
-        'plazo_fecha_recepcion',
 
         'plazo_psicologico_fecha_entrega_digital',
         'plazo_psicologico_estado_pdf',

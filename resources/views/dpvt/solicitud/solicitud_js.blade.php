@@ -479,7 +479,6 @@
 
                             var id                                      = $("#solicitud_id").val();
                             var plazo_fecha_solicitud                   = $("#plazo_fecha_solicitud").val();
-                            var plazo_fecha_recepcion                   = $("#plazo_fecha_recepcion").val();
                             var plazo_psicologico_fecha_entrega_digital = $("#plazo_psicologico_fecha_entrega_digital").val();
                             var plazo_social_fecha_entrega_digital      = $("#plazo_social_fecha_entrega_digital").val();
                             var plazo_complementario_fecha              = $("#plazo_complementario_fecha").val();
@@ -489,7 +488,6 @@
 
                             concatenar_valores += '&id=' + id;
                             concatenar_valores += '&plazo_fecha_solicitud=' + plazo_fecha_solicitud;
-                            concatenar_valores += '&plazo_fecha_recepcion=' + plazo_fecha_recepcion;
                             concatenar_valores += '&plazo_psicologico_fecha_entrega_digital=' + plazo_psicologico_fecha_entrega_digital;
                             concatenar_valores += '&plazo_social_fecha_entrega_digital=' + plazo_social_fecha_entrega_digital;
                             concatenar_valores += '&plazo_complementario_fecha=' + plazo_complementario_fecha;
@@ -670,7 +668,7 @@
             $("#delito_id_r").appendTo("#delito_id_r_div");
 
         //=== datepicker3 ===
-            $('#f_solicitud, #plazo_fecha_solicitud, #plazo_fecha_recepcion, #plazo_psicologico_fecha_entrega_digital, #plazo_psicologico_fecha_entrega_fisico, #plazo_psicologico_fecha, #plazo_social_fecha_entrega_digital, #plazo_social_fecha_entrega_fisico, #plazo_complementario_fecha, #fecha_inicio, #fecha_entrega_digital, #fecha_entrega_fisico, #informe_seguimiento_fecha, #complementario_fecha, #resolucion_fecha_emision').datepicker({
+            $('#f_solicitud, #plazo_fecha_solicitud, #plazo_psicologico_fecha_entrega_digital, #plazo_psicologico_fecha_entrega_fisico, #plazo_psicologico_fecha, #plazo_social_fecha_entrega_digital, #plazo_social_fecha_entrega_fisico, #plazo_complementario_fecha, #fecha_inicio, #fecha_entrega_digital, #fecha_entrega_fisico, #informe_seguimiento_fecha, #complementario_fecha, #resolucion_fecha_emision').datepicker({
                 startView            : 2,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -979,7 +977,6 @@
 
                 // === PRESENTACION DE INFORMES ===
                     $("#plazo_fecha_solicitud").val(val_json.plazo_fecha_solicitud);
-                    $("#plazo_fecha_recepcion").val(val_json.plazo_fecha_recepcion);
                     $("#plazo_psicologico_fecha_entrega_digital").val(val_json.plazo_psicologico_fecha_entrega_digital);
                     $("#plazo_social_fecha_entrega_digital").val(val_json.plazo_social_fecha_entrega_digital);
                     $("#plazo_complementario_fecha").val(val_json.plazo_complementario_fecha);
@@ -1015,9 +1012,58 @@
                 utilitarios(valor1);
 
                 var valor1 = new Array();
+                valor1[0]  = 441;
+                valor1[1]  = valor[1];
+                utilitarios(valor1);
+
+                var valor1 = new Array();
                 valor1[0]  = 451;
                 valor1[1]  = valor[1];
                 utilitarios(valor1);
+                break;
+            // === EDICION - SOLICITUD TRABAJO COMPLEMENTARIO ===
+            case 21:
+                var valor1 = new Array();
+                valor1[0]  = 34;
+                utilitarios(valor1);
+
+                var ret      = $(jqgrid5).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                $("#solicitud_complementaria_id").val(valor[1]);
+                $("#complementario_dirigido_a").val(ret.complementario_dirigido_a);
+                $("#complementario_trabajo_solicitado").val(ret.complementario_trabajo_solicitado);
+                break;
+            // === EDICION - RESOLUCIONES DEL MP Y SEGUIMIENTO ===
+            case 22:
+                var valor1 = new Array();
+                valor1[0]  = 33;
+                utilitarios(valor1);
+
+                var ret      = $(jqgrid4).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                $("#resolucion_id").val(valor[1]);
+                $("#resolucion_descripcion").val(ret.resolucion_descripcion);
+                $("#resolucion_fecha_emision").val(ret.resolucion_fecha_emision);
+                if(val_json.resolucion_tipo_disposicion != null){
+                    var resolucion_tipo_disposicion       = val_json.resolucion_tipo_disposicion;
+                    var resolucion_tipo_disposicion_array = resolucion_tipo_disposicion.split(",");
+                    $("#resolucion_tipo_disposicion").select2().val(resolucion_tipo_disposicion_array).trigger("change");
+                }
+                if(val_json.resolucion_medidas_proteccion != null){
+                    var resolucion_medidas_proteccion       = val_json.resolucion_medidas_proteccion;
+                    var resolucion_medidas_proteccion_array = resolucion_medidas_proteccion.split(",");
+                    $("#resolucion_medidas_proteccion").select2().val(resolucion_medidas_proteccion_array).trigger("change");
+                }
+                $("#resolucion_otra_medidas_proteccion").val(ret.resolucion_otra_medidas_proteccion);
+                $("#resolucion_instituciones_coadyuvantes").val(ret.resolucion_instituciones_coadyuvantes);
+
+
+                $("#fecha_inicio").val(ret.fecha_inicio);
+                $("#fecha_entrega_digital").val(ret.fecha_entrega_digital);
+                $("#informe_seguimiento_fecha").val(ret.informe_seguimiento_fecha);
+                $("#complementario_fecha").val(ret.complementario_fecha);
                 break;
 
             // === RESETEAR - FORMULARIO ===
@@ -1087,7 +1133,6 @@
 
                 $("#fecha_inicio").val('');
                 $("#fecha_entrega_digital").val('');
-                $("#fecha_entrega_fisico").val('');
                 $("#informe_seguimiento_fecha").val('');
                 $("#complementario_fecha").val('');
                 break;
@@ -1152,7 +1197,7 @@
                         "DENUNCIANTE",
                         "DENUNCIADO",
                         "VICTIMA",
-                        "PERSONA PROTEGIDA",
+                        "USUARIO",
 
                         "DELITO",
                         "RECALIFICACION DEL DELITO",
@@ -1175,7 +1220,7 @@
                         {
                             name       : "estado",
                             index      : "pvt_solicitudes.estado",
-                            width      : 200,
+                            width      : 250,
                             align      : "center",
                             stype      :'select',
                             editoptions: {value:estado_jqgrid}
@@ -1634,6 +1679,14 @@
                 break;
             // === JQGRID 4 ===
             case 44:
+                var edit1      = true;
+                var ancho1     = 5;
+                var ancho_d    = 29;
+                @if(in_array(['codigo' => '1903'], $permisos))
+                    edit1  = false;
+                    ancho1 += 2 * ancho_d;
+                @endif
+
                 $(jqgrid4).jqGrid({
                     caption     : '',
                     datatype    : 'local',
@@ -1668,8 +1721,7 @@
                         "¿PDF?",
 
                         "FECHA DE INICIO",
-                        "ENTREGA DIGITAL",
-                        "ENTREGA FISICO",
+                        "FECHA DE ENTREGA",
                         "INFORME SEGUIMIENTO",
                         "¿PDF?",
                         "INFORME COMPLEMENTARIO",
@@ -1681,13 +1733,13 @@
                         {
                             name    : "act",
                             index   : "",
-                            width   : 34,
+                            width   : ancho1,
                             align   : "center",
                             fixed   : true,
                             sortable: false,
                             resize  : false,
                             search  : false,
-                            hidden  : false
+                            hidden  : edit1
                         },
                         {
                             name  : "resolucion_descripcion",
@@ -1755,15 +1807,9 @@
                             align      : "center"
                         },
                         {
-                            name       : "fecha_entrega_fisico",
-                            index      : "pvt_resoluciones.fecha_entrega_fisico",
-                            width      : 100,
-                            align      : "center"
-                        },
-                        {
                             name       : "informe_seguimiento_fecha",
                             index      : "pvt_resoluciones.informe_seguimiento_fecha",
-                            width      : 100,
+                            width      : 150,
                             align      : "center"
                         },
                         {
@@ -1777,7 +1823,7 @@
                         {
                             name       : "complementario_fecha",
                             index      : "pvt_resoluciones.complementario_fecha",
-                            width      : "100",
+                            width      : 150,
                             align      : "center"
                         },
                         {
@@ -1800,6 +1846,26 @@
                     ],
                     loadComplete: function(){
                         $("tr.jqgrow:odd").addClass('myAltRowClass');
+                    },
+                    gridComplete : function() {
+                        var ids = $(jqgrid4).jqGrid('getDataIDs');
+                        for(var i = 0; i < ids.length; i++){
+                            var cl       = ids[i];
+
+                            var edi1 = "";
+                            var del1 = "";
+                            @if(in_array(['codigo' => '1903'], $permisos))
+                                edi1 = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([22, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                            @endif
+
+                            @if(in_array(['codigo' => '1903'], $permisos))
+                                del1 = " <button type='button' class='btn btn-xs btn-danger' title='Eliminar fila' onclick=\"utilitarios([731, " + cl + "]);\"><i class='fa fa-trash'></i></button>";
+                            @endif
+
+                            $(jqgrid4).jqGrid('setRowData', ids[i], {
+                                act : $.trim(edi1 + del1)
+                            });
+                        }
                     }
                 });
 
@@ -1814,6 +1880,19 @@
                 })
                 ;
                 break;
+            // === JQGRID 4 - RELOAD ===
+            case 441:
+                $(jqgrid4).jqGrid('setGridParam',{
+                    url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=4&solicitud_id=' + valor[1],
+                    datatype: 'json'
+                }).trigger('reloadGrid');
+                break;
+            // === JQGRID 4 - RELOAD SIN VALOR ===
+            case 442:
+                $(jqgrid4).jqGrid('setGridParam',{
+                    datatype: 'local'
+                }).trigger('reloadGrid');
+                break;
             // === JQGRID 5 ===
             case 45:
                 var edit1      = true;
@@ -1821,7 +1900,7 @@
                 var ancho_d    = 29;
                 @if(in_array(['codigo' => '1903'], $permisos))
                     edit1  = false;
-                    ancho1 += ancho_d;
+                    ancho1 += 2 * ancho_d;
                 @endif
 
                 $(jqgrid5).jqGrid({
@@ -1903,13 +1982,18 @@
                         for(var i = 0; i < ids.length; i++){
                             var cl       = ids[i];
 
+                            var edi1 = "";
                             var del1 = "";
                             @if(in_array(['codigo' => '1903'], $permisos))
-                                del1 = "<button type='button' class='btn btn-xs btn-danger' title='Eliminar fila' onclick=\"utilitarios([711, " + cl + "]);\"><i class='fa fa-trash'></i></button>";
+                                edi1 = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([21, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                            @endif
+
+                            @if(in_array(['codigo' => '1903'], $permisos))
+                                del1 = " <button type='button' class='btn btn-xs btn-danger' title='Eliminar fila' onclick=\"utilitarios([721, " + cl + "]);\"><i class='fa fa-trash'></i></button>";
                             @endif
 
                             $(jqgrid5).jqGrid('setRowData', ids[i], {
-                                act : $.trim(del1)
+                                act : $.trim(edi1 + del1)
                             });
                         }
                     }
@@ -2207,7 +2291,7 @@
                 });
                 break;
 
-            // === VER PDF ===
+            // === VER PDF - 1 ===
             case 60:
                 var id = $("#solicitud_id").val();
                 if(id != ''){
@@ -2281,7 +2365,7 @@
                     utilitarios(valor1);
                 }
                 break;
-            // === ELIMINAR PDF ===
+            // === ELIMINAR PDF - 1 ===
             case 61:
                 var id = $("#solicitud_id").val();
                 if(id != ''){
@@ -2335,6 +2419,188 @@
                     valor1[0]  = 101;
                     valor1[1]  = '<div class="text-center"><strong>SIN CODIGO</strong></div>';
                     valor1[2]  = "No existe CODIGO en la MEDIDA DE PROTECCION.";
+                    utilitarios(valor1);
+                }
+                break;
+            // === VER PDF - 2 ===
+            case 62:
+                if(valor[2] === 0){
+                    var id = $("#solicitud_complementaria_id").val();
+                }
+                else{
+                    var id = valor[2];
+                }
+                if(id != ''){
+                    var ret            = $(jqgrid5).jqGrid('getRowData', id);
+                    var val_json       = $.parseJSON(ret.val_json);
+                    var respado_pdf_sw = true;
+                    switch(valor[1]){
+                        case 1:
+                            if(val_json.complementario_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.complementario_archivo_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                    }
+                    if(respado_pdf_sw){
+                        var valor1 = new Array();
+                        valor1[0]  = 101;
+                        valor1[1]  = '<div class="text-center"><strong>SIN RESPALDO PDF</strong></div>';
+                        valor1[2]  = "No se subio ningun PDF.";
+                        utilitarios(valor1);
+                    }
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>SIN RESPALDO PDF</strong></div>';
+                    valor1[2]  = "Edite una SOLICITUD DE TRABAJO COMPLEMENTARIO.";
+                    utilitarios(valor1);
+                }
+                break;
+            // === ELIMINAR PDF - 2 ===
+            case 63:
+                var id = $("#solicitud_complementaria_id").val();
+                if(id != ''){
+                    var concatenar_valores = '';
+                    concatenar_valores += "tipo=14&_token=" + csrf_token;
+                    concatenar_valores += '&id=' + id;
+                    switch(valor[1]){
+                        case 1:
+                            concatenar_valores += '&tipo_del=1'
+                            break;
+                    }
+
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Eliminando PDF.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1    = new Array();
+                    valor1[0]     = 150;
+                    valor1[1]     = url_controller + '/send_ajax';
+                    valor1[2]     = 'POST';
+                    valor1[3]     = false;
+                    valor1[4]     = concatenar_valores;
+                    valor1[5]     = 'json';
+                    var respuesta = utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>NO SE EDITO/strong></div>';
+                    valor1[2]  = "Edite una SOLICITUD DE TRABAJO COMPLEMENTARIO.";
+                    utilitarios(valor1);
+                }
+                break;
+            // === VER PDF - 3 ===
+            case 64:
+                if(valor[2] === 0){
+                    var id = $("#resolucion_id").val();
+                }
+                else{
+                    var id = valor[2];
+                }
+                if(id != ''){
+                    var ret            = $(jqgrid4).jqGrid('getRowData', id);
+                    var val_json       = $.parseJSON(ret.val_json);
+                    var respado_pdf_sw = true;
+                    switch(valor[1]){
+                        case 1:
+                            if(val_json.resolucion_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.resolucion_archivo_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                        case 2:
+                            if(val_json.resolucion_estado_pdf_2 == '2'){
+                                var win = window.open(public_url + '/' + val_json.resolucion_archivo_pdf_2,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                        case 3:
+                            if(val_json.informe_seguimiento_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.informe_seguimiento_archivo_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                        case 4:
+                            if(val_json.complementario_estado_pdf == '2'){
+                                var win = window.open(public_url + '/' + val_json.complementario_archivo_pdf,  '_blank');
+                                win.focus();
+                                respado_pdf_sw = false;
+                            }
+                            break;
+                    }
+                    if(respado_pdf_sw){
+                        var valor1 = new Array();
+                        valor1[0]  = 101;
+                        valor1[1]  = '<div class="text-center"><strong>SIN RESPALDO PDF</strong></div>';
+                        valor1[2]  = "No se subio ningun PDF.";
+                        utilitarios(valor1);
+                    }
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>SIN RESPALDO PDF</strong></div>';
+                    valor1[2]  = "Edite una RESOLUCION DEL MP Y SEGUIMIENTO.";
+                    utilitarios(valor1);
+                }
+                break;
+            // === ELIMINAR PDF - 3 ===
+            case 65:
+                var id = $("#resolucion_id").val();
+                if(id != ''){
+                    var concatenar_valores = '';
+                    concatenar_valores += "tipo=16&_token=" + csrf_token;
+                    concatenar_valores += '&id=' + id;
+                    switch(valor[1]){
+                        case 1:
+                            concatenar_valores += '&tipo_del=1'
+                            break;
+                        case 2:
+                            concatenar_valores += '&tipo_del=2'
+                            break;
+                        case 3:
+                            concatenar_valores += '&tipo_del=3'
+                            break;
+                        case 4:
+                            concatenar_valores += '&tipo_del=4'
+                            break;
+                    }
+
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Eliminando PDF.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1    = new Array();
+                    valor1[0]     = 150;
+                    valor1[1]     = url_controller + '/send_ajax';
+                    valor1[2]     = 'POST';
+                    valor1[3]     = false;
+                    valor1[4]     = concatenar_valores;
+                    valor1[5]     = 'json';
+                    var respuesta = utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>NO SE EDITO/strong></div>';
+                    valor1[2]  = "Edite una SOLICITUD DE TRABAJO COMPLEMENTARIO.";
                     utilitarios(valor1);
                 }
                 break;
@@ -2595,6 +2861,146 @@
 
                     return false;
                 }
+                break;
+            // === ELIMINAR - SOLICITUD TRABAJO COMPLEMENTARIO ===
+            case 721:
+                var concatenar_valores = '';
+
+                var ret      = $(jqgrid5).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                concatenar_valores += "tipo=231&_token=" + csrf_token + "&solicitud_complementaria_id=" + valor[1] + "&complementario_archivo_pdf=" + val_json.complementario_archivo_pdf;
+
+                swal({
+                    title             : "ENVIANDO INFORMACIÓN",
+                    text              : "Espere a que elimine la información.",
+                    allowEscapeKey    : false,
+                    showConfirmButton : false,
+                    type              : "info"
+                });
+                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                var valor1    = new Array();
+                valor1[0]     = 150;
+                valor1[1]     = url_controller + '/send_ajax';
+                valor1[2]     = 'POST';
+                valor1[3]     = false;
+                valor1[4]     = concatenar_valores;
+                valor1[5]     = 'json';
+                var respuesta = utilitarios(valor1);
+
+                return respuesta;
+                break;
+            // === GUARDAR - RESOLUCIONES DEL MP Y SEGUIMIENTO ===
+            case 73:
+                var concatenar_valores = '';
+
+                concatenar_valores += "tipo=24&_token=" + csrf_token;
+
+                var solicitud_id                          = $("#solicitud_id").val();
+                var resolucion_id                         = $("#resolucion_id").val();
+                var resolucion_descripcion                = $("#resolucion_descripcion").val();
+                var resolucion_fecha_emision              = $("#resolucion_fecha_emision").val();
+                var resolucion_tipo_disposicion           = $("#resolucion_tipo_disposicion").val();
+                var resolucion_medidas_proteccion         = $("#resolucion_medidas_proteccion").val();
+                var resolucion_otra_medidas_proteccion    = $("#resolucion_otra_medidas_proteccion").val();
+                var resolucion_instituciones_coadyuvantes = $("#resolucion_instituciones_coadyuvantes").val();
+
+                var fecha_inicio              = $("#fecha_inicio").val();
+                var fecha_entrega_digital     = $("#fecha_entrega_digital").val();
+                var informe_seguimiento_fecha = $("#informe_seguimiento_fecha").val();
+                var complementario_fecha      = $("#complementario_fecha").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(solicitud_id) != ''){
+                    concatenar_valores += '&solicitud_id=' + solicitud_id;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>Debe de existir el codigo de la MEDIDAS DE PROTECCION para guardar las RESOLUCIONES DEL MP Y SEGUIMIENTO.';
+                }
+
+                if($.trim(resolucion_descripcion) != ''){
+                    concatenar_valores += '&resolucion_descripcion=' + resolucion_descripcion;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo DIRIGIDO A es obligatorio.';
+                }
+
+                concatenar_valores += '&id=' + resolucion_id;
+                concatenar_valores += '&resolucion_fecha_emision=' + resolucion_fecha_emision;
+                concatenar_valores += '&resolucion_tipo_disposicion=' + resolucion_tipo_disposicion;
+                concatenar_valores += '&resolucion_medidas_proteccion=' + resolucion_medidas_proteccion;
+                concatenar_valores += '&resolucion_otra_medidas_proteccion=' + resolucion_otra_medidas_proteccion;
+                concatenar_valores += '&resolucion_instituciones_coadyuvantes=' + resolucion_instituciones_coadyuvantes;
+
+                concatenar_valores += '&fecha_inicio=' + fecha_inicio;
+                concatenar_valores += '&fecha_entrega_digital=' + fecha_entrega_digital;
+                concatenar_valores += '&informe_seguimiento_fecha=' + informe_seguimiento_fecha;
+                concatenar_valores += '&complementario_fecha=' + complementario_fecha;
+
+                if(valor_sw){
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1    = new Array();
+                    valor1[0]     = 150;
+                    valor1[1]     = url_controller + '/send_ajax';
+                    valor1[2]     = 'POST';
+                    valor1[3]     = false;
+                    valor1[4]     = concatenar_valores;
+                    valor1[5]     = 'json';
+                    var respuesta = utilitarios(valor1);
+
+                    return respuesta;
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+
+                    return false;
+                }
+                break;
+            // === ELIMINAR - RESOLUCIONES DEL MP Y SEGUIMIENTO ===
+            case 731:
+                var concatenar_valores = '';
+
+                var ret      = $(jqgrid4).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                concatenar_valores += "tipo=241&_token=" + csrf_token + "&resolucion_id=" + valor[1] + "&resolucion_archivo_pdf=" + val_json.resolucion_archivo_pdf + "&resolucion_archivo_pdf_2=" + val_json.resolucion_archivo_pdf_2 + "&informe_seguimiento_archivo_pdf=" + val_json.informe_seguimiento_archivo_pdf + "&complementario_archivo_pdf=" + val_json.complementario_archivo_pdf;
+
+                swal({
+                    title             : "ENVIANDO INFORMACIÓN",
+                    text              : "Espere a que elimine la información.",
+                    allowEscapeKey    : false,
+                    showConfirmButton : false,
+                    type              : "info"
+                });
+                $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                var valor1    = new Array();
+                valor1[0]     = 150;
+                valor1[1]     = url_controller + '/send_ajax';
+                valor1[2]     = 'POST';
+                valor1[3]     = false;
+                valor1[4]     = concatenar_valores;
+                valor1[5]     = 'json';
+                var respuesta = utilitarios(valor1);
+
+                return respuesta;
                 break;
 
             // === MENSAJE ERROR ===
@@ -2863,6 +3269,84 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
+                            // === ELIMINAR PDF ===
+                            case '14':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid5).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === ELIMINAR PDF ===
+                            case '16':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid4).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
 
                             // === DELITO - INSERT UPDATE ===
                             case '21':
@@ -3046,6 +3530,126 @@
                                     $("#solicitud_complementaria_id").val(data.id);
 
                                     $(jqgrid5).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === SOLICITUD TRABAJO COMPLEMENTARIO - ELIMINAR ===
+                            case '231':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid5).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+
+                            // === SOLICITUD TRABAJO COMPLEMENTARIO - INSERT UPDATE ===
+                            case '24':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $("#resolucion_id").val(data.id);
+
+                                    $(jqgrid4).trigger("reloadGrid");
+
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === SOLICITUD TRABAJO COMPLEMENTARIO - ELIMINAR ===
+                            case '241':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid4).trigger("reloadGrid");
 
                                     respuesta_ajax = true;
                                 }

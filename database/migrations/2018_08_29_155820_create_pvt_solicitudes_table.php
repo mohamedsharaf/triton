@@ -62,7 +62,6 @@ class CreatePvtSolicitudesTable extends Migration
             $table->string('dirigido_otro_trabajo_archivo_pdf', 100)->nullable();
 
             $table->date('plazo_fecha_solicitud')->nullable();
-            $table->date('plazo_fecha_recepcion')->nullable();
 
             $table->date('plazo_psicologico_fecha_entrega_digital')->nullable();
             $table->smallInteger('plazo_psicologico_estado_pdf')->default('1')->unsigned();

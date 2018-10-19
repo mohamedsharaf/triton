@@ -94,7 +94,7 @@ class SolicitudController extends Controller
         ];
 
         $this->dirigido_a = [
-            '1'  => 'DPVTMMP',
+            '1'  => 'UPAVT',
             '2'  => 'SLIM',
             '3'  => 'DNA',
             '4'  => 'SIJPLU',
@@ -109,7 +109,8 @@ class SolicitudController extends Controller
             '13' => 'JEFATURA FGE',
             '14' => 'MINISTERIO',
             '15' => 'JEFATURA DE TRABAJO',
-            '16' => 'OTRO'
+            '16' => 'DPVTMMP',
+            '17' => 'OTRO'
         ];
 
         $this->dirigido_psicologia = [
@@ -275,7 +276,6 @@ class SolicitudController extends Controller
                     $tabla1.dirigido_otro_trabajo_archivo_pdf,
 
                     $tabla1.plazo_fecha_solicitud,
-                    $tabla1.plazo_fecha_recepcion,
 
                     $tabla1.plazo_psicologico_fecha_entrega_digital,
                     $tabla1.plazo_psicologico_estado_pdf,
@@ -368,7 +368,6 @@ class SolicitudController extends Controller
                         'dirigido_otro_trabajo_archivo_pdf' => $row["dirigido_otro_trabajo_archivo_pdf"],
 
                         'plazo_fecha_solicitud' => $row["plazo_fecha_solicitud"],
-                        'plazo_fecha_recepcion' => $row["plazo_fecha_recepcion"],
 
                         'plazo_psicologico_fecha_entrega_digital' => $row["plazo_psicologico_fecha_entrega_digital"],
                         'plazo_psicologico_estado_pdf'            => $row["plazo_psicologico_estado_pdf"],
@@ -567,8 +566,112 @@ class SolicitudController extends Controller
                 }
                 return json_encode($respuesta);
                 break;
+            case '4':
+                $where_concatenar = "";
+                if($request->has('solicitud_id'))
+                {
+                    $where_concatenar = " AND pvt_resoluciones.solicitud_id=" . $request->input('solicitud_id') . "";
+                }
 
+                $jqgrid = new JqgridClass($request);
 
+                $tabla1 = "pvt_resoluciones";
+
+                $select = "
+                    $tabla1.id,
+
+                    $tabla1.solicitud_id,
+
+                    $tabla1.estado,
+
+                    $tabla1.resolucion_descripcion,
+                    $tabla1.resolucion_fecha_emision,
+                    $tabla1.resolucion_estado_pdf,
+                    $tabla1.resolucion_archivo_pdf,
+                    $tabla1.resolucion_tipo_disposicion,
+                    $tabla1.resolucion_medidas_proteccion,
+                    $tabla1.resolucion_otra_medidas_proteccion,
+                    $tabla1.resolucion_instituciones_coadyuvantes,
+                    $tabla1.resolucion_estado_pdf_2,
+                    $tabla1.resolucion_archivo_pdf_2,
+
+                    $tabla1.fecha_inicio,
+                    $tabla1.fecha_entrega_digital,
+                    $tabla1.informe_seguimiento_fecha,
+                    $tabla1.informe_seguimiento_estado_pdf,
+                    $tabla1.informe_seguimiento_archivo_pdf,
+                    $tabla1.complementario_fecha,
+                    $tabla1.complementario_estado_pdf,
+                    $tabla1.complementario_archivo_pdf
+                ";
+
+                $array_where = "TRUE" . $where_concatenar;
+                $array_where .= $jqgrid->getWhere();
+
+                $count = PvtResolucion::whereRaw($array_where)
+                    ->count();
+
+                $limit_offset = $jqgrid->getLimitOffset($count);
+
+                $query = PvtResolucion::whereRaw($array_where)
+                    ->select(DB::raw($select))
+                    ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                    ->offset($limit_offset['start'])
+                    ->limit($limit_offset['limit'])
+                    ->get()
+                    ->toArray();
+
+                $respuesta = [
+                    'page'    => $limit_offset['page'],
+                    'total'   => $limit_offset['total_pages'],
+                    'records' => $count
+                ];
+
+                $i = 0;
+                foreach ($query as $row)
+                {
+                    $val_array = array(
+                        'solicitud_id'                    => $row["solicitud_id"],
+                        'estado'                          => $row["estado"],
+                        'resolucion_estado_pdf'           => $row["resolucion_estado_pdf"],
+                        'resolucion_archivo_pdf'          => $row["resolucion_archivo_pdf"],
+                        'resolucion_tipo_disposicion'     => $row["resolucion_tipo_disposicion"],
+                        'resolucion_medidas_proteccion'   => $row["resolucion_medidas_proteccion"],
+                        'resolucion_estado_pdf_2'         => $row["resolucion_estado_pdf_2"],
+                        'resolucion_archivo_pdf_2'        => $row["resolucion_archivo_pdf_2"],
+                        'informe_seguimiento_estado_pdf'  => $row["informe_seguimiento_estado_pdf"],
+                        'informe_seguimiento_archivo_pdf' => $row["informe_seguimiento_archivo_pdf"],
+                        'complementario_estado_pdf'       => $row["complementario_estado_pdf"],
+                        'complementario_archivo_pdf'      => $row["complementario_archivo_pdf"]
+                    );
+
+                    $respuesta['rows'][$i]['id']   = $row["id"];
+                    $respuesta['rows'][$i]['cell'] = array(
+                        '',
+
+                        $row["resolucion_descripcion"],
+                        $row["resolucion_fecha_emision"],
+                        $this->utilitarios(array('tipo' => '7', 'estado_pdf' => $row["resolucion_estado_pdf"], 'id' => $row["id"], 'tipo_pdf' => 1)),
+                        $row["resolucion_tipo_disposicion"],
+                        $row["resolucion_medidas_proteccion"],
+                        $row["resolucion_otra_medidas_proteccion"],
+                        $row["resolucion_instituciones_coadyuvantes"],
+                        $this->utilitarios(array('tipo' => '7', 'estado_pdf' => $row["resolucion_estado_pdf_2"], 'id' => $row["id"], 'tipo_pdf' => 2)),
+
+                        $row["fecha_inicio"],
+                        $row["fecha_entrega_digital"],
+                        $row["informe_seguimiento_fecha"],
+                        $this->utilitarios(array('tipo' => '7', 'estado_pdf' => $row["informe_seguimiento_estado_pdf"], 'id' => $row["id"], 'tipo_pdf' => 3)),
+                        $row["complementario_fecha"],
+                        $this->utilitarios(array('tipo' => '7', 'estado_pdf' => $row["complementario_estado_pdf"], 'id' => $row["id"], 'tipo_pdf' => 4)),
+
+                        //=== VARIABLES OCULTOS ===
+                            json_encode($val_array)
+                    );
+                    $i++;
+                }
+                return json_encode($respuesta);
+                break;
             case '5':
                 $where_concatenar = "";
                 if($request->has('solicitud_id'))
@@ -629,7 +732,7 @@ class SolicitudController extends Controller
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
 
-                        $row["complementario_estado_pdf"],
+                        $this->utilitarios(array('tipo' => '6', 'estado_pdf' => $row["complementario_estado_pdf"], 'id' => $row["id"], 'tipo_pdf' => 1)),
                         $row["complementario_dirigido_a"],
                         $row["complementario_trabajo_solicitado"],
 
@@ -740,7 +843,7 @@ class SolicitudController extends Controller
 
                             'victima.max' => 'El campo VICTIMA debe contener :max caracteres como máximo.',
 
-                            'persona_protegida.max' => 'El campo PERSONA PROTEGIDA debe contener :max caracteres como máximo.'
+                            'persona_protegida.max' => 'El campo USUARIO debe contener :max caracteres como máximo.'
                         ]);
                     }
                     catch (Exception $e)
@@ -1236,7 +1339,6 @@ class SolicitudController extends Controller
 
                 //=== OPERACION ===
                     $data1['plazo_fecha_solicitud']                   = trim($request->input('plazo_fecha_solicitud'));
-                    $data1['plazo_fecha_recepcion']                   = trim($request->input('plazo_fecha_recepcion'));
                     $data1['plazo_psicologico_fecha_entrega_digital'] = trim($request->input('plazo_psicologico_fecha_entrega_digital'));
                     $data1['plazo_social_fecha_entrega_digital']      = trim($request->input('plazo_social_fecha_entrega_digital'));
                     $data1['plazo_complementario_fecha']              = trim($request->input('plazo_complementario_fecha'));
@@ -1253,7 +1355,6 @@ class SolicitudController extends Controller
                     {
                         $iu                                          = new PvtSolicitud;
                         $iu->plazo_fecha_solicitud                   = $data1['plazo_fecha_solicitud'];
-                        $iu->plazo_fecha_recepcion                   = $data1['plazo_fecha_recepcion'];
                         $iu->plazo_psicologico_fecha_entrega_digital = $data1['plazo_psicologico_fecha_entrega_digital'];
                         $iu->plazo_social_fecha_entrega_digital      = $data1['plazo_social_fecha_entrega_digital'];
                         $iu->plazo_complementario_fecha              = $data1['plazo_complementario_fecha'];
@@ -1270,7 +1371,6 @@ class SolicitudController extends Controller
                     {
                         $iu                                          = PvtSolicitud::find($id);
                         $iu->plazo_fecha_solicitud                   = $data1['plazo_fecha_solicitud'];
-                        $iu->plazo_fecha_recepcion                   = $data1['plazo_fecha_recepcion'];
                         $iu->plazo_psicologico_fecha_entrega_digital = $data1['plazo_psicologico_fecha_entrega_digital'];
                         $iu->plazo_social_fecha_entrega_digital      = $data1['plazo_social_fecha_entrega_digital'];
                         $iu->plazo_complementario_fecha              = $data1['plazo_complementario_fecha'];
@@ -1534,7 +1634,6 @@ class SolicitudController extends Controller
                             dirigido_otro_trabajo_archivo_pdf,
 
                             plazo_fecha_solicitud,
-                            plazo_fecha_recepcion,
 
                             plazo_psicologico_fecha_entrega_digital,
                             plazo_psicologico_estado_pdf,
@@ -1759,7 +1858,6 @@ class SolicitudController extends Controller
                                 case 1:
                                     $nombre_archivo = uniqid('solicitud_complementaria_', true) . '.' . $archivo->getClientOriginalExtension();
                                     break;
-                                    break;
                                 default:
                                     # code...
                                     break;
@@ -1796,55 +1894,57 @@ class SolicitudController extends Controller
                     {
                         $consulta1 = PvtSolicitudComplementaria::where('id', '=', $id)
                             ->select($col_name)
-                            ->first()
-                            ->toArray();
-                        if($consulta1[$col_name] != '')
+                            ->first();
+                        if(count($consulta1) > 0)
                         {
-                            if(file_exists(public_path($this->public_dir) . '/' . $consulta1[$col_name]))
+                            if($consulta1[$col_name] != '')
                             {
-                                unlink(public_path($this->public_dir) . '/' . $consulta1[$col_name]);
-                            }
-                        }
-
-                        if($request->hasFile($file_name))
-                        {
-                            $archivo = $request->file($file_name);
-
-                            switch($request->input('tipo_file'))
-                            {
-                                case 1:
-                                    $nombre_archivo = uniqid('solicitud_complementaria_', true) . '.' . $archivo->getClientOriginalExtension();
-                                    break;
-                                    break;
-                                default:
-                                    # code...
-                                    break;
+                                if(file_exists(public_path($this->public_dir) . '/' . $consulta1[$col_name]))
+                                {
+                                    unlink(public_path($this->public_dir) . '/' . $consulta1[$col_name]);
+                                }
                             }
 
-                            $direccion_archivo = public_path($this->public_dir);
-
-                            $archivo->move($direccion_archivo, $nombre_archivo);
-
-                            $iu                                    = PvtSolicitudComplementaria::find($id);
-                            $iu->solicitud_id                      = $data1['solicitud_id'];
-                            $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
-                            $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
-                            switch($request->input('tipo_file'))
+                            if($request->hasFile($file_name))
                             {
-                                case 1:
-                                    $iu->complementario_estado_pdf    = 2;
-                                    $iu->complementario_archivo_pdf = $nombre_archivo;
-                                    break;
-                                default:
-                                    # code...
-                                    break;
+                                $archivo = $request->file($file_name);
+
+                                switch($request->input('tipo_file'))
+                                {
+                                    case 1:
+                                        $nombre_archivo = uniqid('solicitud_complementaria_', true) . '.' . $archivo->getClientOriginalExtension();
+                                        break;
+                                        break;
+                                    default:
+                                        # code...
+                                        break;
+                                }
+
+                                $direccion_archivo = public_path($this->public_dir);
+
+                                $archivo->move($direccion_archivo, $nombre_archivo);
+
+                                $iu                                    = PvtSolicitudComplementaria::find($id);
+                                $iu->solicitud_id                      = $data1['solicitud_id'];
+                                $iu->complementario_dirigido_a         = $data1['complementario_dirigido_a'];
+                                $iu->complementario_trabajo_solicitado = $data1['complementario_trabajo_solicitado'];
+                                switch($request->input('tipo_file'))
+                                {
+                                    case 1:
+                                        $iu->complementario_estado_pdf    = 2;
+                                        $iu->complementario_archivo_pdf = $nombre_archivo;
+                                        break;
+                                    default:
+                                        # code...
+                                        break;
+                                }
+                                $iu->save();
+
+                                $respuesta['respuesta'] .= "El DOCUMENTO se subio con éxito, además, se edito.";
+                                $respuesta['sw']         = 1;
+
+                                $respuesta['id'] = $id;
                             }
-                            $iu->save();
-
-                            $respuesta['respuesta'] .= "El DOCUMENTO se subio con éxito, además, se edito.";
-                            $respuesta['sw']         = 1;
-
-                            $respuesta['id'] = $id;
                         }
                     }
 
@@ -1885,7 +1985,7 @@ class SolicitudController extends Controller
                     }
                     else
                     {
-                        $respuesta['respuesta'] .= "No existe la SOLICITUD COMPLEMENTARIA.";
+                        $respuesta['respuesta'] .= "No existe la SOLICITUD DE TRABAJO COMPLEMENTARIA.";
                         return json_encode($respuesta);
                     }
 
@@ -1915,7 +2015,412 @@ class SolicitudController extends Controller
                                     $del_file = $consulta1['complementario_archivo_pdf'];
 
                                     $iu                             = PvtSolicitudComplementaria::find($id);
-                                    $iu->solicitud_estado_pdf       = 1;
+                                    $iu->complementario_estado_pdf  = 1;
+                                    $iu->complementario_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            default:
+                                # code...
+                                break;
+                        }
+
+                        if($del_sw)
+                        {
+                            if(file_exists(public_path($this->public_dir) . '/' . $del_file))
+                            {
+                                unlink(public_path($this->public_dir) . '/' . $del_file);
+                            }
+
+                            $respuesta['respuesta'] .= "Se ELIMINO con éxito.";
+                            $respuesta['sw']        = 1;
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El PDF no existe.";
+                        }
+                    }
+                return json_encode($respuesta);
+                break;
+            // === UPLOAD PDF - 3 ===
+            case '15':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SUBIR DOCUMENTO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'error_sw'   => 1
+                    );
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('resolucion_id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    $file_name = trim($request->input('file_name'));
+
+                    try
+                    {
+                       $validator = $this->validate($request,[
+                            'solicitud_id'                          => 'required',
+                            'resolucion_descripcion'                => 'required|max:500',
+                            'resolucion_tipo_disposicion'           => 'max:50',
+                            'resolucion_medidas_proteccion'         => 'max:50',
+                            'resolucion_otra_medidas_proteccion'    => 'max:1000',
+                            'resolucion_instituciones_coadyuvantes' => 'max:1000',
+                            $file_name                              => 'mimes:pdf|max:5120'
+                        ],
+                        [
+                            'solicitud_id.required' => 'MEDIDAS DE PROTECCION debe de existir.',
+
+                            'resolucion_descripcion.required' => 'El campo DESCRIPCION DE LA RESOLUCION es obligatorio.',
+                            'resolucion_descripcion.max'      => 'El campo DESCRIPCION DE LA RESOLUCION debe contener :max caracteres como máximo.',
+
+                            'resolucion_tipo_disposicion.max' => 'El campo TIPO DE DISPOSICION debe contener :max caracteres como máximo.',
+
+                            'resolucion_medidas_proteccion.max' => 'El campo MEDIDA DE PROTECCION DISPUESTA debe contener :max caracteres como máximo.',
+
+                            'resolucion_otra_medidas_proteccion.max' => 'El campo OTRA MEDIDA DE PROTECCION DISPUESTA debe contener :max caracteres como máximo.',
+
+                            'resolucion_instituciones_coadyuvantes.max' => 'El campo INSTITUCION COADYUVANTE debe contener :max caracteres como máximo.',
+
+                            $file_name . '.mimes' => 'El archivo subido debe de ser de tipo :values.',
+                            $file_name . '.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['solicitud_id']                          = trim($request->input('solicitud_id'));
+                    $data1['resolucion_descripcion']                = strtoupper($util->getNoAcentoNoComilla(trim($request->input('resolucion_descripcion'))));
+                    $data1['resolucion_fecha_emision']              = trim($request->input('resolucion_fecha_emision'));
+                    $data1['resolucion_tipo_disposicion']           = $request->input('resolucion_tipo_disposicion');
+                    $data1['resolucion_medidas_proteccion']         = $request->input('resolucion_medidas_proteccion');
+                    $data1['resolucion_otra_medidas_proteccion']    = strtoupper($util->getNoAcentoNoComilla(trim($request->input('resolucion_otra_medidas_proteccion'))));
+                    $data1['resolucion_instituciones_coadyuvantes'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('resolucion_instituciones_coadyuvantes'))));
+
+                    $data1['fecha_inicio']              = trim($request->input('fecha_inicio'));
+                    $data1['fecha_entrega_digital']     = trim($request->input('fecha_entrega_digital'));
+                    $data1['informe_seguimiento_fecha'] = trim($request->input('informe_seguimiento_fecha'));
+                    $data1['complementario_fecha']      = trim($request->input('complementario_fecha'));
+
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                    $col_name = trim($request->input('col_name'));
+
+                    if($opcion == 'n')
+                    {
+                        if($request->hasFile($file_name))
+                        {
+                            $archivo = $request->file($file_name);
+
+                            switch($request->input('tipo_file'))
+                            {
+                                case 1:
+                                    $nombre_archivo = uniqid('resolucion_', true) . '.' . $archivo->getClientOriginalExtension();
+                                    break;
+                                case 2:
+                                    $nombre_archivo = uniqid('resolucion_2_', true) . '.' . $archivo->getClientOriginalExtension();
+                                    break;
+                                case 3:
+                                    $nombre_archivo = uniqid('informe_seguimiento_', true) . '.' . $archivo->getClientOriginalExtension();
+                                    break;
+                                case 4:
+                                    $nombre_archivo = uniqid('complementario_', true) . '.' . $archivo->getClientOriginalExtension();
+                                    break;
+                                default:
+                                    # code...
+                                    break;
+                            }
+
+                            $direccion_archivo = public_path($this->public_dir);
+
+                            $archivo->move($direccion_archivo, $nombre_archivo);
+
+                            $iu                                        = new PvtResolucion;
+                            $iu->solicitud_id                          = $data1['solicitud_id'];
+                            $iu->resolucion_descripcion                = $data1['resolucion_descripcion'];
+                            $iu->resolucion_fecha_emision              = $data1['resolucion_fecha_emision'];
+                            $iu->resolucion_tipo_disposicion           = $data1['resolucion_tipo_disposicion'];
+                            $iu->resolucion_medidas_proteccion         = $data1['resolucion_medidas_proteccion'];
+                            $iu->resolucion_otra_medidas_proteccion    = $data1['resolucion_otra_medidas_proteccion'];
+                            $iu->resolucion_instituciones_coadyuvantes = $data1['resolucion_instituciones_coadyuvantes'];
+
+                            $iu->fecha_inicio              = $data1['fecha_inicio'];
+                            $iu->fecha_entrega_digital     = $data1['fecha_entrega_digital'];
+                            $iu->informe_seguimiento_fecha = $data1['informe_seguimiento_fecha'];
+                            $iu->complementario_fecha      = $data1['complementario_fecha'];
+                            switch($request->input('tipo_file'))
+                            {
+                                case 1:
+                                    $iu->resolucion_estado_pdf  = 2;
+                                    $iu->resolucion_archivo_pdf = $nombre_archivo;
+                                    break;
+                                case 2:
+                                    $iu->resolucion_estado_pdf_2  = 2;
+                                    $iu->resolucion_archivo_pdf_2 = $nombre_archivo;
+                                    break;
+                                case 3:
+                                    $iu->informe_seguimiento_estado_pdf  = 2;
+                                    $iu->informe_seguimiento_archivo_pdf = $nombre_archivo;
+                                    break;
+                                case 4:
+                                    $iu->complementario_estado_pdf  = 2;
+                                    $iu->complementario_archivo_pdf = $nombre_archivo;
+                                    break;
+                                default:
+                                    # code...
+                                    break;
+                            }
+                            $iu->save();
+
+                            $respuesta['respuesta'] .= "El DOCUMENTO se subio con éxito, además, fue agregada nueva fila.";
+                            $respuesta['sw']         = 1;
+
+                            $id              = $iu->id;
+                            $respuesta['id'] = $id;
+                        }
+                    }
+                    else
+                    {
+                        $consulta1 = PvtResolucion::where('id', '=', $id)
+                            ->select($col_name)
+                            ->first();
+                        if(count($consulta1) > 0)
+                        {
+                            if($consulta1[$col_name] != '')
+                            {
+                                if(file_exists(public_path($this->public_dir) . '/' . $consulta1[$col_name]))
+                                {
+                                    unlink(public_path($this->public_dir) . '/' . $consulta1[$col_name]);
+                                }
+                            }
+
+                            if($request->hasFile($file_name))
+                            {
+                                $archivo = $request->file($file_name);
+
+                                switch($request->input('tipo_file'))
+                                {
+                                    case 1:
+                                        $nombre_archivo = uniqid('resolucion_', true) . '.' . $archivo->getClientOriginalExtension();
+                                        break;
+                                    case 2:
+                                        $nombre_archivo = uniqid('resolucion_2_', true) . '.' . $archivo->getClientOriginalExtension();
+                                        break;
+                                    case 3:
+                                        $nombre_archivo = uniqid('informe_seguimiento_', true) . '.' . $archivo->getClientOriginalExtension();
+                                        break;
+                                    case 4:
+                                        $nombre_archivo = uniqid('complementario_', true) . '.' . $archivo->getClientOriginalExtension();
+                                        break;
+                                    default:
+                                        # code...
+                                        break;
+                                }
+
+                                $direccion_archivo = public_path($this->public_dir);
+
+                                $archivo->move($direccion_archivo, $nombre_archivo);
+
+                                $iu                                        = PvtResolucion::find($id);
+                                $iu->solicitud_id                          = $data1['solicitud_id'];
+                                $iu->resolucion_descripcion                = $data1['resolucion_descripcion'];
+                                $iu->resolucion_fecha_emision              = $data1['resolucion_fecha_emision'];
+                                $iu->resolucion_tipo_disposicion           = $data1['resolucion_tipo_disposicion'];
+                                $iu->resolucion_medidas_proteccion         = $data1['resolucion_medidas_proteccion'];
+                                $iu->resolucion_otra_medidas_proteccion    = $data1['resolucion_otra_medidas_proteccion'];
+                                $iu->resolucion_instituciones_coadyuvantes = $data1['resolucion_instituciones_coadyuvantes'];
+
+                                $iu->fecha_inicio              = $data1['fecha_inicio'];
+                                $iu->fecha_entrega_digital     = $data1['fecha_entrega_digital'];
+                                $iu->informe_seguimiento_fecha = $data1['informe_seguimiento_fecha'];
+                                $iu->complementario_fecha      = $data1['complementario_fecha'];
+
+                                switch($request->input('tipo_file'))
+                                {
+                                    case 1:
+                                        $iu->resolucion_estado_pdf  = 2;
+                                        $iu->resolucion_archivo_pdf = $nombre_archivo;
+                                        break;
+                                    case 2:
+                                        $iu->resolucion_estado_pdf_2  = 2;
+                                        $iu->resolucion_archivo_pdf_2 = $nombre_archivo;
+                                        break;
+                                    case 3:
+                                        $iu->informe_seguimiento_estado_pdf  = 2;
+                                        $iu->informe_seguimiento_archivo_pdf = $nombre_archivo;
+                                        break;
+                                    case 4:
+                                        $iu->complementario_estado_pdf  = 2;
+                                        $iu->complementario_archivo_pdf = $nombre_archivo;
+                                        break;
+                                    default:
+                                        # code...
+                                        break;
+                                }
+
+                                $iu->save();
+
+                                $respuesta['respuesta'] .= "El DOCUMENTO se subio con éxito, además, se edito.";
+                                $respuesta['sw']         = 1;
+
+                                $respuesta['id'] = $id;
+                            }
+                        }
+                    }
+
+                return json_encode($respuesta);
+                break;
+            // === ELIMINAR PDF - 3 ===
+            case '16':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ELIMINAR PDF</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'error_sw'   => 1
+                    );
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para ELIMINAR PDF.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "No existe la SOLICITUD DE TRABAJO COMPLEMENTARIA.";
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    if($request->has('tipo_del'))
+                    {
+                        $select = "
+                            id,
+
+                            resolucion_estado_pdf,
+                            resolucion_archivo_pdf,
+
+                            resolucion_estado_pdf_2,
+                            resolucion_archivo_pdf_2,
+
+                            informe_seguimiento_estado_pdf,
+                            informe_seguimiento_archivo_pdf,
+
+                            complementario_estado_pdf,
+                            complementario_archivo_pdf
+                        ";
+
+                        $consulta1 = PvtResolucion::where('id', '=', $id)
+                            ->select(DB::raw($select))
+                            ->first();
+
+                        $del_sw   = FALSE;
+                        $del_file = '';
+
+                        switch($request->input('tipo_del'))
+                        {
+                            case '1':
+                                if($consulta1['resolucion_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['resolucion_archivo_pdf'];
+
+                                    $iu                         = PvtResolucion::find($id);
+                                    $iu->resolucion_estado_pdf  = 1;
+                                    $iu->resolucion_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            case '2':
+                                if($consulta1['resolucion_archivo_pdf_2'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['resolucion_archivo_pdf_2'];
+
+                                    $iu                           = PvtResolucion::find($id);
+                                    $iu->resolucion_estado_pdf_2  = 1;
+                                    $iu->resolucion_archivo_pdf_2 = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            case '3':
+                                if($consulta1['informe_seguimiento_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['informe_seguimiento_archivo_pdf'];
+
+                                    $iu                                  = PvtResolucion::find($id);
+                                    $iu->informe_seguimiento_estado_pdf  = 1;
+                                    $iu->informe_seguimiento_archivo_pdf = NULL;
+                                    $iu->save();
+                                }
+                                break;
+                            case '4':
+                                if($consulta1['complementario_archivo_pdf'] != '')
+                                {
+                                    $del_sw   = TRUE;
+                                    $del_file = $consulta1['complementario_archivo_pdf'];
+
+                                    $iu                         = PvtResolucion::find($id);
+                                    $iu->complementario_estado_pdf  = 1;
                                     $iu->complementario_archivo_pdf = NULL;
                                     $iu->save();
                                 }
@@ -2559,6 +3064,7 @@ class SolicitudController extends Controller
 
                         $respuesta['id'] = $id;
                     }
+
                 return json_encode($respuesta);
                 break;
             // === SOLICITUD TRABAJO COMPLEMENTARIO - DELETE ===
@@ -2608,10 +3114,249 @@ class SolicitudController extends Controller
                     }
 
                 // === REGISTRAR MODIFICAR ELIMINAR VALORES ===
+                    $complementario_archivo_pdf = trim($request->input('complementario_archivo_pdf'));
+
+                    if(file_exists(public_path($this->public_dir) . '/' . $complementario_archivo_pdf))
+                    {
+                        unlink(public_path($this->public_dir) . '/' . $complementario_archivo_pdf);
+                    }
+
                     $de = PvtSolicitudComplementaria::find($id);
                     $de->delete();
 
                     $respuesta['respuesta'] .= "La SOLICITUD TRABAJO COMPLEMENTARIO fue eliminado con éxito.";
+                    $respuesta['sw']         = 1;
+
+                return json_encode($respuesta);
+                break;
+            // === RESOLUCIONES DEL MP Y SEGUIMIENTO - INSERT UPDATE ===
+            case '24':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>RESOLUCIONES DEL MP Y SEGUIMIENTO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'solicitud_id'                          => 'required',
+                            'resolucion_descripcion'                => 'required|max:500',
+                            'resolucion_tipo_disposicion'           => 'max:50',
+                            'resolucion_medidas_proteccion'         => 'max:50',
+                            'resolucion_otra_medidas_proteccion'    => 'max:1000',
+                            'resolucion_instituciones_coadyuvantes' => 'max:1000'
+                        ],
+                        [
+                            'solicitud_id.required' => 'MEDIDAS DE PROTECCION debe de existir.',
+
+                            'resolucion_descripcion.required' => 'El campo DESCRIPCION DE LA RESOLUCION es obligatorio.',
+                            'resolucion_descripcion.max'      => 'El campo DESCRIPCION DE LA RESOLUCION debe contener :max caracteres como máximo.',
+
+                            'resolucion_tipo_disposicion.max' => 'El campo TIPO DE DISPOSICION debe contener :max caracteres como máximo.',
+
+                            'resolucion_medidas_proteccion.max' => 'El campo MEDIDA DE PROTECCION DISPUESTA debe contener :max caracteres como máximo.',
+
+                            'resolucion_otra_medidas_proteccion.max' => 'El campo OTRA MEDIDA DE PROTECCION DISPUESTA debe contener :max caracteres como máximo.',
+
+                            'resolucion_instituciones_coadyuvantes.max' => 'El campo INSTITUCION COADYUVANTE debe contener :max caracteres como máximo.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $data1['solicitud_id']                          = trim($request->input('solicitud_id'));
+                    $data1['resolucion_descripcion']                = strtoupper($util->getNoAcentoNoComilla(trim($request->input('resolucion_descripcion'))));
+                    $data1['resolucion_fecha_emision']              = trim($request->input('resolucion_fecha_emision'));
+                    $data1['resolucion_tipo_disposicion']           = $request->input('resolucion_tipo_disposicion');
+                    $data1['resolucion_medidas_proteccion']         = $request->input('resolucion_medidas_proteccion');
+                    $data1['resolucion_otra_medidas_proteccion']    = strtoupper($util->getNoAcentoNoComilla(trim($request->input('resolucion_otra_medidas_proteccion'))));
+                    $data1['resolucion_instituciones_coadyuvantes'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('resolucion_instituciones_coadyuvantes'))));
+
+                    $data1['fecha_inicio']              = trim($request->input('fecha_inicio'));
+                    $data1['fecha_entrega_digital']     = trim($request->input('fecha_entrega_digital'));
+                    $data1['informe_seguimiento_fecha'] = trim($request->input('informe_seguimiento_fecha'));
+                    $data1['complementario_fecha']      = trim($request->input('complementario_fecha'));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                        $iu                                        = new PvtResolucion;
+                        $iu->solicitud_id                          = $data1['solicitud_id'];
+                        $iu->resolucion_descripcion                = $data1['resolucion_descripcion'];
+                        $iu->resolucion_fecha_emision              = $data1['resolucion_fecha_emision'];
+                        $iu->resolucion_tipo_disposicion           = $data1['resolucion_tipo_disposicion'];
+                        $iu->resolucion_medidas_proteccion         = $data1['resolucion_medidas_proteccion'];
+                        $iu->resolucion_otra_medidas_proteccion    = $data1['resolucion_otra_medidas_proteccion'];
+                        $iu->resolucion_instituciones_coadyuvantes = $data1['resolucion_instituciones_coadyuvantes'];
+
+                        $iu->fecha_inicio              = $data1['fecha_inicio'];
+                        $iu->fecha_entrega_digital     = $data1['fecha_entrega_digital'];
+                        $iu->informe_seguimiento_fecha = $data1['informe_seguimiento_fecha'];
+                        $iu->complementario_fecha      = $data1['complementario_fecha'];
+
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "La RESOLUCIONES DEL MP Y SEGUIMIENTO fue registrada con éxito.";
+                        $respuesta['sw']         = 1;
+
+                        $id              = $iu->id;
+                        $respuesta['id'] = $id;
+                    }
+                    else
+                    {
+                        $iu                                        = PvtResolucion::find($id);
+                        $iu->solicitud_id                          = $data1['solicitud_id'];
+                        $iu->resolucion_descripcion                = $data1['resolucion_descripcion'];
+                        $iu->resolucion_fecha_emision              = $data1['resolucion_fecha_emision'];
+                        $iu->resolucion_tipo_disposicion           = $data1['resolucion_tipo_disposicion'];
+                        $iu->resolucion_medidas_proteccion         = $data1['resolucion_medidas_proteccion'];
+                        $iu->resolucion_otra_medidas_proteccion    = $data1['resolucion_otra_medidas_proteccion'];
+                        $iu->resolucion_instituciones_coadyuvantes = $data1['resolucion_instituciones_coadyuvantes'];
+
+                        $iu->fecha_inicio              = $data1['fecha_inicio'];
+                        $iu->fecha_entrega_digital     = $data1['fecha_entrega_digital'];
+                        $iu->informe_seguimiento_fecha = $data1['informe_seguimiento_fecha'];
+                        $iu->complementario_fecha      = $data1['complementario_fecha'];
+
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "La RESOLUCIONES DEL MP Y SEGUIMIENTO se edito con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+
+                        $respuesta['id'] = $id;
+                    }
+
+                return json_encode($respuesta);
+                break;
+            // === RESOLUCIONES DEL MP Y SEGUIMIENTO - DELETE ===
+            case '241':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ELIMINAR RESOLUCIONES DEL MP Y SEGUIMIENTO</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('resolucion_id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '1903'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para ELIMINAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '1902'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === REGISTRAR MODIFICAR ELIMINAR VALORES ===
+                    $resolucion_archivo_pdf          = trim($request->input('resolucion_archivo_pdf'));
+                    $resolucion_archivo_pdf_2        = trim($request->input('resolucion_archivo_pdf_2'));
+                    $informe_seguimiento_archivo_pdf = trim($request->input('informe_seguimiento_archivo_pdf'));
+                    $complementario_archivo_pdf      = trim($request->input('complementario_archivo_pdf'));
+
+                    if(file_exists(public_path($this->public_dir) . '/' . $resolucion_archivo_pdf))
+                    {
+                        unlink(public_path($this->public_dir) . '/' . $resolucion_archivo_pdf);
+                    }
+
+                    if(file_exists(public_path($this->public_dir) . '/' . $resolucion_archivo_pdf_2))
+                    {
+                        unlink(public_path($this->public_dir) . '/' . $resolucion_archivo_pdf_2);
+                    }
+
+                    if(file_exists(public_path($this->public_dir) . '/' . $informe_seguimiento_archivo_pdf))
+                    {
+                        unlink(public_path($this->public_dir) . '/' . $informe_seguimiento_archivo_pdf);
+                    }
+
+                    if(file_exists(public_path($this->public_dir) . '/' . $complementario_archivo_pdf))
+                    {
+                        unlink(public_path($this->public_dir) . '/' . $complementario_archivo_pdf);
+                    }
+
+                    $de = PvtResolucion::find($id);
+                    $de->delete();
+
+                    $respuesta['respuesta'] .= "La RESOLUCION DEL MP Y SEGUIMIENTO fue eliminado con éxito.";
                     $respuesta['sw']         = 1;
 
                 return json_encode($respuesta);
@@ -2724,7 +3469,7 @@ class SolicitudController extends Controller
                         return($respuesta);
                         break;
                     case '2':
-                        $respuesta = '<button class="btn btn-xs btn-primary" onclick="utilitarios([80, ' . $valor['id'] . ', ' . $valor['tipo_pdf'] . ']);" title="Clic para ver documento">
+                        $respuesta = '<button type="button" class="btn btn-xs btn-primary" onclick="utilitarios([80, ' . $valor['id'] . ', ' . $valor['tipo_pdf'] . ']);" title="Clic para ver documento">
                             <strong>' . $this->estado_pdf[$valor['estado_pdf']] . '</strong>
                         </button>';
                         return($respuesta);
@@ -2801,6 +3546,44 @@ class SolicitudController extends Controller
                         break;
                     case '2':
                         $respuesta = $this->documento_sw[$valor['documento_sw']];
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '6':
+                switch($valor['estado_pdf'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->estado_pdf[$valor['estado_pdf']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<button type="button" class="btn btn-xs btn-primary" onclick="utilitarios([62, ' . $valor['tipo_pdf'] . ', ' . $valor['id'] . ']);" title="Clic para ver documento">
+                            <strong>' . $this->estado_pdf[$valor['estado_pdf']] . '</strong>
+                        </button>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '7':
+                switch($valor['estado_pdf'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->estado_pdf[$valor['estado_pdf']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<button type="button" class="btn btn-xs btn-primary" onclick="utilitarios([64, ' . $valor['tipo_pdf'] . ', ' . $valor['id'] . ']);" title="Clic para ver documento">
+                            <strong>' . $this->estado_pdf[$valor['estado_pdf']] . '</strong>
+                        </button>';
                         return($respuesta);
                         break;
                     default:
