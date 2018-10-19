@@ -652,8 +652,8 @@ class SolicitudController extends Controller
                         $row["resolucion_descripcion"],
                         $row["resolucion_fecha_emision"],
                         $this->utilitarios(array('tipo' => '7', 'estado_pdf' => $row["resolucion_estado_pdf"], 'id' => $row["id"], 'tipo_pdf' => 1)),
-                        $row["resolucion_tipo_disposicion"],
-                        $row["resolucion_medidas_proteccion"],
+                        $this->utilitarios(array('tipo' => '8', 'tipo1' => '1', 'valor' => $row["resolucion_tipo_disposicion"])),
+                        $this->utilitarios(array('tipo' => '8', 'tipo1' => '2', 'valor' => $row["resolucion_medidas_proteccion"])),
                         $row["resolucion_otra_medidas_proteccion"],
                         $row["resolucion_instituciones_coadyuvantes"],
                         $this->utilitarios(array('tipo' => '7', 'estado_pdf' => $row["resolucion_estado_pdf_2"], 'id' => $row["id"], 'tipo_pdf' => 2)),
@@ -3362,6 +3362,53 @@ class SolicitudController extends Controller
                 return json_encode($respuesta);
                 break;
 
+            // === CERRAR MEDIDA DE PROTECCION ===
+            case '30':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>CERRAR MEDIDA DE PROTECCION</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'error_sw'   => 1
+                    );
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '1905'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para CERRAR MEDIDA DE PROTECCION.";
+                        return json_encode($respuesta);
+                    }
+
+                // === VALIDATE ===
+                    $id = trim($request->input('id'));
+                    if($id == '')
+                    {
+                        $respuesta['respuesta'] .= "Seleccione una MEDIDA DE PROTECCION.";
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $iu                  = PvtSolicitud::find($id);
+                    $iu->cerrado_abierto = 2;
+
+                    $iu->save();
+
+                    $respuesta['respuesta'] .= "La MEDIDA DE PROTECCION se cerro.";
+                    $respuesta['sw']         = 1;
+
+                return json_encode($respuesta);
+                break;
+
             // === SELECT2 PERSONA ===
             case '100':
                 if($request->has('q'))
@@ -3591,6 +3638,46 @@ class SolicitudController extends Controller
                         return($respuesta);
                         break;
                 }
+                break;
+            case '8':
+                $respuesta = '';
+                if($valor['valor'] != '')
+                {
+                    $valor_array = explode(",", $valor['valor']);
+
+                    $valor1_sw = TRUE;
+                    foreach($valor_array as $valor1)
+                    {
+                        switch($valor['tipo1'])
+                        {
+                            case '1':
+                                if($valor1_sw)
+                                {
+                                    $respuesta .= $this->resolucion_tipo_disposicion[$valor1];
+                                    $valor1_sw = FALSE;
+                                }
+                                else
+                                {
+                                    $respuesta .= "<br>" . $this->resolucion_tipo_disposicion[$valor1];
+                                }
+                                break;
+                            case '2':
+                                if($valor1_sw)
+                                {
+                                    $respuesta .= $this->resolucion_mpd[$valor1];
+                                    $valor1_sw = FALSE;
+                                }
+                                else
+                                {
+                                    $respuesta .= "<br>" . $this->resolucion_mpd[$valor1];
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                return($respuesta);
                 break;
 
             case '10':

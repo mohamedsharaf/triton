@@ -223,8 +223,7 @@
                     previous  : "Anterior",
                     loading   : "Cargando ..."
                 },
-                onStepChanging: function (event, currentIndex, newIndex)
-                {
+                onStepChanging: function (event, currentIndex, newIndex){
                     switch(currentIndex){
                         // === PASO 1 ===
                         case 0:
@@ -530,69 +529,13 @@
                             return true;
                             break;
                     }
-
-                    // // Always allow going backward even if the current step contains invalid fields!
-                    // if (currentIndex > newIndex)
-                    // {
-                    //     return true;
-                    // }
-
-                    // // Forbid suppressing "Warning" step if the user is to young
-                    // if (newIndex === 3 && Number($("#age").val()) < 18)
-                    // {
-                    //     return false;
-                    // }
-
-                    // var form = $(this);
-
-                    // // Clean up if user went backward before
-                    // if (currentIndex < newIndex)
-                    // {
-                    //     // To remove error styles
-                    //     $(".body:eq(" + newIndex + ") label.error", form).remove();
-                    //     $(".body:eq(" + newIndex + ") .error", form).removeClass("error");
-                    // }
-
-                    // // Disable validation on fields that are disabled or hidden.
-                    // form.validate().settings.ignore = ":disabled,:hidden";
-
-                    // // Start validation; Prevent going forward if false
-                    // return form.valid();
                 },
-                onStepChanged: function (event, currentIndex, priorIndex)
-                {
-                    // return true;
-                    // // Suppress (skip) "Warning" step if the user is old enough.
-                    // if (currentIndex === 2 && Number($("#age").val()) >= 18)
-                    // {
-                    //     $(this).steps("next");
-                    // }
-
-                    // // Suppress (skip) "Warning" step if the user is old enough and wants to the previous step.
-                    // if (currentIndex === 2 && priorIndex === 3)
-                    // {
-                    //     $(this).steps("previous");
-                    // }
+                onStepChanged: function (event, currentIndex, priorIndex){
                 },
-                onFinishing: function (event, currentIndex)
-                {
+                onFinishing: function (event, currentIndex){
                     $('#modal_1').modal('hide');
-                    // return true;
-                    // var form = $(this);
-
-                    // // Disable validation on fields that are disabled.
-                    // // At this point it's recommended to do an overall check (mean ignoring only disabled fields)
-                    // form.validate().settings.ignore = ":disabled";
-
-                    // // Start validation; Prevent form submission if false
-                    // return form.valid();
                 },
-                onFinished: function (event, currentIndex)
-                {
-                    // var form = $(this);
-
-                    // // Submit form input
-                    // form.submit();
+                onFinished: function (event, currentIndex){
                 }
             });
             // $(form_1).steps(configuraciones);
@@ -831,9 +774,6 @@
             utilitarios(valor1);
 
         // === VALIDATE 1 ===
-            // var valor1 = new Array();
-            // valor1[0]  = 20;
-            // utilitarios(valor1);
 
         // Add responsive to jqGrid
             $(window).bind('resize', function () {
@@ -856,14 +796,6 @@
                     utilitarios(valor1);
                 },500);
             });
-
-        // $('#modal_1').modal();
-
-        // setTimeout(function(){
-        //     $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
-        //     $(jqgrid3).jqGrid('setGridWidth', $("#div_jqgrid3").width());
-        //     $(jqgrid4).jqGrid('setGridWidth', $("#div_jqgrid2").width());
-        // }, 300);
     });
 
     $(window).on('resize.jqGrid', function() {
@@ -1152,6 +1084,10 @@
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
+                @if(in_array(['codigo' => '1905'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
 
                 $(jqgrid1).jqGrid({
                     // caption     : title_table,
@@ -1370,11 +1306,20 @@
 
                             var ed = "";
                             @if(in_array(['codigo' => '1903'], $permisos))
-                                ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                                if(val_json.cerrado_abierto == 1){
+                                    ed = "<button type='button' class='btn btn-xs btn-success' title='Editar fila' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                                }
+                            @endif
+
+                            var cer1 = "";
+                            @if(in_array(['codigo' => '1905'], $permisos))
+                                if(val_json.cerrado_abierto == 1){
+                                    cer1 = " <button type='button' class='btn btn-xs btn-warning' title='Editar fila' onclick=\"utilitarios([80, " + cl + "]);\"><i class='fa fa-lock'></i></button>";
+                                }
                             @endif
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed)
+                                act : $.trim(ed + cer1)
                             });
                         }
                     }
@@ -1764,13 +1709,13 @@
                         {
                             name  : "resolucion_tipo_disposicion",
                             index : "pvt_resoluciones.resolucion_tipo_disposicion_1",
-                            width : 200,
+                            width : 300,
                             align : "left"
                         },
                         {
                             name  : "resolucion_medidas_proteccion",
                             index : "pvt_resoluciones.resolucion_medidas_proteccion_1",
-                            width : 300,
+                            width : 500,
                             align : "left"
                         },
                         {
@@ -3003,6 +2948,52 @@
                 return respuesta;
                 break;
 
+            // === SOLICITUD - CERRAR ===
+            case 80:
+                swal({
+                    title             : "CERRAR MEDIDA DE PROTECCION",
+                    text              : "¿Esta seguro de cerrar la MEDIDA DE PROTECCION?",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "Cerrar",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        // swal.close();
+
+                        var concatenar_valores = '';
+
+                        concatenar_valores += "tipo=30&_token=" + csrf_token + "&id=" + valor[1];
+
+                        swal({
+                            title             : "CERRANDO MEDIDA DE PROTECCION",
+                            text              : "Espere a que se cierre la MEDIDA DE PROTECCION.",
+                            allowEscapeKey    : false,
+                            showConfirmButton : false,
+                            type              : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1    = new Array();
+                        valor1[0]     = 150;
+                        valor1[1]     = url_controller + '/send_ajax';
+                        valor1[2]     = 'POST';
+                        valor1[3]     = false;
+                        valor1[4]     = concatenar_valores;
+                        valor1[5]     = 'json';
+                        var respuesta = utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
+                return respuesta;
+                break;
+
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -3680,36 +3671,45 @@
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
 
-                            // === CERTIFICACION SEGIP ===
-                            // case '3':
-                            //     if(data.sw === 1){
-                            //         var valor1 = new Array();
-                            //         valor1[0]  = 100;
-                            //         valor1[1]  = data.titulo;
-                            //         valor1[2]  = data.respuesta;
-                            //         utilitarios(valor1);
+                            // === CERRAR MEDIDA DE PROTECCION ===
+                            case '30':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
 
-                            //         $('#div_pdf').empty();
-                            //         $('#div_pdf').append('<object id="object_pdf" data="data:application/pdf;base64,' + data.pdf + '" type="application/pdf" style="min-height:500px;width:100%"></object>');
+                                    $(jqgrid1).trigger("reloadGrid");
 
-                            //         $('#modal_2').modal();
-                            //         setTimeout(function(){
-                            //             $("#object_pdf").css("height", $( window ).height()-150 + 'px');
-                            //         }, 300);
-                            //     }
-                            //     else if(data.sw === 0){
-                            //         var valor1 = new Array();
-                            //         valor1[0]  = 101;
-                            //         valor1[1]  = data.titulo;
-                            //         valor1[2]  = data.respuesta;
-                            //         utilitarios(valor1);
-                            //     }
-                            //     else if(data.sw === 2){
-                            //         window.location.reload();
-                            //     }
-                            //     swal.close();
-                            //     $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                            //     break;
+                                    respuesta_ajax = true;
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.error_sw === 2){
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
                             default:
                                 break;
                         }
