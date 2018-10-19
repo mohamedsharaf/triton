@@ -1457,13 +1457,13 @@
                         },
                         {
                             name  : "nombre",
-                            index : "pvt_delitos.nombre",
+                            index : "a2.nombre",
                             width : 1000,
                             align : "center"
                         },
                         {
                             name       : "tentativa",
-                            index      : "a2.tentativa",
+                            index      : "pvt_solicitudes_delitos.tentativa",
                             width      : 90,
                             align      : "center",
                             stype      : 'select',
@@ -1575,13 +1575,13 @@
                         },
                         {
                             name  : "nombre",
-                            index : "pvt_delitos.nombre",
+                            index : "a2.nombre",
                             width : 1000,
                             align : "center"
                         },
                         {
                             name       : "tentativa",
-                            index      : "a2.tentativa",
+                            index      : "pvt_solicitudes_delitos.tentativa",
                             width      : 90,
                             align      : "center",
                             stype      : 'select',
