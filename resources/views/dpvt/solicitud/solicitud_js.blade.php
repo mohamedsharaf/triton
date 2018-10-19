@@ -7,7 +7,7 @@
             "debug"            : false,
             "progressBar"      : true,
             "preventDuplicates": false,
-            "positionClass"    : "toast-top-right",
+            "positionClass"    : "toast-top-left",
             "onclick"          : null,
             "showDuration"     : "400",
             "hideDuration"     : "1000",
@@ -534,6 +534,8 @@
                 },
                 onFinishing: function (event, currentIndex){
                     $('#modal_1').modal('hide');
+                    utilitarios([1]);
+                    return true;
                 },
                 onFinished: function (event, currentIndex){
                 }
@@ -812,6 +814,9 @@
                 $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
                 $(jqgrid3).jqGrid('setGridWidth', $("#div_jqgrid3").width());
                 $(jqgrid4).jqGrid('setGridWidth', $("#div_jqgrid4").width());
+                break;
+            case 1:
+                $(form_1).steps('reset');
                 break;
             // === MODAL MEDIDAS DE PROTECCION ===
             case 10:
@@ -3031,8 +3036,23 @@
                                         $('#modal_1_title').append(' - ' + data.codigo);
 
                                         var valor1 = new Array();
+                                        valor1[0]  = 411;
+                                        valor1[1]  = data.id;
+                                        utilitarios(valor1);
+
+                                        var valor1 = new Array();
+                                        valor1[0]  = 421;
+                                        valor1[1]  = data.id;
+                                        utilitarios(valor1);
+
+                                        var valor1 = new Array();
+                                        valor1[0]  = 441;
+                                        valor1[1]  = data.id;
+                                        utilitarios(valor1);
+
+                                        var valor1 = new Array();
                                         valor1[0]  = 451;
-                                        valor1[1]  = valor[1];
+                                        valor1[1]  = data.id;
                                         utilitarios(valor1);
                                     }
 
