@@ -831,12 +831,6 @@
                             </fieldset>
                         </form>
                     </div>
-
-                    {{-- <div class="modal-footer">
-                        <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
-                        <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
-                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
-                    </div> --}}
                 </div>
             </div>
         </div>

@@ -1389,6 +1389,20 @@
                         }
                     })
                 @endif
+                @if(in_array(['codigo' => '1904'], $permisos))
+                    .navSeparatorAdd(pjqgrid1,{
+                        sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid1,{
+                        "id"          : "print1",
+                        caption       : "",
+                        title         : 'Reportes',
+                        buttonicon    : "ui-icon ui-icon-print",
+                        onClickButton : function(){
+
+                        }
+                    })
+                @endif
                 ;
                 break;
             // === JQGRID 2 ===
@@ -1980,7 +1994,7 @@
                     url              : url_controller + "/send_ajax",
                     method           :'post',
                     addRemoveLinks   : true,
-                    maxFilesize      : 5, // MB
+                    maxFilesize      : 20, // MB
                     dictResponseError: "Ha ocurrido un error en el server.",
                     acceptedFiles    :'application/pdf',
                     paramName        : valor[2], // The name that will be used to transfer the file
@@ -2066,7 +2080,7 @@
                     url              : url_controller + "/send_ajax",
                     method           :'post',
                     addRemoveLinks   : true,
-                    maxFilesize      : 5, // MB
+                    maxFilesize      : 20, // MB
                     dictResponseError: "Ha ocurrido un error en el server.",
                     acceptedFiles    :'application/pdf',
                     paramName        : valor[2], // The name that will be used to transfer the file
@@ -2149,7 +2163,7 @@
                     url              : url_controller + "/send_ajax",
                     method           :'post',
                     addRemoveLinks   : true,
-                    maxFilesize      : 5, // MB
+                    maxFilesize      : 20, // MB
                     dictResponseError: "Ha ocurrido un error en el server.",
                     acceptedFiles    :'application/pdf',
                     paramName        : valor[2], // The name that will be used to transfer the file

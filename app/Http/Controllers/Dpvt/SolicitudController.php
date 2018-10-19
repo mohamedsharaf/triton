@@ -1429,11 +1429,11 @@ class SolicitudController extends Controller
                     try
                     {
                        $validator = $this->validate($request,[
-                            $file_name => 'mimes:pdf|max:5120'
+                            $file_name => 'mimes:pdf|max:20480'
                         ],
                         [
                             $file_name . '.mimes' => 'El archivo subido debe de ser de tipo :values.',
-                            $file_name . '.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.'
+                            $file_name . '.max'   => 'El archivo debe pesar 20480 kilobytes como máximo.'
                         ]);
                     }
                     catch (Exception $e)
@@ -1818,7 +1818,7 @@ class SolicitudController extends Controller
                             'solicitud_id'                      => 'required',
                             'complementario_dirigido_a'         => 'required|max:1000',
                             'complementario_trabajo_solicitado' => 'required|max:1000',
-                            $file_name                          => 'mimes:pdf|max:5120'
+                            $file_name                          => 'mimes:pdf|max:20480'
                         ],
                         [
                             'solicitud_id.required' => 'El campo SOLICITUD es obligatorio.',
@@ -1830,7 +1830,7 @@ class SolicitudController extends Controller
                             'complementario_trabajo_solicitado.max'      => 'El campo TRABAJO SOLICITADO debe contener :max caracteres como máximo.',
 
                             $file_name . '.mimes' => 'El archivo subido debe de ser de tipo :values.',
-                            $file_name . '.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.'
+                            $file_name . '.max'   => 'El archivo debe pesar 20480 kilobytes como máximo.'
                         ]);
                     }
                     catch (Exception $e)
@@ -2097,7 +2097,7 @@ class SolicitudController extends Controller
                             'resolucion_medidas_proteccion'         => 'max:50',
                             'resolucion_otra_medidas_proteccion'    => 'max:1000',
                             'resolucion_instituciones_coadyuvantes' => 'max:1000',
-                            $file_name                              => 'mimes:pdf|max:5120'
+                            $file_name                              => 'mimes:pdf|max:20480'
                         ],
                         [
                             'solicitud_id.required' => 'MEDIDAS DE PROTECCION debe de existir.',
@@ -2114,7 +2114,7 @@ class SolicitudController extends Controller
                             'resolucion_instituciones_coadyuvantes.max' => 'El campo INSTITUCION COADYUVANTE debe contener :max caracteres como máximo.',
 
                             $file_name . '.mimes' => 'El archivo subido debe de ser de tipo :values.',
-                            $file_name . '.max'   => 'El archivo debe pesar 5120 kilobytes como máximo.'
+                            $file_name . '.max'   => 'El archivo debe pesar 20480 kilobytes como máximo.'
                         ]);
                     }
                     catch (Exception $e)
