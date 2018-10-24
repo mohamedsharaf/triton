@@ -834,6 +834,59 @@
                 </div>
             </div>
         </div>
+
+        <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+
+                        <h4 class="modal-title">
+                            <span id="modal_2_title"></span>
+                        </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row">
+                            <form id="form_2" role="form" action="#">
+                                <div class="col-sm-12">
+                                    <div id="gestion_2_div" class="form-group">
+                                        <label for="gestion_2">Gestión</label>
+                                        <select name="gestion_2" id="gestion_2" data-placeholder="Gestión" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="f_solicitud_2_del">Solicitud del</label>
+                                                <input type="text" class="form-control" id="f_solicitud_2_del" name="f_solicitud_2_del" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="f_solicitud_2_al">Solicitud al</label>
+                                                <input type="text" class="form-control" id="f_solicitud_2_al" name="f_solicitud_2_al" placeholder="año-mes-día" data-mask="9999-99-99" onkeydown="return false;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-info" onclick="utilitarios([35]);">Limpiar formulario</button>
+                        <button type="button" class="btn btn-success" onclick="utilitarios([90]);">Excel</button>
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 @endsection
 
 @section('js_plugins')

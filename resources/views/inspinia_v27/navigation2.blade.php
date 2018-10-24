@@ -128,7 +128,7 @@
                     <a href="#"><i class="fa fa-umbrella"></i> <span class="nav-label">DPVTMMP</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         @if(in_array(['codigo' => '1901'], $permisos))
-                            <li class="{{ isActiveRoute('solicitud_dpvt') }}"><a href="{{ url('/solicitud_dpvt') }}">Solicitud</a></li>
+                            <li class="{{ isActiveRoute('solicitud_dpvt') }}"><a href="{{ url('/solicitud_dpvt') }}">Medidas de protección</a></li>
                         @endif
                     </ul>
                 </li>

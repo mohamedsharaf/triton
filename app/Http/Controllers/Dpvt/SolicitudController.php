@@ -3681,36 +3681,1140 @@ class SolicitudController extends Controller
                 break;
 
             case '10':
-                $organigrama_array = [];
-                $consulta1 = InstCargo::leftJoin("inst_tipos_cargo AS a2", "a2.id", "=", "inst_cargos.tipo_cargo_id")
-                    ->where("inst_cargos.estado", "=", 1)
-                    ->where("inst_cargos.cargo_id", "=", $valor['cargo_id'])
-                    ->select('inst_cargos.id', 'inst_cargos.tipo_cargo_id', 'inst_cargos.item_contrato', 'inst_cargos.nombre', 'inst_cargos.acefalia', 'a2.nombre AS tipo_cargo')
-                    ->orderBy("inst_cargos.nombre")
-                    ->get()
-                    ->toArray();
+                $respuesta = "";
 
-                if(count($consulta1) > 0)
+                if($valor['valor'] != "")
                 {
-                    foreach ($consulta1 as $row1)
-                    {
-                        if($row1['tipo_cargo_id'] == 1)
-                        {
-                            $name = $row1['tipo_cargo'] . ' ' . $row1['item_contrato'] . ' - ¿ACEFALO? ' . $this->acefalia[$row1['acefalia']];
-                        }
-                        else
-                        {
-                            $name = $row1['tipo_cargo'] . ' - ¿ACEFALO? ' . $this->acefalia[$row1['acefalia']];
-                        }
-                        $organigrama_array[] = [
+                    $valor_array = explode(",", $valor['valor']);
 
-                            'name'     => $name,
-                            'title'    => $row1['nombre'],
-                            'children' => $this->utilitarios(['tipo' => '10', 'cargo_id' => $row1['id']])
-                        ];
+                    $valor_sw = TRUE;
+
+                    foreach($valor_array as $key => $valor_row)
+                    {
+                        switch($valor['tipo1'])
+                        {
+                            case '1':
+                                if($valor_sw)
+                                {
+                                    $respuesta .= $this->usuario_tipo[$valor_row];
+                                    $valor_sw  = FALSE;
+                                }
+                                else
+                                {
+                                    $respuesta .= " - " . $this->usuario_tipo[$valor_row];
+                                }
+                                break;
+                            case '2':
+                                if($valor_sw)
+                                {
+                                    $respuesta .= $this->dirigido_a[$valor_row];
+                                    $valor_sw  = FALSE;
+                                }
+                                else
+                                {
+                                    $respuesta .= " - " . $this->dirigido_a[$valor_row];
+                                }
+                                break;
+                            case '3':
+                                if($valor_sw)
+                                {
+                                    $respuesta .= $this->dirigido_psicologia[$valor_row];
+                                    $valor_sw  = FALSE;
+                                }
+                                else
+                                {
+                                    $respuesta .= " - " . $this->dirigido_psicologia[$valor_row];
+                                }
+                                break;
+                            case '4':
+                                if($valor_sw)
+                                {
+                                    $respuesta .= $this->dirigido_a[$valor_row];
+                                    $valor_sw  = FALSE;
+                                }
+                                else
+                                {
+                                    $respuesta .= " - " . $this->dirigido_a[$valor_row];
+                                }
+                                break;
+                            case '5':
+                                if($valor_sw)
+                                {
+                                    $respuesta .= $this->dirigido_trabajo_social[$valor_row];
+                                    $valor_sw  = FALSE;
+                                }
+                                else
+                                {
+                                    $respuesta .= " - " . $this->dirigido_trabajo_social[$valor_row];
+                                }
+                                break;
+                            case '6':
+                                if($valor_sw)
+                                {
+                                    $respuesta .= $this->dirigido_a[$valor_row];
+                                    $valor_sw  = FALSE;
+                                }
+                                else
+                                {
+                                    $respuesta .= " - " . $this->dirigido_a[$valor_row];
+                                }
+                                break;
+                        }
                     }
                 }
-                return $organigrama_array;
+
+                return $respuesta;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public function reportes(Request $request)
+    {
+        $tipo = $request->input('tipo');
+
+        switch($tipo)
+        {
+            case '100':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '1307'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                // === ANALISIS DE LAS VARIABLES ===
+                    if( ! (($request->has('fecha_del') && $request->has('fecha_al'))))
+                    {
+                        return "La FECHA DEL y FECHA AL son obligatorios.";
+                    }
+
+                //=== CARGAR VARIABLES ===
+                    $data1['fecha_del']                        = trim($request->input('fecha_del'));
+                    $data1['fecha_al']                         = trim($request->input('fecha_al'));
+                    $data1['persona_id']                       = trim($request->input('persona_id'));
+                    $data1['lugar_dependencia_id_funcionario'] = trim($request->input('lugar_dependencia_id_funcionario'));
+
+                //=== CONSULTA BASE DE DATOS ===
+                    $tabla1 = "rrhh_asistencias";
+                    $tabla2 = "rrhh_personas";
+                    $tabla3 = "inst_unidades_desconcentradas";
+                    $tabla4 = "inst_lugares_dependencia";
+                    $tabla5 = "inst_cargos";
+                    $tabla6 = "inst_tipos_cargo";
+
+                    $array_where = "$tabla1.estado <> '2'";
+                    if($request->has('fecha_del'))
+                    {
+                        $array_where .= " AND $tabla1.fecha >= '" . $data1['fecha_del'] . "'";
+                    }
+
+                    if($request->has('fecha_al'))
+                    {
+                        $array_where .= " AND $tabla1.fecha <= '" . $data1['fecha_al'] . "'";
+                    }
+
+                    if($request->has('lugar_dependencia_id_funcionario'))
+                    {
+                        $array_where .= " AND a3.lugar_dependencia_id=" . $data1['lugar_dependencia_id_funcionario'];
+                    }
+
+                    if($request->has('persona_id'))
+                    {
+                        $array_where .= " AND $tabla1.persona_id=" . $data1['persona_id'];
+                    }
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.persona_id,
+
+                        $tabla1.persona_id_rrhh_h1_i,
+                        $tabla1.persona_id_rrhh_h1_s,
+                        $tabla1.persona_id_rrhh_h2_i,
+                        $tabla1.persona_id_rrhh_h2_s,
+
+                        $tabla1.cargo_id,
+                        $tabla1.unidad_desconcentrada_id,
+
+                        $tabla1.log_marcaciones_id_i1,
+                        $tabla1.log_marcaciones_id_s1,
+                        $tabla1.log_marcaciones_id_i2,
+                        $tabla1.log_marcaciones_id_s2,
+
+                        $tabla1.horario_id_1,
+                        $tabla1.horario_id_2,
+
+                        $tabla1.salida_id_i1,
+                        $tabla1.salida_id_s1,
+                        $tabla1.salida_id_i2,
+                        $tabla1.salida_id_s2,
+
+                        $tabla1.fthc_id_h1,
+                        $tabla1.fthc_id_h2,
+
+                        $tabla1.estado,
+                        $tabla1.fecha,
+
+                        $tabla1.h1_i_omitir,
+                        $tabla1.h1_s_omitir,
+                        $tabla1.h2_i_omitir,
+                        $tabla1.h2_s_omitir,
+
+                        $tabla1.h1_min_retrasos,
+                        $tabla1.h2_min_retrasos,
+
+                        $tabla1.h1_descuento,
+                        $tabla1.h2_descuento,
+
+                        $tabla1.h1_i_omision_registro,
+                        $tabla1.h1_s_omision_registro,
+                        $tabla1.h2_i_omision_registro,
+                        $tabla1.h2_s_omision_registro,
+
+                        $tabla1.f_omision_registro,
+                        $tabla1.e_omision_registro,
+
+                        $tabla1.h1_falta,
+                        $tabla1.h2_falta,
+
+                        $tabla1.observaciones,
+                        $tabla1.justificacion,
+
+                        $tabla1.horario_1_i,
+                        $tabla1.horario_1_s,
+
+                        $tabla1.horario_2_i,
+                        $tabla1.horario_2_s,
+
+                        a2.n_documento,
+                        a2.nombre AS nombre_persona,
+                        a2.ap_paterno,
+                        a2.ap_materno,
+
+                        a3.lugar_dependencia_id AS lugar_dependencia_id_funcionario,
+                        a3.nombre AS ud_funcionario,
+
+                        a4.nombre AS lugar_dependencia_funcionario,
+
+                        a6.nombre AS tipo_cargo
+                    ";
+
+                    $consulta1 = RrhhAsistencia::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
+                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
+                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.cargo_id")
+                        ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.tipo_cargo_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderByRaw("a2.ap_paterno ASC, a2.ap_materno ASC, a2.nombre ASC, $tabla1.fecha")
+                        ->get()
+                        ->toArray();
+
+                //=== EXCEL ===
+                    if(count($consulta1) > 0)
+                    {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('resumen_asistencia_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                            $excel->sheet('Resumen Asistencias', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'No',
+                                    'CI',
+                                    'NOMBRE COMPLETO',
+
+
+                                    'TIPO DE CARGO',
+
+
+                                    'DIAS TRABAJADOS',
+                                    'FERIADOS',
+                                    'VACACIONES',
+                                    'LICENCIA CON GOCE DE HABER',
+                                    'LICENCIA SIN GOCE DE HABER',
+                                    'FALTAS',
+                                    'TOTAL DIAS',
+
+                                    'DIAS DESCUENTO',
+
+
+                                    'HORARIO 1 INGRESOS MARCADOS',
+                                    'HORARIO 1 INGRESOS NO MARCADOS',
+                                    'HORARIO 1 SALIDAS MARCADAS',
+                                    'HORARIO 1 SALIDAS NO MARCADAS',
+
+                                    'HORARIO 2 INGRESOS MARCADOS',
+                                    'HORARIO 2 INGRESOS NO MARCADOS',
+                                    'HORARIO 2 SALIDAS MARCADAS',
+                                    'HORARIO 2 SALIDAS NO MARCADAS',
+
+                                    'SALIDA PARTICULAR SALIDA NO MARCADAS',
+                                    'SALIDA PARTICULAR RETORNO NO MARCADOS',
+
+                                    'TOTAL NO MARCADAS',
+
+                                    'DIAS DESCUENTO',
+
+
+                                    'TOTAL ATRASOS',
+
+                                    'DIAS DESCUENTO',
+
+
+                                    'TOTAL DIAS DESCUENTO'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                $sheet->getStyle("D1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("E1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("F1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("G1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("H1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("I1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("J1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("K1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("L1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("M1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("N1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("O1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("P1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("Q1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("R1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("S1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("T1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("U1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("V1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("W1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("X1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("Y1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("Z1")->getAlignment()->setTextRotation(90);
+                                $sheet->getStyle("AA1")->getAlignment()->setTextRotation(90);
+
+                                // $sheet->setColumnFormat([
+                                //     'A' => 'yyyy-mm-dd hh:mm:ss'
+                                // ]);
+
+                                $sw         = FALSE;
+                                $c          = 1;
+                                $persona_id = 0;
+                                $sw_calculo = FALSE;
+
+                                $n_documento    = "";
+                                $nombre_persona = "";
+                                $tipo_cargo     = "";
+
+                                $dias_trabajados         = 0;
+                                $feriados                = 0;
+                                $vacaciones              = 0;
+                                $licencia_con_goce_haber = 0;
+                                $licencia_sin_goce_haber = 0;
+                                $faltas                  = 0;
+                                $total_dias              = 0;
+                                $dias_descuento_1        = 0;
+
+                                $h1_ingresos_marcados    = 0;
+                                $h1_ingresos_no_marcados = 0;
+                                $h1_salidas_marcados     = 0;
+                                $h1_salidas_no_marcados  = 0;
+                                $h2_ingresos_marcados    = 0;
+                                $h2_ingresos_no_marcados = 0;
+                                $h2_salidas_marcados     = 0;
+                                $h2_salidas_no_marcados  = 0;
+                                $pph_salida_no_marcada   = 0;
+                                $pph_retorno_no_marcada  = 0;
+                                $dias_descuento_2        = 0;
+
+                                $total_atrasos    = 0;
+                                $dias_descuento_3 = 0;
+
+                                $total_dias_descuento = 0;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    if($row1['persona_id'] != $persona_id)
+                                    {
+                                        if($sw_calculo)
+                                        {
+                                            // === FORMULA DIAS DESCUENTO ===
+                                                // $dias_descuento_1 = $licencia_sin_goce_haber + $faltas * 2;
+                                                $dias_descuento_1 = $faltas * 2;
+
+                                                $dias_descuento_2 = ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada) * 0.5;
+
+                                                if($total_atrasos < 21)
+                                                {
+                                                    $dias_descuento_3 = 0;
+                                                }
+                                                elseif($total_atrasos < 31)
+                                                {
+                                                    $dias_descuento_3 = 0.5;
+                                                }
+                                                elseif($total_atrasos < 51)
+                                                {
+                                                    $dias_descuento_3 = 1;
+                                                }
+                                                elseif($total_atrasos < 71)
+                                                {
+                                                    $dias_descuento_3 = 2;
+                                                }
+                                                elseif($total_atrasos < 91)
+                                                {
+                                                    $dias_descuento_3 = 3;
+                                                }
+                                                elseif($total_atrasos < 121)
+                                                {
+                                                    $dias_descuento_3 = 4;
+                                                }
+                                                else
+                                                {
+                                                    $dias_descuento_3 = 5;
+                                                }
+
+                                                $total_dias_descuento = $dias_descuento_1 + $dias_descuento_2 + $dias_descuento_3;
+
+                                            $sheet->row($c+1, [
+                                                $c++,
+                                                $n_documento,
+                                                $nombre_persona,
+
+                                                $tipo_cargo,
+
+                                                $dias_trabajados,
+                                                $feriados,
+                                                $vacaciones,
+                                                $licencia_con_goce_haber,
+                                                $licencia_sin_goce_haber,
+                                                $faltas,
+                                                $total_dias,
+
+                                                $dias_descuento_1,
+
+
+                                                $h1_ingresos_marcados,
+                                                $h1_ingresos_no_marcados,
+                                                $h1_salidas_marcados,
+                                                $h1_salidas_no_marcados,
+
+                                                $h2_ingresos_marcados,
+                                                $h2_ingresos_no_marcados,
+                                                $h2_salidas_marcados,
+                                                $h2_salidas_no_marcados,
+
+                                                $pph_salida_no_marcada,
+                                                $pph_retorno_no_marcada,
+
+                                                ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada),
+
+                                                $dias_descuento_2,
+
+
+                                                $total_atrasos,
+
+                                                $dias_descuento_3,
+
+
+                                                $total_dias_descuento
+                                            ]);
+
+                                            if($sw)
+                                            {
+                                                $sheet->row($c, function($row){
+                                                    $row->setBackground('#deeaf6');
+                                                });
+
+                                                $sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $sw = TRUE;
+                                            }
+
+                                            $dias_trabajados         = 0;
+                                            $feriados                = 0;
+                                            $vacaciones              = 0;
+                                            $licencia_con_goce_haber = 0;
+                                            $licencia_sin_goce_haber = 0;
+                                            $faltas                  = 0;
+                                            $total_dias              = 0;
+                                            $dias_descuento_1        = 0;
+
+                                            $h1_ingresos_marcados    = 0;
+                                            $h1_ingresos_no_marcados = 0;
+                                            $h1_salidas_marcados     = 0;
+                                            $h1_salidas_no_marcados  = 0;
+                                            $h2_ingresos_marcados    = 0;
+                                            $h2_ingresos_no_marcados = 0;
+                                            $h2_salidas_marcados     = 0;
+                                            $h2_salidas_no_marcados  = 0;
+                                            $pph_salida_no_marcada   = 0;
+                                            $pph_retorno_no_marcada  = 0;
+                                            $dias_descuento_2        = 0;
+
+                                            $total_atrasos    = 0;
+                                            $dias_descuento_3 = 0;
+
+                                            $total_dias_descuento = 0;
+                                        }
+                                        else
+                                        {
+                                            $sw_calculo = TRUE;
+                                        }
+
+                                        $persona_id = $row1['persona_id'];
+                                    }
+
+                                    $n_documento    = $row1["n_documento"];
+                                    $nombre_persona = trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . trim($row1["nombre_persona"]);
+                                    $tipo_cargo     = $row1["tipo_cargo"];
+
+                                    // === DIAS ===
+                                        switch($row1["horario_1_i"])
+                                        {
+                                            case $this->fthc['1']:
+                                                $feriados += 0.5;
+                                                break;
+                                            case $this->omitir['2']:
+                                                $vacaciones += 0.5;
+                                                if($row1["horario_2_i"] == $this->fthc['3'])
+                                                {
+                                                    $vacaciones += 0.5;
+                                                }
+                                                break;
+                                            case $this->tipo_salida['1']:
+                                                if($row1["horario_1_s"] == $this->tipo_salida['1'])
+                                                {
+                                                    $licencia_con_goce_haber += 0.5;
+                                                }
+                                                else
+                                                {
+                                                    $dias_trabajados += 0.5;
+                                                }
+                                                break;
+                                            case $this->tipo_salida['4']:
+                                                $licencia_con_goce_haber += 0.5;
+                                                break;
+                                            case $this->tipo_salida['5']:
+                                                $licencia_sin_goce_haber += 0.5;
+                                                break;
+                                            case $this->falta['1']:
+                                                $faltas += 0.5;
+                                                break;
+                                            default:
+                                                $dias_trabajados += 0.5;
+                                                break;
+                                        }
+
+                                        if($row1["horario_2_i"] != $this->falta['4'])
+                                        {
+                                            switch($row1["horario_2_i"])
+                                            {
+                                                case $this->fthc['1']:
+                                                    $feriados += 0.5;
+                                                    break;
+                                                case $this->fthc['3']:
+                                                    if($row1["horario_1_i"] == $this->tipo_salida['5'])
+                                                    {
+                                                        $licencia_sin_goce_haber += 0.5;
+                                                    }
+                                                    else
+                                                    {
+                                                        if( ! ($row1["horario_1_i"] == $this->omitir['2']))
+                                                        {
+                                                            $dias_trabajados += 0.5;
+                                                        }
+                                                    }
+                                                    break;
+                                                case $this->omitir['2']:
+                                                    $vacaciones += 0.5;
+                                                    break;
+                                                case $this->tipo_salida['1']:
+                                                    if($row1["horario_2_s"] == $this->tipo_salida['1'])
+                                                    {
+                                                        $licencia_con_goce_haber += 0.5;
+                                                    }
+                                                    else
+                                                    {
+                                                        $dias_trabajados += 0.5;
+                                                    }
+                                                    break;
+                                                case $this->tipo_salida['4']:
+                                                    $licencia_con_goce_haber += 0.5;
+                                                    break;
+                                                case $this->tipo_salida['5']:
+                                                    $licencia_sin_goce_haber += 0.5;
+                                                    break;
+                                                case $this->falta['1']:
+                                                    $faltas += 0.5;
+                                                    break;
+                                                case $this->falta['4']:
+                                                    break;
+                                                default:
+                                                    $dias_trabajados += 0.5;
+                                                    break;
+                                            }
+                                        }
+
+                                    // === MARCADOS / NO MARCADOS ===
+                                        switch($row1["horario_1_i"])
+                                        {
+                                            case $this->omision['1']:
+                                                $h1_ingresos_no_marcados ++;
+                                                break;
+                                            default:
+                                                $h1_ingresos_marcados ++;
+                                                break;
+                                        }
+
+                                        switch($row1["horario_1_s"])
+                                        {
+                                            case $this->omision['1']:
+                                                $h1_salidas_no_marcados ++;
+                                                break;
+                                            default:
+                                                $h1_salidas_marcados ++;
+                                                break;
+                                        }
+
+                                        if($row1["horario_2_i"] != $this->falta['4'])
+                                        {
+                                            switch($row1["horario_2_i"])
+                                            {
+                                                case $this->omision['1']:
+                                                    $h2_ingresos_no_marcados ++;
+                                                    break;
+                                                default:
+                                                    $h2_ingresos_marcados ++;
+                                                    break;
+                                            }
+
+                                            switch($row1["horario_2_s"])
+                                            {
+                                                case $this->omision['1']:
+                                                    $h2_salidas_no_marcados ++;
+                                                    break;
+                                                default:
+                                                    $h2_salidas_marcados ++;
+                                                    break;
+                                            }
+                                        }
+
+                                        // === FALTA INCLUIR ===
+                                            // $pph_salida_no_marcada   = 0;
+                                            // $pph_retorno_no_marcada  = 0;
+
+                                    //=== ATRASOS ===
+                                        $total_atrasos += $row1["h1_min_retrasos"] + $row1["h2_min_retrasos"];
+
+                                    if($row1["horario_2_i"] == $this->falta['4'])
+                                    {
+                                        $total_dias += 0.5;
+                                    }
+                                    else
+                                    {
+                                        $total_dias++;
+                                    }
+                                }
+
+                                // === ULTIMO FUNCIONARIO ===
+                                    // === FORMULA DIAS DESCUENTO ===
+                                        // $dias_descuento_1 = $licencia_sin_goce_haber + $faltas * 2;
+                                        $dias_descuento_1 = $faltas * 2;
+
+                                        $dias_descuento_2 = ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada) * 0.5;
+
+                                        if($total_atrasos < 21)
+                                        {
+                                            $dias_descuento_3 = 0;
+                                        }
+                                        elseif($total_atrasos < 31)
+                                        {
+                                            $dias_descuento_3 = 0.5;
+                                        }
+                                        elseif($total_atrasos < 51)
+                                        {
+                                            $dias_descuento_3 = 1;
+                                        }
+                                        elseif($total_atrasos < 71)
+                                        {
+                                            $dias_descuento_3 = 2;
+                                        }
+                                        elseif($total_atrasos < 91)
+                                        {
+                                            $dias_descuento_3 = 3;
+                                        }
+                                        elseif($total_atrasos < 121)
+                                        {
+                                            $dias_descuento_3 = 4;
+                                        }
+                                        else
+                                        {
+                                            $dias_descuento_3 = 5;
+                                        }
+
+                                        $total_dias_descuento = $dias_descuento_1 + $dias_descuento_2 + $dias_descuento_3;
+
+                                    $sheet->row($c+1, [
+                                        $c++,
+                                        $n_documento,
+                                        $nombre_persona,
+
+                                        $tipo_cargo,
+
+                                        $dias_trabajados,
+                                        $feriados,
+                                        $vacaciones,
+                                        $licencia_con_goce_haber,
+                                        $licencia_sin_goce_haber,
+                                        $faltas,
+                                        $total_dias,
+
+                                        $dias_descuento_1,
+
+
+                                        $h1_ingresos_marcados,
+                                        $h1_ingresos_no_marcados,
+                                        $h1_salidas_marcados,
+                                        $h1_salidas_no_marcados,
+
+                                        $h2_ingresos_marcados,
+                                        $h2_ingresos_no_marcados,
+                                        $h2_salidas_marcados,
+                                        $h2_salidas_no_marcados,
+
+
+                                        $pph_salida_no_marcada,
+                                        $pph_retorno_no_marcada,
+
+                                        ($h1_ingresos_no_marcados + $h1_salidas_no_marcados + $h2_ingresos_no_marcados + $h2_salidas_no_marcados + $pph_salida_no_marcada + $pph_retorno_no_marcada),
+
+                                        $dias_descuento_2,
+
+
+                                        $total_atrasos,
+
+                                        $dias_descuento_3,
+
+
+                                        $total_dias_descuento
+                                    ]);
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+
+                                $sheet->cells('D2:D' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('A2:B' . ($c), function($cells){
+                                    $cells->setAlignment('right');
+                                });
+
+                                $sheet->setAutoSize(true);
+                            });
+                        })->export('xlsx');
+                    }
+                    else
+                    {
+                        return "No se encontraron resultados.";
+                    }
+                break;
+            case '10':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '1904'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                //=== CARGAR VARIABLES ===
+                    $data1['gestion']         = trim($request->input('gestion'));
+                    $data1['f_solicitud_del'] = trim($request->input('f_solicitud_del'));
+                    $data1['f_solicitud_al']  = trim($request->input('f_solicitud_al'));
+
+                //=== CONSULTA BASE DE DATOS ===
+                    $tabla1 = "pvt_solicitudes";
+                    $tabla3 = "ubge_municipios";
+                    $tabla4 = "ubge_provincias";
+                    $tabla5 = "ubge_departamentos";
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.municipio_id,
+
+                        $tabla1.estado,
+                        $tabla1.cerrado_abierto,
+                        $tabla1.gestion,
+                        $tabla1.codigo,
+
+                        $tabla1.solicitante,
+                        $tabla1.nombre_solicitante,
+                        $tabla1.delitos,
+                        $tabla1.recalificacion_delitos,
+                        $tabla1.n_caso,
+                        $tabla1.denunciante,
+                        $tabla1.denunciado,
+                        $tabla1.victima,
+                        $tabla1.persona_protegida,
+                        $tabla1.etapa_proceso,
+                        $tabla1.f_solicitud,
+                        $tabla1.solicitud_estado_pdf,
+                        $tabla1.solicitud_documento_pdf,
+
+                        $tabla1.usuario_tipo,
+                        $tabla1.usuario_tipo_descripcion,
+                        $tabla1.usuario_nombre,
+                        $tabla1.usuario_sexo,
+                        $tabla1.usuario_edad,
+                        $tabla1.usuario_celular,
+                        $tabla1.usuario_domicilio,
+                        $tabla1.usuario_otra_referencia,
+
+                        $tabla1.dirigido_a_psicologia,
+                        $tabla1.dirigido_psicologia,
+                        $tabla1.dirigido_psicologia_estado_pdf,
+                        $tabla1.dirigido_psicologia_archivo_pdf,
+
+                        $tabla1.dirigido_a_trabajo_social,
+                        $tabla1.dirigido_trabajo_social,
+                        $tabla1.dirigido_trabajo_social_estado_pdf,
+                        $tabla1.dirigido_trabajo_social_archivo_pdf,
+
+                        $tabla1.dirigido_a_otro_trabajo,
+                        $tabla1.dirigido_otro_trabajo,
+                        $tabla1.dirigido_otro_trabajo_estado_pdf,
+                        $tabla1.dirigido_otro_trabajo_archivo_pdf,
+
+                        $tabla1.plazo_fecha_solicitud,
+
+                        $tabla1.plazo_psicologico_fecha_entrega_digital,
+                        $tabla1.plazo_psicologico_estado_pdf,
+                        $tabla1.plazo_psicologico_archivo_pdf,
+
+                        $tabla1.plazo_social_fecha_entrega_digital,
+                        $tabla1.plazo_social_estado_pdf,
+                        $tabla1.plazo_social_archivo_pdf,
+
+                        $tabla1.plazo_complementario_fecha,
+                        $tabla1.plazo_complementario_estado_pdf,
+                        $tabla1.plazo_complementario_archivo_pdf,
+
+                        $tabla1.created_at,
+                        $tabla1.updated_at,
+
+                        a3.nombre AS municipio,
+                        a3.provincia_id,
+
+                        a4.nombre AS provincia,
+                        a4.departamento_id,
+
+                        a5.nombre AS departamento
+                    ";
+
+                    $array_where = "TRUE";
+                    if($request->has('gestion'))
+                    {
+                        $array_where .= " AND $tabla1.gestion=" . $data1['gestion'];
+                    }
+
+                    if($request->has('f_solicitud_del'))
+                    {
+                        $array_where .= " AND $tabla1.f_solicitud >= '" . $data1['f_solicitud_del'] . "'";
+                    }
+
+                    if($request->has('f_solicitud_al'))
+                    {
+                        $array_where .= " AND $tabla1.f_solicitud <= '" . $data1['f_solicitud_al'] . "'";
+                    }
+
+                    $consulta1 = PvtSolicitud::leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.municipio_id")
+                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.provincia_id")
+                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.departamento_id")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderByRaw("$tabla1.codigo ASC")
+                        ->get()
+                        ->toArray();
+
+                //=== EXCEL ===
+                    if(count($consulta1) > 0)
+                    {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('medidas_proteccion_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                            $excel->sheet('MEDIDAS DE PROTECCION', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'No',
+
+                                    'CODIGO',
+
+                                    '¿SOLICITUD PDF?',
+                                    '¿TRABAJO SOLICITADO PSICOLOGIA PDF?',
+                                    '¿TRABAJO SOLICITADO TRABAJO SOCIAL PDF?',
+                                    '¿TRABAJO SOLICITADO OTRO TRABAJO PDF?',
+                                    '¿INFORME PSICOLOGICO PDF?',
+                                    '¿INFORME SOCIAL PDF?',
+                                    '¿INFORME COMPLEMENTARIO PDF?',
+
+                                    'ESTADO',
+                                    '¿CERRADO/ABIERTA?',
+
+                                    'GESTION',
+                                    'SOLICITADO POR',
+                                    'NOMBRE DEL SOLICITANTE',
+                                    'DEPARTAMENTO',
+                                    'PROVINCIA',
+                                    'MUNICIPIO',
+                                    'FECHA DE SOLICITUD',
+
+                                    'N° DE CASO',
+                                    'ETAPA DEL PROCESO',
+                                    'DENUNCIANTE',
+                                    'DENUNCIADO',
+                                    'VICTIMA',
+                                    'USUARIO',
+                                    'DELITO',
+                                    'RECALIFICACION DEL DELITO',
+
+                                    'TIPO DE USUARIO',
+                                    'TIPO DE USUARIO DESCRIPCION',
+                                    'NOMBRE DE USUARIO',
+                                    'SEXO',
+
+                                    'TELEFONO Y/O CELULAR',
+                                    'DOMICILIO USUARIO',
+                                    'OTRAS REFERENCIAS',
+                                    'EDAD ENTRE',
+
+                                    'PSICOLOGIA DIRIGIDO A',
+                                    'PSICOLOGIA TRABAJO SOLICITADO',
+
+                                    'TRABAJO SOCIAL DIRIGIDO A',
+                                    'TRABAJO SOCIAL TRABAJO SOLICITADO',
+
+                                    'OTRO TRABAJO DIRIGIDO A',
+                                    'OTRO TRABAJO SOLICITADO',
+
+                                    'FECHA DE SOLICITUD',
+                                    'INFORME PSICOLOGICO FECHA DE ENTREGA',
+
+                                    'INFORME SOCIAL FECHA DE ENTREGA',
+
+                                    'FECHA INFORME COMPLEMENTARIO'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                // $sheet->setColumnFormat([
+                                //     'A' => 'yyyy-mm-dd hh:mm:ss'
+                                // ]);
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    $sheet->row($c+1, [
+                                        $c++,
+
+                                        $row1["codigo"],
+
+                                        $this->estado_pdf[$row1["solicitud_estado_pdf"]],
+                                        $this->estado_pdf[$row1["dirigido_psicologia_estado_pdf"]],
+                                        $this->estado_pdf[$row1["dirigido_trabajo_social_estado_pdf"]],
+                                        $this->estado_pdf[$row1["dirigido_otro_trabajo_estado_pdf"]],
+                                        $this->estado_pdf[$row1["plazo_psicologico_estado_pdf"]],
+                                        $this->estado_pdf[$row1["plazo_social_estado_pdf"]],
+                                        $this->estado_pdf[$row1["plazo_complementario_estado_pdf"]],
+
+                                        $this->estado[$row1["estado"]],
+                                        $this->cerrado_abierto[$row1["cerrado_abierto"]],
+
+                                        $row1["gestion"],
+                                        ($row1["solicitante"] =="") ? "" : $this->solicitante[$row1["solicitante"]],
+                                        $row1["nombre_solicitante"],
+                                        $row1["departamento"],
+                                        $row1["provincia"],
+                                        $row1["municipio"],
+                                        $row1["f_solicitud"],
+
+                                        $row1["n_caso"],
+                                        ($row1["etapa_proceso"] =="") ? "" : $this->etapa_proceso[$row1["etapa_proceso"]],
+                                        $row1["denunciante"],
+                                        $row1["denunciado"],
+                                        $row1["victima"],
+                                        $row1["persona_protegida"],
+                                        $row1["delitos"],
+                                        $row1["recalificacion_delitos"],
+
+                                        $this->utilitarios(array("tipo" => "10", "tipo1" => "1", "valor" => $row1["usuario_tipo"])),
+                                        $row1["usuario_tipo_descripcion"],
+                                        $row1["usuario_nombre"],
+                                        ($row1["usuario_sexo"] =="") ? "" : $this->sexo[$row1["usuario_sexo"]],
+
+                                        $row1["usuario_celular"],
+                                        $row1["usuario_domicilio"],
+                                        $row1["usuario_otra_referencia"],
+                                        ($row1["usuario_edad"] =="") ? "" : $this->edad[$row1["usuario_edad"]],
+
+                                        $this->utilitarios(array("tipo" => "10", "tipo1" => "2", "valor" => $row1["dirigido_a_psicologia"])),
+                                        $this->utilitarios(array("tipo" => "10", "tipo1" => "3", "valor" => $row1["dirigido_psicologia"])),
+
+                                        $this->utilitarios(array("tipo" => "10", "tipo1" => "4", "valor" => $row1["dirigido_a_trabajo_social"])),
+                                        $this->utilitarios(array("tipo" => "10", "tipo1" => "5", "valor" => $row1["dirigido_trabajo_social"])),
+
+                                        $this->utilitarios(array("tipo" => "10", "tipo1" => "6", "valor" => $row1["dirigido_a_otro_trabajo"])),
+                                        $row1["dirigido_otro_trabajo"],
+
+                                        $row1["plazo_fecha_solicitud"],
+                                        $row1["plazo_psicologico_fecha_entrega_digital"],
+
+                                        $row1["plazo_social_fecha_entrega_digital"],
+
+                                        $row1["plazo_complementario_fecha"]
+                                    ]);
+
+                                    if($row1["solicitud_estado_pdf"] == 2)
+                                    {
+                                        $sheet->getCell('C' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url($this->public_url . $row1['solicitud_documento_pdf']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
+
+                                    if($row1["dirigido_psicologia_estado_pdf"] == 2)
+                                    {
+                                        $sheet->getCell('D' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url($this->public_url . $row1['dirigido_psicologia_archivo_pdf']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
+
+                                    if($row1["dirigido_trabajo_social_estado_pdf"] == 2)
+                                    {
+                                        $sheet->getCell('E' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url($this->public_url . $row1['dirigido_trabajo_social_archivo_pdf']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
+
+                                    if($row1["dirigido_otro_trabajo_estado_pdf"] == 2)
+                                    {
+                                        $sheet->getCell('F' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url($this->public_url . $row1['dirigido_otro_trabajo_archivo_pdf']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
+
+                                    if($row1["plazo_psicologico_estado_pdf"] == 2)
+                                    {
+                                        $sheet->getCell('G' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url($this->public_url . $row1['plazo_psicologico_archivo_pdf']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
+
+                                    if($row1["plazo_social_estado_pdf"] == 2)
+                                    {
+                                        $sheet->getCell('H' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url($this->public_url . $row1['plazo_social_archivo_pdf']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
+
+                                    if($row1["plazo_complementario_estado_pdf"] == 2)
+                                    {
+                                        $sheet->getCell('I' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url($this->public_url . $row1['plazo_complementario_archivo_pdf']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+
+                                // $sheet->cells('A2:A' . ($c), function($cells){
+                                //     $cells->setAlignment('right');
+                                // });
+
+                                $sheet->cells('A1:AR' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                // $sheet->cells('C2:C' . ($c), function($cells){
+                                //     $cells->setAlignment('right');
+                                // });
+
+                                // $sheet->cells('E1:M' . ($c), function($cells){
+                                //     $cells->setAlignment('center');
+                                // });
+
+
+                                $sheet->setAutoSize(true);
+                            });
+
+                            $excel->setActiveSheetIndex(0);
+                        })->export('xlsx');
+                    }
+                    else
+                    {
+                        return "No se encontraron resultados.";
+                    }
                 break;
             default:
                 break;

@@ -29,6 +29,7 @@
 
     // === FORMULARIOS ===
         var form_1 = "#form_1";
+        var form_2 = "#form_2";
 
     // === JQGRID ===
         var jqgrid1  = "#jqgrid1";
@@ -191,7 +192,7 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
-            $('#anio_filter, #gestion').append(anio_filter);
+            $('#anio_filter, #gestion, #gestion_2').append(anio_filter);
             $("#anio_filter option[value=" + gestion_f +"]").attr("selected","selected");
 
             $('#solicitante').append(solicitante_select);
@@ -543,13 +544,14 @@
             // $(form_1).steps(configuraciones);
 
         //=== SELECT2 ===
-            $("#gestion, #solicitante, #etapa_proceso, #estado").select2({
+            $("#gestion, #solicitante, #etapa_proceso, #estado, #gestion_2").select2({
                 maximumSelectionLength: 1
             });
             $("#gestion").appendTo("#gestion_div");
             $("#solicitante").appendTo("#solicitante_div");
             $("#etapa_proceso").appendTo("#etapa_proceso_div");
             $("#estado").appendTo("#estado_div");
+            $("#gestion_2").appendTo("#gestion_2_div");
 
             $("#usuario_tipo, #dirigido_a_psicologia, #dirigido_psicologia, #dirigido_a_trabajo_social, #dirigido_trabajo_social, #dirigido_a_otro_trabajo, #resolucion_tipo_disposicion, #resolucion_medidas_proteccion").select2();
             $("#usuario_tipo").appendTo("#usuario_tipo_div");
@@ -613,7 +615,7 @@
             $("#delito_id_r").appendTo("#delito_id_r_div");
 
         //=== datepicker3 ===
-            $('#f_solicitud, #plazo_fecha_solicitud, #plazo_psicologico_fecha_entrega_digital, #plazo_psicologico_fecha_entrega_fisico, #plazo_psicologico_fecha, #plazo_social_fecha_entrega_digital, #plazo_social_fecha_entrega_fisico, #plazo_complementario_fecha, #fecha_inicio, #fecha_entrega_digital, #fecha_entrega_fisico, #informe_seguimiento_fecha, #complementario_fecha, #resolucion_fecha_emision').datepicker({
+            $('#f_solicitud, #plazo_fecha_solicitud, #plazo_psicologico_fecha_entrega_digital, #plazo_psicologico_fecha_entrega_fisico, #plazo_psicologico_fecha, #plazo_social_fecha_entrega_digital, #plazo_social_fecha_entrega_fisico, #plazo_complementario_fecha, #fecha_inicio, #fecha_entrega_digital, #fecha_entrega_fisico, #informe_seguimiento_fecha, #complementario_fecha, #resolucion_fecha_emision, #f_solicitud_2_del, #f_solicitud_2_al').datepicker({
                 startView            : 2,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -826,6 +828,10 @@
                     $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
                     $(jqgrid3).jqGrid('setGridWidth', $("#div_jqgrid3").width());
                 }, 300);
+                break;
+            // === MODAL MEDIDAS DE PROTECCION ===
+            case 11:
+                $('#modal_2').modal();
                 break;
 
             // === EDICION MODAL ===
@@ -1078,6 +1084,12 @@
                 $("#solicitud_complementaria_id").val('');
                 $("#complementario_dirigido_a").val('');
                 $("#complementario_trabajo_solicitado").val('');
+                break;
+            // === RESETEAR - REPORTE DE MEDIDAS DE PROTECCION ===
+            case 35:
+                $('#modal_2_title').append('REPORTE DE MEDIDAS DE PROTECCION');
+                $('#gestion_2').select2("val", "");
+                $(form_2)[0].reset();
                 break;
 
             // === JQGRID 1 ===
@@ -1399,7 +1411,15 @@
                         title         : 'Reportes',
                         buttonicon    : "ui-icon ui-icon-print",
                         onClickButton : function(){
+                            $('#modal_2_title').empty();
 
+                            var valor1 = new Array();
+                            valor1[0]  = 35;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 11;
+                            utilitarios(valor1);
                         }
                     })
                 @endif
@@ -3011,6 +3031,43 @@
                     }
                 });
                 return respuesta;
+                break;
+
+            // === REPORTES EXCEL ===
+            case 90:
+                var concatenar_valores = '?tipo=10';
+
+                var gestion = $("#gestion_2").val();
+
+                var f_solicitud_del = $("#f_solicitud_2_del").val();
+                var f_solicitud_al  = $("#f_solicitud_2_al").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(gestion) != ''){
+                    concatenar_valores += '&gestion=' + gestion;
+                }
+
+                if($.trim(f_solicitud_del) != ''){
+                    concatenar_valores += '&f_solicitud_del=' + f_solicitud_del;
+                }
+
+                if($.trim(f_solicitud_al) != ''){
+                    concatenar_valores += '&f_solicitud_al=' + f_solicitud_al;
+                }
+
+                if(valor_sw){
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
                 break;
 
             // === MENSAJE ERROR ===
