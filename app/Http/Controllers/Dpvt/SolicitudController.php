@@ -50,19 +50,29 @@ class SolicitudController extends Controller
         ];
 
         $this->solicitante = [
-            '1' => 'MINISTERIO DE TRABAJO EMPLEO Y PREVISION SOCIAL',
-            '2' => 'MINISTERIO DE JUSTICIA',
-            '3' => 'MINISTERIO DE GOBIERNO',
-            '4' => 'FISCAL GENERAL DEL ESTADO',
-            '5' => 'FISCAL DEPARTAMENTAL',
-            '6' => 'FISCAL DE MATERIA',
-            '7' => 'CUALQUIER PERSONA'
+            '1'  => 'MINISTERIO DE TRABAJO EMPLEO Y PREVISION SOCIAL',
+            '2'  => 'MINISTERIO DE JUSTICIA',
+            '3'  => 'MINISTERIO DE GOBIERNO',
+            '4'  => 'FISCAL GENERAL DEL ESTADO',
+            '5'  => 'FISCAL DEPARTAMENTAL',
+            '6'  => 'FISCAL DE MATERIA',
+            '7'  => 'CUALQUIER PERSONA',
+            '8'  => 'IDIF',
+            '9'  => 'DIRECTOR/JEFE DE AREA FGE',
+            '10' => 'ORGANO JUDICIAL',
+            '11' => 'OTROS MINISTERIOS',
+            '12' => 'OTRAS INSTITUCIONAES'
         ];
 
         $this->etapa_proceso = [
+            '0' => 'SIN APERTURA',
             '1' => 'ETAPA PRELIMINAR',
             '2' => 'ETAPA PREPARATORIA',
-            '3' => 'ETAPA DE JUICIO'
+            '3' => 'ETAPA DE JUICIO',
+            '4' => 'SENTENCIA',
+            '5' => 'APELACION',
+            '6' => 'CASACION',
+            '7' => 'CERRADO'
         ];
 
         $this->estado_pdf = [
@@ -4470,115 +4480,286 @@ class SolicitudController extends Controller
                     $data1['f_solicitud_al']  = trim($request->input('f_solicitud_al'));
 
                 //=== CONSULTA BASE DE DATOS ===
-                    $tabla1 = "pvt_solicitudes";
-                    $tabla3 = "ubge_municipios";
-                    $tabla4 = "ubge_provincias";
-                    $tabla5 = "ubge_departamentos";
+                    //=== CONSULTA 1 ===
+                        $tabla1 = "pvt_solicitudes";
+                        $tabla3 = "ubge_municipios";
+                        $tabla4 = "ubge_provincias";
+                        $tabla5 = "ubge_departamentos";
 
-                    $select = "
-                        $tabla1.id,
-                        $tabla1.municipio_id,
+                        $select = "
+                            $tabla1.id,
+                            $tabla1.municipio_id,
 
-                        $tabla1.estado,
-                        $tabla1.cerrado_abierto,
-                        $tabla1.gestion,
-                        $tabla1.codigo,
+                            $tabla1.estado,
+                            $tabla1.cerrado_abierto,
+                            $tabla1.gestion,
+                            $tabla1.codigo,
 
-                        $tabla1.solicitante,
-                        $tabla1.nombre_solicitante,
-                        $tabla1.delitos,
-                        $tabla1.recalificacion_delitos,
-                        $tabla1.n_caso,
-                        $tabla1.denunciante,
-                        $tabla1.denunciado,
-                        $tabla1.victima,
-                        $tabla1.persona_protegida,
-                        $tabla1.etapa_proceso,
-                        $tabla1.f_solicitud,
-                        $tabla1.solicitud_estado_pdf,
-                        $tabla1.solicitud_documento_pdf,
+                            $tabla1.solicitante,
+                            $tabla1.nombre_solicitante,
+                            $tabla1.delitos,
+                            $tabla1.recalificacion_delitos,
+                            $tabla1.n_caso,
+                            $tabla1.denunciante,
+                            $tabla1.denunciado,
+                            $tabla1.victima,
+                            $tabla1.persona_protegida,
+                            $tabla1.etapa_proceso,
+                            $tabla1.f_solicitud,
+                            $tabla1.solicitud_estado_pdf,
+                            $tabla1.solicitud_documento_pdf,
 
-                        $tabla1.usuario_tipo,
-                        $tabla1.usuario_tipo_descripcion,
-                        $tabla1.usuario_nombre,
-                        $tabla1.usuario_sexo,
-                        $tabla1.usuario_edad,
-                        $tabla1.usuario_celular,
-                        $tabla1.usuario_domicilio,
-                        $tabla1.usuario_otra_referencia,
+                            $tabla1.usuario_tipo,
+                            $tabla1.usuario_tipo_descripcion,
+                            $tabla1.usuario_nombre,
+                            $tabla1.usuario_sexo,
+                            $tabla1.usuario_edad,
+                            $tabla1.usuario_celular,
+                            $tabla1.usuario_domicilio,
+                            $tabla1.usuario_otra_referencia,
 
-                        $tabla1.dirigido_a_psicologia,
-                        $tabla1.dirigido_psicologia,
-                        $tabla1.dirigido_psicologia_estado_pdf,
-                        $tabla1.dirigido_psicologia_archivo_pdf,
+                            $tabla1.dirigido_a_psicologia,
+                            $tabla1.dirigido_psicologia,
+                            $tabla1.dirigido_psicologia_estado_pdf,
+                            $tabla1.dirigido_psicologia_archivo_pdf,
 
-                        $tabla1.dirigido_a_trabajo_social,
-                        $tabla1.dirigido_trabajo_social,
-                        $tabla1.dirigido_trabajo_social_estado_pdf,
-                        $tabla1.dirigido_trabajo_social_archivo_pdf,
+                            $tabla1.dirigido_a_trabajo_social,
+                            $tabla1.dirigido_trabajo_social,
+                            $tabla1.dirigido_trabajo_social_estado_pdf,
+                            $tabla1.dirigido_trabajo_social_archivo_pdf,
 
-                        $tabla1.dirigido_a_otro_trabajo,
-                        $tabla1.dirigido_otro_trabajo,
-                        $tabla1.dirigido_otro_trabajo_estado_pdf,
-                        $tabla1.dirigido_otro_trabajo_archivo_pdf,
+                            $tabla1.dirigido_a_otro_trabajo,
+                            $tabla1.dirigido_otro_trabajo,
+                            $tabla1.dirigido_otro_trabajo_estado_pdf,
+                            $tabla1.dirigido_otro_trabajo_archivo_pdf,
 
-                        $tabla1.plazo_fecha_solicitud,
+                            $tabla1.plazo_fecha_solicitud,
 
-                        $tabla1.plazo_psicologico_fecha_entrega_digital,
-                        $tabla1.plazo_psicologico_estado_pdf,
-                        $tabla1.plazo_psicologico_archivo_pdf,
+                            $tabla1.plazo_psicologico_fecha_entrega_digital,
+                            $tabla1.plazo_psicologico_estado_pdf,
+                            $tabla1.plazo_psicologico_archivo_pdf,
 
-                        $tabla1.plazo_social_fecha_entrega_digital,
-                        $tabla1.plazo_social_estado_pdf,
-                        $tabla1.plazo_social_archivo_pdf,
+                            $tabla1.plazo_social_fecha_entrega_digital,
+                            $tabla1.plazo_social_estado_pdf,
+                            $tabla1.plazo_social_archivo_pdf,
 
-                        $tabla1.plazo_complementario_fecha,
-                        $tabla1.plazo_complementario_estado_pdf,
-                        $tabla1.plazo_complementario_archivo_pdf,
+                            $tabla1.plazo_complementario_fecha,
+                            $tabla1.plazo_complementario_estado_pdf,
+                            $tabla1.plazo_complementario_archivo_pdf,
 
-                        $tabla1.created_at,
-                        $tabla1.updated_at,
+                            $tabla1.created_at,
+                            $tabla1.updated_at,
 
-                        a3.nombre AS municipio,
-                        a3.provincia_id,
+                            a3.nombre AS municipio,
+                            a3.provincia_id,
 
-                        a4.nombre AS provincia,
-                        a4.departamento_id,
+                            a4.nombre AS provincia,
+                            a4.departamento_id,
 
-                        a5.nombre AS departamento
-                    ";
+                            a5.nombre AS departamento
+                        ";
 
-                    $array_where = "TRUE";
-                    if($request->has('gestion'))
-                    {
-                        $array_where .= " AND $tabla1.gestion=" . $data1['gestion'];
-                    }
+                        $array_where = "TRUE";
+                        if($request->has('gestion'))
+                        {
+                            $array_where .= " AND $tabla1.gestion=" . $data1['gestion'];
+                        }
 
-                    if($request->has('f_solicitud_del'))
-                    {
-                        $array_where .= " AND $tabla1.f_solicitud >= '" . $data1['f_solicitud_del'] . "'";
-                    }
+                        if($request->has('f_solicitud_del'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud >= '" . $data1['f_solicitud_del'] . "'";
+                        }
 
-                    if($request->has('f_solicitud_al'))
-                    {
-                        $array_where .= " AND $tabla1.f_solicitud <= '" . $data1['f_solicitud_al'] . "'";
-                    }
+                        if($request->has('f_solicitud_al'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud <= '" . $data1['f_solicitud_al'] . "'";
+                        }
 
-                    $consulta1 = PvtSolicitud::leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.municipio_id")
-                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.provincia_id")
-                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.departamento_id")
-                        ->whereRaw($array_where)
-                        ->select(DB::raw($select))
-                        ->orderByRaw("$tabla1.codigo ASC")
-                        ->get()
-                        ->toArray();
+                        $consulta1 = PvtSolicitud::leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.municipio_id")
+                            ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.provincia_id")
+                            ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.departamento_id")
+                            ->whereRaw($array_where)
+                            ->select(DB::raw($select))
+                            ->orderByRaw("$tabla1.gestion ASC, $tabla1.codigo ASC")
+                            ->get()
+                            ->toArray();
+
+
+                    //=== CONSULTA 2 ===
+                        $tabla1 = "pvt_solicitudes";
+                        $tabla2 = "pvt_solicitudes_delitos";
+                        $tabla3 = "pvt_delitos";
+
+                        $select = "
+                            $tabla1.gestion,
+                            $tabla1.codigo,
+
+                            a2.estado,
+                            a2.tentativa,
+
+                            a3.nombre AS delito
+                        ";
+
+                        $array_where = "TRUE AND a2.estado=1";
+                        if($request->has('gestion'))
+                        {
+                            $array_where .= " AND $tabla1.gestion=" . $data1['gestion'];
+                        }
+
+                        if($request->has('f_solicitud_del'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud >= '" . $data1['f_solicitud_del'] . "'";
+                        }
+
+                        if($request->has('f_solicitud_al'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud <= '" . $data1['f_solicitud_al'] . "'";
+                        }
+
+                        $consulta2 = PvtSolicitud::join("$tabla2 AS a2", "a2.solicitud_id", "=", "$tabla1.id")
+                            ->join("$tabla3 AS a3", "a3.id", "=", "a2.delito_id")
+                            ->whereRaw($array_where)
+                            ->select(DB::raw($select))
+                            ->orderByRaw("$tabla1.gestion ASC, $tabla1.codigo ASC")
+                            ->get()
+                            ->toArray();
+
+                    //=== CONSULTA 3 ===
+                        $tabla1 = "pvt_solicitudes";
+                        $tabla2 = "pvt_solicitudes_delitos";
+                        $tabla3 = "pvt_delitos";
+
+                        $select = "
+                            $tabla1.gestion,
+                            $tabla1.codigo,
+
+                            a2.estado,
+                            a2.tentativa,
+
+                            a3.nombre AS delito
+                        ";
+
+                        $array_where = "TRUE AND a2.estado=2";
+                        if($request->has('gestion'))
+                        {
+                            $array_where .= " AND $tabla1.gestion=" . $data1['gestion'];
+                        }
+
+                        if($request->has('f_solicitud_del'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud >= '" . $data1['f_solicitud_del'] . "'";
+                        }
+
+                        if($request->has('f_solicitud_al'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud <= '" . $data1['f_solicitud_al'] . "'";
+                        }
+
+                        $consulta3 = PvtSolicitud::join("$tabla2 AS a2", "a2.solicitud_id", "=", "$tabla1.id")
+                            ->join("$tabla3 AS a3", "a3.id", "=", "a2.delito_id")
+                            ->whereRaw($array_where)
+                            ->select(DB::raw($select))
+                            ->orderByRaw("$tabla1.gestion ASC, $tabla1.codigo ASC")
+                            ->get()
+                            ->toArray();
+
+                    //=== CONSULTA 4 ===
+                        $tabla1 = "pvt_solicitudes";
+                        $tabla2 = "pvt_solicitudes_complementarias";
+
+                        $select = "
+                            $tabla1.gestion,
+                            $tabla1.codigo,
+
+                            a2.complementario_dirigido_a,
+                            a2.complementario_trabajo_solicitado,
+                            a2.complementario_estado_pdf,
+                            a2.complementario_archivo_pdf
+                        ";
+
+                        $array_where = "TRUE";
+                        if($request->has('gestion'))
+                        {
+                            $array_where .= " AND $tabla1.gestion=" . $data1['gestion'];
+                        }
+
+                        if($request->has('f_solicitud_del'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud >= '" . $data1['f_solicitud_del'] . "'";
+                        }
+
+                        if($request->has('f_solicitud_al'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud <= '" . $data1['f_solicitud_al'] . "'";
+                        }
+
+                        $consulta4 = PvtSolicitud::join("$tabla2 AS a2", "a2.solicitud_id", "=", "$tabla1.id")
+                            ->whereRaw($array_where)
+                            ->select(DB::raw($select))
+                            ->orderByRaw("$tabla1.gestion ASC, $tabla1.codigo ASC")
+                            ->get()
+                            ->toArray();
+
+                    //=== CONSULTA 5 ===
+                        $tabla1 = "pvt_solicitudes";
+                        $tabla2 = "pvt_resoluciones";
+
+                        $select = "
+                            $tabla1.gestion,
+                            $tabla1.codigo,
+
+                            a2.resolucion_descripcion,
+                            a2.resolucion_fecha_emision,
+                            a2.resolucion_estado_pdf,
+                            a2.resolucion_archivo_pdf,
+
+                            a2.resolucion_tipo_disposicion,
+                            a2.resolucion_medidas_proteccion,
+                            a2.resolucion_otra_medidas_proteccion,
+                            a2.resolucion_instituciones_coadyuvantes,
+                            a2.resolucion_estado_pdf_2,
+                            a2.resolucion_archivo_pdf_2,
+
+                            a2.fecha_inicio,
+                            a2.fecha_entrega_digital,
+                            a2.informe_seguimiento_fecha,
+                            a2.informe_seguimiento_estado_pdf,
+                            a2.informe_seguimiento_archivo_pdf,
+
+                            a2.complementario_fecha,
+                            a2.complementario_estado_pdf,
+                            a2.complementario_archivo_pdf
+                        ";
+
+                        $array_where = "TRUE";
+                        if($request->has('gestion'))
+                        {
+                            $array_where .= " AND $tabla1.gestion=" . $data1['gestion'];
+                        }
+
+                        if($request->has('f_solicitud_del'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud >= '" . $data1['f_solicitud_del'] . "'";
+                        }
+
+                        if($request->has('f_solicitud_al'))
+                        {
+                            $array_where .= " AND $tabla1.f_solicitud <= '" . $data1['f_solicitud_al'] . "'";
+                        }
+
+                        $consulta5 = PvtSolicitud::join("$tabla2 AS a2", "a2.solicitud_id", "=", "$tabla1.id")
+                            ->whereRaw($array_where)
+                            ->select(DB::raw($select))
+                            ->orderByRaw("$tabla1.gestion ASC, $tabla1.codigo ASC")
+                            ->get()
+                            ->toArray();
 
                 //=== EXCEL ===
                     if(count($consulta1) > 0)
                     {
                         set_time_limit(3600);
                         ini_set('memory_limit','-1');
-                        Excel::create('medidas_proteccion_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                        Excel::create('medidas_proteccion_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1, $consulta2, $consulta3, $consulta4, $consulta5){
                             $excel->sheet('MEDIDAS DE PROTECCION', function($sheet) use($consulta1){
                                 $sheet->row(1, [
                                     'No',
@@ -4807,6 +4988,330 @@ class SolicitudController extends Controller
 
                                 $sheet->setAutoSize(true);
                             });
+
+                            if(count($consulta2) > 0)
+                            {
+                                $excel->sheet('DELITOS', function($sheet) use($consulta2){
+                                    $sheet->row(1, [
+                                        'No',
+
+                                        'GESTION',
+                                        'CODIGO',
+
+                                        'DELITO',
+                                        '¿TENTATIVA?'
+                                    ]);
+
+                                    $sheet->row(1, function($row){
+                                        $row->setBackground('#CCCCCC');
+                                        $row->setFontWeight('bold');
+                                        $row->setAlignment('center');
+                                    });
+
+                                    $sheet->freezeFirstRow();
+                                    $sheet->setAutoFilter();
+
+                                    $sw = FALSE;
+                                    $c  = 1;
+
+                                    foreach($consulta2 as $index1 => $row1)
+                                    {
+                                        $sheet->row($c+1, [
+                                            $c++,
+
+                                            $row1["gestion"],
+                                            $row1["codigo"],
+
+
+                                            $row1["delito"],
+                                            $this->estado_pdf[$row1["tentativa"]]
+                                        ]);
+
+                                        if($sw)
+                                        {
+                                            $sheet->row($c, function($row){
+                                                $row->setBackground('#deeaf6');
+                                            });
+
+                                            $sw = FALSE;
+                                        }
+                                        else
+                                        {
+                                            $sw = TRUE;
+                                        }
+                                    }
+
+                                    $sheet->cells('A2:A' . ($c), function($cells){
+                                        $cells->setAlignment('right');
+                                    });
+
+                                    $sheet->cells('B1:E' . ($c), function($cells){
+                                        $cells->setAlignment('center');
+                                    });
+
+                                    $sheet->setAutoSize(true);
+                                });
+                            }
+
+                            if(count($consulta3) > 0)
+                            {
+                                $excel->sheet('RECALIFICACION DEL DELITO', function($sheet) use($consulta3){
+                                    $sheet->row(1, [
+                                        'No',
+
+                                        'GESTION',
+                                        'CODIGO',
+
+                                        'DELITO',
+                                        '¿TENTATIVA?'
+                                    ]);
+
+                                    $sheet->row(1, function($row){
+                                        $row->setBackground('#CCCCCC');
+                                        $row->setFontWeight('bold');
+                                        $row->setAlignment('center');
+                                    });
+
+                                    $sheet->freezeFirstRow();
+                                    $sheet->setAutoFilter();
+
+                                    $sw = FALSE;
+                                    $c  = 1;
+
+                                    foreach($consulta3 as $index1 => $row1)
+                                    {
+                                        $sheet->row($c+1, [
+                                            $c++,
+
+                                            $row1["gestion"],
+                                            $row1["codigo"],
+
+
+                                            $row1["delito"],
+                                            $this->estado_pdf[$row1["tentativa"]]
+                                        ]);
+
+                                        if($sw)
+                                        {
+                                            $sheet->row($c, function($row){
+                                                $row->setBackground('#deeaf6');
+                                            });
+
+                                            $sw = FALSE;
+                                        }
+                                        else
+                                        {
+                                            $sw = TRUE;
+                                        }
+                                    }
+
+                                    $sheet->cells('A2:A' . ($c), function($cells){
+                                        $cells->setAlignment('right');
+                                    });
+
+                                    $sheet->cells('B1:E' . ($c), function($cells){
+                                        $cells->setAlignment('center');
+                                    });
+
+                                    $sheet->setAutoSize(true);
+                                });
+                            }
+
+                            if(count($consulta4) > 0)
+                            {
+                                $excel->sheet('SOLICITUD COMPLEMENTARIA', function($sheet) use($consulta4){
+                                    $sheet->row(1, [
+                                        'No',
+
+                                        'GESTION',
+                                        'CODIGO',
+
+                                        '¿PDF?',
+                                        'DIRIGIDO A',
+                                        'TRABAJO SOLICITADO'
+                                    ]);
+
+                                    $sheet->row(1, function($row){
+                                        $row->setBackground('#CCCCCC');
+                                        $row->setFontWeight('bold');
+                                        $row->setAlignment('center');
+                                    });
+
+                                    $sheet->freezeFirstRow();
+                                    $sheet->setAutoFilter();
+
+                                    $sw = FALSE;
+                                    $c  = 1;
+
+                                    foreach($consulta4 as $index1 => $row1)
+                                    {
+                                        $sheet->row($c+1, [
+                                            $c++,
+
+                                            $row1["gestion"],
+                                            $row1["codigo"],
+
+                                            $this->estado_pdf[$row1["complementario_estado_pdf"]],
+                                            $row1["complementario_dirigido_a"],
+                                            $row1["complementario_trabajo_solicitado"]
+                                        ]);
+
+                                        if($row1["complementario_estado_pdf"] == 2)
+                                        {
+                                            $sheet->getCell('D' . $c)
+                                                ->getHyperlink()
+                                                ->setUrl(url($this->public_url . $row1['complementario_archivo_pdf']))
+                                                ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                        }
+
+                                        if($sw)
+                                        {
+                                            $sheet->row($c, function($row){
+                                                $row->setBackground('#deeaf6');
+                                            });
+
+                                            $sw = FALSE;
+                                        }
+                                        else
+                                        {
+                                            $sw = TRUE;
+                                        }
+                                    }
+
+                                    $sheet->cells('A2:A' . ($c), function($cells){
+                                        $cells->setAlignment('right');
+                                    });
+
+                                    $sheet->cells('B1:F' . ($c), function($cells){
+                                        $cells->setAlignment('center');
+                                    });
+
+                                    $sheet->setAutoSize(true);
+                                });
+                            }
+
+                            if(count($consulta5) > 0)
+                            {
+                                $excel->sheet('RESOLUCIONES Y SEGUIMIENTO', function($sheet) use($consulta5){
+                                    $sheet->row(1, [
+                                        'No',
+
+                                        'GESTION',
+                                        'CODIGO',
+
+                                        '¿RESOLUCION PDF?',
+                                        '¿OTRA RESOLUCION PDF?',
+                                        '¿INFORME DE SEGUIMIENTO PDF?',
+                                        '¿INFORME COMPLEMENTARIO PDF?',
+
+                                        'DESCRIPCION DE LA RESOLUCION',
+                                        'FECHA DE EMISION',
+                                        'TIPO DE DISPOSICION',
+                                        'MEDIDA DE PROTECCION DISPUESTA',
+                                        'OTRA MEDIDA DE PROTECCION DISPUESTA',
+                                        'INSTITUCION COADYUVANTE',
+
+                                        'FECHA DE INICIO',
+                                        'FECHA DE ENTREGA',
+                                        'FECHA INFORME SEGUIMIENTO',
+                                        'FECHA INFORME COMPLEMENTARIO'
+                                    ]);
+
+                                    $sheet->row(1, function($row){
+                                        $row->setBackground('#CCCCCC');
+                                        $row->setFontWeight('bold');
+                                        $row->setAlignment('center');
+                                    });
+
+                                    $sheet->freezeFirstRow();
+                                    $sheet->setAutoFilter();
+
+                                    $sw = FALSE;
+                                    $c  = 1;
+
+                                    foreach($consulta5 as $index1 => $row1)
+                                    {
+                                        $sheet->row($c+1, [
+                                            $c++,
+
+                                            $row1["gestion"],
+                                            $row1["codigo"],
+
+                                            $this->estado_pdf[$row1["resolucion_estado_pdf"]],
+                                            $this->estado_pdf[$row1["resolucion_estado_pdf_2"]],
+                                            $this->estado_pdf[$row1["informe_seguimiento_estado_pdf"]],
+                                            $this->estado_pdf[$row1["complementario_estado_pdf"]],
+
+                                            $row1["resolucion_descripcion"],
+                                            $row1["resolucion_fecha_emision"],
+                                            $row1["resolucion_tipo_disposicion"],
+                                            $row1["resolucion_medidas_proteccion"],
+                                            $row1["resolucion_otra_medidas_proteccion"],
+                                            $row1["resolucion_instituciones_coadyuvantes"],
+
+                                            $row1["fecha_inicio"],
+                                            $row1["fecha_entrega_digital"],
+                                            $row1["informe_seguimiento_fecha"],
+                                            $row1["complementario_fecha"]
+                                        ]);
+
+                                        if($row1["resolucion_estado_pdf"] == 2)
+                                        {
+                                            $sheet->getCell('D' . $c)
+                                                ->getHyperlink()
+                                                ->setUrl(url($this->public_url . $row1['resolucion_archivo_pdf']))
+                                                ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                        }
+
+                                        if($row1["resolucion_estado_pdf_2"] == 2)
+                                        {
+                                            $sheet->getCell('E' . $c)
+                                                ->getHyperlink()
+                                                ->setUrl(url($this->public_url . $row1['resolucion_archivo_pdf_2']))
+                                                ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                        }
+
+                                        if($row1["informe_seguimiento_estado_pdf"] == 2)
+                                        {
+                                            $sheet->getCell('F' . $c)
+                                                ->getHyperlink()
+                                                ->setUrl(url($this->public_url . $row1['informe_seguimiento_archivo_pdf']))
+                                                ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                        }
+
+                                        if($row1["complementario_estado_pdf"] == 2)
+                                        {
+                                            $sheet->getCell('G' . $c)
+                                                ->getHyperlink()
+                                                ->setUrl(url($this->public_url . $row1['complementario_archivo_pdf']))
+                                                ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                        }
+
+                                        if($sw)
+                                        {
+                                            $sheet->row($c, function($row){
+                                                $row->setBackground('#deeaf6');
+                                            });
+
+                                            $sw = FALSE;
+                                        }
+                                        else
+                                        {
+                                            $sw = TRUE;
+                                        }
+                                    }
+
+                                    $sheet->cells('A2:A' . ($c), function($cells){
+                                        $cells->setAlignment('right');
+                                    });
+
+                                    $sheet->cells('B1:Q' . ($c), function($cells){
+                                        $cells->setAlignment('center');
+                                    });
+
+                                    $sheet->setAutoSize(true);
+                                });
+                            }
 
                             $excel->setActiveSheetIndex(0);
                         })->export('xlsx');
