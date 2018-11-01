@@ -61,7 +61,8 @@ class SolicitudController extends Controller
             '9'  => 'DIRECTOR/JEFE DE AREA FGE',
             '10' => 'ORGANO JUDICIAL',
             '11' => 'OTROS MINISTERIOS',
-            '12' => 'OTRAS INSTITUCIONAES'
+            '12' => 'OTRAS INSTITUCIONAES',
+            '13' => 'DE OFICIO'
         ];
 
         $this->etapa_proceso = [
