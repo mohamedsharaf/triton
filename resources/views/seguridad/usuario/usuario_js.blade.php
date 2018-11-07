@@ -715,7 +715,7 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
-                            // === INSERT UPDATE ===
+                            // === RELLENAR LUGAR DE DEPENDENCIA ===
                             case '102':
                                 if(data.sw === 2){
                                     var ld_array = new Array();

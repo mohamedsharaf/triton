@@ -11,12 +11,25 @@
 
   <!-- Sweet Alert -->
     <link href="{!! asset('inspinia_v27/css/plugins/sweetalert/sweetalert.css') !!}" rel="stylesheet">
+
+    <link href="{!! asset('inspinia_v27/css/plugins/select2/select2.min.css') !!}" rel="stylesheet">
 @endsection
 
 @section('css')
     <style type="text/css">
         #alertmod_table_list_2 {
             top: 900px !important;
+        }
+
+        .select2-close-mask{
+            z-index: 2099;
+        }
+        .select2-dropdown{
+            z-index: 3051;
+        }
+        .ui-th-column-header{
+            text-align: center;
+            background-color: #b9cde5 !important;
         }
     </style>
 @endsection
@@ -93,6 +106,12 @@
                       <label>Módulo</label>
                       <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del módulo" >
                     </div>
+
+                    <div id="lugar_dependencia_div" class="form-group">
+                      <label for="lugar_dependencia">Lugares de dependencia</label>
+                      <select name="lugar_dependencia[]" id="lugar_dependencia" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                      </select>
+                    </div>
                   </form>
                 </div>
               </div>
@@ -131,6 +150,11 @@
 
   <!-- Sweet alert -->
     <script src="{{ asset('inspinia_v27/js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+
+  
+  <!-- Select2 -->
+    <script src="{{ asset('inspinia_v27/js/plugins/select2/select2.full.min.js') }}"></script>
+    <script src="{{ asset('inspinia_v27/js/plugins/select2/es.js') }}"></script>
 @endsection
 
 @section('js')
@@ -158,40 +182,45 @@
       var url_controller = "{!! url('/rol') !!}";
       var csrf_token     = "{!! csrf_token() !!}";
 
-      // === JQGRID1 ===
-        var title_table   = "{!! $title_table !!}";
-        var jqgrid1       = "#jqgrid1";
-        var pjqgrid1      = "#pjqgrid1";
-        var col_name_1    = new Array(
-          "",
-          "ESTADO",
-          "ROL",
-          ""
-        );
-        var col_m_name_1  = new Array(
-          "act",
-          "estado",
-          "nombre",
-          "val_json"
-        );
-        var col_m_index_1 = new Array(
-          "",
-          "seg_roles.estado",
-          "seg_roles.nombre",
-          ""
-        );
-        var col_m_width_1 = new Array(
-          33,
-          100,
-          500,
-          10
-        );
-        var col_m_align_1 = new Array(
-          "center",
-          "center",
-          "left",
-          "center"
-        );
+    // === JQGRID1 ===
+      var title_table   = "{!! $title_table !!}";
+      var jqgrid1       = "#jqgrid1";
+      var pjqgrid1      = "#pjqgrid1";
+      var col_name_1    = new Array(
+        "",
+        "ESTADO",
+        "ROL",
+        "",
+        "LUGAR DE DEPENDENCIA"
+      );
+      var col_m_name_1  = new Array(
+        "act",
+        "estado",
+        "nombre",
+        "val_json",
+        "lugar_dependencia"
+      );
+      var col_m_index_1 = new Array(
+        "",
+        "seg_roles.estado",
+        "seg_roles.nombre",
+        "",
+        "seg_roles.nomlugar_dependenciabre"
+      );
+      var col_m_width_1 = new Array(
+        33,
+        100,
+        500,
+        10,
+        500
+      );
+      var col_m_align_1 = new Array(
+        "center",
+        "center",
+        "left",
+        "center",
+        "left"
+      );
 
       // === FORMULARIO 1 ===
         var form_1 = "#form_1";
@@ -206,7 +235,22 @@
         estado_jqgrid += ';' + index + ':' + value;
       });
 
+    // === LUGAR DE DEPENDENCIA ===
+          var lugar_dependencia_json   = $.parseJSON('{!! json_encode($lugar_dependencia_array) !!}');
+          var lugar_dependencia_select = '';
+          var lugar_dependencia_jqgrid = ':Todos';
+
+          $.each(lugar_dependencia_json, function(index, value) {
+              lugar_dependencia_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+              lugar_dependencia_jqgrid += ';' + value.nombre + ':' + value.nombre;
+          });  
+
     $(document).ready(function(){
+      //=== INICIALIZAR ===
+        $('#lugar_dependencia').append(lugar_dependencia_select);
+        $("#lugar_dependencia").select2();
+        $("#lugar_dependencia").appendTo("#lugar_dependencia_div");
+
       // === JQGRID 1 ===
         var valor1 = new Array();
         valor1[0]  = 10;
@@ -230,7 +274,7 @@
           utilitarios(valor1);
       },0);
 
-      $( "#navbar-minimalize-button" ).on( "click", function() {
+      $("#navbar-minimalize-button").on( "click", function() {
           setTimeout(function(){
               $('.wrapper-content').removeClass('animated fadeInRight');
               var valor1 = new Array();
@@ -280,6 +324,7 @@
               col_name_1[0],
               col_name_1[1],
               col_name_1[2],
+              col_name_1[4],
               col_name_1[3]
             ],
             colModel : [
@@ -306,6 +351,12 @@
                 index : col_m_index_1[2],
                 width : col_m_width_1[2],
                 align : col_m_align_1[2]
+              },
+              {
+                name  : col_m_name_1[4],
+                index : col_m_index_1[4],
+                width : col_m_width_1[4],
+                align : col_m_align_1[4]
               },
               // === OCULTO ===
                 {
@@ -418,6 +469,18 @@
 
           $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
           $("#nombre").val(ret.nombre);
+
+          if(ret.lugar_dependencia != ""){
+              var valor1 = new Array();
+              valor1[0]  = 150;
+              valor1[1]  = url_controller + '/send_ajax';
+              valor1[2]  = 'POST';
+              valor1[3]  = true;
+              valor1[4]  = 'tipo=102&_token=' + csrf_token + '&rol_id=' + valor[1];
+              valor1[5]  = 'json';
+              utilitarios(valor1);
+          }
+
           $('#modal_1').modal();
           break;
         // === REPORTES MODAL ===
@@ -428,6 +491,8 @@
         case 14:
           $('#modal_1_title').empty();
           $('#modal_1_title').append('Agregar nuevo rol');
+
+          $('#lugar_dependencia').select2("val", "");
 
           $("#rol_id").val('');
           $(form_1)[0].reset();
@@ -468,6 +533,9 @@
               nombre:{
                 required : true,
                 maxlength: 500
+              },
+              "lugar_dependencia[]":{
+                  required: true
               }
             }
           });
@@ -521,6 +589,18 @@
                     }
                     swal.close();
                     $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                    break;
+                  // === RELLENAR LUGAR DE DEPENDENCIA ===
+                  case '102':
+                    if(data.sw === 2){
+                        var ld_array = new Array();
+                        var i        = 0;
+                        $.each(data.consulta, function(index, value){
+                            ld_array[i] = value.lugar_dependencia_id;
+                            i++;
+                        });
+                        $("#lugar_dependencia").select2("val", ld_array);
+                    }
                     break;
                   default:
                     break;

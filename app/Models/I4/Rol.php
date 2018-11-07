@@ -1,0 +1,91 @@
+<?php
+
+namespace App\Models\I4;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Rol extends Model
+{
+    protected $connection = 'mysql';
+    protected $table      = 'Rol';
+
+    protected $fillable = [
+        "version",
+        "Rol",
+        "Activo",
+        "Notas",
+        "CreatorUser",
+        "CreatorFullName",
+        "CreationDate",
+        "CreationIP",
+        "UpdaterUser",
+        "UpdaterFullName",
+        "UpdaterDate",
+        "UpdaterIP",
+        "CasosSoloUnidad",
+        "CasosEdSoloUnidad",
+        "CasosSoloDep",
+        "CasosEdSoloDep",
+        "CasosSoloOficina",
+        "CasosEdSoloOficina",
+        "CasosSoloDivision",
+        "CasosEdSoloDivision",
+        "CasosSoloAsignados",
+        "CasosEdSoloAsignados",
+        "CreaCaso",
+        "AsignaCaso",
+        "ReparteCaso",
+        "EditaCasoNoAbierto",
+        "MaxNivelReserva",
+        "CreaPersona",
+        "EditaPersona",
+        "EliminaPersona",
+        "ActividadesSoloUnidad",
+        "ActividadesSoloDep",
+        "ActividadesSoloOficina",
+        "ActividadesSoloDivision",
+        "ActividadesSoloAsignados",
+        "CreaActividad",
+        "EditaActividad",
+        "EliminaActividad",
+        "CierraActividad",
+        "AbreActividad",
+        "AnulaActividad",
+        "AsignaActividad",
+        "EvidenciaSoloUnidad",
+        "EvidenciaSoloDep",
+        "EvidenciaSoloOficina",
+        "EvidenciaSoloDivision",
+        "EvidenciaSoloAsignados",
+        "CreaEvidencia",
+        "EditaEvidencia",
+        "EliminaEvidencia",
+        "NotificacionesSoloUnidad",
+        "NotificacionesSoloDep",
+        "NotificacionesSoloOficina",
+        "NotificacionesSoloDivision",
+        "NotificacionesSoloAsignados",
+        "CreaNotificacion",
+        "EditaNotificacion",
+        "EliminaNotificacion",
+        "AsignaNotificacion",
+        "RegistraEntregaNotificacion",
+        "EditaNotificacionEntregada",
+        "UsuariosSoloInstitucion",
+        "UsuariosSoloUnidad",
+        "UsuariosSoloDep",
+        "UsuariosSoloOficina",
+        "UsuariosSoloDivision",
+        "CreaUsuario",
+        "EditaUsuario",
+        "CreaRol",
+        "EditaRol",
+        "CreaTipoActividad",
+        "EditaTipoActividad",
+        "Nivel",
+        "MaxNivelRol",
+        "MaxNivelModule"
+    ];
+
+    protected $guarded  = [];
+}

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAsfiDetallesTable extends Migration
+class AddLugarDependenciaToSegRolesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class CreateAsfiDetallesTable extends Migration
      */
     public function up()
     {
-        Schema::create('asfi_detalles', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
+        Schema::table('seg_roles', function (Blueprint $table) {
+            $table->text('lugar_dependencia')->nullable();
         });
     }
 
@@ -26,6 +25,8 @@ class CreateAsfiDetallesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('asfi_detalles');
+        Schema::table('seg_roles', function (Blueprint $table) {
+            $table->dropColumn('lugar_dependencia');
+        });
     }
 }

@@ -13,6 +13,8 @@ use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegRol;
 use App\Models\Seguridad\SegPermisoRol;
+use App\Models\Seguridad\SegLdRol;
+use App\Models\Institucion\InstLugarDependencia;
 
 class RolController extends Controller
 {
@@ -52,14 +54,18 @@ class RolController extends Controller
         if($this->rol_id == 1)
         {
             $data = [
-                'rol_id'       => $this->rol_id,
-                'permisos'     => $this->permisos,
-                'title'        => 'Gestor de roles',
-                'home'         => 'Inicio',
-                'sistema'      => 'Seguridad',
-                'modulo'       => 'Gestor de roles',
-                'title_table'  => 'Roles',
-                'estado_array' => $this->estado
+                'rol_id'                  => $this->rol_id,
+                'permisos'                => $this->permisos,
+                'title'                   => 'Gestor de roles',
+                'home'                    => 'Inicio',
+                'sistema'                 => 'Seguridad',
+                'modulo'                  => 'Gestor de roles',
+                'title_table'             => 'Roles',
+                'estado_array'            => $this->estado,
+                'lugar_dependencia_array' => InstLugarDependencia::select("id", "nombre")
+                                                ->orderBy("nombre")
+                                                ->get()
+                                                ->toArray()
             ];
             return view('seguridad.rol.rol')->with($data);
         }
@@ -91,7 +97,8 @@ class RolController extends Controller
         $select = "
           seg_roles.id,
           seg_roles.estado,
-          seg_roles.nombre
+          seg_roles.nombre,
+          seg_roles.lugar_dependencia
         ";
 
         $array_where = "TRUE";
@@ -127,6 +134,7 @@ class RolController extends Controller
                 '',
                 $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
                 $row["nombre"],
+                $this->utilitarios(array('tipo' => '3', 'd_json' => $row["lugar_dependencia"])),
                 //=== VARIABLES OCULTOS ===
                 json_encode($val_array)
             );
@@ -197,18 +205,56 @@ class RolController extends Controller
           //=== OPERACION ===
             $estado = trim($request->input('estado'));
             $nombre = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+
+            if($request->has('lugar_dependencia'))
+            {
+                $lugar_dependencia = $request->input('lugar_dependencia');
+
+                $i = 0;
+                foreach($lugar_dependencia as $lugar_dependencia_id)
+                {
+                    $ld_query = InstLugarDependencia::where('id', '=', $lugar_dependencia_id)
+                        ->select("id", "nombre")
+                        ->first()
+                        ->toArray();
+
+                    $ld_nombre_array[$i] = $ld_query['nombre'];
+                    $i++;
+                }
+                $ld_json = json_encode($ld_nombre_array);
+            }
+            else
+            {
+                $lugar_dependencia = NULL;
+                $ld_json           = NULL;
+            }
+
             if($opcion == 'n')
             {
               $c_nombre = SegRol::where('nombre', '=', $nombre)->count();
               if($c_nombre < 1)
               {
-                $iu         = new SegRol;
-                $iu->estado = $estado;
-                $iu->nombre = $nombre;
+                $iu                    = new SegRol;
+                $iu->estado            = $estado;
+                $iu->nombre            = $nombre;
+                $iu->lugar_dependencia = $ld_json;
                 $iu->save();
+
+                $id = $iu->id;
 
                 $respuesta['respuesta'] .= "El ROL se registro con éxito.";
                 $respuesta['sw']         = 1;
+
+                if($request->has('lugar_dependencia'))
+                {
+                    foreach($lugar_dependencia as $lugar_dependencia_id)
+                    {
+                        $iu1                       = new SegLdRol;
+                        $iu1->lugar_dependencia_id = $lugar_dependencia_id;
+                        $iu1->rol_id               = $id;
+                        $iu1->save();
+                    }
+                }
               }
               else
               {
@@ -220,14 +266,29 @@ class RolController extends Controller
               $c_nombre = SegRol::where('nombre', '=', $nombre)->where('id', '<>', $id)->count();
               if($c_nombre < 1)
               {
-                $iu         = SegRol::find($id);
-                $iu->estado = $estado;
-                $iu->nombre = $nombre;
+                $iu                    = SegRol::find($id);
+                $iu->estado            = $estado;
+                $iu->nombre            = $nombre;
+                $iu->lugar_dependencia = $ld_json;
                 $iu->save();
 
                 $respuesta['respuesta'] .= "El ROL se edito con éxito.";
                 $respuesta['sw']         = 1;
                 $respuesta['iu']         = 2;
+
+                $del1 = SegLdRol::where('rol_id', '=', $id);
+                $del1->delete();
+
+                if($request->has('lugar_dependencia'))
+                {
+                    foreach($lugar_dependencia as $lugar_dependencia_id)
+                    {
+                        $iu1                       = new SegLdRol;
+                        $iu1->lugar_dependencia_id = $lugar_dependencia_id;
+                        $iu1->rol_id              = $id;
+                        $iu1->save();
+                    }
+                }
               }
               else
               {
@@ -237,6 +298,30 @@ class RolController extends Controller
           //=== respuesta ===
             // sleep(5);
             return json_encode($respuesta);
+        break;
+      // === SELECT2 RELLENAR LUGAR DE DEPENDENCIA ===
+      case '102':
+        $respuesta = [
+            'tipo' => $tipo,
+            'sw'   => 1
+        ];
+
+        if($request->has('rol_id'))
+        {
+            $rol_id  = $request->input('rol_id');
+
+            $query = SegLdRol::where("rol_id", "=", $rol_id)
+                        ->select('lugar_dependencia_id')
+                        ->get()
+                        ->toArray();
+
+            if(count($query) > 0)
+            {
+                $respuesta['consulta'] = $query;
+                $respuesta['sw']       = 2;
+            }
+        }
+        return json_encode($respuesta);
         break;
       default:
         break;
@@ -263,6 +348,26 @@ class RolController extends Controller
             return($respuesta);
             break;
         }
+        break;
+      case '3':
+        $respuesta = '';
+        if($valor['d_json'] != '')
+        {
+            $sw = TRUE;
+            foreach(json_decode($valor['d_json']) as $valor)
+            {
+                if($sw)
+                {
+                    $respuesta .= $valor;
+                    $sw = FALSE;
+                }
+                else
+                {
+                    $respuesta .= "<br>" . $valor;
+                }
+            }
+        }
+        return($respuesta);
         break;
       default:
         break;

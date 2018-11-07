@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAsfiRetencionesTable extends Migration
+class CreateSegLdRolesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,35 +13,21 @@ class CreateAsfiRetencionesTable extends Migration
      */
     public function up()
     {
-        Schema::create('asfi_retenciones', function (Blueprint $table) {
+        Schema::create('seg_ld_roles', function (Blueprint $table) {
             $table->increments('id');
-
-            $table->integer('persona_id')->unsigned()->nullable();
             $table->integer('lugar_dependencia_id')->unsigned()->nullable();
-            $table->integer('auo_id')->unsigned()->nullable();
-            $table->integer('cargo_id')->unsigned()->nullable();
-
+            $table->integer('rol_id')->unsigned()->nullable();
 
             $table->timestamps();
-
-            $table->foreign('persona_id')
-                ->references('id')
-                ->on('rrhh_personas')
-                ->onDelete('cascade');
 
             $table->foreign('lugar_dependencia_id')
                 ->references('id')
                 ->on('inst_lugares_dependencia')
                 ->onDelete('cascade');
 
-            $table->foreign('auo_id')
+            $table->foreign('rol_id')
                 ->references('id')
-                ->on('inst_auos')
-                ->onDelete('cascade');
-
-            $table->foreign('cargo_id')
-                ->references('id')
-                ->on('inst_cargos')
+                ->on('seg_roles')
                 ->onDelete('cascade');
         });
     }
@@ -53,6 +39,6 @@ class CreateAsfiRetencionesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('asfi_retenciones');
+        Schema::dropIfExists('seg_ld_roles');
     }
 }

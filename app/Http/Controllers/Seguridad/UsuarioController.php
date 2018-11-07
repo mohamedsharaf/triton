@@ -17,6 +17,7 @@ use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegRol;
+use App\Models\Seguridad\SegLdRol;
 use App\Models\Seguridad\SegLdUser;
 use App\Models\Institucion\InstLugarDependencia;
 use App\Models\Rrhh\RrhhPersona;
@@ -75,7 +76,8 @@ class UsuarioController extends Controller
                     ->get()
                     ->toArray();
 
-            $array_where = 'estado=1';
+            $array_where = 'estado = 1';
+            $where2      = '';
             if(count($consulta1) > 0)
             {
                 $c_1_sw        = TRUE;
@@ -105,10 +107,62 @@ class UsuarioController extends Controller
                 {
                     $array_where .= $array_where_1;
                 }
+
+                $c_1_sw        = TRUE;
+                $array_where_1 = '';
+                foreach ($consulta1 as $valor)
+                {
+                    if($c_1_sw)
+                    {
+                        $array_where_1 .= "lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                        $c_1_sw      = FALSE;
+                    }
+                    else
+                    {
+                        $array_where_1 .= " OR lugar_dependencia_id=" . $valor['lugar_dependencia_id'];
+                    }
+                }
+                $where2 .= $array_where_1;
             }
             else
             {
                 $array_where .= " AND id=0";
+            }
+
+            $array_where_2 = 'estado=1';
+            if($this->rol_id != 1)
+            {
+                $consulta2 = SegLdRol::whereRaw($where2)
+                    ->select('rol_id')
+                    ->groupBy('rol_id')
+                    ->orderBy('rol_id', 'asc')
+                    ->get()
+                    ->toArray();
+
+                if(count($consulta2) > 0)
+                {
+                    $c_1_sw        = TRUE;
+                    $c_2_sw        = TRUE;
+                    $array_where_1 = '';
+                    foreach ($consulta2 as $valor)
+                    {
+                        if($valor['rol_id'] != 1)
+                        {
+                            if($c_1_sw)
+                            {
+                                $array_where_1 .= " AND (id=" . $valor['rol_id'];
+                                $c_1_sw      = FALSE;
+                            }
+                            else
+                            {
+                                $array_where_1 .= " OR id=" . $valor['rol_id'];
+                            }
+                        }
+                    }
+                    $array_where_1 .= ")";
+                    
+                    $array_where_2 .= $array_where_1;
+                }
             }
 
             $data = [
@@ -126,8 +180,7 @@ class UsuarioController extends Controller
                                                 ->orderBy("nombre")
                                                 ->get()
                                                 ->toArray(),
-                'rol_array'               => SegRol::where('estado', '=', 1)
-                                            ->where('id', '<>', 1)
+                'rol_array'               => SegRol::whereRaw($array_where_2)
                                             ->select("id", "nombre")
                                             ->orderBy("nombre")
                                             ->get()

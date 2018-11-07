@@ -14,14 +14,14 @@
 
     <body bgcolor="#FFFFFF">
         <!-- HEADER -->
-            <table class="head-wrap" bgcolor="#003A62">
+            <table class="head-wrap" bgcolor="#505050">
                 <tr>
                     <td></td>
                     <td class="header container" >
                         <div class="content">
-                            <table bgcolor="#003A62">
+                            <table bgcolor="#505050">
                                 <tr>
-                                    <td><img src="{!! asset('image/logo/logo_fge_256.png') !!}" width="50" /></td>
+                                    <td><img src="{!! asset('image/logo/logo_fge_256_2018_3.png') !!}" width="50" /></td>
                                     <td align="right"><h6 class="collapse">{{ $title }}</h6></td>
                                 </tr>
                             </table>
@@ -42,7 +42,7 @@
                                 <tr>
                                     <td>
                                         <p class="lead" style="color: #444444;">
-                                            Hola {{ $name }}, recientemente se configuró tu cuenta en el SISTEMA DE PERSONAL con la siguiente información:
+                                            Hola {{ $name }}, recientemente se configuró tu cuenta en el SISTEMA TRITON con la siguiente información:
                                         </p>
                                     </td>
                                 </tr>
@@ -65,7 +65,7 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <p style="color: #444444;">
+                                        <p style="color: #F1F1F1;">
                                             Para preservar la seguridad de tu cuenta, no reenvíes este mensaje a nadie y cambie su contraseña.<br/>
                                         </p>
                                     </td>
@@ -88,7 +88,7 @@
                                                                     <p class="">
                                                                         <a href="https://www.facebook.com/FiscaliaGeneralBolivia" class="soc-btn fb">Facebook</a>
                                                                         <a href="https://twitter.com/fge_bolivia" class="soc-btn tw">Twitter</a>
-                                                                        <a href="http://www.fiscalia.gob.bo/" class="soc-btn mp">www.fiscalia.gob.bo</a>
+                                                                        <a href="https://www.fiscalia.gob.bo/" class="soc-btn mp">www.fiscalia.gob.bo</a>
                                                                     </p>
                                                                 </td>
                                                             </tr>

@@ -12,7 +12,7 @@
 
 @section('content')
     <div>
-        <img alt="image" class="img-circle" width="180" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
+        <img alt="image" class="img-circle" width="180" src="{!! asset('image/logo/logo_fge_256_2018_3.png') !!}" />
     </div>
 
     {{-- <h3 class="text-white">Registrarse</h3> --}}

@@ -11,7 +11,7 @@
         <title>@yield('title') </title>
 
         <!-- ICO -->
-            <link rel="shortcut icon" href="{!! asset('image/logo/favicon.ico') !!}"/>
+            <link rel="shortcut icon" href="{!! asset('image/logo/favicon_2018_1.ico') !!}"/>
 
         <!-- Styles -->
             <link href="{!! asset('inspinia_v27/css/bootstrap.min.css') !!}" rel="stylesheet">

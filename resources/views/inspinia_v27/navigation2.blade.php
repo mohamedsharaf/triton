@@ -5,7 +5,7 @@
                 <div class="dropdown profile-element">
                     <span>
                         @if(Auth::user()->imagen == '')
-                            <img id="img_imagen" alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
+                            <img id="img_imagen" alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256_2018_3.png') !!}" />
                         @else
                             <img id="img_imagen" alt="image" class="img-circle" width="50" src="{!! asset('storage/seguridad/user/image/' . Auth::user()->imagen) !!}" />
                         @endif
@@ -28,7 +28,7 @@
                 </div>
                 <div class="logo-element">
                     @if(Auth::user()->imagen == '')
-                        <img alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256.png') !!}" />
+                        <img alt="image" class="img-circle" width="50" src="{!! asset('image/logo/logo_fge_256_2018_3.png') !!}" />
                     @else
                         <img alt="image" class="img-circle" width="50" src="{!! asset('storage/seguridad/user/image/' . Auth::user()->imagen) !!}" />
                     @endif
