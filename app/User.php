@@ -25,6 +25,10 @@ class User extends Authenticatable
 
         'email',
         'password',
+
+        'grupo_id',
+        'i4_funcionario_id',
+        'i4_funcionario_id_estado'
     ];
 
     /**

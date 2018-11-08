@@ -40,7 +40,11 @@
             "ROL",
             "LUGAR DE DEPENDENCIA",
 
-            ""
+            "",
+
+            "¿i4?",
+
+            "GRUPO"
         );
         var col_m_name_1  = new Array(
             "act",
@@ -55,7 +59,10 @@
             "rol",
             "lugar_dependencia",
 
-            "val_json"
+            "val_json",
+
+            "i4_funcionario_id_estado",
+            "grupo"
         );
         var col_m_index_1 = new Array(
             "",
@@ -70,7 +77,10 @@
             "a3.nombre",
             "users.lugar_dependencia",
 
-            ""
+            "",
+
+            "users.i4_funcionario_id_estado",
+            "a4.nombre"
         );
         var col_m_width_1 = new Array(
             33,
@@ -85,7 +95,10 @@
             250,
             350,
 
-            10
+            10,
+
+            90,
+            200
         );
         var col_m_align_1 = new Array(
             "center",
@@ -100,6 +113,9 @@
             "center",
             "left",
 
+            "center",
+
+            "center",
             "center"
         );
 
@@ -116,6 +132,16 @@
             estado_jqgrid += ';' + index + ':' + value;
         });
 
+    // === SI - NO ===
+        var no_si_json   = $.parseJSON('{!! json_encode($no_si_array) !!}');
+        var no_si_select = '';
+        var no_si_jqgrid = ':Todos';
+
+        $.each(no_si_json, function(index, value) {
+            no_si_select += '<option value="' + index + '">' + value + '</option>';
+            no_si_jqgrid += ';' + index + ':' + value;
+        });
+
     // === ROL ===
         var rol_json   = $.parseJSON('{!! json_encode($rol_array) !!}');
         var rol_select = '';
@@ -124,6 +150,15 @@
         $.each(rol_json, function(index, value) {
             rol_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
             rol_jqgrid += ';' + value.nombre + ':' + value.nombre;
+        });
+    // === GRUPO ===
+        var grupo_json   = $.parseJSON('{!! json_encode($grupo_array) !!}');
+        var grupo_select = '';
+        var grupo_jqgrid = ':Todos';
+
+        $.each(grupo_json, function(index, value) {
+            grupo_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            grupo_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
     // === LUGAR DE DEPENDENCIA ===
@@ -197,6 +232,12 @@
             $('#lugar_dependencia').append(lugar_dependencia_select);
             $("#lugar_dependencia").select2();
             $("#lugar_dependencia").appendTo("#lugar_dependencia_div");
+
+            $('#grupo_id').append(grupo_select);
+            $("#grupo_id").select2({
+                maximumSelectionLength: 1
+            });
+            $("#grupo_id").appendTo("#grupo_id_div");
 
         // === DROPZONE ===
             var valor1 = new Array();
@@ -280,6 +321,7 @@
                         col_name_1[0],
                         col_name_1[1],
                         col_name_1[2],
+                        col_name_1[12],
                         col_name_1[3],
                         col_name_1[4],
                         col_name_1[5],
@@ -287,6 +329,7 @@
                         col_name_1[7],
                         col_name_1[8],
                         col_name_1[9],
+                        col_name_1[13],
                         col_name_1[10],
                         col_name_1[11]
                     ],
@@ -316,6 +359,14 @@
                             align      : col_m_align_1[2],
                             stype      :'select',
                             editoptions: {value:estado_jqgrid}
+                        },
+                        {
+                            name       : col_m_name_1[12],
+                            index      : col_m_index_1[12],
+                            width      : col_m_width_1[12],
+                            align      : col_m_align_1[12],
+                            stype      :'select',
+                            editoptions: {value:no_si_jqgrid}
                         },
                         {
                             name  : col_m_name_1[3],
@@ -361,6 +412,14 @@
                             align      : col_m_align_1[9],
                             stype      :'select',
                             editoptions: {value:rol_jqgrid}
+                        },
+                        {
+                            name       : col_m_name_1[13],
+                            index      : col_m_index_1[13],
+                            width      : col_m_width_1[13],
+                            align      : col_m_align_1[13],
+                            stype      :'select',
+                            editoptions: {value:grupo_jqgrid}
                         },
                         {
                             name  : col_m_name_1[10],
@@ -496,9 +555,21 @@
                     $("#persona_id").select2("val", val_json.persona_id);
                 }
 
+                if(val_json.i4_funcionario_id_estado == 2){
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = 'tipo=111&_token=' + csrf_token + '&i4_funcionario_id=' + val_json.i4_funcionario_id;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+
                 $("#email").val(ret.email);
                 $("#rol_id").select2("val", val_json.rol_id);
 
+                $("#grupo_id").select2("val", val_json.grupo_id);
 
                 if(ret.lugar_dependencia != ""){
                     var valor1 = new Array();
@@ -527,9 +598,12 @@
                 $("#usuario_id").val('');
 
                 $('#persona_id').select2("val", "");
+                $('#i4_funcionario_id').select2("val", "");
                 $('#rol_id').select2("val", "");
+                $('#grupo_id').select2("val", "");
                 $('#lugar_dependencia').select2("val", "");
                 $('#persona_id option').remove();
+                $('#i4_funcionario_id option').remove();
                 $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
@@ -577,6 +651,9 @@
                             equalTo: "#password"
                         },
                         rol_id:{
+                            required: true
+                        },
+                        grupo_id:{
                             required: true
                         },
                         "lugar_dependencia[]":{
@@ -749,6 +826,13 @@
                                         i++;
                                     });
                                     $("#lugar_dependencia").select2("val", ld_array);
+                                }
+                                break;
+                            // === RELLENAR FUNCIONARIO DEL I4 ===
+                            case '111':
+                                if(data.sw === 2){
+                                    $('#i4_funcionario_id').append('<option value="' + data.consulta.id + '">' + data.consulta.text + '</option>');
+                                    $("#i4_funcionario_id").select2("val", data.consulta.id);
                                 }
                                 break;
                             default:

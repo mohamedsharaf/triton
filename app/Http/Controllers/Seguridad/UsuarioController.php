@@ -16,6 +16,7 @@ use App\Libraries\JqgridClass;
 use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegPermisoRol;
+use App\Models\Seguridad\SegGrupo;
 use App\Models\Seguridad\SegRol;
 use App\Models\Seguridad\SegLdRol;
 use App\Models\Seguridad\SegLdUser;
@@ -50,6 +51,11 @@ class UsuarioController extends Controller
         $this->estado = [
             '1' => 'HABILITADO',
             '2' => 'INHABILITADO'
+        ];
+
+        $this->no_si = [
+            '1' => 'NO',
+            '2' => 'SI'
         ];
 
         $this->public_dir = '/storage/seguridad/user/image';
@@ -177,12 +183,18 @@ class UsuarioController extends Controller
                 'title_table'             => 'Usuarios',
                 'public_url'              => $this->public_url,
                 'estado_array'            => $this->estado,
+                'no_si_array'             => $this->no_si,
                 'lugar_dependencia_array' => InstLugarDependencia::whereRaw($array_where)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
                                                 ->get()
                                                 ->toArray(),
                 'rol_array'               => SegRol::whereRaw($array_where_2)
+                                            ->select("id", "nombre")
+                                            ->orderBy("nombre")
+                                            ->get()
+                                            ->toArray(),
+                'grupo_array'             => SegGrupo::where('estado', '1')
                                             ->select("id", "nombre")
                                             ->orderBy("nombre")
                                             ->get()
@@ -218,16 +230,20 @@ class UsuarioController extends Controller
                 $tabla1 = "users";
                 $tabla2 = "rrhh_personas";
                 $tabla3 = "seg_roles";
+                $tabla4 = "seg_grupos";
 
                 $select = "
                     $tabla1.id,
                     $tabla1.rol_id,
                     $tabla1.persona_id,
+                    $tabla1.grupo_id,
                     $tabla1.estado,
                     $tabla1.name,
                     $tabla1.imagen,
                     $tabla1.email,
                     $tabla1.lugar_dependencia,
+                    $tabla1.i4_funcionario_id,
+                    $tabla1.i4_funcionario_id_estado,
 
                     a2.n_documento,
                     a2.nombre,
@@ -235,7 +251,9 @@ class UsuarioController extends Controller
                     a2.ap_materno,
                     a2.ap_esposo,
 
-                    a3.nombre AS rol
+                    a3.nombre AS rol,
+
+                    a4.nombre AS grupo
                 ";
 
                 $array_where = '';
@@ -287,6 +305,7 @@ class UsuarioController extends Controller
 
                 $count = User::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
                             ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.rol_id")
+                            ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.grupo_id")
                             ->whereRaw($array_where)
                             ->count();
 
@@ -294,6 +313,7 @@ class UsuarioController extends Controller
 
                 $query = User::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
                             ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.rol_id")
+                            ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.grupo_id")
                             ->whereRaw($array_where)
                             ->select(DB::raw($select))
                             ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -312,10 +332,13 @@ class UsuarioController extends Controller
                 foreach ($query as $row)
                 {
                     $val_array = array(
-                        'estado'     => $row["estado"],
-                        'rol_id'     => $row["rol_id"],
-                        'persona_id' => $row["persona_id"],
-                        'imagen'     => $row["imagen"]
+                        'estado'                   => $row["estado"],
+                        'rol_id'                   => $row["rol_id"],
+                        'persona_id'               => $row["persona_id"],
+                        'grupo_id'                 => $row["grupo_id"],
+                        'imagen'                   => $row["imagen"],
+                        'i4_funcionario_id'        => $row["i4_funcionario_id"],
+                        'i4_funcionario_id_estado' => $row["i4_funcionario_id_estado"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["id"];
@@ -323,6 +346,7 @@ class UsuarioController extends Controller
                         '',
                         $this->utilitarios(array('tipo' => '2', 'imagen' => $row["imagen"])),
                         $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
+                        $this->utilitarios(array('tipo' => '4', 'valor' => $row["i4_funcionario_id_estado"])),
                         $row["n_documento"],
                         $row["nombre"],
                         $row["ap_paterno"],
@@ -330,6 +354,7 @@ class UsuarioController extends Controller
                         $row["ap_esposo"],
                         $row["email"],
                         $row["rol"],
+                        $row["grupo"],
                         $this->utilitarios(array('tipo' => '3', 'd_json' => $row["lugar_dependencia"])),
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
@@ -418,6 +443,7 @@ class UsuarioController extends Controller
                                 'email'             => 'required|email',
                                 'password'          => 'min:6|max:16',
                                 'rol_id'            => 'required',
+                                'grupo_id'          => 'required',
                                 'lugar_dependencia' => 'required'
                             ],
                             [
@@ -429,6 +455,8 @@ class UsuarioController extends Controller
 
                                 'rol_id.required' => 'El campo ROL es obligatorio.',
 
+                                'grupo_id.required' => 'El campo GRUPO es obligatorio.',
+
                                 'lugar_dependencia.required' => 'El campo LUGARES DE DEPENDENCIA es obligatorio.'
                             ]);
                         }
@@ -437,6 +465,7 @@ class UsuarioController extends Controller
                             $validator = $this->validate($request,[
                                 'email'             => 'required|email',
                                 'rol_id'            => 'required',
+                                'grupo_id'          => 'required',
                                 'lugar_dependencia' => 'required'
                             ],
                             [
@@ -444,6 +473,8 @@ class UsuarioController extends Controller
                                 'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
 
                                 'rol_id.required' => 'El campo ROL es obligatorio.',
+
+                                'grupo_id.required' => 'El campo GRUPO es obligatorio.',
 
                                 'lugar_dependencia.required' => 'El campo LUGARES DE DEPENDENCIA es obligatorio.'
                             ]);
@@ -472,6 +503,35 @@ class UsuarioController extends Controller
                     {
                         $persona_id = NULL;
                         $name       = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
+                    }
+
+                    if($request->has('i4_funcionario_id'))
+                    {
+                        $i4_funcionario_id       = trim($request->input('i4_funcionario_id'));
+                        if($opcion == 'n')
+                        {
+                            $i4_funcionario_id_array = User::where('i4_funcionario_id', $i4_funcionario_id)
+                                ->count();
+                        }
+                        else
+                        {
+                            $i4_funcionario_id_array = User::where('i4_funcionario_id', $i4_funcionario_id)
+                                ->where('id', '<>', $id)
+                                ->count();
+                        }
+                        
+                        if($i4_funcionario_id_array > 0)
+                        {
+                            $respuesta['respuesta'] .= "Ya se asigno a otra persona al FUNCIONARIO DEL I4.";
+                            return json_encode($respuesta);
+                        }
+
+                        $i4_funcionario_id_estado = 2;
+                    }
+                    else
+                    {
+                        $i4_funcionario_id        = NULL;
+                        $i4_funcionario_id_estado = 1;
                     }
 
                     $email = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
@@ -503,7 +563,8 @@ class UsuarioController extends Controller
                         $password       = bcrypt($password);
                     }
 
-                    $rol_id = trim($request->input('rol_id'));
+                    $rol_id   = trim($request->input('rol_id'));
+                    $grupo_id = trim($request->input('grupo_id'));
 
                     if($request->has('lugar_dependencia'))
                     {
@@ -549,8 +610,11 @@ class UsuarioController extends Controller
                                 $password_email = $email_array[0] . date('Y');
                                 $iu->password   = bcrypt($password_email);
                             }
-                            $iu->rol_id            = $rol_id;
-                            $iu->lugar_dependencia = $ld_json;
+                            $iu->rol_id                   = $rol_id;
+                            $iu->grupo_id                 = $grupo_id;
+                            $iu->i4_funcionario_id        = $i4_funcionario_id;
+                            $iu->i4_funcionario_id_estado = $i4_funcionario_id_estado;
+                            $iu->lugar_dependencia        = $ld_json;
                             $iu->save();
 
                             $id = $iu->id;
@@ -588,8 +652,11 @@ class UsuarioController extends Controller
                             {
                                 $iu->password = $password;
                             }
-                            $iu->rol_id            = $rol_id;
-                            $iu->lugar_dependencia = $ld_json;
+                            $iu->rol_id                   = $rol_id;
+                            $iu->grupo_id                 = $grupo_id;
+                            $iu->i4_funcionario_id        = $i4_funcionario_id;
+                            $iu->i4_funcionario_id_estado = $i4_funcionario_id_estado;
+                            $iu->lugar_dependencia        = $ld_json;
                             $iu->save();
 
                             $respuesta['respuesta'] .= "El USUARIO se edito con éxito.";
@@ -1093,7 +1160,7 @@ class UsuarioController extends Controller
                 }
                 return json_encode($respuesta);
                 break;
-            // === SELECT2 FUNCIONARIOS I4 ===
+            // === SELECT2 RELLENAR FUNCIONARIO DEL I4 ===
             case '110':
                 if($request->has('q'))
                 {
@@ -1119,6 +1186,30 @@ class UsuarioController extends Controller
                         return json_encode($respuesta);
                     }
                 }
+                break;
+            // === RELLENAR FUNCIONARIO DEL I4 ===
+            case '111':
+                $respuesta = [
+                    'tipo' => $tipo,
+                    'sw'   => 1
+                ];
+
+                if($request->has('i4_funcionario_id'))
+                {
+                    $i4_funcionario_id = $request->input('i4_funcionario_id');
+
+                    $query = I4Funcionario::where('id', $i4_funcionario_id)
+                        ->select(DB::raw("id, UPPER(CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres))) AS text"))
+                        ->first()
+                        ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta['consulta'] = $query;
+                        $respuesta['sw']       = 2;
+                    }
+                }
+                return json_encode($respuesta);
                 break;
             default:
                 break;
@@ -1175,6 +1266,23 @@ class UsuarioController extends Controller
                     }
                 }
                 return($respuesta);
+                break;
+            case '4':
+                switch($valor['valor'])
+                {
+                    case '1':
+                        $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['valor']] . '</span>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<span class="label label-primary font-sm">' . $this->no_si[$valor['valor']] . '</span>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '<span class="label label-default font-sm">SIN VALOR</span>';
+                        return($respuesta);
+                        break;
+                }
                 break;
             default:
                 break;

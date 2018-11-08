@@ -138,7 +138,7 @@
                     </div>
 
                     <div id="i4_funcionario_id_div" class="form-group">
-                      <label for="i4_funcionario_id">Funcionarios i4</label>
+                      <label for="i4_funcionario_id">Funcionario del i4</label>
                       <select name="i4_funcionario_id" id="i4_funcionario_id" data-placeholder="C.I. - Ap. paterno, Ap. materno, nombres" multiple="multiple" style="width: 100%;">
                       </select>
                     </div>
@@ -166,6 +166,12 @@
                     <div id="rol_id_div" class="form-group">
                       <label for="rol_id">Rol</label>
                       <select name="rol_id" id="rol_id" data-placeholder="Rol del usuario" multiple="multiple" style="width: 100%;">
+                      </select>
+                    </div>
+
+                    <div id="grupo_id_div" class="form-group">
+                      <label for="grupo_id">Grupo</label>
+                      <select name="grupo_id" id="grupo_id" data-placeholder="Grupo del usuario" multiple="multiple" style="width: 100%;">
                       </select>
                     </div>
 
