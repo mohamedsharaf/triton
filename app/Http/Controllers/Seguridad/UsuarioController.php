@@ -24,6 +24,8 @@ use App\Models\Rrhh\RrhhPersona;
 use App\User;
 use App\Mail\DatoUsuarioMail;
 
+use App\Models\I4\Funcionario AS I4Funcionario;
+
 use Exception;
 
 class UsuarioController extends Controller
@@ -1037,7 +1039,6 @@ class UsuarioController extends Controller
                 break;
             // === SELECT2 PERSONA ===
             case '101':
-
                 if($request->has('q'))
                 {
                     $nombre     = $request->input('q');
@@ -1091,6 +1092,33 @@ class UsuarioController extends Controller
                     }
                 }
                 return json_encode($respuesta);
+                break;
+            // === SELECT2 FUNCIONARIOS I4 ===
+            case '110':
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = I4Funcionario::whereRaw("CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres)) LIKE '%$nombre%'")
+                                ->select(DB::raw("id, UPPER(CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres))) AS text"))
+                                ->orderByRaw("CONCAT_WS(' ', ApPat, ApMat, Nombres) ASC")
+                                ->limit($page_limit)
+                                ->get()
+                                ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
                 break;
             default:
                 break;

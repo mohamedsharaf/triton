@@ -103,8 +103,8 @@
                     </div>
 
                     <div class="form-group">
-                      <label>Módulo</label>
-                      <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del módulo" >
+                      <label>Rol</label>
+                      <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del Rol" >
                     </div>
 
                     <div id="lugar_dependencia_div" class="form-group">

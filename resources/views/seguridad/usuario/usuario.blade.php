@@ -137,6 +137,12 @@
                       </select>
                     </div>
 
+                    <div id="i4_funcionario_id_div" class="form-group">
+                      <label for="i4_funcionario_id">Funcionarios i4</label>
+                      <select name="i4_funcionario_id" id="i4_funcionario_id" data-placeholder="C.I. - Ap. paterno, Ap. materno, nombres" multiple="multiple" style="width: 100%;">
+                      </select>
+                    </div>
+
                     <div class="form-group">
                       <label for="email">Correo electrónico</label>
                       <input type="text" class="form-control" id="email" name="email" placeholder="ejemplo@direccion.com">

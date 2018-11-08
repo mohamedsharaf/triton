@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddLugarDependenciaToSegRolesTable extends Migration
+class CreateSegGruposTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,13 @@ class AddLugarDependenciaToSegRolesTable extends Migration
      */
     public function up()
     {
-        Schema::table('seg_roles', function (Blueprint $table) {
-            $table->text('lugar_dependencia')->nullable();
+        Schema::create('seg_grupos', function (Blueprint $table) {
+            $table->increments('id');
+
+            $table->smallInteger('estado')->default('1')->unsigned();
+            $table->string('nombre', 500)->nullable();
+
+            $table->timestamps();
         });
     }
 
@@ -25,8 +30,6 @@ class AddLugarDependenciaToSegRolesTable extends Migration
      */
     public function down()
     {
-        Schema::table('seg_roles', function (Blueprint $table) {
-            $table->dropColumn('lugar_dependencia');
-        });
+        Schema::dropIfExists('seg_grupos');
     }
 }

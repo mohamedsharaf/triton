@@ -166,6 +166,30 @@
             });
             $("#persona_id").appendTo("#persona_id_div");
 
+            $('#i4_funcionario_id').select2({
+                maximumSelectionLength: 1,
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 10,
+                            tipo      : 110,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#i4_funcionario_id").appendTo("#i4_funcionario_id_div");
+
             $('#rol_id').append(rol_select);
             $("#rol_id").select2();
             $("#rol_id").appendTo("#rol_id_div");
