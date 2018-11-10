@@ -226,7 +226,9 @@
             $("#i4_funcionario_id").appendTo("#i4_funcionario_id_div");
 
             $('#rol_id').append(rol_select);
-            $("#rol_id").select2();
+            $("#rol_id").select2({
+                maximumSelectionLength: 1
+            });
             $("#rol_id").appendTo("#rol_id_div");
 
             $('#lugar_dependencia').append(lugar_dependencia_select);

@@ -168,7 +168,7 @@ class UsuarioController extends Controller
                         }
                     }
                     $array_where_1 .= ")";
-                    
+
                     $array_where_2 .= $array_where_1;
                 }
             }
@@ -519,7 +519,7 @@ class UsuarioController extends Controller
                                 ->where('id', '<>', $id)
                                 ->count();
                         }
-                        
+
                         if($i4_funcionario_id_array > 0)
                         {
                             $respuesta['respuesta'] .= "Ya se asigno a otra persona al FUNCIONARIO DEL I4.";
