@@ -88,6 +88,7 @@
     Route::get('/persona', 'Rrhh\PersonaController@index')->name('persona');
         Route::match(["get", "post"], '/persona/view_jqgrid', 'Rrhh\PersonaController@view_jqgrid');
         Route::post('/persona/send_ajax', 'Rrhh\PersonaController@send_ajax');
+        Route::match(["get", "post"], '/persona/reportes', 'Rrhh\PersonaController@reportes');
 
 //=== SOLICITUD DE SALIDA ===
     Route::get('/solicitud_salida', 'Rrhh\SolicitudSalidaController@index')->name('solicitud_salida');
@@ -164,5 +165,11 @@
         Route::match(["get", "post"], '/solicitud_dpvt/view_jqgrid', 'Dpvt\SolicitudController@view_jqgrid');
         Route::post('/solicitud_dpvt/send_ajax', 'Dpvt\SolicitudController@send_ajax');
         Route::match(["get", "post"], '/solicitud_dpvt/reportes', 'Dpvt\SolicitudController@reportes');
+
+//=== I4 - DETENCIÓN PREVENTIVA ===
+    Route::get('/detencion_preventiva', 'I4\DetencionPreventivaController@index')->name('detencion_preventiva');
+    Route::match(["get", "post"], '/detencion_preventiva/view_jqgrid', 'I4\DetencionPreventivaController@view_jqgrid');
+    Route::post('/detencion_preventiva/send_ajax', 'I4\DetencionPreventivaController@send_ajax');
+    Route::match(["get", "post"], '/detencion_preventiva/reportes', 'I4\DetencionPreventivaController@reportes');
 
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');

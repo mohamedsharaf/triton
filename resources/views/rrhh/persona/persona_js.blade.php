@@ -624,20 +624,22 @@
                         }
                     })
                 @endif
-                // .navSeparatorAdd(pjqgrid1,{
-                //   sepclass : "ui-separator"
-                // })
-                // .navButtonAdd(pjqgrid1,{
-                //   "id"          : "print1",
-                //   caption       : "",
-                //   title         : 'Reportes',
-                //   buttonicon    : "ui-icon ui-icon-print",
-                //   onClickButton : function(){
-                //       var valor1 = new Array();
-                //       valor1[0]  = 13;
-                //       utilitarios(valor1);
-                //   }
-                // })
+                @if(in_array(['codigo' => '0504'], $permisos))
+                    .navSeparatorAdd(pjqgrid1,{
+                        sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid1,{
+                    "id"          : "print1",
+                    caption       : "",
+                    title         : 'Reportes',
+                    buttonicon    : "ui-icon ui-icon-print",
+                    onClickButton : function(){
+                        var valor1 = new Array();
+                        valor1[0]  = 13;
+                        utilitarios(valor1);
+                    }
+                    })
+                @endif
                 ;
                 break;
             // === ABRIR MODAL ===
@@ -698,7 +700,10 @@
                 break;
             // === REPORTES MODAL ===
             case 13:
-                alert("REPORTE");
+                var concatenar_valores = '?tipo=11';
+
+                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                win.focus();
                 break;
             // === RESETEAR FORMULARIO ===
             case 14:

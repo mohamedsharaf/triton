@@ -79,7 +79,10 @@ class Caso extends Model
         "DuracionPreparatoria",
         "DuracionJuicio",
         "DuracionAbreviado",
-        "Tentativa"
+        "Tentativa",
+
+        "triton_modificado",
+        "n_detenidos"
     ];
 
     protected $guarded  = [];

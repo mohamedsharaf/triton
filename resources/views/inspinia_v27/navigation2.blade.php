@@ -128,7 +128,7 @@
                     <a href="#"><i class="fa fa-plug"></i> <span class="nav-label">i4</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         @if(in_array(['codigo' => '2001'], $permisos))
-                            <li class="{{ isActiveRoute('detencion_preventiva') }}"><a href="{{ url('/))') }}">Detención preventiva</a></li>
+                            <li class="{{ isActiveRoute('detencion_preventiva') }}"><a href="{{ url('/detencion_preventiva') }}">Detención preventiva</a></li>
                         @endif
                     </ul>
                 </li>

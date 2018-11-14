@@ -17,7 +17,7 @@ class AddGrupoIdI4FuncionarioIdToUsersTable extends Migration
             $table->integer('grupo_id')->default('1')->unsigned()->nullable();
             $table->integer('i4_funcionario_id')->unsigned()->nullable();
             $table->smallInteger('i4_funcionario_id_estado')->default('1')->unsigned();
-            
+
             $table->foreign('grupo_id')
                 ->references('id')
                 ->on('seg_grupos')

@@ -17,6 +17,8 @@ use App\Models\UbicacionGeografica\UbgeMunicipio;
 use App\Models\Rrhh\RrhhPersona;
 use App\User;
 
+use Maatwebsite\Excel\Facades\Excel;
+
 use nusoap_client;
 
 class PersonaController extends Controller
@@ -747,4 +749,208 @@ class PersonaController extends Controller
         }
     }
 
+    public function reportes(Request $request)
+    {
+        $tipo = $request->input('tipo');
+
+        switch($tipo)
+        {
+            case '11':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1 = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '0504'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                //=== CONSULTA BASE DE DATOS ===
+                    $tabla1 = "rrhh_personas";
+                    $tabla2 = "ubge_municipios";
+                    $tabla3 = "ubge_provincias";
+                    $tabla4 = "ubge_departamentos";
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.municipio_id_nacimiento,
+                        $tabla1.municipio_id_residencia,
+                        $tabla1.estado,
+
+                        $tabla1.n_documento,
+                        $tabla1.nombre,
+                        $tabla1.ap_paterno,
+                        $tabla1.ap_materno,
+                        $tabla1.ap_esposo,
+                        $tabla1.sexo,
+                        $tabla1.f_nacimiento,
+
+                        $tabla1.estado_civil,
+                        $tabla1.domicilio,
+                        $tabla1.telefono,
+                        $tabla1.celular,
+
+                        $tabla1.estado_segip,
+
+                        $tabla1.created_at,
+                        $tabla1.updated_at,
+
+                        a2.provincia_id AS provincia_id_nacimiento,
+                        a2.nombre AS municipio_nacimiento,
+
+                        a3.departamento_id AS departamento_id_nacimiento,
+                        a3.nombre AS provincia_nacimiento,
+
+                        a4.nombre AS departamento_nacimiento,
+
+                        a5.provincia_id AS provincia_id_residencia,
+                        a5.nombre AS municipio_residencia,
+
+                        a6.departamento_id AS departamento_id_residencia,
+                        a6.nombre AS provincia_residencia,
+
+                        a7.nombre AS departamento_residencia
+                    ";
+
+                    $array_where_1 = "TRUE";
+
+                    $consulta1 = RrhhPersona::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.municipio_id_nacimiento")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.provincia_id")
+                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "a3.departamento_id")
+                        ->leftJoin("$tabla2 AS a5", "a5.id", "=", "$tabla1.municipio_id_residencia")
+                        ->leftJoin("$tabla3 AS a6", "a6.id", "=", "a5.provincia_id")
+                        ->leftJoin("$tabla4 AS a7", "a7.id", "=", "a6.departamento_id")
+                        ->whereRaw($array_where_1)
+                        ->select(DB::raw($select))
+                        ->orderBy("$tabla1.ap_paterno", "ASC")
+                        ->orderBy("$tabla1.ap_materno", "ASC")
+                        ->orderBy("$tabla1.nombre", "ASC")
+                        ->orderBy("$tabla1.n_documento", "ASC")
+                        ->get()
+                        ->toArray();
+
+                //=== EXCEL ===
+                    if(count($consulta1) > 0)
+                    {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('personas_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                            $excel->sheet('Personas', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'No',
+                                    'ESTADO',
+                                    '¿CON SIGEP?',
+
+                                    'CEDULA DE IDENTIDAD',
+                                    'NOMBRE(S)',
+                                    'APELLIDO PATERNO',
+                                    'APELLIDO MATERNO',
+                                    'APELLIDO ESPOSO',
+                                    'SEXO',
+                                    'FECHA DE NACIMIENTO',
+                                    'ESTADO CIVIL',
+
+                                    'DOMICILIO',
+                                    'TELEFONO',
+                                    'CELULAR',
+
+                                    'MUNICIPIO DE NACIMIENTO',
+                                    'PROVINCIA DE NACIMIENTO',
+                                    'DEPARTAMENTO DE NACIMIENTO',
+
+                                    'MUNICIPIO DE RESIDENCIA',
+                                    'PROVINCIA DE NACIMIENTO',
+                                    'DEPARTAMENTO DE NACIMIENTO'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    $sheet->row($c+1, [
+                                        $c++,
+                                        $this->estado[$row1["estado"]],
+                                        $this->validado_segip[$row1["estado_segip"]],
+
+                                        $row1["n_documento"],
+                                        $row1["nombre"],
+                                        $row1["ap_paterno"],
+                                        $row1["ap_materno"],
+                                        $row1["ap_esposo"],
+                                        $this->sexo[$row1["sexo"]],
+                                        $row1["f_nacimiento"],
+                                        ($row1["estado_civil"] == '')? '' : $this->estado_civil[$row1["estado_civil"]],
+
+                                        $row1["domicilio"],
+                                        $row1["telefono"],
+                                        $row1["celular"],
+
+                                        $row1["municipio_nacimiento"],
+                                        $row1["provincia_nacimiento"],
+                                        $row1["departamento_nacimiento"],
+
+                                        $row1["municipio_residencia"],
+                                        $row1["provincia_residencia"],
+                                        $row1["departamento_residencia"]
+                                    ]);
+
+                                    // if($row1["solicitud_estado_pdf"] == 2)
+                                    // {
+                                    //     $sheet->getCell('E' . $c)
+                                    //         ->getHyperlink()
+                                    //         ->setUrl(url("storage/rrhh/salidas/solicitud_salida/" . $row1['solicitud_documento_pdf']))
+                                    //         ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    // }
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+
+                                $sheet->cells('A2:T' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->setAutoSize(true);
+                            });
+
+                            $excel->setActiveSheetIndex(0);
+                        })->export('xlsx');
+                    }
+                    else
+                    {
+                        return "No se encontraron resultados.";
+                    }
+                break;
+            default:
+                break;
+        }
+    }
 }

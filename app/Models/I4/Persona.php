@@ -105,7 +105,30 @@ class Persona extends Model
         "CodigoElectricidadDom",
         "CodigoElectricidadTrab",
         "CodigoElectricidadNotif",
-        "PersonaFallecida"
+        "PersonaFallecida",
+
+        "triton_modificado",
+        "recinto_carcelario_id",
+        "dp_estado",
+        "dp_semaforo",
+        "dp_fecha_detencion_preventiva",
+        "dp_fecha_conclusion_detencion",
+        "dp_etapa_gestacion_estado",
+        "dp_etapa_gestacion_semana",
+        "dp_enfermo_terminal_estado",
+        "dp_enfermo_terminal_tipo",
+        "dp_persona_mayor_65",
+        "dp_madre_lactante_1",
+        "dp_madre_lactante_1_fecha_nacimiento_menor",
+        "dp_custodia_menor_6",
+        "dp_custodia_menor_6_fecha_nacimiento_menor",
+        "dp_mayor_3",
+        "dp_minimo_previsto_delito",
+        "dp_pena_menor_4",
+        "dp_delito_pena_menor_4",
+        "dp_delito_patrimonial_menor_6",
+        "dp_etapa_preparatoria_dias_transcurridos_estado",
+        "dp_etapa_preparatoria_dias_transcurridos_numero"
     ];
 
     protected $guarded  = [];
