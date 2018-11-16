@@ -2817,11 +2817,11 @@ class ConfirmarSalidaRrhhController extends Controller
                                         $row1["lugar_dependencia_funcionario"]
                                     ]);
 
-                                    if($row1["solicitud_estado_pdf"] == 2)
+                                    if($row1["pdf"] == 2)
                                     {
                                         $sheet->getCell('E' . $c)
                                             ->getHyperlink()
-                                            ->setUrl(url("storage/rrhh/salidas/solicitud_salida/" . $row1['solicitud_documento_pdf']))
+                                            ->setUrl(url("storage/rrhh/salidas/solicitud_salida/" . $row1['papeleta_pdf']))
                                             ->setTooltip('Haga clic aquí para acceder al PDF.');
                                     }
 

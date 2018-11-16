@@ -18,6 +18,7 @@ class AddColumnasToPersonaTable extends Migration
             $table->integer('recinto_carcelario_id')->unsigned()->nullable();
             $table->smallInteger('dp_estado')->default('1')->unsigned(); // 1=>SIN DETENCION PREVENTIVA; 2=>CON DETENCION PREVENTIVA; 3=>X
             $table->smallInteger('dp_semaforo')->default('1')->unsigned(); // 1=>VERDE; 2=>AMARILLO; 3=>ROJO
+            $table->smallInteger('dp_semaforo_delito')->default('1')->unsigned(); // 1=>VERDE; 2=>AMARILLO; 3=>ROJO
             $table->date('dp_fecha_detencion_preventiva')->nullable();
             $table->date('dp_fecha_conclusion_detencion')->nullable();
             $table->smallInteger('dp_etapa_gestacion_estado')->default('1')->unsigned(); // 1=>NO; 2=>SI
@@ -52,6 +53,7 @@ class AddColumnasToPersonaTable extends Migration
             $table->dropColumn('recinto_carcelario_id');
             $table->dropColumn('dp_estado');
             $table->dropColumn('dp_semaforo');
+            $table->dropColumn('dp_semaforo_delito');
             $table->dropColumn('dp_fecha_detencion_preventiva');
             $table->dropColumn('dp_fecha_conclusion_detencion');
             $table->dropColumn('dp_etapa_gestacion_estado');

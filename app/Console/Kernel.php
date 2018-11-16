@@ -13,6 +13,8 @@ use App\Models\Rrhh\RrhhPersonaBiometrico;
 use TADPHP\TADFactory;
 use TADPHP\TAD;
 
+use App\Libraries\I4Class;
+
 use Exception;
 
 class Kernel extends ConsoleKernel
@@ -305,6 +307,12 @@ class Kernel extends ConsoleKernel
                     }
                 }
             })->hourlyAt(17);
+
+        //=== NUMERO DE DETENIDOS ===
+        $schedule->call(function(){
+            $i4 = new I4Class();
+            $i4->getNumeroDetenidos();
+        })->hourly();
     }
 
     /**

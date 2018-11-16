@@ -155,20 +155,15 @@
                     <div class="ibox-title" style="padding-top: 9px;">
                         <h5 style="margin-top: 6px;"><i class="fa fa-table"></i> {{ $title_table }}</h5>
 
-                        {{-- <div class="ibox-tools" style="margin-top: 4px;">
-                            <span class="form-inline">
-                                <div class="form-group">
-                                    <label for="anio_filter" class="sr-only">Gestión</label>
-                                    <select id="anio_filter" data-original-title="<i class='fa fa-warning txt-color-teal'></i> Gestión" data-html="true">
-                                        <option value="" selected="selected">Todos</option>
-                                    </select>
-                                </div>
-                            </span>
+                        <div class="ibox-tools" style="margin-top: 4px;">
+                            <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
+                                <strong>Manual</strong>
+                            </a>
 
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
                             </a>
-                        </div> --}}
+                        </div>
                     </div>
 
                     <div class="ibox-content" style="padding: 0px 0px 0px 0px;">
@@ -183,6 +178,166 @@
     </div>
 
     <!-- === MODAL === -->
+        <div id="modal_1" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog modal-xlg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+
+                        <h4 class="modal-title">
+                            <span id="modal_1_title"></span>
+                        </h4>
+
+                        <small class="font-bold" id="modal_2_title">
+
+                        </small>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row">
+                            <form id="form_1" role="form" action="#">
+                                <input type="hidden" id="persona_id" name="id" value=""/>
+                                <input type="hidden" id="tipo1" name="tipo" value="1"/>
+                                {{ csrf_field() }}
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Estado</label>
+                                        <div>
+                                            {{-- <div class="radio radio-primary radio-inline">
+                                            <input type="radio" id="estado_1_id" class="estado_class" name="estado" value="1" checked="checked">
+                                            <label class="text-success" for="estado_1_id"> {{ $estado_array['1'] }} </label>
+                                            </div>
+                                            <div class="radio radio-danger radio-inline">
+                                                <input type="radio" id="estado_2_id" class="estado_class" name="estado" value="2">
+                                                <label class="text-danger" for="estado_2_id"> {{ $estado_array['2'] }} </label>
+                                            </div> --}}
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                            <label>Cédula de Identidad</label>
+                                            <input type="text" class="form-control" id="n_documento" name="n_documento" placeholder="Cédula de Identidad">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                            <label>Complemento</label>
+                                            <input type="text" class="form-control" id="n_documento_1" name="n_documento_1" placeholder="Complemento" disabled="disabled">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                            <label>Nombre(s)</label>
+                                            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre(s)">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                            <label>Apellido paterno</label>
+                                            <input type="text" class="form-control" id="ap_paterno" name="ap_paterno" placeholder="Apellido paterno">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                            <label>Apellido materno</label>
+                                            <input type="text" class="form-control" id="ap_materno" name="ap_materno" placeholder="Apellido materno">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                            <label>Apellido esposo</label>
+                                            <input type="text" class="form-control" id="ap_esposo" name="ap_esposo" placeholder="Apellido esposo">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                            <label>Fecha de nacimiento</label>
+                                            <input type="text" class="form-control" id="f_nacimiento" name="f_nacimiento" placeholder="año-mes-día" data-mask="9999-99-99">
+                                            </div>
+                                        </div>
+                                        <div id="estado_civil_div" class="col-sm-6">
+                                            <div class="form-group">
+                                            <label>Estado civil</label>
+                                            <select name="estado_civil" id="estado_civil" data-placeholder="Estado civil" multiple="multiple" style="width: 100%;">
+                                            </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Sexo</label>
+                                        <div>
+                                            {{-- <div class="radio radio-info radio-inline">
+                                            <input type="radio" id="sexo_f_id" class="sexo_class" name="sexo" value="F" checked="checked">
+                                            <label class="text-info" for="sexo_f_id"> {{ $sexo_array['F'] }} </label>
+                                            </div>
+                                            <div class="radio radio-primary radio-inline">
+                                                <input type="radio" id="sexo_m_id" class="sexo_class" name="sexo" value="M">
+                                                <label class="text-success" for="sexo_m_id"> {{ $sexo_array['M'] }} </label>
+                                            </div> --}}
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Domicilio</label>
+                                        <input type="text" class="form-control" id="domicilio" name="domicilio" placeholder="Domicilio (Zona, Barrio, Avenida o Calle y Número)">
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Teléfono</label>
+                                                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Celular</label>
+                                                <input type="text" class="form-control" id="celular" name="celular" placeholder="Celular" data-mask="99999999">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="municipio_id_nacimiento_div" class="form-group">
+                                        <label>Lugar de nacimiento</label>
+                                        <select name="municipio_id_nacimiento" id="municipio_id_nacimiento" data-placeholder="Lugar de nacimiento" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div id="municipio_id_residencia_div" class="form-group">
+                                        <label>Residencia actual</label>
+                                        <select name="municipio_id_residencia" id="municipio_id_residencia" data-placeholder="Residencia actual" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Por defecto</button>
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 @endsection
 
 @section('js_plugins')
