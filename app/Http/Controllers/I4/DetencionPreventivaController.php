@@ -225,6 +225,7 @@ class DetencionPreventivaController extends Controller
                     UPPER(GROUP_CONCAT(DISTINCT a6.Funcionario ORDER BY a6.Funcionario ASC SEPARATOR '::')) AS funcionario,
 
                     UPPER(GROUP_CONCAT(DISTINCT a9.nombre ORDER BY a9.nombre ASC SEPARATOR '::')) AS peligro_procesal,
+                    UPPER(GROUP_CONCAT(DISTINCT a9.id ORDER BY a9.id ASC SEPARATOR '::')) AS peligro_procesal_id,
 
                     UPPER(GROUP_CONCAT(DISTINCT a11.Delito ORDER BY a11.Delito ASC SEPARATOR '::')) AS delitos
                 ";
@@ -393,10 +394,12 @@ class DetencionPreventivaController extends Controller
 
                         'oficina_id'      => $row["oficina_id"],
                         'municipio_id'    => $row["municipio_id"],
-                        'departamento_id' => $row["departamento_id"]
+                        'departamento_id' => $row["departamento_id"],
+
+                        'peligro_procesal_id' => $row["peligro_procesal_id"]
                     );
 
-                    $respuesta['rows'][$i]['persona_id'] = $row["persona_id"];
+                    $respuesta['rows'][$i]['id'] = $row["persona_id"];
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
                         $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo"])),
@@ -444,6 +447,59 @@ class DetencionPreventivaController extends Controller
                     'records' => 0
                 ];
                 return json_encode($respuesta);
+                break;
+        }
+    }
+
+    public function send_ajax(Request $request)
+    {
+        if( ! $request->ajax())
+        {
+            $respuesta = [
+                'sw'        => 0,
+                'titulo'    => 'ERROR 500',
+                'respuesta' => 'No es solicitud AJAX.'
+            ];
+            return json_encode($respuesta);
+        }
+
+        $tipo = $request->input('tipo');
+
+        switch($tipo)
+        {
+            // === SELECT2 DEPARTAMENTO, MUNICIPIO, RECINTO CARCELARIO  ===
+            case '101':
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = RecintoCarcelario::leftJoin("Muni", "Muni.id", "=", "RecintosCarcelarios.Muni_id")
+                                ->leftJoin("Dep", "Dep.id", "=", "Muni.Dep")
+                                ->whereRaw("CONCAT_WS(', ', Dep.Dep, Muni.Muni, RecintosCarcelarios.nombre) ilike '%$nombre%'")
+                                ->where("RecintosCarcelarios.estado", "=", $estado)
+                                ->select(DB::raw("RecintosCarcelarios.id, CONCAT_WS(', ', Dep.Dep, Muni.Muni, RecintosCarcelarios.nombre) AS text"))
+                                ->orderByRaw("ubge_municipios.codigo ASC")
+                                ->limit($page_limit)
+                                ->get()
+                                ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                    // else
+                    // {
+                    //     return json_encode(array("id"=>"0","text"=>"No se encontraron resultados"));
+                    // }
+                }
                 break;
         }
     }

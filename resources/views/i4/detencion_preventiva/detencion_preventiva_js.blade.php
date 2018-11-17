@@ -150,8 +150,37 @@
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
+            $('#peligro_procesal_id').append(peligro_procesal_select);
 
         //=== SELECT2 ===
+            $("#peligro_procesal_id").select2();
+            $("#peligro_procesal_id").appendTo("#peligro_procesal_id_div");
+
+            $('#recinto_carcelario_id').select2({
+                maximumSelectionLength: 1,
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 20,
+                            estado    : 1,
+                            tipo      : 101,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#recinto_carcelario_id").appendTo("#recinto_carcelario_id_div");
+
             // $("#gestion, #solicitante, #etapa_proceso, #estado, #gestion_2").select2({
             //     maximumSelectionLength: 1
             // });
@@ -222,18 +251,69 @@
             // $("#delito_id").appendTo("#delito_id_div");
             // $("#delito_id_r").appendTo("#delito_id_r_div");
 
-        //=== datepicker3 ===
-            // $('#f_solicitud, #plazo_fecha_solicitud, #plazo_psicologico_fecha_entrega_digital, #plazo_psicologico_fecha_entrega_fisico, #plazo_psicologico_fecha, #plazo_social_fecha_entrega_digital, #plazo_social_fecha_entrega_fisico, #plazo_complementario_fecha, #fecha_inicio, #fecha_entrega_digital, #fecha_entrega_fisico, #informe_seguimiento_fecha, #complementario_fecha, #resolucion_fecha_emision, #f_solicitud_2_del, #f_solicitud_2_al').datepicker({
-            //     startView            : 2,
-            //     // todayBtn          : "linked",
-            //     // keyboardNavigation: false,
-            //     // forceParse        : false,
-            //     autoclose            : true,
-            //     format               : "yyyy-mm-dd",
-            //     startDate            : '-100y',
-            //     endDate              : '+0d',
-            //     language             : "es"
-            // });
+        //=== DATEPICKER 3 ===
+            $('#dp_fecha_detencion_preventiva, #dp_fecha_conclusion_detencion, #dp_madre_lactante_1_fecha_nacimiento_menor, #dp_custodia_menor_6_fecha_nacimiento_menor').datepicker({
+                startView            : 2,
+                // todayBtn          : "linked",
+                // keyboardNavigation: false,
+                // forceParse        : false,
+                autoclose            : true,
+                format               : "yyyy-mm-dd",
+                startDate            : '-100y',
+                endDate              : '+0d',
+                language             : "es"
+            });
+
+        //=== TOUCHSPIN ===
+            $("#dp_etapa_gestacion_semana").TouchSpin({
+                buttondown_class: 'btn btn-white',
+                buttonup_class: 'btn btn-white'
+            });
+
+        //=== FLIPSWITCH ===
+            $("#dp_etapa_gestacion_estado").change(function(){
+                if(this.checked){
+                    $("#dp_etapa_gestacion_semana").prop('disabled', false);
+                    $("#div_dp_etapa_gestacion_semana").slideDown("slow");
+                }
+                else{
+                    $("#dp_etapa_gestacion_semana").prop('disabled', true);
+                    $("#div_dp_etapa_gestacion_semana").slideUp("slow");
+                }
+            });
+
+            $("#dp_enfermo_terminal_estado").change(function(){
+                if(this.checked){
+                    $("#dp_enfermo_terminal_tipo").prop('disabled', false);
+                    $("#div_dp_enfermo_terminal_tipo").slideDown("slow");
+                }
+                else{
+                    $("#dp_enfermo_terminal_tipo").prop('disabled', true);
+                    $("#div_dp_enfermo_terminal_tipo").slideUp("slow");
+                }
+            });
+
+            $("#dp_madre_lactante_1").change(function(){
+                if(this.checked){
+                    $("#dp_madre_lactante_1_fecha_nacimiento_menor").prop('disabled', false);
+                    $("#div_dp_madre_lactante_1_fecha_nacimiento_menor").slideDown("slow");
+                }
+                else{
+                    $("#dp_madre_lactante_1_fecha_nacimiento_menor").prop('disabled', true);
+                    $("#div_dp_madre_lactante_1_fecha_nacimiento_menor").slideUp("slow");
+                }
+            });
+
+            $("#dp_custodia_menor_6").change(function(){
+                if(this.checked){
+                    $("#dp_custodia_menor_6_fecha_nacimiento_menor").prop('disabled', false);
+                    $("#div_dp_custodia_menor_6_fecha_nacimiento_menor").slideDown("slow");
+                }
+                else{
+                    $("#dp_custodia_menor_6_fecha_nacimiento_menor").prop('disabled', true);
+                    $("#div_dp_custodia_menor_6_fecha_nacimiento_menor").slideUp("slow");
+                }
+            });
 
         // === JQGRID ===
             var valor1 = new Array();
@@ -280,17 +360,35 @@
 
             // === EDICION MODAL ===
             case 20:
-                // var valor1 = new Array();
-                // valor1[0]  = 30;
-                // utilitarios(valor1);
+                var valor1 = new Array();
+                valor1[0]  = 30;
+                utilitarios(valor1);
 
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
 
                 $('#modal_1_title, #modal_2_title').empty();
                 $('#modal_1_title').append('MODIFICAR CARACTERISTICAS DEL DETENIDO');
-                $('#modal_2_title').append('' + ret.Caso);
+                $('#modal_2_title').append(ret.Caso + ' - ' + $.trim(ret.ApPat + ' ' + ret.ApMat) + ' ' + ret.Nombres);
+
                 $("#persona_id").val(valor[1]);
+                $("#caso_id").val(val_json.caso_id);
+
+                // === IDENTIFICACION DEL CASO ===
+                    $("#CodCasoJuz").val(ret.CodCasoJuz);
+
+                // === DATOS DEL PROCESO ===
+                    if(ret.peligro_procesal != ""){
+                        var peligro_procesal      = val_json.peligro_procesal_id
+                        var peligro_procesal_id_array = peligro_procesal.split('::');
+                        $("#peligro_procesal_id").select2().val(peligro_procesal_id_array).trigger("change");
+                    }
+                    $("#dp_fecha_detencion_preventiva").val(ret.dp_fecha_detencion_preventiva);
+                    $("#dp_fecha_conclusion_detencion").val(ret.dp_fecha_conclusion_detencion);
+                    if(val_json.recinto_carcelario_id != null){
+                        $('#recinto_carcelario_id').append('<option value="' + val_json.recinto_carcelario_id + '">' + ret.recinto_carcelario + '</option>');
+                        $("#recinto_carcelario_id").select2("val", val_json.recinto_carcelario_id);
+                    }
 
                 // === SOLICITUD ===
                     // $("#gestion").select2("val", ret.gestion);
@@ -368,33 +466,43 @@
                 break;
             // === RESETEAR - FORMULARIO ===
             case 30:
-                $('#modal_1_title').empty();
+                $("#persona_id").val('');
+                $("#caso_id").val('');
 
-                $("#solicitud_id").val('');
+                // === CARACTERISTICAS DEL DETENIDO ===
+                    $("#dp_etapa_gestacion_semana").prop('disabled', true);
+                    $("#dp_enfermo_terminal_tipo").prop('disabled', true);
+                    $("#dp_madre_lactante_1_fecha_nacimiento_menor").prop('disabled', true);
+                    $("#dp_custodia_menor_6_fecha_nacimiento_menor").prop('disabled', true);
 
-                // === SOLICITUD ===
-                    $('#gestion').select2("val", "");
-                    $("#gestion").select2("enable", true);
-                    $('#solicitante').select2("val", "");
-                    $('#municipio_id').select2("val", "");
-                    $('#municipio_id option').remove();
+                    $("#div_dp_etapa_gestacion_semana").slideUp("slow");
+                    $("#div_dp_enfermo_terminal_tipo").slideUp("slow");
+                    $("#div_dp_madre_lactante_1_fecha_nacimiento_menor").slideUp("slow");
+                    $("#div_dp_custodia_menor_6_fecha_nacimiento_menor").slideUp("slow");
 
-                    $('#etapa_proceso').select2("val", "");
+                // // === SOLICITUD ===
+                //     $('#gestion').select2("val", "");
+                //     $("#gestion").select2("enable", true);
+                //     $('#solicitante').select2("val", "");
+                //     $('#municipio_id').select2("val", "");
+                //     $('#municipio_id option').remove();
 
-                // === USUARIO ===
-                    $('#usuario_tipo').select2("val", "");
+                //     $('#etapa_proceso').select2("val", "");
 
-                // === SOLICITUD DE TRABAJO ===
-                    $('#dirigido_a_psicologia').select2("val", "");
-                    $('#dirigido_psicologia').select2("val", "");
+                // // === USUARIO ===
+                //     $('#usuario_tipo').select2("val", "");
 
-                    $('#dirigido_a_trabajo_social').select2("val", "");
-                    $('#dirigido_trabajo_social').select2("val", "");
+                // // === SOLICITUD DE TRABAJO ===
+                //     $('#dirigido_a_psicologia').select2("val", "");
+                //     $('#dirigido_psicologia').select2("val", "");
 
-                    $('#dirigido_a_otro_trabajo').select2("val", "");
+                //     $('#dirigido_a_trabajo_social').select2("val", "");
+                //     $('#dirigido_trabajo_social').select2("val", "");
 
-                // === SOLICITUD TRABAJO COMPLEMENTARIO ===
-                    $('#estado').select2("val", "");
+                //     $('#dirigido_a_otro_trabajo').select2("val", "");
+
+                // // === SOLICITUD TRABAJO COMPLEMENTARIO ===
+                //     $('#estado').select2("val", "");
 
                 $(form_1)[0].reset();
                 break;
@@ -622,10 +730,10 @@
                             editoptions: {value: etapa_caso_jqgrid}
                         },
                         {
-                            name : "actividad",
-                            index: "",
+                            name : "peligro_procesal",
+                            index: "a9.nombre",
                             width: 300,
-                            align: "center"
+                            align: "left"
                         },
 
                         {
@@ -646,19 +754,19 @@
                             name       : "municipio",
                             index      : "a14.Muni",
                             width      : 300,
-                            align      : "center"
+                            align      : "left"
                         },
                         {
                             name       : "oficina",
                             index      : "a15.Oficina",
                             width      : 300,
-                            align      : "center"
+                            align      : "left"
                         },
                         {
                             name       : "division",
                             index      : "a16.Division",
                             width      : 500,
-                            align      : "center"
+                            align      : "left"
                         },
                         // === OCULTO ===
                             {

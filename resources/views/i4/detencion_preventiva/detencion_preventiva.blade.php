@@ -23,6 +23,9 @@
     <!-- Dropzone -->
         <link href="{!! asset('inspinia_v27/css/plugins/dropzone/basic.css') !!}" rel="stylesheet">
         <link href="{!! asset('inspinia_v27/css/plugins/dropzone/dropzone.css') !!}" rel="stylesheet">
+
+    <!-- TouchSpin -->
+        <link href="{!! asset('inspinia_v27/css/plugins/touchspin/jquery.bootstrap-touchspin.min.css') !!}" rel="stylesheet">
 @endsection
 
 @section('css')
@@ -127,6 +130,12 @@
             min-height: 100px;
         }
 
+        .onoffswitch-inner:before {
+            content: "SI";
+        }
+        .onoffswitch-inner:after {
+            content: "NO";
+        }
     </style>
 @endsection
 
@@ -197,141 +206,132 @@
                     </div>
 
                     <div class="modal-body">
-                        <div class="row">
-                            <form id="form_1" role="form" action="#">
-                                <input type="hidden" id="persona_id" name="id" value=""/>
-                                <input type="hidden" id="tipo1" name="tipo" value="1"/>
-                                {{ csrf_field() }}
-                                <div class="col-sm-6">
+                        <form id="form_1" role="form" action="#">
+                            <input type="hidden" id="persona_id" name="id" value=""/>
+                            <input type="hidden" id="caso_id" name="caso_id" value=""/>
+                            <input type="hidden" id="tipo1" name="tipo" value="1"/>
+                            {{ csrf_field() }}
+
+                            <div class="row">
+                                <div class="col-sm-3 b-r">
+                                    <h3 class="m-t-none m-b text-success">IDENTIFICACION DEL CASO</h3>
+
                                     <div class="form-group">
-                                        <label>Estado</label>
-                                        <div>
-                                            {{-- <div class="radio radio-primary radio-inline">
-                                            <input type="radio" id="estado_1_id" class="estado_class" name="estado" value="1" checked="checked">
-                                            <label class="text-success" for="estado_1_id"> {{ $estado_array['1'] }} </label>
-                                            </div>
-                                            <div class="radio radio-danger radio-inline">
-                                                <input type="radio" id="estado_2_id" class="estado_class" name="estado" value="2">
-                                                <label class="text-danger" for="estado_2_id"> {{ $estado_array['2'] }} </label>
-                                            </div> --}}
-                                        </div>
+                                        <label for="CodCasoJuz">NUREJ / IANUS</label>
+                                        <input type="text" class="form-control" id="CodCasoJuz" name="CodCasoJuz" placeholder="NUREJ-IANUS U OTRO">
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-3 b-r">
+                                    <h3 class="m-t-none m-b text-success">DATOS DEL PROCESO</h3>
+
+                                    <div id="peligro_procesal_id_div" class="form-group">
+                                        <label for="peligro_procesal_id">Causal de la detención</label>
+                                        <select name="peligro_procesal_id[]" id="peligro_procesal_id" data-placeholder="Peligro procesal" multiple="multiple" style="width: 100%;">
+                                        </select>
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                            <label>Cédula de Identidad</label>
-                                            <input type="text" class="form-control" id="n_documento" name="n_documento" placeholder="Cédula de Identidad">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                            <label>Complemento</label>
-                                            <input type="text" class="form-control" id="n_documento_1" name="n_documento_1" placeholder="Complemento" disabled="disabled">
-                                            </div>
-                                        </div>
+                                    <div class="form-group">
+                                        <label for="dp_fecha_detencion_preventiva">Fecha de la detención</label>
+                                        <input type="text" class="form-control" id="dp_fecha_detencion_preventiva" name="dp_fecha_detencion_preventiva" placeholder="año-mes-día" data-mask="9999-99-99">
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                            <label>Nombre(s)</label>
-                                            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre(s)">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                            <label>Apellido paterno</label>
-                                            <input type="text" class="form-control" id="ap_paterno" name="ap_paterno" placeholder="Apellido paterno">
-                                            </div>
-                                        </div>
+                                    <div class="form-group">
+                                        <label for="dp_fecha_conclusion_detencion">Fecha de la conclusión de la detención</label>
+                                        <input type="text" class="form-control" id="dp_fecha_conclusion_detencion" name="dp_fecha_conclusion_detencion" placeholder="año-mes-día" data-mask="9999-99-99">
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                            <label>Apellido materno</label>
-                                            <input type="text" class="form-control" id="ap_materno" name="ap_materno" placeholder="Apellido materno">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                            <label>Apellido esposo</label>
-                                            <input type="text" class="form-control" id="ap_esposo" name="ap_esposo" placeholder="Apellido esposo">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                            <label>Fecha de nacimiento</label>
-                                            <input type="text" class="form-control" id="f_nacimiento" name="f_nacimiento" placeholder="año-mes-día" data-mask="9999-99-99">
-                                            </div>
-                                        </div>
-                                        <div id="estado_civil_div" class="col-sm-6">
-                                            <div class="form-group">
-                                            <label>Estado civil</label>
-                                            <select name="estado_civil" id="estado_civil" data-placeholder="Estado civil" multiple="multiple" style="width: 100%;">
-                                            </select>
-                                            </div>
-                                        </div>
+                                    <div id="recinto_carcelario_id_div" class="form-group">
+                                        <label for="recinto_carcelario_id">Recinto carcelario</label>
+                                        <select name="recinto_carcelario_id" id="recinto_carcelario_id" data-placeholder="Recinto carcelario" multiple="multiple" style="width: 100%;">
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label>Sexo</label>
-                                        <div>
-                                            {{-- <div class="radio radio-info radio-inline">
-                                            <input type="radio" id="sexo_f_id" class="sexo_class" name="sexo" value="F" checked="checked">
-                                            <label class="text-info" for="sexo_f_id"> {{ $sexo_array['F'] }} </label>
-                                            </div>
-                                            <div class="radio radio-primary radio-inline">
-                                                <input type="radio" id="sexo_m_id" class="sexo_class" name="sexo" value="M">
-                                                <label class="text-success" for="sexo_m_id"> {{ $sexo_array['M'] }} </label>
-                                            </div> --}}
-                                        </div>
-                                    </div>
+                                    <h3 class="m-t-none m-b text-success">CARACTERISTICAS DEL DETENIDO</h3>
 
                                     <div class="form-group">
-                                        <label>Domicilio</label>
-                                        <input type="text" class="form-control" id="domicilio" name="domicilio" placeholder="Domicilio (Zona, Barrio, Avenida o Calle y Número)">
-                                    </div>
+                                        <strong>¿Mujer gestante?</strong>
 
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                <label>Teléfono</label>
-                                                <input type="text" class="form-control" id="telefono" name="telefono" placeholder="Teléfono">
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_etapa_gestacion_estado" name="dp_etapa_gestacion_estado" value="2">
+                                                <label class="onoffswitch-label" for="dp_etapa_gestacion_estado">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
                                             </div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                <label>Celular</label>
-                                                <input type="text" class="form-control" id="celular" name="celular" placeholder="Celular" data-mask="99999999">
+                                        </span>
+                                    </div>
+
+                                    <div id="div_dp_etapa_gestacion_semana" class="form-group" style="padding-left: 20px;">
+                                        <label for="dp_etapa_gestacion_semana" class="text-warning">Semanas de gestación</label>
+                                        <input type="text" class="form-control" id="dp_etapa_gestacion_semana" name="dp_etapa_gestacion_semana" placeholder="Semanas de gestación" value="0">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Con enfermedad terminal?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_enfermo_terminal_estado" name="dp_enfermo_terminal_estado" value="2">
+                                                <label class="onoffswitch-label" for="dp_enfermo_terminal_estado">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
                                             </div>
-                                        </div>
+                                        </span>
                                     </div>
 
-                                    <div id="municipio_id_nacimiento_div" class="form-group">
-                                        <label>Lugar de nacimiento</label>
-                                        <select name="municipio_id_nacimiento" id="municipio_id_nacimiento" data-placeholder="Lugar de nacimiento" multiple="multiple" style="width: 100%;">
-                                        </select>
+                                    <div id="div_dp_enfermo_terminal_tipo" class="form-group" style="padding-left: 20px;">
+                                        <label for="dp_enfermo_terminal_tipo" class="text-warning">Tipo de enfermedad terminal</label>
+                                        <input type="text" class="form-control" id="dp_enfermo_terminal_tipo" name="dp_enfermo_terminal_tipo" placeholder="Tipo de enfermedad terminal">
                                     </div>
 
-                                    <div id="municipio_id_residencia_div" class="form-group">
-                                        <label>Residencia actual</label>
-                                        <select name="municipio_id_residencia" id="municipio_id_residencia" data-placeholder="Residencia actual" multiple="multiple" style="width: 100%;">
-                                        </select>
+                                    <div class="form-group">
+                                        <strong>¿Madre de menor lactante a un año?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_madre_lactante_1" name="dp_madre_lactante_1" value="2">
+                                                <label class="onoffswitch-label" for="dp_madre_lactante_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div id="div_dp_madre_lactante_1_fecha_nacimiento_menor" class="form-group" style="padding-left: 20px;">
+                                        <label for="dp_madre_lactante_1_fecha_nacimiento_menor" class="text-warning">Fecha de nacimiento del menor</label>
+                                        <input type="text" class="form-control" id="dp_madre_lactante_1_fecha_nacimiento_menor" name="dp_madre_lactante_1_fecha_nacimiento_menor" placeholder="año-mes-día" data-mask="9999-99-99">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Custodia a menor de seis años?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_custodia_menor_6" name="dp_custodia_menor_6" value="2">
+                                                <label class="onoffswitch-label" for="dp_custodia_menor_6">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div id="div_dp_custodia_menor_6_fecha_nacimiento_menor" class="form-group" style="padding-left: 20px;">
+                                        <label for="dp_custodia_menor_6_fecha_nacimiento_menor" class="text-warning">Fecha de nacimiento del menor</label>
+                                        <input type="text" class="form-control" id="dp_custodia_menor_6_fecha_nacimiento_menor" name="dp_custodia_menor_6_fecha_nacimiento_menor" placeholder="año-mes-día" data-mask="9999-99-99">
                                     </div>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Por defecto</button>
                         <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
                         <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div>
@@ -385,6 +385,9 @@
 
     <!-- DROPZONE -->
         <script src="{{ asset('inspinia_v27/js/plugins/dropzone/dropzone.js') }}"></script>
+
+    <!-- TouchSpin -->
+        <script src="{{ asset('inspinia_v27/js/plugins/touchspin/jquery.bootstrap-touchspin.min.js') }}"></script>
 @endsection
 
 @section('js')
