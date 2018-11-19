@@ -1199,7 +1199,7 @@ class UsuarioController extends Controller
                     $i4_funcionario_id = $request->input('i4_funcionario_id');
 
                     $query = I4Funcionario::where('id', $i4_funcionario_id)
-                        ->select(DB::raw("id, UPPER(CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres)) AS text"))
+                        ->select(DB::raw("id, UPPER(CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres))) AS text"))
                         ->first()
                         ->toArray();
 
