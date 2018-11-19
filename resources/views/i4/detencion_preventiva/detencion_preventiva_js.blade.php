@@ -190,69 +190,10 @@
             // $("#estado").appendTo("#estado_div");
             // $("#gestion_2").appendTo("#gestion_2_div");
 
-            // $("#usuario_tipo, #dirigido_a_psicologia, #dirigido_psicologia, #dirigido_a_trabajo_social, #dirigido_trabajo_social, #dirigido_a_otro_trabajo, #resolucion_tipo_disposicion, #resolucion_medidas_proteccion").select2();
-            // $("#usuario_tipo").appendTo("#usuario_tipo_div");
-            // $("#dirigido_a_psicologia").appendTo("#dirigido_a_psicologia_div");
-            // $("#dirigido_a_trabajo_social").appendTo("#dirigido_a_trabajo_social_div");
-            // $("#dirigido_a_otro_trabajo").appendTo("#dirigido_a_otro_trabajo_div");
-            // $("#dirigido_psicologia").appendTo("#dirigido_psicologia_div");
-            // $("#dirigido_trabajo_social").appendTo("#dirigido_trabajo_social_div");
-            // $("#resolucion_tipo_disposicion").appendTo("#resolucion_tipo_disposicion_div");
-            // $("#resolucion_medidas_proteccion").appendTo("#resolucion_medidas_proteccion_div");
-
-            // $('#municipio_id').select2({
-            //     maximumSelectionLength: 1,
-            //     minimumInputLength    : 2,
-            //     ajax                  : {
-            //         url     : url_controller + '/send_ajax',
-            //         type    : 'post',
-            //         dataType: 'json',
-            //         data    : function (params) {
-            //             return {
-            //                 q         : params.term,
-            //                 page_limit: 10,
-            //                 estado    : 1,
-            //                 tipo      : 101,
-            //                 _token    : csrf_token
-            //             };
-            //         },
-            //         results: function (data, page) {
-            //             return {
-            //                 results: data
-            //             };
-            //         }
-            //     }
-            // });
-            // $("#municipio_id").appendTo("#municipio_id_div");
-
-            // $('#delito_id, #delito_id_r').select2({
-            //     maximumSelectionLength: 1,
-            //     minimumInputLength    : 2,
-            //     ajax                  : {
-            //         url     : url_controller + '/send_ajax',
-            //         type    : 'post',
-            //         dataType: 'json',
-            //         data    : function (params) {
-            //             return {
-            //                 q         : params.term,
-            //                 page_limit: 10,
-            //                 estado    : 1,
-            //                 tipo      : 102,
-            //                 _token    : csrf_token
-            //             };
-            //         },
-            //         results: function (data, page) {
-            //             return {
-            //                 results: data
-            //             };
-            //         }
-            //     }
-            // });
-            // $("#delito_id").appendTo("#delito_id_div");
             // $("#delito_id_r").appendTo("#delito_id_r_div");
 
         //=== DATEPICKER 3 ===
-            $('#dp_fecha_detencion_preventiva, #dp_fecha_conclusion_detencion, #dp_madre_lactante_1_fecha_nacimiento_menor, #dp_custodia_menor_6_fecha_nacimiento_menor').datepicker({
+            $('#dp_fecha_detencion_preventiva, #dp_fecha_conclusion_detencion, #dp_madre_lactante_1_fecha_nacimiento_menor, #dp_custodia_menor_6_fecha_nacimiento_menor, #FechaNac').datepicker({
                 startView            : 2,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -377,6 +318,17 @@
                 // === IDENTIFICACION DEL CASO ===
                     $("#CodCasoJuz").val(ret.CodCasoJuz);
 
+                // === PERSONA DETENIDA ===
+                    $("#NumDocId").val(ret.NumDocId);
+                    $("#FechaNac").val(ret.FechaNac);
+                    $("#ApPat").val(ret.ApPat);
+                    $("#ApMat").val(ret.ApMat);
+                    $("#ApEsp").val(ret.ApEsp);
+                    $("#Nombres").val(ret.Nombres);
+                    if(val_json.sexo_id != "null"){
+                        $(".sexo_id_class[value=" + val_json.sexo_id + "]").prop('checked', true);
+                    }
+
                 // === DATOS DEL PROCESO ===
                     if(ret.peligro_procesal != ""){
                         var peligro_procesal      = val_json.peligro_procesal_id
@@ -390,77 +342,38 @@
                         $("#recinto_carcelario_id").select2("val", val_json.recinto_carcelario_id);
                     }
 
-                // === SOLICITUD ===
-                    // $("#gestion").select2("val", ret.gestion);
-                    // $("#gestion").select2("enable", false);
-                    // $("#solicitante").select2("val", val_json.solicitante);
-                    // $("#solicitante").select2("val", val_json.solicitante);
-                    // $("#nombre_solicitante").val(ret.nombre_solicitante);
-                    // if(ret.municipio != ""){
-                    //     var dpm = ret.departamento + ', ' + ret.provincia + ', ' + ret.municipio;
-                    //     $('#municipio_id').append('<option value="' + val_json.municipio_id + '">' + dpm + '</option>');
-                    //     $("#municipio_id").select2("val", val_json.municipio_id);
-                    // }
-                    // $("#f_solicitud").val(ret.f_solicitud);
+                // === CARACTERISTICAS DEL DETENIDO ===
+                    if(val_json.dp_etapa_gestacion_estado == 2){
+                        $('#dp_etapa_gestacion_estado').prop('checked', true);
+                        $("#dp_etapa_gestacion_semana").prop('disabled', false);
+                        $("#div_dp_etapa_gestacion_semana").slideDown("slow");
 
-                    // $("#n_caso").val(ret.n_caso);
-                    // $("#etapa_proceso").select2("val", val_json.etapa_proceso);
-                    // $("#denunciante").val(ret.denunciante);
-                    // $("#denunciado").val(ret.denunciado);
-                    // $("#victima").val(ret.victima);
-                    // $("#persona_protegida").val(ret.persona_protegida);
+                        $("#dp_etapa_gestacion_semana").val(val_json.dp_etapa_gestacion_semana);
+                    }
 
-                // === USUARIO ===
-                    // if(val_json.usuario_tipo != null){
-                    //     var usuario_tipo       = val_json.usuario_tipo;
-                    //     var usuario_tipo_array = usuario_tipo.split(",");
-                    //     $("#usuario_tipo").select2().val(usuario_tipo_array).trigger("change");
-                    // }
-                    // $("#usuario_tipo_descripcion").val(val_json.usuario_tipo_descripcion);
-                    // $("#usuario_nombre").val(val_json.usuario_nombre);
-                    // if(val_json.usuario_sexo != "null"){
-                    //     $(".usuario_sexo_class[value=" + val_json.usuario_sexo + "]").prop('checked', true);
-                    // }
+                    if(val_json.dp_enfermo_terminal_estado == 2){
+                        $('#dp_enfermo_terminal_estado').prop('checked', true);
+                        $("#dp_enfermo_terminal_tipo").prop('disabled', false);
+                        $("#div_dp_enfermo_terminal_tipo").slideDown("slow");
 
-                    // $("#usuario_celular").val(val_json.usuario_celular);
-                    // $("#usuario_domicilio").val(val_json.usuario_domicilio);
-                    // $("#usuario_otra_referencia").val(val_json.usuario_otra_referencia);
-                    // if(val_json.usuario_edad != "null"){
-                    //     $(".usuario_edad_class[value=" + val_json.usuario_edad + "]").prop('checked', true);
-                    // }
+                        $("#dp_enfermo_terminal_tipo").val(val_json.dp_enfermo_terminal_tipo);
+                    }
 
-                // === SOLICITUD DE TRABAJO ===
-                    // if(val_json.dirigido_a_psicologia != null){
-                    //     var dirigido_a_psicologia       = val_json.dirigido_a_psicologia;
-                    //     var dirigido_a_psicologia_array = dirigido_a_psicologia.split(",");
-                    //     $("#dirigido_a_psicologia").select2().val(dirigido_a_psicologia_array).trigger("change");
-                    // }
-                    // if(val_json.dirigido_psicologia != null){
-                    //     var dirigido_psicologia       = val_json.dirigido_psicologia;
-                    //     var dirigido_psicologia_array = dirigido_psicologia.split(",");
-                    //     $("#dirigido_psicologia").select2().val(dirigido_psicologia_array).trigger("change");
-                    // }
+                    if(val_json.dp_madre_lactante_1 == 2){
+                        $('#dp_madre_lactante_1').prop('checked', true);
+                        $("#dp_madre_lactante_1_fecha_nacimiento_menor").prop('disabled', false);
+                        $("#div_dp_madre_lactante_1_fecha_nacimiento_menor").slideDown("slow");
 
-                    // if(val_json.dirigido_a_trabajo_social != null){
-                    //     var dirigido_a_trabajo_social       = val_json.dirigido_a_trabajo_social;
-                    //     var dirigido_a_trabajo_social_array = dirigido_a_trabajo_social.split(",");
-                    //     $("#dirigido_a_trabajo_social").select2().val(dirigido_a_trabajo_social_array).trigger("change");
-                    // }
-                    // if(val_json.dirigido_trabajo_social != null){
-                    //     var dirigido_trabajo_social       = val_json.dirigido_trabajo_social;
-                    //     var dirigido_trabajo_social_array = dirigido_trabajo_social.split(",");
-                    //     $("#dirigido_trabajo_social").select2().val(dirigido_trabajo_social_array).trigger("change");
-                    // }
+                        $("#dp_enfermo_terminal_tipo").val(val_json.dp_madre_lactante_1_fecha_nacimiento_menor);
+                    }
 
-                    // if(val_json.dirigido_a_otro_trabajo != null){
-                    //     var dirigido_a_otro_trabajo       = val_json.dirigido_a_otro_trabajo;
-                    //     var dirigido_a_otro_trabajo_array = dirigido_a_otro_trabajo.split(",");
-                    //     $("#dirigido_a_otro_trabajo").select2().val(dirigido_a_otro_trabajo_array).trigger("change");
-                    // }
-                    // $("#dirigido_otro_trabajo").val(val_json.dirigido_otro_trabajo);
+                    if(val_json.dp_custodia_menor_6 == 2){
+                        $('#dp_custodia_menor_6').prop('checked', true);
+                        $("#dp_custodia_menor_6_fecha_nacimiento_menor").prop('disabled', false);
+                        $("#div_dp_custodia_menor_6_fecha_nacimiento_menor").slideDown("slow");
 
-                // === SOLICITUD TRABAJO COMPLEMENTARIO ===
-                    // $("#estado").select2("val", val_json.estado);
+                        $("#dp_etapa_gestacion_semana").val(val_json.dp_custodia_menor_6_fecha_nacimiento_menor);
+                    }
 
                 $('#modal_1').modal();
                 break;
@@ -468,6 +381,11 @@
             case 30:
                 $("#persona_id").val('');
                 $("#caso_id").val('');
+
+                // === CARACTERISTICAS DEL DETENIDO ===
+                    $('#peligro_procesal_id').select2("val", "");
+                    $('#recinto_carcelario_id').select2("val", "");
+                    $('#recinto_carcelario_id option').remove();
 
                 // === CARACTERISTICAS DEL DETENIDO ===
                     $("#dp_etapa_gestacion_semana").prop('disabled', true);
@@ -479,30 +397,6 @@
                     $("#div_dp_enfermo_terminal_tipo").slideUp("slow");
                     $("#div_dp_madre_lactante_1_fecha_nacimiento_menor").slideUp("slow");
                     $("#div_dp_custodia_menor_6_fecha_nacimiento_menor").slideUp("slow");
-
-                // // === SOLICITUD ===
-                //     $('#gestion').select2("val", "");
-                //     $("#gestion").select2("enable", true);
-                //     $('#solicitante').select2("val", "");
-                //     $('#municipio_id').select2("val", "");
-                //     $('#municipio_id option').remove();
-
-                //     $('#etapa_proceso').select2("val", "");
-
-                // // === USUARIO ===
-                //     $('#usuario_tipo').select2("val", "");
-
-                // // === SOLICITUD DE TRABAJO ===
-                //     $('#dirigido_a_psicologia').select2("val", "");
-                //     $('#dirigido_psicologia').select2("val", "");
-
-                //     $('#dirigido_a_trabajo_social').select2("val", "");
-                //     $('#dirigido_trabajo_social').select2("val", "");
-
-                //     $('#dirigido_a_otro_trabajo').select2("val", "");
-
-                // // === SOLICITUD TRABAJO COMPLEMENTARIO ===
-                //     $('#estado').select2("val", "");
 
                 $(form_1)[0].reset();
                 break;
@@ -621,6 +515,7 @@
                             index      : "a2.dp_estado",
                             width      : 190,
                             align      : "center",
+                            hidden     : true,
                             stype      :'select',
                             editoptions: {value:dp_estado_jqgrid}
                         },

@@ -477,10 +477,10 @@ class DetencionPreventivaController extends Controller
 
                     $query = RecintoCarcelario::leftJoin("Muni", "Muni.id", "=", "RecintosCarcelarios.Muni_id")
                                 ->leftJoin("Dep", "Dep.id", "=", "Muni.Dep")
-                                ->whereRaw("CONCAT_WS(', ', Dep.Dep, Muni.Muni, RecintosCarcelarios.nombre) ilike '%$nombre%'")
+                                ->whereRaw("CONCAT_WS(', ', Dep.Dep, Muni.Muni, RecintosCarcelarios.nombre) LIKE '%$nombre%'")
                                 ->where("RecintosCarcelarios.estado", "=", $estado)
-                                ->select(DB::raw("RecintosCarcelarios.id, CONCAT_WS(', ', Dep.Dep, Muni.Muni, RecintosCarcelarios.nombre) AS text"))
-                                ->orderByRaw("ubge_municipios.codigo ASC")
+                                ->select(DB::raw("RecintosCarcelarios.id, UPPER(CONVERT(CAST(CONCAT_WS(', ', Dep.Dep, Muni.Muni, RecintosCarcelarios.nombre) AS BINARY) USING utf8)) AS text"))
+                                ->orderByRaw("Dep.Dep ASC, Muni.Muni ASC, RecintosCarcelarios.nombre ASC")
                                 ->limit($page_limit)
                                 ->get()
                                 ->toArray();
@@ -495,10 +495,6 @@ class DetencionPreventivaController extends Controller
                         ];
                         return json_encode($respuesta);
                     }
-                    // else
-                    // {
-                    //     return json_encode(array("id"=>"0","text"=>"No se encontraron resultados"));
-                    // }
                 }
                 break;
         }

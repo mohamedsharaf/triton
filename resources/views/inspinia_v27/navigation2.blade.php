@@ -123,12 +123,15 @@
                 </li>
             @endif
 
-            @if(in_array(['codigo' => '2001'], $permisos))
-                <li class="{{ isActiveRoute('detencion_preventiva') }}">
+            @if(in_array(['codigo' => '2001'], $permisos) || in_array(['codigo' => '2101'], $permisos))
+                <li class="{{ isActiveRoute('detencion_preventiva') }}{{ isActiveRoute('recinto_carcelario') }}">
                     <a href="#"><i class="fa fa-plug"></i> <span class="nav-label">i4</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         @if(in_array(['codigo' => '2001'], $permisos))
                             <li class="{{ isActiveRoute('detencion_preventiva') }}"><a href="{{ url('/detencion_preventiva') }}">Detención preventiva</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '2101'], $permisos))
+                            <li class="{{ isActiveRoute('recinto_carcelario') }}"><a href="{{ url('/recinto_carcelario') }}">Recinto carcelario</a></li>
                         @endif
                     </ul>
                 </li>

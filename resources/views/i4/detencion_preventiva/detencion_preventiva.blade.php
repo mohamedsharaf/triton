@@ -213,16 +213,79 @@
                             {{ csrf_field() }}
 
                             <div class="row">
-                                <div class="col-sm-3 b-r">
+                                <div class="col-sm-4 b-r">
                                     <h3 class="m-t-none m-b text-success">IDENTIFICACION DEL CASO</h3>
 
                                     <div class="form-group">
                                         <label for="CodCasoJuz">NUREJ / IANUS</label>
                                         <input type="text" class="form-control" id="CodCasoJuz" name="CodCasoJuz" placeholder="NUREJ-IANUS U OTRO">
                                     </div>
+
+                                    <h3 class="m-t-none m-b text-success">PERSONA DETENIDA</h3>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="NumDocId">Documento de identidad</label>
+                                                <input type="text" class="form-control" id="NumDocId" name="NumDocId" placeholder="Documento de identidad">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="FechaNac">Fecha de nacimiento</label>
+                                                <input type="text" class="form-control" id="FechaNac" name="FechaNac" placeholder="año-mes-día" data-mask="9999-99-99">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="ApPat">Apellido paterno</label>
+                                                <input type="text" class="form-control" id="ApPat" name="ApPat" placeholder="Apellido paterno">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="ApMat">Apellido materno</label>
+                                                <input type="text" class="form-control" id="ApMat" name="ApMat" placeholder="Apellido materno">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="ApEsp">Apellido esposo</label>
+                                                <input type="text" class="form-control" id="ApEsp" name="ApEsp" placeholder="Apellido esposo">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="Nombres">Nombre(s)</label>
+                                                <input type="text" class="form-control" id="Nombres" name="Nombres" placeholder="Nombre(s)">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Sexo</label>
+                                        <br>
+                                        <div class="radio radio-primary radio-inline">
+                                            <input type="radio" id="sexo_id_1" value="1" name="sexo_id" class="sexo_id_class">
+                                            <label for="sexo_id_1"> {!! $sexo_array['1'] !!} </label>
+                                        </div>
+                                        <div class="radio radio-info radio-inline">
+                                            <input type="radio" id="sexo_id_2" value="2" name="sexo_id" class="sexo_id_class">
+                                            <label for="sexo_id_2"> {!! $sexo_array['2'] !!} </label>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="col-sm-3 b-r">
+                                <div class="col-sm-4 b-r">
                                     <h3 class="m-t-none m-b text-success">DATOS DEL PROCESO</h3>
 
                                     <div id="peligro_procesal_id_div" class="form-group">
@@ -248,7 +311,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-sm-6">
+                                <div class="col-sm-4">
                                     <h3 class="m-t-none m-b text-success">CARACTERISTICAS DEL DETENIDO</h3>
 
                                     <div class="form-group">

@@ -172,4 +172,10 @@
     Route::post('/detencion_preventiva/send_ajax', 'I4\DetencionPreventivaController@send_ajax');
     Route::match(["get", "post"], '/detencion_preventiva/reportes', 'I4\DetencionPreventivaController@reportes');
 
+//=== I4 - RECINTO CARCELARIO ===
+    Route::get('/recinto_carcelario', 'I4\RecintoCarcelarioController@index')->name('recinto_carcelario');
+    Route::match(["get", "post"], '/recinto_carcelario/view_jqgrid', 'I4\RecintoCarcelarioController@view_jqgrid');
+    Route::post('/recinto_carcelario/send_ajax', 'I4\RecintoCarcelarioController@send_ajax');
+    Route::match(["get", "post"], '/recinto_carcelario/reportes', 'I4\RecintoCarcelarioController@reportes');
+
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');
