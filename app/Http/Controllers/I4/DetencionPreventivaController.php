@@ -59,7 +59,8 @@ class DetencionPreventivaController extends Controller
 
         $this->tipo_recinto = [
             '1' => 'RECINTO PENITENCIARIO',
-            '2' => 'CARCELETA'
+            '2' => 'CARCELETA',
+            '3' => 'CENTRO DE REHABILITACION JUVENIL'
         ];
 
         $this->dp_semaforo = [
