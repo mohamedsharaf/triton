@@ -324,7 +324,7 @@
                                 var val_json = $.parseJSON(ret.val_json);
 
                                 var ed = "";
-                                @if(in_array(['codigo' => '2003'], $permisos))
+                                @if(in_array(['codigo' => '2103'], $permisos))
                                     ed = "<button type='button' class='btn btn-xs btn-success' title='Modificar recinto carcelario' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                                 @endif
 
