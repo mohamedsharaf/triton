@@ -377,7 +377,9 @@
                             title         : 'Reportes',
                             buttonicon    : "ui-icon ui-icon-print",
                             onClickButton : function(){
-                                $('#modal_2_title').empty();
+                                var valor1 = new Array();
+                                valor1[0]  = 70;
+                                utilitarios(valor1);
                             }
                         })
                     @endif
@@ -428,6 +430,12 @@
                             }
                         }
                     });
+                    break;
+                // === REPORTE EXCEL ===
+                case 70:
+                    var concatenar_valores = '?tipo=10';
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
                     break;
                 // === MENSAJE ERROR ===
                 case 100:

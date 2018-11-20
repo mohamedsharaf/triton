@@ -109,11 +109,11 @@ class DetencionPreventivaController extends Controller
                                                 ->get()
                                                 ->toArray(),
                 'etapa_caso_array'       => EtapaCaso::where('triton_estado', 1)
-                                                ->select(DB::raw("id, UPPER(CONVERT(CAST(EtapaCaso AS BINARY) USING utf8)) AS nombre"))
+                                                ->select(DB::raw("id, UPPER(EtapaCaso) AS nombre"))
                                                 ->orderBy("EtapaCaso")
                                                 ->get()
                                                 ->toArray(),
-                'departamento_array'     => Dep::select(DB::raw("id, UPPER(CONVERT(CAST(Dep AS BINARY) USING utf8)) AS nombre"))
+                'departamento_array'     => Dep::select(DB::raw("id, UPPER(Dep) AS nombre"))
                                                 ->orderBy("Dep")
                                                 ->get()
                                                 ->toArray()
@@ -406,33 +406,33 @@ class DetencionPreventivaController extends Controller
                         $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo_delito"])),
                         $row["n_detenidos"],
                         $this->dp_estado[$row["dp_estado"]],
-                        utf8_encode($row["Caso"]),
-                        utf8_encode($row["CodCasoJuz"]),
-                        utf8_encode($row["departamento"]),
+                        $row["Caso"],
+                        $row["CodCasoJuz"],
+                        $row["departamento"],
 
-                        utf8_encode($row["NumDocId"]),
-                        utf8_encode($row["ApPat"]),
-                        utf8_encode($row["ApMat"]),
-                        utf8_encode($row["ApEsp"]),
-                        utf8_encode($row["Nombres"]),
+                        $row["NumDocId"],
+                        $row["ApPat"],
+                        $row["ApMat"],
+                        $row["ApEsp"],
+                        $row["Nombres"],
                         $row["FechaNac"],
                         ($row["Sexo"] =="") ? "" : $this->sexo[$row["Sexo"]],
 
                         $row["FechaDenuncia"],
-                        utf8_encode($row["delito_principal"]),
-                        $this->utilitarios(array('tipo' => '51', 'valor' => utf8_encode($row["delitos"]))),
+                        $row["delito_principal"],
+                        $this->utilitarios(array('tipo' => '51', 'valor' => $row["delitos"])),
 
                         $row["dp_fecha_detencion_preventiva"],
                         $row["dp_fecha_conclusion_detencion"],
-                        utf8_encode($row["etapa_caso"]),
-                        $this->utilitarios(array('tipo' => '51', 'valor' => utf8_encode($row["peligro_procesal"]))),
+                        $row["etapa_caso"],
+                        $this->utilitarios(array('tipo' => '51', 'valor' => $row["peligro_procesal"])),
 
-                        utf8_encode($row["recinto_carcelario"]),
-                        $this->utilitarios(array('tipo' => '51', 'valor' => utf8_encode($row["funcionario"]))),
+                        $row["recinto_carcelario"],
+                        $this->utilitarios(array('tipo' => '51', 'valor' => $row["funcionario"])),
 
-                        utf8_encode($row["municipio"]),
-                        utf8_encode($row["oficina"]),
-                        utf8_encode($row["division"]),
+                        $row["municipio"],
+                        $row["oficina"],
+                        $row["division"],
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
                     );
@@ -479,7 +479,7 @@ class DetencionPreventivaController extends Controller
                                 ->leftJoin("Dep", "Dep.id", "=", "Muni.Dep")
                                 ->whereRaw("CONCAT_WS(', ', Dep.Dep, Muni.Muni, RecintosCarcelarios.nombre) LIKE '%$nombre%'")
                                 ->where("RecintosCarcelarios.estado", "=", $estado)
-                                ->select(DB::raw("RecintosCarcelarios.id, UPPER(CONVERT(CAST(CONCAT_WS(', ', Dep.Dep, Muni.Muni, RecintosCarcelarios.nombre) AS BINARY) USING utf8)) AS text"))
+                                ->select(DB::raw("RecintosCarcelarios.id, UPPER(CONCAT_WS(', ', Dep.Dep, Muni.Muni, RecintosCarcelarios.nombre)) AS text"))
                                 ->orderByRaw("Dep.Dep ASC, Muni.Muni ASC, RecintosCarcelarios.nombre ASC")
                                 ->limit($page_limit)
                                 ->get()

@@ -366,6 +366,149 @@ class RecintoCarcelarioController extends Controller
         }
     }
 
+    public function reportes(Request $request)
+    {
+        $tipo = $request->input('tipo');
+
+        switch($tipo)
+        {
+            case '10':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '2104'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                //=== CARGAR VARIABLES ===
+
+                //=== CONSULTA BASE DE DATOS ===
+                    //=== CONSULTA 1 ===
+                        $tabla1 = "RecintosCarcelarios";
+                        $tabla2 = "Muni";
+                        $tabla3 = "Dep";
+
+                        $select = "
+                            $tabla1.id,
+                            $tabla1.Muni_id,
+                            $tabla1.estado,
+                            $tabla1.tipo_recinto,
+                            $tabla1.nombre,
+                            $tabla1.created_at,
+                            $tabla1.updated_at,
+
+                            a2.Dep AS departamento_id,
+                            UPPER(a2.Muni) AS municipio,
+
+                            UPPER(a3.Dep) AS departamento
+                        ";
+
+                        $array_where = "TRUE";
+
+                        $consulta1 = RecintoCarcelario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.Muni_id")
+                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.Dep")
+                            ->whereRaw($array_where)
+                            ->select(DB::raw($select))
+                            ->orderByRaw("a3.Dep ASC, a2.Muni ASC, $tabla1.nombre ASC")
+                            ->get()
+                            ->toArray();
+
+                //=== EXCEL ===
+                    if(count($consulta1) > 0)
+                    {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('recintos_carcelarios_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                            $excel->sheet('RECINTOS CARCELARIOS', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'ESTADO',
+
+                                    'TIPO DE RECINTO',
+                                    'NOMBRE DEL RECINTO CARCELARIO',
+                                    'MUNICIPIO',
+                                    'DEPARTAMENTO'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                // $sheet->setColumnFormat([
+                                //     'A' => 'yyyy-mm-dd hh:mm:ss'
+                                // ]);
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    $sheet->row($c+1, [
+                                        $this->estado[$row1["estado"]],
+
+                                        $this->tipo_recinto[$row1["tipo_recinto"]],
+                                        $row1["nombre"],
+                                        $row1["municipio"],
+                                        $row1["departamento"]
+                                    ]);
+                                    $c++;
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+
+                                // $sheet->cells('A2:A' . ($c), function($cells){
+                                //     $cells->setAlignment('right');
+                                // });
+
+                                $sheet->cells('A1:B' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('C2:E' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->setAutoSize(true);
+                            });
+
+                            $excel->setActiveSheetIndex(0);
+                        })->export('xlsx');
+                    }
+                    else
+                    {
+                        return "No se encontraron resultados.";
+                    }
+                break;
+            default:
+                break;
+        }
+    }
+
     private function utilitarios($valor)
     {
         switch($valor['tipo'])
