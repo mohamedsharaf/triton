@@ -314,7 +314,7 @@
                                 <div class="col-sm-4">
                                     <h3 class="m-t-none m-b text-success">CARACTERISTICAS DEL DETENIDO</h3>
 
-                                    <div class="form-group">
+                                    <div id="div_dp_etapa_gestacion_estado" class="form-group">
                                         <strong>¿Mujer gestante?</strong>
 
                                         <span class="pull-right">
@@ -352,7 +352,7 @@
                                         <input type="text" class="form-control" id="dp_enfermo_terminal_tipo" name="dp_enfermo_terminal_tipo" placeholder="Tipo de enfermedad terminal">
                                     </div>
 
-                                    <div class="form-group">
+                                    <div id="div_dp_madre_lactante_1" class="form-group">
                                         <strong>¿Madre de menor lactante a un año?</strong>
 
                                         <span class="pull-right">
@@ -395,7 +395,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([50]);">Guardar</button>
                         <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div>
                 </div>

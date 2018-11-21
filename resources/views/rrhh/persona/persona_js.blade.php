@@ -318,6 +318,10 @@
                     edit1  = false;
                     ancho1 += ancho_d;
                 @endif
+                @if(in_array(['codigo' => '0507'], $permisos))
+                    edit1  = false;
+                    ancho1 += ancho_d;
+                @endif
                 $(jqgrid1).jqGrid({
                     caption      : title_table,
                     url          : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
@@ -546,8 +550,15 @@
                                 }
                             @endif
 
+                            var ase = "";
+                            @if(in_array(['codigo' => '0507'], $permisos))
+                                if(val_json.estado_segip == '2'){
+                                    ase = " <button type='button' class='btn btn-xs btn-danger' title='Actualizar Certificación SEGIP' onclick=\"utilitarios([19, " + cl + "]);\"><i class='fa fa-refresh'></i></button>";
+                                }
+                            @endif
+
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed + vse + cse)
+                                act : $.trim(ed + vse + cse + ase)
                             });
                         }
                     }
@@ -869,32 +880,6 @@
                 valor1[4]  = "tipo=3&id=" + valor[1] + "&_token=" + csrf_token;
                 valor1[5]  = 'json';
                 utilitarios(valor1);
-                // var concatenar_valores += '?tipo=1';
-
-                // var id = valor[1];
-
-                // var valor_sw    = true;
-                // var valor_error = '';
-
-                // if($.trim(id) != ''){
-                //     concatenar_valores += '&id=' + id;
-                // }
-                // else{
-                //     valor_sw    = false;
-                //     valor_error += 'Seleccione una persona.';
-                // }
-
-                // if(valor_sw){
-                //     var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
-                //     win.focus();
-                // }
-                // else{
-                //     var valor1 = new Array();
-                //     valor1[0]  = 101;
-                //     valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                //     valor1[2]  = valor_error;
-                //     utilitarios(valor1);
-                // }
                 break;
 
             // === MENSAJE ERROR ===

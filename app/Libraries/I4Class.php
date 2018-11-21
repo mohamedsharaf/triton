@@ -4,6 +4,8 @@ namespace App\Libraries;
 use App\Models\I4\Caso;
 use App\Models\I4\Persona;
 
+use DateTime;
+
 class I4Class
 {
     function __construct()
@@ -79,6 +81,29 @@ class I4Class
             {
                 $respuesta['respuesta'] .= 'No se logró modificar el campo número de detenidos.';
             }
+
+        return $respuesta;
+    }
+
+    public function getPersonaMayor65($data)
+    {
+        set_time_limit(3600);
+        ini_set('memory_limit','-1');
+
+        $respuesta = [
+            "edad_sw" => FALSE,
+            "edad"    => 0
+        ];
+
+        $fecha_nacimiento = new DateTime($data["FechaNac"]);
+        $fecha_hoy        = new DateTime();
+        $anios            = $fecha_hoy->diff($fecha_nacimiento);
+
+        if($anios->y >= 65)
+        {
+            $respuesta["edad_sw"] = TRUE;
+        }
+        $respuesta["edad"] = $anios->y;
 
         return $respuesta;
     }

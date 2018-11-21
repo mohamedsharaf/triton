@@ -2548,7 +2548,7 @@ class SolicitudController extends Controller
                             $iu->delito_id    = $data1['delito_id'];
                             if($data1['tentativa'] != "")
                             {
-                                $iu->tentativa    = $data1['tentativa'];
+                                $iu->tentativa = $data1['tentativa'];
                             }
                             $iu->save();
 

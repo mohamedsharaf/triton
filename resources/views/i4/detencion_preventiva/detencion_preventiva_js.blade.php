@@ -181,17 +181,6 @@
             });
             $("#recinto_carcelario_id").appendTo("#recinto_carcelario_id_div");
 
-            // $("#gestion, #solicitante, #etapa_proceso, #estado, #gestion_2").select2({
-            //     maximumSelectionLength: 1
-            // });
-            // $("#gestion").appendTo("#gestion_div");
-            // $("#solicitante").appendTo("#solicitante_div");
-            // $("#etapa_proceso").appendTo("#etapa_proceso_div");
-            // $("#estado").appendTo("#estado_div");
-            // $("#gestion_2").appendTo("#gestion_2_div");
-
-            // $("#delito_id_r").appendTo("#delito_id_r_div");
-
         //=== DATEPICKER 3 ===
             $('#dp_fecha_detencion_preventiva, #dp_fecha_conclusion_detencion, #dp_madre_lactante_1_fecha_nacimiento_menor, #dp_custodia_menor_6_fecha_nacimiento_menor, #FechaNac').datepicker({
                 startView            : 2,
@@ -256,12 +245,32 @@
                 }
             });
 
+            $('.sexo_id_class').change(function() {
+                if(this.value == '1'){
+                    $("#dp_etapa_gestacion_estado").prop('disabled', true);
+                    $("#dp_madre_lactante_1").prop('disabled', true);
+
+                    $("#div_dp_etapa_gestacion_estado").slideUp("slow");
+                    $("#div_dp_madre_lactante_1").slideUp("slow");
+                }
+                else if(this.value == '2'){
+                    $("#dp_etapa_gestacion_estado").prop('disabled', false);
+                    $("#dp_madre_lactante_1").prop('disabled', false);
+
+                    $("#div_dp_etapa_gestacion_estado").slideDown("slow");
+                    $("#div_dp_madre_lactante_1").slideDown("slow");
+                }
+            });
+
         // === JQGRID ===
             var valor1 = new Array();
             valor1[0]  = 40;
             utilitarios(valor1);
 
         // === VALIDATE 1 ===
+            var valor1 = new Array();
+            valor1[0]  = 60;
+            utilitarios(valor1);
 
         // Add responsive to jqGrid
             $(window).bind('resize', function () {
@@ -327,6 +336,13 @@
                     $("#Nombres").val(ret.Nombres);
                     if(val_json.sexo_id != "null"){
                         $(".sexo_id_class[value=" + val_json.sexo_id + "]").prop('checked', true);
+                        if(val_json.sexo_id == 2){
+                            $("#dp_etapa_gestacion_estado").prop('disabled', false);
+                            $("#dp_madre_lactante_1").prop('disabled', false);
+
+                            $("#div_dp_etapa_gestacion_estado").slideDown("slow");
+                            $("#div_dp_madre_lactante_1").slideDown("slow");
+                        }
                     }
 
                 // === DATOS DEL PROCESO ===
@@ -397,6 +413,12 @@
                     $("#div_dp_enfermo_terminal_tipo").slideUp("slow");
                     $("#div_dp_madre_lactante_1_fecha_nacimiento_menor").slideUp("slow");
                     $("#div_dp_custodia_menor_6_fecha_nacimiento_menor").slideUp("slow");
+
+                    $("#dp_etapa_gestacion_estado").prop('disabled', true);
+                    $("#dp_madre_lactante_1").prop('disabled', true);
+
+                    $("#div_dp_etapa_gestacion_estado").slideUp("slow");
+                    $("#div_dp_madre_lactante_1").slideUp("slow");
 
                 $(form_1)[0].reset();
                 break;
@@ -753,13 +775,97 @@
                         title         : 'Reportes',
                         buttonicon    : "ui-icon ui-icon-print",
                         onClickButton : function(){
-                            $('#modal_2_title').empty();
+                            if(grupo_id == 2 && i4_funcionario_id != ''){
+                                var concatenar_valores = '?tipo=10';
+                                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                                win.focus();
+                            }
+                            else{
+                                $('#modal_2').modal();
+                            }
                         }
                     })
                 @endif
                 ;
                 break;
+            // === PROCESO DE VERIFICACION ===
+            case 50:
+                if($(form_1).valid()){
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
 
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = $(form_1).serialize();
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = "¡Favor complete o corrija los datos solicitados!";
+                    utilitarios(valor1);
+                }
+                break;
+            // === VALIDACION ===
+            case 60:
+                $(form_1).validate({
+                    rules: {
+                        CodCasoJuz:{
+                            // required : true,
+                            maxlength: 20
+                        },
+                        NumDocId:{
+                            required : true,
+                            maxlength: 20
+                        },
+                        FechaNac:{
+                            required: true,
+                            date    : true
+                        },
+                        ApPat:{
+                            maxlength: 40
+                        },
+                        ApMat:{
+                            maxlength: 40
+                        },
+                        ApEsp:{
+                            maxlength: 40
+                        },
+                        Nombres:{
+                            required : true,
+                            maxlength: 40
+                        },
+                        sexo_id:{
+                            required: true
+                        },
+                        "peligro_procesal_id[]":{
+                            // required : true
+                        },
+                        dp_fecha_detencion_preventiva:{
+                            // required: true,
+                            date    : true
+                        },
+                        recinto_carcelario_id:{
+                            // required: true
+                        },
+
+                        dp_enfermo_terminal_tipo:{
+                            maxlength: 500
+                        }
+                    }
+                });
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -779,7 +885,7 @@
                     dataType: valor[5],
                     success : function(data){
                         switch(data.tipo){
-                            // === PASO 1 - INSERT UPDATE ===
+                            // === INSERT UPDATE ===
                             case '1':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
@@ -791,189 +897,13 @@
                                     $(jqgrid1).trigger("reloadGrid");
 
                                     if(data.iu === 1){
-                                        $("#solicitud_id").val(data.id);
-                                        $("#gestion").select2("enable", false);
-
-                                        $('#modal_1_title').append(' - ' + data.codigo);
-
                                         var valor1 = new Array();
-                                        valor1[0]  = 411;
-                                        valor1[1]  = data.id;
-                                        utilitarios(valor1);
-
-                                        var valor1 = new Array();
-                                        valor1[0]  = 421;
-                                        valor1[1]  = data.id;
-                                        utilitarios(valor1);
-
-                                        var valor1 = new Array();
-                                        valor1[0]  = 441;
-                                        valor1[1]  = data.id;
-                                        utilitarios(valor1);
-
-                                        var valor1 = new Array();
-                                        valor1[0]  = 451;
-                                        valor1[1]  = data.id;
+                                        valor1[0]  = 30;
                                         utilitarios(valor1);
                                     }
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
+                                    else if(data.iu === 2){
+                                        $('#modal_1').modal('hide');
                                     }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === PASO 2 - INSERT UPDATE ===
-                            case '2':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === PASO 3 - INSERT UPDATE ===
-                            case '3':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === PASO 4 - INSERT UPDATE ===
-                            case '4':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === PASO 5 - INSERT UPDATE ===
-                            case '5':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
                                 }
                                 else if(data.sw === 0){
                                     if(data.error_sw === 1){
@@ -1002,495 +932,6 @@
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
 
-                            // === ELIMINAR PDF ===
-                            case '12':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === ELIMINAR PDF ===
-                            case '14':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid5).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === ELIMINAR PDF ===
-                            case '16':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid4).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === DELITO - INSERT UPDATE ===
-                            case '21':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                    $(jqgrid2).trigger("reloadGrid");
-
-                                    var valor1 = new Array();
-                                    valor1[0]  = 31;
-                                    utilitarios(valor1);
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === DELITO - ELIMINAR ===
-                            case '211':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                    $(jqgrid2).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === RECALIFICACION DEL DELITO - INSERT UPDATE ===
-                            case '22':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                    $(jqgrid3).trigger("reloadGrid");
-
-                                    var valor1 = new Array();
-                                    valor1[0]  = 32;
-                                    utilitarios(valor1);
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === RECALIFICACION DEL DELITO - ELIMINAR ===
-                            case '221':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-                                    $(jqgrid3).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === SOLICITUD TRABAJO COMPLEMENTARIO - INSERT UPDATE ===
-                            case '23':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $("#solicitud_complementaria_id").val(data.id);
-
-                                    $(jqgrid5).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === SOLICITUD TRABAJO COMPLEMENTARIO - ELIMINAR ===
-                            case '231':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid5).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === SOLICITUD TRABAJO COMPLEMENTARIO - INSERT UPDATE ===
-                            case '24':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $("#resolucion_id").val(data.id);
-
-                                    $(jqgrid4).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-                            // === SOLICITUD TRABAJO COMPLEMENTARIO - ELIMINAR ===
-                            case '241':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid4).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
-
-                            // === CERRAR MEDIDA DE PROTECCION ===
-                            case '30':
-                                if(data.sw === 1){
-                                    var valor1 = new Array();
-                                    valor1[0]  = 100;
-                                    valor1[1]  = data.titulo;
-                                    valor1[2]  = data.respuesta;
-                                    utilitarios(valor1);
-
-                                    $(jqgrid1).trigger("reloadGrid");
-
-                                    respuesta_ajax = true;
-                                }
-                                else if(data.sw === 0){
-                                    if(data.error_sw === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = data.respuesta;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.error_sw === 2){
-                                        var respuesta_server = '';
-                                        $.each(data.error.response.original, function(index, value) {
-                                            respuesta_server += value + '<br>';
-                                        });
-                                        var valor1 = new Array();
-                                        valor1[0]  = 101;
-                                        valor1[1]  = data.titulo;
-                                        valor1[2]  = respuesta_server;
-                                        utilitarios(valor1);
-                                    }
-                                }
-                                else if(data.sw === 2){
-                                    window.location.reload();
-                                }
-                                swal.close();
-                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
-                                break;
                             default:
                                 break;
                         }

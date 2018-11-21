@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Libraries\JqgridClass;
 use App\Libraries\JqgridMysqlClass;
 use App\Libraries\UtilClass;
+use App\Libraries\I4Class;
 
 use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegLdUser;
@@ -28,7 +29,7 @@ use App\Models\I4\PersonaDelito;
 use App\Models\I4\Sexo;
 use App\Models\I4\PeligroProcesal;
 use App\Models\I4\RecintoCarcelario;
-use App\Models\I4\PersonaRecintoCarcelario;
+use App\Models\I4\PersonaPeligroProcesal;
 use App\Models\I4\Dep;
 use App\Models\I4\EtapaCaso;
 
@@ -181,6 +182,7 @@ class DetencionPreventivaController extends Controller
                     a2.NumDocId,
                     a2.FechaNac,
                     a2.Sexo,
+                    a2.Edad,
 
                     a2.triton_modificado AS triton_modificado_persona,
                     a2.recinto_carcelario_id,
@@ -250,6 +252,7 @@ class DetencionPreventivaController extends Controller
                     a2.NumDocId,
                     a2.FechaNac,
                     a2.Sexo,
+                    a2.Edad,
 
                     a2.triton_modificado,
                     a2.recinto_carcelario_id,
@@ -371,6 +374,7 @@ class DetencionPreventivaController extends Controller
                         'division_id'         => $row["division_id"],
 
                         'sexo_id'                                         => $row["Sexo"],
+                        'Edad'                                            => $row["Edad"],
                         'triton_modificado_persona'                       => $row["triton_modificado_persona"],
                         'recinto_carcelario_id'                           => $row["recinto_carcelario_id"],
                         'dp_estado'                                       => $row["dp_estado"],
@@ -468,6 +472,223 @@ class DetencionPreventivaController extends Controller
 
         switch($tipo)
         {
+            // === INSERT UPDATE ===
+            case '1':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+                    $i4   = new I4Class();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>Caracteristicas del detenido</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '2003'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para MODIFICAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '2002'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === VALIDATE ===
+                    // try
+                    // {
+                    //     $validator = $this->validate($request,[
+                    //         'Muni_id'      => 'required',
+                    //         'tipo_recinto' => 'required',
+                    //         'nombre'       => 'required|max: 500'
+                    //     ],
+                    //     [
+                    //         'Muni_id.required' => 'El campo UBICACION es obligatorio.',
+
+                    //         'tipo_recinto.required' => 'El campo TIPO DE RECINTO es obligatorio.',
+
+                    //         'nombre.required' => 'El campo NOMBRE es obligatorio.',
+                    //         'nombre.max'     => 'El campo NOMBRE debe contener :max caracteres como máximo.'
+                    //     ]);
+                    // }
+                    // catch (Exception $e)
+                    // {
+                    //     $respuesta['error_sw'] = 2;
+                    //     $respuesta['error']    = $e;
+                    //     return json_encode($respuesta);
+                    // }
+
+                //=== OPERACION ===
+                    $data1['caso_id']    = trim($request->input('caso_id'));
+                    $data1['CodCasoJuz'] = trim($request->input('CodCasoJuz'));
+
+                    $data1['NumDocId'] = trim($request->input('NumDocId'));
+                    $data1['FechaNac'] = trim($request->input('FechaNac'));
+                    $data1['ApPat']    = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ApPat'))));
+                    $data1['ApMat']    = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ApMat'))));
+                    $data1['ApEsp']    = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ApEsp'))));
+                    $data1['Nombres']  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('Nombres'))));
+                    $data1['sexo_id']  = trim($request->input('sexo_id'));
+
+                    $data1['peligro_procesal_id']           = $request->input('peligro_procesal_id');
+                    $data1['dp_fecha_detencion_preventiva'] = trim($request->input('dp_fecha_detencion_preventiva'));
+                    $data1['dp_fecha_conclusion_detencion'] = trim($request->input('dp_fecha_conclusion_detencion'));
+                    $data1['recinto_carcelario_id']         = trim($request->input('recinto_carcelario_id'));
+
+                    $data1['dp_etapa_gestacion_estado'] = trim($request->input('dp_etapa_gestacion_estado'));
+                    $data1['dp_etapa_gestacion_semana'] = trim($request->input('dp_etapa_gestacion_semana'));
+
+                    $data1['dp_enfermo_terminal_estado'] = trim($request->input('dp_enfermo_terminal_estado'));
+                    $data1['dp_enfermo_terminal_tipo']   = strtoupper($util->getNoAcentoNoComilla(trim($request->input('dp_enfermo_terminal_tipo'))));
+
+                    $data1['dp_madre_lactante_1']                        = trim($request->input('dp_madre_lactante_1'));
+                    $data1['dp_madre_lactante_1_fecha_nacimiento_menor'] = trim($request->input('dp_madre_lactante_1_fecha_nacimiento_menor'));
+
+                    $data1['dp_custodia_menor_6']                        = trim($request->input('dp_custodia_menor_6'));
+                    $data1['dp_custodia_menor_6_fecha_nacimiento_menor'] = trim($request->input('dp_custodia_menor_6_fecha_nacimiento_menor'));
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                    }
+                    else
+                    {
+
+                        $iu             = Caso::find($data1['caso_id']);
+                        $iu->CodCasoJuz = $data1['CodCasoJuz'];
+                        $iu->save();
+
+                        $dp_semaforo = 1;
+
+                        $persona_mayor_65 = $i4->getPersonaMayor65(["FechaNac" => $data1['FechaNac']]);
+
+                        $iu           = Persona::find($id);
+                        $iu->NumDocId = $data1['NumDocId'];
+                        $iu->FechaNac = $data1['FechaNac'];
+                        $iu->ApPat    = $data1['ApPat'];
+                        $iu->ApMat    = $data1['ApMat'];
+                        $iu->ApEsp    = $data1['ApEsp'];
+                        $iu->Nombres  = $data1['Nombres'];
+                        $iu->Sexo     = $data1['sexo_id'];
+
+                        $iu->dp_fecha_detencion_preventiva = $data1['dp_fecha_detencion_preventiva'];
+                        $iu->dp_fecha_conclusion_detencion = $data1['dp_fecha_conclusion_detencion'];
+                        $iu->recinto_carcelario_id         = $data1['recinto_carcelario_id'];
+
+                        if($data1['dp_etapa_gestacion_estado'] != NULL && $data1['sexo_id'] == '2')
+                        {
+                            $iu->dp_etapa_gestacion_estado = $data1['dp_etapa_gestacion_estado'];
+                            $iu->dp_etapa_gestacion_semana = $data1['dp_etapa_gestacion_semana'];
+                            $dp_semaforo                   = 2;
+                        }
+                        else
+                        {
+                            $iu->dp_etapa_gestacion_estado = 1;
+                            $iu->dp_etapa_gestacion_semana = NULL;
+                        }
+
+                        if($data1['dp_enfermo_terminal_estado'] != NULL)
+                        {
+                            $iu->dp_enfermo_terminal_estado = $data1['dp_enfermo_terminal_estado'];
+                            $iu->dp_enfermo_terminal_tipo   = $data1['dp_enfermo_terminal_tipo'];
+                            $dp_semaforo                    = 2;
+                        }
+                        else
+                        {
+                            $iu->dp_enfermo_terminal_estado = 1;
+                            $iu->dp_enfermo_terminal_tipo   = NULL;
+                        }
+
+                        if($data1['dp_madre_lactante_1'] != NULL && $data1['sexo_id'] == '2')
+                        {
+                            $iu->dp_madre_lactante_1                        = $data1['dp_madre_lactante_1'];
+                            $iu->dp_madre_lactante_1_fecha_nacimiento_menor = $data1['dp_madre_lactante_1_fecha_nacimiento_menor'];
+                            $dp_semaforo                                    = 2;
+                        }
+                        else
+                        {
+                            $iu->dp_madre_lactante_1                        = 1;
+                            $iu->dp_madre_lactante_1_fecha_nacimiento_menor = NULL;
+                        }
+
+                        if($data1['dp_custodia_menor_6'] != NULL)
+                        {
+                            $iu->dp_custodia_menor_6                        = $data1['dp_custodia_menor_6'];
+                            $iu->dp_custodia_menor_6_fecha_nacimiento_menor = $data1['dp_custodia_menor_6_fecha_nacimiento_menor'];
+                            $dp_semaforo                                    = 2;
+                        }
+                        else
+                        {
+                            $iu->dp_custodia_menor_6                        = 1;
+                            $iu->dp_custodia_menor_6_fecha_nacimiento_menor = NULL;
+                        }
+
+                        if($persona_mayor_65["edad_sw"])
+                        {
+                            $iu->dp_persona_mayor_65 = 2;
+                            $dp_semaforo             = 2;
+                        }
+                        else
+                        {
+                            $iu->dp_persona_mayor_65 = 1;
+                        }
+                        $iu->Edad = $persona_mayor_65["edad"];
+
+                        $iu->dp_semaforo = $dp_semaforo;
+
+                        $iu->save();
+
+                        PersonaPeligroProcesal::where('persona_id', '=', $id)->delete();
+
+                        if($data1['peligro_procesal_id'] != NULL)
+                        {
+                            $peligro_procesal_id_array = explode(",", $data1['peligro_procesal_id']);
+                            foreach ($peligro_procesal_id_array as $row1)
+                            {
+                                $iu                      = new PersonaPeligroProcesal;
+                                $iu->persona_id          = $id;
+                                $iu->peligro_procesal_id = $row1;
+                                $iu->save();
+                            }
+                        }
+
+                        $respuesta['respuesta'] .= "Las CARACTERISTICAS DEL DETENIDO se modificaron con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+                    }
+                return json_encode($respuesta);
+                break;
             // === SELECT2 DEPARTAMENTO, MUNICIPIO, RECINTO CARCELARIO  ===
             case '101':
                 if($request->has('q'))

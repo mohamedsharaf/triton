@@ -4,14 +4,14 @@ namespace App\Models\I4;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PersonaRecintoCarcelario extends Model
+class PersonaPeligroProcesal extends Model
 {
     protected $connection = 'mysql';
-    protected $table      = 'PersonaRecintosCarcelarios';
+    protected $table      = 'PersonaPeligrosProcesales';
 
     protected $fillable = [
         "persona_id",
-        "recinto_carcelario_id"
+        "peligro_procesal_id"
     ];
 
     protected $guarded  = [];

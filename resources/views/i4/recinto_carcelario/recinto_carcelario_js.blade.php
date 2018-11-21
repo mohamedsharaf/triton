@@ -128,8 +128,6 @@
                 valor1[0]  = 60;
                 utilitarios(valor1);
 
-            // === VALIDATE 1 ===
-
             // Add responsive to jqGrid
                 $(window).bind('resize', function () {
                     var width = $('.tab-content').width() - 35;
