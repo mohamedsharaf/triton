@@ -791,6 +791,60 @@ class PersonaController extends Controller
 
         switch($tipo)
         {
+            case '1':
+                // === VARIABLES ===
+                    $id = trim($request->input('id'));
+                    if($id == '')
+                    {
+                        return 'Se requiere código de la persona.';
+                    }
+                //=== OPERACION ===
+                    $consulta1 = RrhhPersona::where('id', '=', $id)->first();
+                    if(count($consulta1) > 0)
+                    {
+                        $n_documento_array = explode('-', $consulta1->n_documento);
+                        if(isset($n_documento_array[1]))
+                        {
+                            $complemento =  $n_documento_array[1];
+                        }
+                        else
+                        {
+                            $complemento = "";
+                        }
+
+                        if($consulta1->f_nacimiento != '')
+                        {
+                            $my_bytea  = stream_get_contents($consulta1->certificacion_segip);
+                            $my_string = pg_unescape_bytea($my_bytea);
+                            $html_data = htmlspecialchars($my_string);
+
+                            $segip_pdf = base64_decode($html_data);
+
+                            $file = "certificacion_segip_" . date('Y-m-d_H-i-s') . ".pdf";
+                            file_put_contents($file, $segip_pdf);
+
+                            if (file_exists($file)) {
+                                header('Content-Description: File Transfer');
+                                header('Content-Type: application/octet-stream');
+                                header('Content-Disposition: attachment; filename="'.basename($file).'"');
+                                header('Expires: 0');
+                                header('Cache-Control: must-revalidate');
+                                header('Pragma: public');
+                                header('Content-Length: ' . filesize($file));
+                                readfile($file);
+                                exit;
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "Registre la FECHA DE NACIMIENTO.";
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "No se logró encontrar a la PERSONA.";
+                    }
+                break;
             case '11':
                 // === SEGURIDAD ===
                     $this->rol_id   = Auth::user()->rol_id;
@@ -948,13 +1002,13 @@ class PersonaController extends Controller
                                         $row1["departamento_residencia"]
                                     ]);
 
-                                    // if($row1["solicitud_estado_pdf"] == 2)
-                                    // {
-                                    //     $sheet->getCell('E' . $c)
-                                    //         ->getHyperlink()
-                                    //         ->setUrl(url("storage/rrhh/salidas/solicitud_salida/" . $row1['solicitud_documento_pdf']))
-                                    //         ->setTooltip('Haga clic aquí para acceder al PDF.');
-                                    // }
+                                    if($row1["estado_segip"] == 2)
+                                    {
+                                        $sheet->getCell('C' . $c)
+                                            ->getHyperlink()
+                                            ->setUrl(url("persona/reportes?tipo=1&id=" . $row1['id']))
+                                            ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    }
 
                                     if($sw)
                                     {
