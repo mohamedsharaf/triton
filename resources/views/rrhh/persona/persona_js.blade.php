@@ -6,7 +6,7 @@
             "debug"            : false,
             "progressBar"      : true,
             "preventDuplicates": false,
-            "positionClass"    : "toast-top-right",
+            "positionClass"    : "toast-top-left",
             "onclick"          : null,
             "showDuration"     : "400",
             "hideDuration"     : "1000",

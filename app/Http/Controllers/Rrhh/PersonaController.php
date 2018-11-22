@@ -56,6 +56,9 @@ class PersonaController extends Controller
             '1' => 'NO',
             '2' => 'SI'
         ];
+
+        $this->public_dir = '/storage/rrhh/persona/certificacion';
+        $this->public_url = 'storage/rrhh/persona/certificacion/';
     }
 
     public function index()
@@ -514,9 +517,22 @@ class PersonaController extends Controller
 
                                 if($respuesta_soap['ConsultaDatoPersonaCertificacionResult']['CodigoRespuesta'] == '2')
                                 {
-                                    $iu                      = RrhhPersona::find($id);
-                                    $iu->estado_segip        = 2;
-                                    $iu->certificacion_segip = $respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                    if($request->input('tipo1') == 2)
+                                    {
+                                        if(file_exists(public_path($this->public_dir) . '/' . $consulta1->certificacion_file_segip))
+                                        {
+                                            unlink(public_path($this->public_dir) . '/' . $consulta1->certificacion_file_segip);
+                                        }
+                                    }
+
+                                    $file_name = uniqid('certificacion_segip_', true) . ".pdf";
+                                    $file      = public_path($this->public_dir) . "/" . $file_name;
+                                    file_put_contents($file, base64_decode($respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion']));
+
+                                    $iu                           = RrhhPersona::find($id);
+                                    $iu->estado_segip             = 2;
+                                    $iu->certificacion_segip      = $respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                    $iu->certificacion_file_segip = $file_name;
                                     $iu->save();
 
                                     if($request->input('tipo1') == 1)
@@ -609,7 +625,7 @@ class PersonaController extends Controller
 
                         if($consulta1['f_nacimiento'] != '')
                         {
-                            if($consulta1->updated_at <= '2018-11-22 09:00:00')
+                            if($consulta1->updated_at <= '2018-11-22 15:00:00')
                             {
                                 $cliente = new nusoap_client(env('SEGIP_RUTA'), true);
 
@@ -664,9 +680,22 @@ class PersonaController extends Controller
                                     //     exit;
                                     // }
 
-                                    $iu                      = RrhhPersona::find($id);
-                                    $iu->estado_segip        = 2;
-                                    $iu->certificacion_segip = $respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                    if($consulta1->certificacion_file_segip != '')
+                                    {
+                                        if(file_exists(public_path($this->public_dir) . '/' . $consulta1->certificacion_file_segip))
+                                        {
+                                            unlink(public_path($this->public_dir) . '/' . $consulta1->certificacion_file_segip);
+                                        }
+                                    }
+
+                                    $file_name = uniqid('certificacion_segip_', true) . ".pdf";
+                                    $file      = public_path($this->public_dir) . "/" . $file_name;
+                                    file_put_contents($file, base64_decode($respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion']));
+
+                                    $iu                           = RrhhPersona::find($id);
+                                    $iu->estado_segip             = 2;
+                                    $iu->certificacion_segip      = $respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                    $iu->certificacion_file_segip = $file_name;
                                     $iu->save();
 
                                     $respuesta['pdf'] .= $respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
@@ -823,17 +852,17 @@ class PersonaController extends Controller
                             $file = "certificacion_segip_" . date('Y-m-d_H-i-s') . ".pdf";
                             file_put_contents($file, $segip_pdf);
 
-                            if (file_exists($file)) {
-                                header('Content-Description: File Transfer');
-                                header('Content-Type: application/octet-stream');
-                                header('Content-Disposition: attachment; filename="'.basename($file).'"');
-                                header('Expires: 0');
-                                header('Cache-Control: must-revalidate');
-                                header('Pragma: public');
-                                header('Content-Length: ' . filesize($file));
-                                readfile($file);
-                                exit;
-                            }
+                            // if (file_exists($file)) {
+                            //     header('Content-Description: File Transfer');
+                            //     header('Content-Type: application/octet-stream');
+                            //     header('Content-Disposition: attachment; filename="'. basename($file) . '"');
+                            //     header('Expires: 0');
+                            //     header('Cache-Control: must-revalidate');
+                            //     header('Pragma: public');
+                            //     header('Content-Length: ' . filesize($file));
+                            //     readfile($file);
+                            //     exit;
+                            // }
                         }
                         else
                         {
@@ -889,6 +918,7 @@ class PersonaController extends Controller
                         $tabla1.celular,
 
                         $tabla1.estado_segip,
+                        $tabla1.certificacion_file_segip,
 
                         $tabla1.created_at,
                         $tabla1.updated_at,
@@ -1006,7 +1036,7 @@ class PersonaController extends Controller
                                     {
                                         $sheet->getCell('C' . $c)
                                             ->getHyperlink()
-                                            ->setUrl(url("persona/reportes?tipo=1&id=" . $row1['id']))
+                                            ->setUrl(url($this->public_url . $row1['certificacion_file_segip']))
                                             ->setTooltip('Haga clic aquí para acceder al PDF.');
                                     }
 
