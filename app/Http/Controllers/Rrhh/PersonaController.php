@@ -519,9 +519,13 @@ class PersonaController extends Controller
                                 {
                                     if($request->input('tipo1') == 2)
                                     {
-                                        if(file_exists(public_path($this->public_dir) . '/' . $consulta1->certificacion_file_segip))
+                                        if($consulta1->certificacion_file_segip != '')
                                         {
-                                            unlink(public_path($this->public_dir) . '/' . $consulta1->certificacion_file_segip);
+                                            if(file_exists(public_path($this->public_dir) . '/' . $consulta1->certificacion_file_segip))
+                                            {
+                                                unlink(public_path($this->public_dir) . '/' . $consulta1->certificacion_file_segip);
+                                            }
+
                                         }
                                     }
 
