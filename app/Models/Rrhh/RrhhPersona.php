@@ -22,7 +22,9 @@ class RrhhPersona extends Model
         'estado_civil',
         'domicilio',
         'telefono',
-        'celular'
+        'celular',
+        'estado_segip',
+        'certificacion_segip'
     ];
 
     protected $guarded  = [];

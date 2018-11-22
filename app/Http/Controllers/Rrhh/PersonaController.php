@@ -457,7 +457,7 @@ class PersonaController extends Controller
                         return json_encode($respuesta);
                     }
 
-                //=== OPERACION ===
+                // === OPERACION ===
                     $consulta1 = RrhhPersona::where('id', '=', $id)->first();
                     if(count($consulta1) > 0)
                     {
@@ -514,16 +514,33 @@ class PersonaController extends Controller
 
                                 if($respuesta_soap['ConsultaDatoPersonaCertificacionResult']['CodigoRespuesta'] == '2')
                                 {
-                                    $iu               = RrhhPersona::find($id);
-                                    $iu->estado_segip = 2;
+                                    $iu                      = RrhhPersona::find($id);
+                                    $iu->estado_segip        = 2;
+                                    $iu->certificacion_segip = $respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
                                     $iu->save();
 
-                                    $respuesta['respuesta'] .= "<br>Se VALIDO POR EL SEGIP.";
+                                    if($request->input('tipo1') == 1)
+                                    {
+                                        $respuesta['respuesta'] .= "<br>Se VALIDO POR EL SEGIP.";
+                                    }
+                                    else
+                                    {
+                                        $respuesta['titulo']     = '<div class = "text-center"><strong>ACTUALIZACION DEL CERTIFICADO SEGIP</strong></div>';
+                                        $respuesta['respuesta'] .= "<br>Se ACTUALIZO LA CERTIFICACION SEGIP.";
+                                    }
                                     $respuesta['sw']         = 1;
                                 }
                                 else
                                 {
-                                    $respuesta['respuesta'] .= "<br>No se VALIDO POR EL SEGIP.";
+                                    if($request->input('tipo1') == 1)
+                                    {
+                                        $respuesta['respuesta'] .= "<br>No se VALIDO POR EL SEGIP.";
+                                    }
+                                    else
+                                    {
+                                        $respuesta['titulo']     = '<div class = "text-center"><strong>ACTUALIZACION DEL CERTIFICADO SEGIP</strong></div>';
+                                        $respuesta['respuesta'] .= "<br>No se ACTUALIZO LA CERTIFICACION SEGIP.";
+                                    }
                                 }
                             }
                         }
@@ -592,60 +609,79 @@ class PersonaController extends Controller
 
                         if($consulta1['f_nacimiento'] != '')
                         {
-                            $cliente = new nusoap_client('http://172.27.104.3:86/ServicioExternoInstitucion.svc?singleWsdl', true);
-
-                            $error = $cliente->getError();
-                            if($error)
+                            if($consulta1->updated_at <= '2018-11-22 09:00:00')
                             {
-                                $respuesta['respuesta'] .= $error;
-                                return json_encode($respuesta);
-                            }
+                                $cliente = new nusoap_client(env('SEGIP_RUTA'), true);
 
-                            $parametros = array(
-                                'pCodigoInstitucion'       => env('SEGIP_CODIGO_INSTITUCION'),
-                                'pUsuario'                 => env('SEGIP_USUARIO'),
-                                'pContrasenia'             => env('SEGIP_CONTRASENIA'),
-                                'pClaveAccesoUsuarioFinal' => env('SEGIP_CLAVE_ACCESO_USUARIO_FINAL'),
-                                'pNumeroAutorizacion'      => '',
-                                'pNumeroDocumento'         => $n_documento_array[0],
-                                'pComplemento'             => $complemento,
-                                'pNombre'                  => $consulta1['nombre'],
-                                'pPrimerApellido'          => $consulta1['ap_paterno'],
-                                'pSegundoApellido'         => $consulta1['ap_materno'],
-                                'pFechaNacimiento'         => date("d/m/Y", strtotime($consulta1['f_nacimiento']))
-                            );
+                                $error = $cliente->getError();
+                                if($error)
+                                {
+                                    $respuesta['respuesta'] .= $error;
+                                    return json_encode($respuesta);
+                                }
 
-                            $cliente->soap_defencoding = 'UTF-8';
-                            $cliente->decode_utf8      = FALSE;
+                                $parametros = array(
+                                    'pCodigoInstitucion'       => env('SEGIP_CODIGO_INSTITUCION'),
+                                    'pUsuario'                 => env('SEGIP_USUARIO'),
+                                    'pContrasenia'             => env('SEGIP_CONTRASENIA'),
+                                    'pClaveAccesoUsuarioFinal' => env('SEGIP_CLAVE_ACCESO_USUARIO_FINAL'),
+                                    'pNumeroAutorizacion'      => '',
+                                    'pNumeroDocumento'         => $n_documento_array[0],
+                                    'pComplemento'             => $complemento,
+                                    'pNombre'                  => $consulta1['nombre'],
+                                    'pPrimerApellido'          => $consulta1['ap_paterno'],
+                                    'pSegundoApellido'         => $consulta1['ap_materno'],
+                                    'pFechaNacimiento'         => date("d/m/Y", strtotime($consulta1['f_nacimiento']))
+                                );
 
-                            $respuesta_soap = $cliente->call('ConsultaDatoPersonaCertificacion', $parametros);
+                                $cliente->soap_defencoding = 'UTF-8';
+                                $cliente->decode_utf8      = FALSE;
 
-                            $error1 = $cliente->getError();
-                            if($error1)
-                            {
-                                $respuesta['respuesta'] .= $error1;
-                                return json_encode($respuesta);
+                                $respuesta_soap = $cliente->call('ConsultaDatoPersonaCertificacion', $parametros);
+
+                                $error1 = $cliente->getError();
+                                if($error1)
+                                {
+                                    $respuesta['respuesta'] .= $error1;
+                                    return json_encode($respuesta);
+                                }
+                                else
+                                {
+                                    // $segip_pdf = base64_decode($respuesta['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion']);
+
+                                    // $file = "prueba.pdf";
+                                    // file_put_contents($file, $segip_pdf);
+
+                                    // if (file_exists($file)) {
+                                    //     header('Content-Description: File Transfer');
+                                    //     header('Content-Type: application/octet-stream');
+                                    //     header('Content-Disposition: attachment; filename="'.basename($file).'"');
+                                    //     header('Expires: 0');
+                                    //     header('Cache-Control: must-revalidate');
+                                    //     header('Pragma: public');
+                                    //     header('Content-Length: ' . filesize($file));
+                                    //     readfile($file);
+                                    //     exit;
+                                    // }
+
+                                    $iu                      = RrhhPersona::find($id);
+                                    $iu->estado_segip        = 2;
+                                    $iu->certificacion_segip = $respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                    $iu->save();
+
+                                    $respuesta['pdf'] .= $respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+
+                                    $respuesta['respuesta'] .= "Se logró genera la CERTIFICACION SEGIP.";
+                                    $respuesta['sw']         = 1;
+                                }
                             }
                             else
                             {
-                                // $segip_pdf = base64_decode($respuesta['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion']);
+                                $my_bytea  = stream_get_contents($consulta1->certificacion_segip);
+                                $my_string = pg_unescape_bytea($my_bytea);
+                                $html_data = htmlspecialchars($my_string);
 
-                                // $file = "prueba.pdf";
-                                // file_put_contents($file, $segip_pdf);
-
-                                // if (file_exists($file)) {
-                                //     header('Content-Description: File Transfer');
-                                //     header('Content-Type: application/octet-stream');
-                                //     header('Content-Disposition: attachment; filename="'.basename($file).'"');
-                                //     header('Expires: 0');
-                                //     header('Cache-Control: must-revalidate');
-                                //     header('Pragma: public');
-                                //     header('Content-Length: ' . filesize($file));
-                                //     readfile($file);
-                                //     exit;
-                                // }
-
-                                $respuesta['pdf'] .= $respuesta_soap['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                $respuesta['pdf'] .= $html_data;
 
                                 $respuesta['respuesta'] .= "Se logró genera la CERTIFICACION SEGIP.";
                                 $respuesta['sw']         = 1;

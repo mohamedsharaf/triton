@@ -553,7 +553,7 @@
                             var ase = "";
                             @if(in_array(['codigo' => '0507'], $permisos))
                                 if(val_json.estado_segip == '2'){
-                                    ase = " <button type='button' class='btn btn-xs btn-danger' title='Actualizar Certificación SEGIP' onclick=\"utilitarios([19, " + cl + "]);\"><i class='fa fa-refresh'></i></button>";
+                                    ase = " <button type='button' class='btn btn-xs btn-danger' title='Actualizar Certificación SEGIP' onclick=\"utilitarios([19, " + cl + ", '" + ci_nombre + "' ]);\"><i class='fa fa-refresh'></i></button>";
                                 }
                             @endif
 
@@ -852,7 +852,7 @@
                         valor1[1]  = url_controller + '/send_ajax';
                         valor1[2]  = 'POST';
                         valor1[3]  = true;
-                        valor1[4]  = "tipo=2&id=" + valor[1] + "&_token=" + csrf_token;
+                        valor1[4]  = "tipo=2&tipo1=1&id=" + valor[1] + "&_token=" + csrf_token;
                         valor1[5]  = 'json';
                         utilitarios(valor1);
                     }
@@ -861,6 +861,7 @@
                     }
                 });
                 break;
+
             // === CERTIFICACION SEGIP ===
             case 18:
                 swal({
@@ -880,6 +881,47 @@
                 valor1[4]  = "tipo=3&id=" + valor[1] + "&_token=" + csrf_token;
                 valor1[5]  = 'json';
                 utilitarios(valor1);
+                break;
+
+            // === VALIDAR PERSONA POR EL SEGIP ===
+            case 19:
+                swal({
+                    title             : "ACTUALIZAR CERTIFICACION DEL SEGIP",
+                    text              : "¿Está seguro de Actualizar la Certificación del SEGIP de " + valor[2] + "?",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "ACTUALIZAR",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        // swal.close();
+
+                        swal({
+                            title            : "ACTUALIZANDO CERTIFICACION SEGIP",
+                            text             : "Espere que se ACTUALICE EL CERTIFICADO SEGIP de la PERSONA.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=2&tipo1=2&id=" + valor[1] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
                 break;
 
             // === MENSAJE ERROR ===
