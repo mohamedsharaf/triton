@@ -10,6 +10,8 @@ public/storage/rrhh/funcionario/documentos/designacion/*.pdf
 public/storage/rrhh/funcionario/documentos/designacion/*.PDF
 public/storage/rrhh/salidas/solicitud_salida/*.pdf
 public/storage/rrhh/salidas/solicitud_salida/*.PDF
+public/storage/rrhh/persona/certificacion/*.pdf
+public/storage/rrhh/persona/certificacion/*.PDF
 public/storage/dpvt/solicitud/pdf/*.pdf
 public/storage/dpvt/solicitud/pdf/*.PDF
 public/hot
