@@ -722,6 +722,371 @@ class DetencionPreventivaController extends Controller
         }
     }
 
+    public function reportes(Request $request)
+    {
+        $tipo = $request->input('tipo');
+
+        switch($tipo)
+        {
+            case '10':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1 = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '2004'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                //=== CONSULTA BASE DE DATOS ===
+                    $user_id           = Auth::user()->id;
+                    $grupo_id          = Auth::user()->grupo_id;
+                    $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+                    if($grupo_id == 2 && $i4_funcionario_id != "")
+                    {
+                        $tabla1  = "Caso";
+                        $tabla2  = "Persona";
+                        $tabla3  = "Delito";
+                        $tabla4  = "EtapaCaso";
+                        $tabla5  = "CasoFuncionario";
+                        $tabla6  = "Funcionario";
+                        $tabla7  = "RecintosCarcelarios";
+                        $tabla8  = "PersonaPeligrosProcesales";
+                        $tabla9  = "PeligrosProcesales";
+                        $tabla10 = "CasoDelito";
+                        $tabla11 = "Division";
+                        $tabla12 = "Oficina";
+                        $tabla13 = "Muni";
+                        $tabla14 = "Dep";
+
+                        $select = "
+                            $tabla1.id,
+                            $tabla1.Caso,
+                            $tabla1.CodCasoJuz,
+                            $tabla1.FechaDenuncia,
+                            $tabla1.EtapaCaso,
+                            $tabla1.DelitoPrincipal,
+                            $tabla1.triton_modificado,
+                            $tabla1.n_detenidos,
+                            $tabla1.DivisionFis AS division_id,
+
+                            a2.id AS persona_id,
+                            UPPER(a2.Nombres) AS Nombres,
+                            UPPER(a2.ApPat) AS ApPat,
+                            UPPER(a2.ApMat) AS ApMat,
+                            UPPER(a2.ApEsp) AS ApEsp,
+                            a2.NumDocId,
+                            a2.FechaNac,
+                            a2.Sexo,
+                            a2.Edad,
+
+                            a2.triton_modificado AS triton_modificado_persona,
+                            a2.recinto_carcelario_id,
+                            a2.dp_estado,
+                            a2.dp_semaforo,
+                            a2.dp_semaforo_delito,
+                            a2.dp_fecha_detencion_preventiva,
+                            a2.dp_fecha_conclusion_detencion,
+                            a2.dp_etapa_gestacion_estado,
+                            a2.dp_etapa_gestacion_semana,
+                            a2.dp_enfermo_terminal_estado,
+                            a2.dp_enfermo_terminal_tipo,
+                            a2.dp_persona_mayor_65,
+                            a2.dp_madre_lactante_1,
+                            a2.dp_madre_lactante_1_fecha_nacimiento_menor,
+                            a2.dp_custodia_menor_6,
+                            a2.dp_custodia_menor_6_fecha_nacimiento_menor,
+                            a2.dp_mayor_3,
+                            a2.dp_minimo_previsto_delito,
+                            a2.dp_pena_menor_4,
+                            a2.dp_delito_pena_menor_4,
+                            a2.dp_delito_patrimonial_menor_6,
+                            a2.dp_etapa_preparatoria_dias_transcurridos_estado,
+                            a2.dp_etapa_preparatoria_dias_transcurridos_numero,
+
+                            UPPER(a3.Delito) AS delito_principal,
+
+                            UPPER(a4.EtapaCaso) AS etapa_caso,
+
+                            UPPER(a7.nombre) AS recinto_carcelario,
+
+                            a12.Oficina AS oficina_id,
+                            UPPER(a12.Division) AS division,
+
+                            a13.Muni AS municipio_id,
+                            UPPER(a13.Oficina) AS oficina,
+
+                            a14.Dep AS departamento_id,
+                            UPPER(a14.Muni) AS municipio,
+
+                            UPPER(a15.Dep) AS departamento,
+
+                            UPPER(GROUP_CONCAT(DISTINCT a6.Funcionario ORDER BY a6.Funcionario ASC SEPARATOR '::')) AS funcionario,
+
+                            UPPER(GROUP_CONCAT(DISTINCT a9.nombre ORDER BY a9.nombre ASC SEPARATOR '::')) AS peligro_procesal,
+                            UPPER(GROUP_CONCAT(DISTINCT a9.id ORDER BY a9.id ASC SEPARATOR '::')) AS peligro_procesal_id,
+
+                            UPPER(GROUP_CONCAT(DISTINCT a11.Delito ORDER BY a11.Delito ASC SEPARATOR '::')) AS delitos
+                        ";
+
+                        $group_by = "
+                            $tabla1.id,
+                            $tabla1.Caso,
+                            $tabla1.CodCasoJuz,
+                            $tabla1.FechaDenuncia,
+                            $tabla1.EtapaCaso,
+                            $tabla1.DelitoPrincipal,
+                            $tabla1.triton_modificado,
+                            $tabla1.n_detenidos,
+                            $tabla1.DivisionFis,
+
+                            a2.id,
+                            a2.Nombres,
+                            a2.ApPat,
+                            a2.ApMat,
+                            a2.ApEsp,
+                            a2.NumDocId,
+                            a2.FechaNac,
+                            a2.Sexo,
+                            a2.Edad,
+
+                            a2.triton_modificado,
+                            a2.recinto_carcelario_id,
+                            a2.dp_estado,
+                            a2.dp_semaforo,
+                            a2.dp_semaforo_delito,
+                            a2.dp_fecha_detencion_preventiva,
+                            a2.dp_fecha_conclusion_detencion,
+                            a2.dp_etapa_gestacion_estado,
+                            a2.dp_etapa_gestacion_semana,
+                            a2.dp_enfermo_terminal_estado,
+                            a2.dp_enfermo_terminal_tipo,
+                            a2.dp_persona_mayor_65,
+                            a2.dp_madre_lactante_1,
+                            a2.dp_madre_lactante_1_fecha_nacimiento_menor,
+                            a2.dp_custodia_menor_6,
+                            a2.dp_custodia_menor_6_fecha_nacimiento_menor,
+                            a2.dp_mayor_3,
+                            a2.dp_minimo_previsto_delito,
+                            a2.dp_pena_menor_4,
+                            a2.dp_delito_pena_menor_4,
+                            a2.dp_delito_patrimonial_menor_6,
+                            a2.dp_etapa_preparatoria_dias_transcurridos_estado,
+                            a2.dp_etapa_preparatoria_dias_transcurridos_numero,
+
+                            a3.Delito,
+
+                            a4.EtapaCaso,
+
+                            a7.nombre,
+
+                            a12.Oficina,
+                            a12.Division,
+
+                            a13.Muni,
+                            a13.Oficina,
+
+                            a14.Dep,
+                            a14.Muni,
+
+                            a15.Dep
+                        ";
+
+                        $array_where = "$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4 AND a5.FechaBaja IS NULL";
+                        $array_where .= " AND a5.funcionario=" . $i4_funcionario_id;
+
+                        $consulta1 = Caso::leftJoin("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
+                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.DelitoPrincipal")
+                            ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.EtapaCaso")
+                            ->leftJoin("$tabla5 AS a5", "a5.Caso", "=", "$tabla1.id")
+                            ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.Funcionario")
+                            ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a2.recinto_carcelario_id")
+                            ->leftJoin("$tabla8 AS a8", "a8.persona_id", "=", "a2.id")
+                            ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.peligro_procesal_id")
+                            ->leftJoin("$tabla10 AS a10", "a10.Caso", "=", "$tabla1.id")
+                            ->leftJoin("$tabla3 AS a11", "a11.id", "=", "a10.Delito")
+                            ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.DivisionFis")
+                            ->leftJoin("$tabla12 AS a13", "a13.id", "=", "a12.Oficina")
+                            ->leftJoin("$tabla13 AS a14", "a14.id", "=", "a13.Muni")
+                            ->leftJoin("$tabla14 AS a15", "a15.id", "=", "a14.Dep")
+                            ->whereRaw($array_where)
+                            ->select(DB::raw($select))
+                            ->orderBy("$tabla1.FechaDenuncia", "ASC")
+                            ->groupBy(DB::raw($group_by))
+                            ->get()
+                            ->toArray();
+
+                    }
+                //=== EXCEL ===
+                    if(count($consulta1) > 0)
+                    {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('personas_detenidas_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                            $excel->sheet('Personas detenidas', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'SEMAFORO',
+                                    'SEMAFORO DELITO',
+                                    'NUMERO DE DETENIDOS',
+                                    'NUMERO DE CASO',
+                                    'IANUS / NUREJ',
+                                    'DEPARTAMENTO',
+
+                                    'DOCUMENTO DE IDENTIDAD',
+                                    'APELLIDO PATERNO',
+                                    'APELLIDO MATERNO',
+                                    'APELLIDO ESPOSO',
+                                    'NOMBRE(S)',
+                                    'FECHA DE NACIMIENTO',
+                                    'EDAD',
+                                    'SEXO',
+
+                                    'FECHA DENUNCIA',
+                                    'DELITO PRINCIPAL',
+                                    'DELITOS',
+
+                                    'FECHA DE LA DETENCION',
+                                    'FECHA DE LA CONCLUSION DE LA DETENCION',
+                                    'ETAPA',
+                                    'PELIGRO PROCESAL',
+
+                                    'RECINTO CARCELARIO',
+
+                                    'FISCAL RESPONSABLE',
+
+                                    'MUNICIPIO',
+                                    'OFICINA',
+                                    'DIVISION'
+
+                                    // '¿MUJER GESTANTE?',
+                                    // 'SEMANAS DE GESTACION',
+
+                                    // '¿CON ENFERMEDAD TERMINAL?',
+                                    // 'TIPO DE ENFERMEDAD TERMINAL',
+
+                                    // '¿MAYOR A 65 AÑOS?',
+                                    // 'EDAD',
+
+                                    // '¿MADRE DE MENOR LACTANTE A UN AÑO?',
+                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+
+                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
+                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+
+                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
+                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+
+                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
+                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+
+                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
+                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+
+                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
+                                    // 'FECHA DE NACIMIENTO DEL MENOR'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    $sheet->row($c+1, [
+                                        $this->dp_semaforo[$row1["dp_semaforo"]],
+                                        $this->dp_semaforo[$row1["dp_semaforo_delito"]],
+                                        $row1["n_detenidos"],
+                                        $row1["Caso"],
+                                        $row1["CodCasoJuz"],
+                                        $row1["departamento"],
+
+                                        $row1["NumDocId"],
+                                        $row1["ApPat"],
+                                        $row1["ApMat"],
+                                        $row1["ApEsp"],
+                                        $row1["Nombres"],
+                                        $row1["FechaNac"],
+                                        $row1["Edad"],
+                                        ($row1["Sexo"] =="") ? "" : $this->sexo[$row1["Sexo"]],
+
+                                        $row1["FechaDenuncia"],
+                                        $row1["delito_principal"],
+                                        $row1["delitos"],
+
+                                        $row1["dp_fecha_detencion_preventiva"],
+                                        $row1["dp_fecha_conclusion_detencion"],
+                                        $row1["etapa_caso"],
+                                        $row1["peligro_procesal"],
+
+                                        $row1["recinto_carcelario"],
+
+                                        $row1["funcionario"],
+
+                                        $row1["municipio"],
+                                        $row1["oficina"],
+                                        $row1["division"]
+                                    ]);
+
+                                    $c++;
+
+                                    // if($row1["estado_segip"] == 2)
+                                    // {
+                                    //     $sheet->getCell('C' . $c)
+                                    //         ->getHyperlink()
+                                    //         ->setUrl(url($this->public_url . $row1['certificacion_file_segip']))
+                                    //         ->setTooltip('Haga clic aquí para acceder al PDF.');
+                                    // }
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+
+                                $sheet->cells('A2:Z' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->setAutoSize(true);
+                            });
+
+                            $excel->setActiveSheetIndex(0);
+                        })->export('xlsx');
+                    }
+                    else
+                    {
+                        return "No se encontraron resultados.";
+                    }
+                break;
+            default:
+                break;
+        }
+    }
+
     private function utilitarios($valor)
     {
         switch($valor['tipo'])
