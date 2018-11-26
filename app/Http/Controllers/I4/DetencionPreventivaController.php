@@ -1166,7 +1166,8 @@ class DetencionPreventivaController extends Controller
                                     'GESTION DE LA DENUNCIA',
                                     'FECHA DE LA DENUNCIA',
                                     'DELITO',
-                                    'VICTIMA'
+                                    'VICTIMA',
+                                    'FISCAL A CARGO'
                                 ]);
 
                                 $sheet->row(1, function($row){
@@ -1191,7 +1192,8 @@ class DetencionPreventivaController extends Controller
                                         ($row1["FechaDenuncia"] =="") ? "" : date("Y", strtotime($row1["FechaDenuncia"])),
                                         $row1["FechaDenuncia"],
                                         $row1["delito_principal"],
-                                        $this->utilitarios(["tipo" => "100", "valor1" => $row1["id"]])
+                                        $this->utilitarios(["tipo" => "100", "valor1" => $row1["id"]]),
+                                        $this->utilitarios(["tipo" => "101", "valor1" => $row1["id"]])
                                     ]);
 
                                     $c++;
@@ -1214,7 +1216,7 @@ class DetencionPreventivaController extends Controller
                                     $cells->setAlignment('center');
                                 });
 
-                                $sheet->cells('H2:H' . ($c), function($cells){
+                                $sheet->cells('H2:I' . ($c), function($cells){
                                     $cells->setAlignment('left');
                                 });
 
@@ -1313,6 +1315,46 @@ class DetencionPreventivaController extends Controller
                             else
                             {
                                 $resultado .= " :: " . $row1["Persona"];
+                            }
+                        }
+                    }
+
+                return $resultado;
+                break;
+            case '101':
+                $resultado = "";
+
+                //=== CONSULTA VICTIMA ===
+                    $tabla1 = "CasoFuncionario";
+                    $tabla2 = "Funcionario";
+
+                    $select = "
+                        $tabla1.id,
+                        UPPER(a2.Funcionario) AS Funcionario
+                    ";
+
+                    $array_where = "$tabla1.Caso = " . $valor['valor1'] . " AND $tabla1.FechaBaja IS NULL";
+
+                    $consulta1 = CasoFuncionario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.Funcionario")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderBy("$tabla1.Funcionario", "ASC")
+                        ->get()
+                        ->toArray();
+
+                    $sw = TRUE;
+                    if(count($consulta1) > 0)
+                    {
+                        foreach($consulta1 as $row1)
+                        {
+                            if($sw)
+                            {
+                                $resultado .= $row1["Funcionario"];
+                                $sw        = FALSE;
+                            }
+                            else
+                            {
+                                $resultado .= " :: " . $row1["Funcionario"];
                             }
                         }
                     }
