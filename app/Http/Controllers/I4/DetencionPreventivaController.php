@@ -1082,6 +1082,153 @@ class DetencionPreventivaController extends Controller
                         return "No se encontraron resultados.";
                     }
                 break;
+
+            case '100':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1 = array();
+
+                // === PERMISOS ===
+                    // if(!in_array(['codigo' => '2004'], $this->permisos))
+                    // {
+                    //     return "No tiene permiso para GENERAR REPORTES.";
+                    // }
+
+                //=== CONSULTA BASE DE DATOS ===
+                    // $user_id           = Auth::user()->id;
+
+                    set_time_limit(3600);
+                    ini_set('memory_limit','-1');
+
+                    $tabla1 = "Caso";
+                    $tabla2 = "Delito";
+                    $tabla3 = "EtapaCaso";
+                    $tabla4 = "Division";
+                    $tabla5 = "Oficina";
+                    $tabla6 = "Muni";
+                    $tabla7 = "Dep";
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.Caso,
+                        $tabla1.CodCasoJuz,
+                        $tabla1.FechaDenuncia,
+                        $tabla1.EtapaCaso,
+                        $tabla1.DelitoPrincipal,
+                        $tabla1.triton_modificado,
+                        $tabla1.n_detenidos,
+                        $tabla1.DivisionFis AS division_id,
+
+                        UPPER(a2.Delito) AS delito_principal,
+
+                        UPPER(a3.EtapaCaso) AS etapa_caso,
+
+                        a6.Dep AS departamento_id,
+                        UPPER(a6.Muni) AS municipio,
+
+                        UPPER(a7.Dep) AS departamento
+                    ";
+
+                    $array_where = "$tabla1.Tentativa <> 1 AND a2.id = 9028";
+
+                    $consulta1 = Caso::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.DelitoPrincipal")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.EtapaCaso")
+                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.DivisionFis")
+                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "a4.Oficina")
+                        ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.Muni")
+                        ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a6.Dep")
+                        ->whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderBy("$tabla1.FechaDenuncia", "ASC")
+                        ->get()
+                        ->toArray();
+
+
+                //=== EXCEL ===
+                    if(count($consulta1) > 0)
+                    {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('feminicidio_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                            $excel->sheet('Feminicidios', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'NUMERO DE CASO',
+                                    'DEPARTAMENTO',
+                                    'MUNICIPIO',
+                                    'ETAPA DEL CASO',
+                                    'GESTION DE LA DENUNCIA',
+                                    'FECHA DE LA DENUNCIA',
+                                    'DELITO',
+                                    'VICTIMA'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    $sheet->row($c+1, [
+                                        $row1["Caso"],
+                                        $row1["departamento"],
+                                        $row1["municipio"],
+                                        $row1["etapa_caso"],
+                                        ($row1["FechaDenuncia"] =="") ? "" : date("Y", strtotime($row1["FechaDenuncia"])),
+                                        $row1["FechaDenuncia"],
+                                        $row1["delito_principal"],
+                                        $this->utilitarios(["tipo" => "100", "valor1" => $row1["id"]])
+                                    ]);
+
+                                    $c++;
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+
+                                $sheet->cells('A2:G' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('H2:H' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->setAutoSize(true);
+                            });
+
+                            $excel->setActiveSheetIndex(0);
+                        })->export('xlsx');
+                    }
+                    else
+                    {
+                        return "No se encontraron resultados.";
+                    }
+                break;
             default:
                 break;
         }
@@ -1131,6 +1278,45 @@ class DetencionPreventivaController extends Controller
                         }
                     }
                 }
+                return $resultado;
+                break;
+
+            case '100':
+                $resultado = "";
+
+                //=== CONSULTA VICTIMA ===
+                    $tabla1 = "Persona";
+
+                    $select = "
+                        $tabla1.id,
+                        UPPER($tabla1.Persona) AS Persona
+                    ";
+
+                    $array_where = "$tabla1.EsVictima = 1 AND $tabla1.Caso = " . $valor['valor1'];
+
+                    $consulta1 = Persona::whereRaw($array_where)
+                        ->select(DB::raw($select))
+                        ->orderBy("$tabla1.Persona", "ASC")
+                        ->get()
+                        ->toArray();
+
+                    $sw = TRUE;
+                    if(count($consulta1) > 0)
+                    {
+                        foreach($consulta1 as $row1)
+                        {
+                            if($sw)
+                            {
+                                $resultado .= $row1["Persona"];
+                                $sw        = FALSE;
+                            }
+                            else
+                            {
+                                $resultado .= " :: " . $row1["Persona"];
+                            }
+                        }
+                    }
+
                 return $resultado;
                 break;
             default:
