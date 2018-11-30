@@ -323,6 +323,7 @@
 
                 $("#persona_id").val(valor[1]);
                 $("#caso_id").val(val_json.caso_id);
+                $("#estado_segip").val(val_json.estado_segip);
 
                 // === IDENTIFICACION DEL CASO ===
                     $("#CodCasoJuz").val(ret.CodCasoJuz);
@@ -391,12 +392,45 @@
                         $("#dp_etapa_gestacion_semana").val(val_json.dp_custodia_menor_6_fecha_nacimiento_menor);
                     }
 
+                    if(val_json.reincidencia == 2){
+                        $('#reincidencia').prop('checked', true);
+                    }
+
+                // === SEGIP ===
+                    if(val_json.estado_segip == 2){
+                        $("#button_segip").slideUp("slow");
+
+                        $("#NumDocId").prop('disabled', true);
+                        $("#FechaNac").prop('disabled', true);
+                        $("#ApPat").prop('disabled', true);
+                        $("#ApMat").prop('disabled', true);
+                        $("#Nombres").prop('disabled', true);
+
+                        concatenar_valores = "tipo=3&_token=" + csrf_token + "&n_documento=" + ret.NumDocId;
+
+                        var valor1    = new Array();
+                        valor1[0]     = 150;
+                        valor1[1]     = url_controller + '/send_ajax';
+                        valor1[2]     = 'POST';
+                        valor1[3]     = false;
+                        valor1[4]     = concatenar_valores;
+                        valor1[5]     = 'json';
+                        var respuesta = utilitarios(valor1);
+                    }
+
                 $('#modal_1').modal();
                 break;
             // === RESETEAR - FORMULARIO ===
             case 30:
                 $("#persona_id").val('');
                 $("#caso_id").val('');
+
+                // === PERSONA DETENIDA ===
+                    $("#NumDocId").prop('disabled', false);
+                    $("#FechaNac").prop('disabled', false);
+                    $("#ApPat").prop('disabled', false);
+                    $("#ApMat").prop('disabled', false);
+                    $("#Nombres").prop('disabled', false);
 
                 // === CARACTERISTICAS DEL DETENIDO ===
                     $('#peligro_procesal_id').select2("val", "");
@@ -419,6 +453,10 @@
 
                     $("#div_dp_etapa_gestacion_estado").slideUp("slow");
                     $("#div_dp_madre_lactante_1").slideUp("slow");
+
+                // === SEGIP ===
+                    $("#button_segip").slideDown("slow");
+                    $('#div_segip').empty();
 
                 $(form_1)[0].reset();
                 break;
@@ -459,6 +497,8 @@
                     //toolbarfilter : true,
                     colNames : [
                         "",
+
+                        "¿CON SEGIP?",
 
                         "SEMAFORO",
                         "SEMAFORO DELITO",
@@ -506,6 +546,15 @@
                             resize  : false,
                             search  : false,
                             hidden  : edit1
+                        },
+
+                        {
+                            name       : "estado_sigep",
+                            index      : "a2.estado_sigep",
+                            width      : 100,
+                            align      : "center",
+                            stype      :'select',
+                            editoptions: {value:no_si_jqgrid}
                         },
 
                         {
@@ -866,6 +915,91 @@
                     }
                 });
                 break;
+            // === CONSULTA SEGIP ===
+            case 70:
+                var concatenar_valores = '';
+
+                concatenar_valores += "tipo=2&_token=" + csrf_token;
+
+                var persona_id   = $("#persona_id").val();
+                var estado_segip = $("#estado_segip").val();
+                var NumDocId     = $("#NumDocId").val();
+                var FechaNac     = $("#FechaNac").val();
+                var ApPat        = $("#ApPat").val();
+                var ApMat        = $("#ApMat").val();
+                var Nombres      = $("#Nombres").val();
+                var sexo         = $(".sexo_id_class:checked").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(NumDocId) != ''){
+                    concatenar_valores += '&NumDocId=' + NumDocId;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo DOCUMENTO DE IDENTIDAD es obligatorio.';
+                }
+
+                if($.trim(FechaNac) != ''){
+                    concatenar_valores += '&FechaNac=' + FechaNac;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo FECHA DE NACIMIENTO es obligatorio.';
+                }
+
+                if($.trim(Nombres) != ''){
+                    concatenar_valores += '&Nombres=' + Nombres;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo NOMBRES es obligatorio.';
+                }
+
+                if(($.trim(ApPat) != '') || ($.trim(ApMat) != '')){
+                    concatenar_valores += '&ApPat=' + ApPat;
+                    concatenar_valores += '&ApMat=' + ApMat;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error += '<br>El campo APELLIDO PATERNO o APELLIDO MATERNO es obligatorio.';
+                }
+
+                concatenar_valores += '&persona_id=' + persona_id;
+                concatenar_valores += '&sexo=' + sexo;
+
+                if(valor_sw){
+                    swal({
+                        title            : "VALIDANDO CON EL SEGIP",
+                        text             : "Espere respuesta.",
+                        allowEscapeKey   : false,
+                        showConfirmButton: false,
+                        type             : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1    = new Array();
+                    valor1[0]     = 150;
+                    valor1[1]     = url_controller + '/send_ajax';
+                    valor1[2]     = 'POST';
+                    valor1[3]     = false;
+                    valor1[4]     = concatenar_valores;
+                    valor1[5]     = 'json';
+                    var respuesta = utilitarios(valor1);
+
+                    return respuesta;
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+
+                    return false;
+                }
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -931,7 +1065,66 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
+                            // === CERTIFICACION SEGIP ===
+                            case '2':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
 
+                                    $('#div_segip').empty();
+                                    $('#div_segip').append('<object id="object_pdf" data="data:application/pdf;base64,' + data.pdf + '" type="application/pdf" style="min-height:500px;width:100%"></object>');
+
+                                    $("#button_segip").slideUp("slow");
+
+                                    $("#NumDocId").prop('disabled', true);
+                                    $("#FechaNac").prop('disabled', true);
+                                    $("#ApPat").prop('disabled', true);
+                                    $("#ApMat").prop('disabled', true);
+                                    $("#Nombres").prop('disabled', true);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === MOSTRAR CERTIFICACION SEGIP ===
+                            case '3':
+                                if(data.sw === 1){
+                                    // var valor1 = new Array();
+                                    // valor1[0]  = 100;
+                                    // valor1[1]  = data.titulo;
+                                    // valor1[2]  = data.respuesta;
+                                    // utilitarios(valor1);
+
+                                    $('#div_segip').empty();
+                                    $('#div_segip').append('<object id="object_pdf" data="data:application/pdf;base64,' + data.pdf + '" type="application/pdf" style="min-height:500px;width:100%"></object>');
+                                }
+                                else if(data.sw === 0){
+                                    // var valor1 = new Array();
+                                    // valor1[0]  = 101;
+                                    // valor1[1]  = data.titulo;
+                                    // valor1[2]  = data.respuesta;
+                                    // utilitarios(valor1);
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
                             default:
                                 break;
                         }

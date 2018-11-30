@@ -210,6 +210,7 @@
                             <input type="hidden" id="persona_id" name="id" value=""/>
                             <input type="hidden" id="caso_id" name="caso_id" value=""/>
                             <input type="hidden" id="tipo1" name="tipo" value="1"/>
+                            <input type="hidden" id="estado_segip" name="estado_segip" value=""/>
                             {{ csrf_field() }}
 
                             <div class="row">
@@ -389,12 +390,32 @@
                                         <label for="dp_custodia_menor_6_fecha_nacimiento_menor" class="text-warning">Fecha de nacimiento del menor</label>
                                         <input type="text" class="form-control" id="dp_custodia_menor_6_fecha_nacimiento_menor" name="dp_custodia_menor_6_fecha_nacimiento_menor" placeholder="año-mes-día" data-mask="9999-99-99">
                                     </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Es reincidente?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="reincidencia" name="reincidencia" value="2">
+                                                <label class="onoffswitch-label" for="reincidencia">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </form>
+
+                        <div class="row">
+                            <div class="col-sm-12" id="div_segip">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="modal-footer">
+                        <button id="button_segip" type="button" class="btn btn-info" onclick="utilitarios([70]);">Validar SEGIP</button>
                         <button type="button" class="btn btn-primary" onclick="utilitarios([50]);">Guardar</button>
                         <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div>

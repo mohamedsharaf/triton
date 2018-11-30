@@ -217,7 +217,7 @@ class PersonaController extends Controller
                         $row["ap_paterno"],
                         $row["ap_materno"],
                         $row["ap_esposo"],
-                        $this->sexo[$row["sexo"]],
+                        ($row["sexo"] =="") ? "" : $this->sexo[$row["sexo"]],
                         $row["f_nacimiento"],
                         ($row["estado_civil"] =="") ? "" : $this->estado_civil[$row["estado_civil"]],
                         $row["domicilio"],
@@ -1019,7 +1019,7 @@ class PersonaController extends Controller
                                         $row1["ap_paterno"],
                                         $row1["ap_materno"],
                                         $row1["ap_esposo"],
-                                        $this->sexo[$row1["sexo"]],
+                                        ($row1["sexo"] == '')? '' : $this->sexo[$row1["sexo"]],
                                         $row1["f_nacimiento"],
                                         ($row1["estado_civil"] == '')? '' : $this->estado_civil[$row1["estado_civil"]],
 

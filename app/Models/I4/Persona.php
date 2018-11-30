@@ -128,7 +128,12 @@ class Persona extends Model
         "dp_delito_pena_menor_4",
         "dp_delito_patrimonial_menor_6",
         "dp_etapa_preparatoria_dias_transcurridos_estado",
-        "dp_etapa_preparatoria_dias_transcurridos_numero"
+        "dp_etapa_preparatoria_dias_transcurridos_numero",
+
+        "created_at",
+        "update_at",
+        "estado_segip",
+        "reincidencia"
     ];
 
     protected $guarded  = [];

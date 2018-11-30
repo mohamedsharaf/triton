@@ -10,6 +10,8 @@ use App\Models\Rrhh\RrhhLogAlerta;
 use App\Models\Rrhh\RrhhLogMarcacion;
 use App\Models\Rrhh\RrhhPersonaBiometrico;
 
+use App\Models\I4\Caso;
+
 use TADPHP\TADFactory;
 use TADPHP\TAD;
 
@@ -313,6 +315,54 @@ class Kernel extends ConsoleKernel
             $i4 = new I4Class();
             $i4->getNumeroDetenidos();
         })->hourly();
+
+        //=== OPERACION DIARIA DEL DETENIDO PREVENTIVO ===
+        // $schedule->call(function(){
+        //     $i4 = new I4Class();
+
+        //     $tabla1  = "Caso";
+        //     $tabla2  = "Persona";
+
+        //     $select = "
+        //         $tabla1.id,
+
+        //         a2.FechaNac,
+        //         a2.dp_fecha_detencion_preventiva,
+        //         a2.dp_fecha_conclusion_detencion,
+
+        //         a2.dp_semaforo,
+        //         a2.dp_etapa_gestacion_estado,
+        //         a2.dp_enfermo_terminal_estado,
+        //         a2.dp_persona_mayor_65,
+        //         a2.dp_madre_lactante_1,
+        //         a2.dp_custodia_menor_6,
+        //         a2.dp_mayor_3,
+        //         a2.dp_minimo_previsto_delito,
+        //         a2.dp_pena_menor_4,
+        //         a2.dp_delito_pena_menor_4,
+        //         a2.dp_delito_patrimonial_menor_6,
+        //         a2.dp_etapa_preparatoria_dias_transcurridos_estado
+        //     ";
+
+        //     $where = "$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4 AND a2.FechaNac IS NOT NULL";
+
+        //     $consulta1 = Caso::leftJoin("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
+        //                     ->whereRaw($where)
+        //                     ->select(DB::raw($select))
+        //                     ->get()
+        //                     ->toArray();
+
+        //     if(count($consulta1) > 0)
+        //     {
+        //         foreach ($consulta1 as $row1)
+        //         {
+        //             $persona_mayor_65 = $i4->getPersonaMayor65(["FechaNac" => $row1['FechaNac']]);
+
+        //             $iu           = Persona::find($id);
+        //         }
+        //     }
+
+        // })->daily();
     }
 
     /**

@@ -38,6 +38,11 @@ class AddColumnasToPersonaTable extends Migration
             $table->smallInteger('dp_delito_patrimonial_menor_6')->default('1')->unsigned(); // 1=>NO; 2=>SI a semaforo amarillo
             $table->smallInteger('dp_etapa_preparatoria_dias_transcurridos_estado')->default('1')->unsigned(); // 1=>NO; 2=>SI
             $table->integer('dp_etapa_preparatoria_dias_transcurridos_numero')->unsigned()->nullable(); // mayor a 5 meses semaforo amarillo, mayor a 6 meses semaforo rojo
+
+            $table->date('created_at')->nullable();
+            $table->date('update_at')->nullable();
+            $table->smallInteger('estado_segip')->default('1')->unsigned();
+            $table->smallInteger('reincidencia')->default('1')->unsigned();
         });
     }
 
@@ -72,6 +77,10 @@ class AddColumnasToPersonaTable extends Migration
             $table->dropColumn('dp_delito_patrimonial_menor_6');
             $table->dropColumn('dp_etapa_preparatoria_dias_transcurridos_estado');
             $table->dropColumn('dp_etapa_preparatoria_dias_transcurridos_numero');
+            $table->dropColumn('created_at');
+            $table->dropColumn('update_at');
+            $table->dropColumn('estado_segip');
+            $table->dropColumn('reincidencia');
         });
     }
 }

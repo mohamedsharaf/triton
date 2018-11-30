@@ -12,6 +12,7 @@ use App\Libraries\JqgridClass;
 use App\Libraries\JqgridMysqlClass;
 use App\Libraries\UtilClass;
 use App\Libraries\I4Class;
+use App\Libraries\SegipClass;
 
 use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegLdUser;
@@ -74,6 +75,9 @@ class DetencionPreventivaController extends Controller
             '1' => 'MASCULINO',
             '2' => 'FEMENINO'
         ];
+
+        $this->public_dir = '/storage/rrhh/persona/certificacion';
+        $this->public_url = 'storage/rrhh/persona/certificacion/';
     }
 
     public function index()
@@ -207,6 +211,8 @@ class DetencionPreventivaController extends Controller
                     a2.dp_delito_patrimonial_menor_6,
                     a2.dp_etapa_preparatoria_dias_transcurridos_estado,
                     a2.dp_etapa_preparatoria_dias_transcurridos_numero,
+                    a2.estado_segip,
+                    a2.reincidencia,
 
                     UPPER(a3.Delito) AS delito_principal,
 
@@ -277,6 +283,8 @@ class DetencionPreventivaController extends Controller
                     a2.dp_delito_patrimonial_menor_6,
                     a2.dp_etapa_preparatoria_dias_transcurridos_estado,
                     a2.dp_etapa_preparatoria_dias_transcurridos_numero,
+                    a2.estado_segip,
+                    a2.reincidencia,
 
                     a3.Delito,
 
@@ -396,6 +404,8 @@ class DetencionPreventivaController extends Controller
                         'dp_delito_patrimonial_menor_6'                   => $row["dp_delito_patrimonial_menor_6"],
                         'dp_etapa_preparatoria_dias_transcurridos_estado' => $row["dp_etapa_preparatoria_dias_transcurridos_estado"],
                         'dp_etapa_preparatoria_dias_transcurridos_numero' => $row["dp_etapa_preparatoria_dias_transcurridos_numero"],
+                        'estado_segip'                                    => $row["estado_segip"],
+                        'reincidencia'                                    => $row["reincidencia"],
 
                         'oficina_id'      => $row["oficina_id"],
                         'municipio_id'    => $row["municipio_id"],
@@ -407,6 +417,9 @@ class DetencionPreventivaController extends Controller
                     $respuesta['rows'][$i]['id'] = $row["persona_id"];
                     $respuesta['rows'][$i]['cell'] = array(
                         '',
+
+                        $this->utilitarios(array('tipo' => '3', 'valor1' => $row["estado_segip"], 'valor2' => $row["NumDocId"])),
+
                         $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo"])),
                         $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo_delito"])),
                         $row["n_detenidos"],
@@ -542,7 +555,7 @@ class DetencionPreventivaController extends Controller
                     //     return json_encode($respuesta);
                     // }
 
-                //=== OPERACION ===
+                // === OPERACION ===
                     $data1['caso_id']    = trim($request->input('caso_id'));
                     $data1['CodCasoJuz'] = trim($request->input('CodCasoJuz'));
 
@@ -570,6 +583,8 @@ class DetencionPreventivaController extends Controller
 
                     $data1['dp_custodia_menor_6']                        = trim($request->input('dp_custodia_menor_6'));
                     $data1['dp_custodia_menor_6_fecha_nacimiento_menor'] = trim($request->input('dp_custodia_menor_6_fecha_nacimiento_menor'));
+
+                    $data1['reincidencia'] = trim($request->input('reincidencia'));
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
                     foreach ($data1 as $llave => $valor)
@@ -654,6 +669,11 @@ class DetencionPreventivaController extends Controller
                             $iu->dp_custodia_menor_6_fecha_nacimiento_menor = NULL;
                         }
 
+                        if($data1['reincidencia'] != NULL)
+                        {
+                            $iu->reincidencia = $data1['reincidencia'];
+                        }
+
                         if($persona_mayor_65["edad_sw"])
                         {
                             $iu->dp_persona_mayor_65 = 2;
@@ -688,6 +708,266 @@ class DetencionPreventivaController extends Controller
                         $respuesta['iu']         = 2;
                     }
                 return json_encode($respuesta);
+                break;
+            // === CONSULTA SEGIP ===
+            case '2':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>VALIDACION SEGIP</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'pdf'        => ""
+                    );
+                    $error  = FALSE;
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '2003'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para la CONSULTA DEL SEGIP.";
+                        return json_encode($respuesta);
+                    }
+
+                // === REQUEST ===
+                    $id = trim($request->input('persona_id'));
+                    if($id == '')
+                    {
+                        $respuesta['respuesta'] .= "Seleccione una persona.";
+                        return json_encode($respuesta);
+                    }
+
+                    $data1['NumDocId']     = strtoupper($util->getNoAcentoNoComilla(trim($request->input('NumDocId'))));
+                    $data1['FechaNac']     = trim($request->input('FechaNac'));
+                    $data1['ApPat']        = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ApPat'))));
+                    $data1['ApMat']        = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ApMat'))));
+                    $data1['Nombres']      = strtoupper($util->getNoAcentoNoComilla(trim($request->input('Nombres'))));
+                    $data1['estado_segip'] = trim($request->input('estado_segip'));
+                    $data1['sexo']         = trim($request->input('sexo'));
+
+                // === OPERACION ===
+                    $consulta1 = RrhhPersona::where('n_documento', '=', $data1['NumDocId'])->first();
+                    if(count($consulta1) > 0)
+                    {
+                        if($consulta1->estado_segip == 1)
+                        {
+                            $n_documento_array = explode('-', $consulta1['n_documento']);
+                            if(isset($n_documento_array[1]))
+                            {
+                                $complemento =  $n_documento_array[1];
+                            }
+                            else
+                            {
+                                $complemento = "";
+                            }
+
+                            $data2 = [
+                                "n_documento"  => $n_documento_array[0],
+                                "complemento"  => $complemento,
+                                "nombre"       => $data1['Nombres'],
+                                "ap_paterno"   => $data1['ApPat'],
+                                "ap_materno"   => $data1['ApMat'],
+                                "f_nacimiento" => $data1['FechaNac']
+                            ];
+
+                            $segip = new SegipClass();
+
+                            $segip_certificacion = $segip->getCertificacionSegip($data2);
+
+                            if($segip_certificacion['sw'] == '1')
+                            {
+                                $respuesta['respuesta'] .= $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['Mensaje'];
+                                $respuesta['respuesta'] .= "<br>" . $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['DescripcionRespuesta'];
+
+                                if($segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['CodigoRespuesta'] == '2')
+                                {
+                                    $file_name = uniqid('certificacion_segip_', true) . ".pdf";
+                                    $file      = public_path($this->public_dir) . "/" . $file_name;
+                                    file_put_contents($file, base64_decode($segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion']));
+
+                                    $iu                           = RrhhPersona::find($consulta1->id);
+                                    $iu->estado_segip             = 2;
+                                    $iu->certificacion_segip      = $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                    $iu->certificacion_file_segip = $file_name;
+                                    $iu->save();
+
+                                    $iu                     = Persona::find($id);
+                                    $iu->estado_segip       = 2;
+                                    $iu->CertificacionSegip = $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                    $iu->save();
+
+                                    $respuesta['pdf'] .= $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                    $respuesta['respuesta'] .= "<br>Se VALIDO POR EL SEGIP.";
+                                    $respuesta['sw']         = 1;
+                                }
+                                else
+                                {
+                                    $respuesta['respuesta'] .= "<br>No se VALIDO POR EL SEGIP.";
+                                }
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= $segip_certificacion['respuesta'];
+                                return json_encode($respuesta);
+                            }
+                        }
+                        else
+                        {
+                            $my_bytea  = stream_get_contents($consulta1->certificacion_segip);
+                            $my_string = pg_unescape_bytea($my_bytea);
+                            $html_data = htmlspecialchars($my_string);
+
+                            $respuesta['pdf'] .= $html_data;
+
+                            $iu                     = Persona::find($id);
+                            $iu->estado_segip       = 2;
+                            $iu->CertificacionSegip = $html_data;
+                            $iu->save();
+
+                            $respuesta['respuesta'] .= "<br>Se VALIDO POR EL SEGIP.";
+                            $respuesta['sw']         = 1;
+                        }
+                    }
+                    else
+                    {
+                        $n_documento_array = explode('-', $data1['NumDocId']);
+                        if(isset($n_documento_array[1]))
+                        {
+                            $complemento =  $n_documento_array[1];
+                        }
+                        else
+                        {
+                            $complemento = "";
+                        }
+
+                        $data2 = [
+                            "n_documento"  => $n_documento_array[0],
+                            "complemento"  => $complemento,
+                            "nombre"       => $data1['Nombres'],
+                            "ap_paterno"   => $data1['ApPat'],
+                            "ap_materno"   => $data1['ApMat'],
+                            "f_nacimiento" => $data1['FechaNac']
+                        ];
+
+                        $segip = new SegipClass();
+
+                        $segip_certificacion = $segip->getCertificacionSegip($data2);
+
+                        if($segip_certificacion['sw'] == '1')
+                        {
+                            $respuesta['respuesta'] .= $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['Mensaje'];
+                            $respuesta['respuesta'] .= "<br>" . $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['DescripcionRespuesta'];
+
+                            if($segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['CodigoRespuesta'] == '2')
+                            {
+                                $file_name = uniqid('certificacion_segip_', true) . ".pdf";
+                                $file      = public_path($this->public_dir) . "/" . $file_name;
+                                file_put_contents($file, base64_decode($segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion']));
+
+                                if($data1['sexo'] == '1')
+                                {
+                                    $data1['sexo'] = 'M';
+                                }
+                                else
+                                {
+                                    $data1['sexo'] = 'F';
+                                }
+
+                                $iu                           = new RrhhPersona;
+                                $iu->n_documento              = $data1['NumDocId'];
+                                $iu->nombre                   = $data1['Nombres'];
+                                $iu->ap_paterno               = $data1['ApPat'];
+                                $iu->ap_materno               = $data1['ApMat'];
+                                $iu->f_nacimiento             = $data1['FechaNac'];
+                                $iu->sexo                     = $data1['sexo'];
+                                $iu->estado_segip             = 2;
+                                $iu->certificacion_segip      = $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                $iu->certificacion_file_segip = $file_name;
+                                $iu->save();
+
+                                $iu                     = Persona::find($id);
+                                $iu->estado_segip       = 2;
+                                $iu->CertificacionSegip = $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                $iu->save();
+
+                                $respuesta['pdf']       .= $segip_certificacion['respuesta']['ConsultaDatoPersonaCertificacionResult']['ReporteCertificacion'];
+                                $respuesta['respuesta'] .= "<br>Se VALIDO POR EL SEGIP.";
+                                $respuesta['sw']         = 1;
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "<br>No se VALIDO POR EL SEGIP.";
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= $segip_certificacion['respuesta'];
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                //=== RESPUESTA ===
+                    return json_encode($respuesta);
+                break;
+            // === CONSULTA SEGIP ===
+            case '3':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>VALIDACION SEGIP</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'pdf'        => ""
+                    );
+                    $error  = FALSE;
+
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '2003'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para la CONSULTA DEL SEGIP.";
+                        return json_encode($respuesta);
+                    }
+
+                // === REQUEST ===
+                    $data1['n_documento'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('n_documento'))));
+
+                // === OPERACION ===
+                    $consulta1 = RrhhPersona::where('n_documento', '=', $data1['n_documento'])->first();
+                    if(count($consulta1) > 0)
+                    {
+                        $my_bytea  = stream_get_contents($consulta1->certificacion_segip);
+                        $my_string = pg_unescape_bytea($my_bytea);
+                        $html_data = htmlspecialchars($my_string);
+
+                        $respuesta['pdf'] .= $html_data;
+                        $respuesta['respuesta'] .= "<br>Se VALIDO POR EL SEGIP.";
+                        $respuesta['sw']         = 1;
+                    }
+                //=== RESPUESTA ===
+                    return json_encode($respuesta);
                 break;
             // === SELECT2 DEPARTAMENTO, MUNICIPIO, RECINTO CARCELARIO  ===
             case '101':
@@ -1260,6 +1540,25 @@ class DetencionPreventivaController extends Controller
                         return($respuesta);
                         break;
                 }
+                break;
+
+            case '3':
+                $respuesta = "";
+                if($valor['valor1'] == 1)
+                {
+                    $respuesta = '<span class="label label-danger font-sm">' . $this->no_si[$valor['valor1']] . '</span>';
+                }
+                elseif($valor['valor1'] == 2)
+                {
+                    $consulta1 = RrhhPersona::where('n_documento', '=', $valor['valor2'])->first();
+                    if(count($consulta1) > 0)
+                    {
+                        $respuesta = '<a href="' . asset($this->public_url) . '/' . $consulta1->certificacion_file_segip . '" target="_blank" class="btn btn-xs btn-success" title="Clic para ver la CERTIFICACION SEGIP" style="color: #FFFFFF;">
+                            <strong>' . $this->no_si[$valor['valor1']] . '</strong>
+                        </a>';
+                    }
+                }
+                return $respuesta;
                 break;
             case '51':
                 $resultado = "";
