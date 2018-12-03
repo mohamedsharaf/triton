@@ -6,6 +6,11 @@ npm-debug.log
 public/storage/seguridad/user/image/*.jpg
 public/storage/seguridad/user/image/*.png
 public/storage/seguridad/user/image/*.gif
+public/storage/seguridad/user/image/*.jpeg
+public/storage/seguridad/user/image/*.JPG
+public/storage/seguridad/user/image/*.PNG
+public/storage/seguridad/user/image/*.GIF
+public/storage/seguridad/user/image/*.JPEG
 public/storage/rrhh/funcionario/documentos/designacion/*.pdf
 public/storage/rrhh/funcionario/documentos/designacion/*.PDF
 public/storage/rrhh/salidas/solicitud_salida/*.pdf
