@@ -556,8 +556,9 @@ class DetencionPreventivaController extends Controller
                     // }
 
                 // === OPERACION ===
-                    $data1['caso_id']    = trim($request->input('caso_id'));
-                    $data1['CodCasoJuz'] = trim($request->input('CodCasoJuz'));
+                    $data1['caso_id']      = trim($request->input('caso_id'));
+                    $data1['estado_segip'] = trim($request->input('estado_segip'));
+                    $data1['CodCasoJuz']   = trim($request->input('CodCasoJuz'));
 
                     $data1['NumDocId'] = trim($request->input('NumDocId'));
                     $data1['FechaNac'] = trim($request->input('FechaNac'));
@@ -608,14 +609,19 @@ class DetencionPreventivaController extends Controller
 
                         $persona_mayor_65 = $i4->getPersonaMayor65(["FechaNac" => $data1['FechaNac']]);
 
-                        $iu           = Persona::find($id);
-                        $iu->NumDocId = $data1['NumDocId'];
-                        $iu->FechaNac = $data1['FechaNac'];
-                        $iu->ApPat    = $data1['ApPat'];
-                        $iu->ApMat    = $data1['ApMat'];
-                        $iu->ApEsp    = $data1['ApEsp'];
-                        $iu->Nombres  = $data1['Nombres'];
-                        $iu->Sexo     = $data1['sexo_id'];
+                        $iu = Persona::find($id);
+
+                        if($data1['estado_segip'] == '1')
+                        {
+                            $iu->NumDocId = $data1['NumDocId'];
+                            $iu->FechaNac = $data1['FechaNac'];
+                            $iu->ApPat    = $data1['ApPat'];
+                            $iu->ApMat    = $data1['ApMat'];
+                            $iu->Nombres  = $data1['Nombres'];
+                        }
+
+                        $iu->ApEsp = $data1['ApEsp'];
+                        $iu->Sexo  = $data1['sexo_id'];
 
                         $iu->dp_fecha_detencion_preventiva = $data1['dp_fecha_detencion_preventiva'];
                         $iu->dp_fecha_conclusion_detencion = $data1['dp_fecha_conclusion_detencion'];
@@ -693,8 +699,8 @@ class DetencionPreventivaController extends Controller
 
                         if($data1['peligro_procesal_id'] != NULL)
                         {
-                            $peligro_procesal_id_array = explode(",", $data1['peligro_procesal_id']);
-                            foreach ($peligro_procesal_id_array as $row1)
+                            // $peligro_procesal_id_array = explode(",", $data1['peligro_procesal_id']);
+                            foreach ($data1['peligro_procesal_id'] as $row1)
                             {
                                 $iu                      = new PersonaPeligroProcesal;
                                 $iu->persona_id          = $id;
