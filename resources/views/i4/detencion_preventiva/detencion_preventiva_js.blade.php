@@ -323,7 +323,7 @@
 
                 $("#persona_id").val(valor[1]);
                 $("#caso_id").val(val_json.caso_id);
-                $("#estado_segip").val(val_json.estado_segip);
+                $("#delito_principal_id").val(val_json.delito_principal_id);
 
                 // === IDENTIFICACION DEL CASO ===
                     $("#CodCasoJuz").val(ret.CodCasoJuz);
@@ -549,8 +549,8 @@
                         },
 
                         {
-                            name       : "estado_sigep",
-                            index      : "a2.estado_sigep",
+                            name       : "estado_segip",
+                            index      : "a2.estado_segip",
                             width      : 100,
                             align      : "center",
                             stype      :'select',

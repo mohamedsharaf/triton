@@ -210,7 +210,7 @@
                             <input type="hidden" id="persona_id" name="id" value=""/>
                             <input type="hidden" id="caso_id" name="caso_id" value=""/>
                             <input type="hidden" id="tipo1" name="tipo" value="1"/>
-                            <input type="hidden" id="estado_segip" name="estado_segip" value=""/>
+                            <input type="hidden" id="delito_principal_id" name="delito_principal_id" value=""/>
                             {{ csrf_field() }}
 
                             <div class="row">

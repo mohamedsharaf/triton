@@ -33,7 +33,7 @@ class AddColumnasToPersonaTable extends Migration
 
             $table->smallInteger('dp_mayor_3')->default('1')->unsigned(); // 1=>NO; 2=>SI a semaforo rojo
             $table->smallInteger('dp_minimo_previsto_delito')->default('1')->unsigned(); // 1=>NO; 2=>SI a semaforo rojo
-            $table->smallInteger('dp_pena_menor_4')->default('1')->unsigned(); // 1=>NO; 2=>SI a semaforo rojo
+            // $table->smallInteger('dp_pena_menor_4')->default('1')->unsigned(); // 1=>NO; 2=>SI a semaforo rojo
             $table->smallInteger('dp_delito_pena_menor_4')->default('1')->unsigned(); // 1=>NO; 2=>SI a semaforo amarillo
             $table->smallInteger('dp_delito_patrimonial_menor_6')->default('1')->unsigned(); // 1=>NO; 2=>SI a semaforo amarillo
             $table->smallInteger('dp_etapa_preparatoria_dias_transcurridos_estado')->default('1')->unsigned(); // 1=>NO; 2=>SI
@@ -72,7 +72,7 @@ class AddColumnasToPersonaTable extends Migration
             $table->dropColumn('dp_custodia_menor_6_fecha_nacimiento_menor');
             $table->dropColumn('dp_mayor_3');
             $table->dropColumn('dp_minimo_previsto_delito');
-            $table->dropColumn('dp_pena_menor_4');
+            // $table->dropColumn('dp_pena_menor_4');
             $table->dropColumn('dp_delito_pena_menor_4');
             $table->dropColumn('dp_delito_patrimonial_menor_6');
             $table->dropColumn('dp_etapa_preparatoria_dias_transcurridos_estado');

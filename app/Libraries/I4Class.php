@@ -108,6 +108,24 @@ class I4Class
         return $respuesta;
     }
 
+    public function getAnioTranscurrido($data)
+    {
+        set_time_limit(3600);
+        ini_set('memory_limit','-1');
+
+        $respuesta = [
+            "anio"    => 0
+        ];
+
+        $fecha     = new DateTime($data["fecha"]);
+        $fecha_hoy = new DateTime();
+        $anios     = $fecha_hoy->diff($fecha);
+
+        $respuesta["anio"] = $anios->y;
+
+        return $respuesta;
+    }
+
     private function utilitarios($valor)
     {
         switch($valor['tipo'])
