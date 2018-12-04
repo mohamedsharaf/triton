@@ -553,8 +553,9 @@
                             index      : "a2.estado_segip",
                             width      : 100,
                             align      : "center",
-                            stype      :'select',
-                            editoptions: {value:no_si_jqgrid}
+                            stype      : 'select',
+                            editoptions: {value: no_si_jqgrid},
+                            hidden     : true
                         },
 
                         {
@@ -562,7 +563,7 @@
                             index      : "a2.dp_semaforo",
                             width      : 100,
                             align      : "center",
-                            stype      :'select',
+                            stype      : 'select',
                             editoptions: {value:dp_semaforo_jqgrid}
                         },
                         {
@@ -875,11 +876,11 @@
                             maxlength: 20
                         },
                         NumDocId:{
-                            required : true,
+                            // required : true,
                             maxlength: 20
                         },
                         FechaNac:{
-                            required: true,
+                            // required: true,
                             date    : true
                         },
                         ApPat:{

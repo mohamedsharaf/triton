@@ -126,6 +126,24 @@ class I4Class
         return $respuesta;
     }
 
+    public function getFechaTranscurrido($data)
+    {
+        set_time_limit(3600);
+        ini_set('memory_limit','-1');
+
+        $respuesta = [
+            "f_transcurrido"    => 0
+        ];
+
+        $fecha          = new DateTime($data["fecha"]);
+        $fecha_hoy      = new DateTime();
+        $f_transcurrido = $fecha_hoy->diff($fecha);
+
+        $respuesta["f_transcurrido"] = $f_transcurrido;
+
+        return $respuesta;
+    }
+
     private function utilitarios($valor)
     {
         switch($valor['tipo'])

@@ -704,9 +704,9 @@ class DetencionPreventivaController extends Controller
                             // === DELITOS CON PENAS HASTA 4 AÑOS ===
                                 if(count($consulta1) > 0)
                                 {
-                                    if($consulta1->PenaMinima != NULL)
+                                    if($consulta1->PenaMaxima != NULL)
                                     {
-                                        if($consulta1->PenaMinima <= 4)
+                                        if($consulta1->PenaMaxima <= 4)
                                         {
                                             $iu->dp_delito_pena_menor_4 = 2;
                                             $dp_semaforo                = 2;
@@ -756,6 +756,43 @@ class DetencionPreventivaController extends Controller
                                 else
                                 {
                                     $iu->dp_delito_patrimonial_menor_6 = 1;
+                                }
+
+                            // === DETENCIONES PREVENTIVAS EN ETAPA PREPARATORIA 5 MESES Y 6 MESES ===
+                                $consulta3 = Caso::where('id', $data1['caso_id'])
+                                                ->select("EtapaCaso")
+                                                ->first();
+
+                                $iu->dp_etapa_preparatoria_dias_transcurridos_estado = 1;
+                                $iu->dp_etapa_preparatoria_dias_transcurridos_numero = NULL;
+                                if(count($consulta3) > 0)
+                                {
+                                    if($consulta3->EtapaCaso == 2)
+                                    {
+                                        $consulta4 = Actividad::where('Caso', $data1['caso_id'])
+                                                        ->where('ActividadActualizaEstadoCaso', 1)
+                                                        ->where('TipoActividad', 26)
+                                                        ->select("id", "Fecha")
+                                                        ->first();
+
+                                        if(count($consulta4) > 0)
+                                        {
+                                            $f_transcurrido      = $i4->getFechaTranscurrido(["fecha" => $consulta4->Fecha]);
+                                            $meses_transcurridos = ($f_transcurrido["f_transcurrido"]->y * 12) + $f_transcurrido["f_transcurrido"]->m;
+
+                                            $iu->dp_etapa_preparatoria_dias_transcurridos_numero = $meses_transcurridos;
+                                            if(($meses_transcurridos >=5) && ($meses_transcurridos < 6))
+                                            {
+                                                $iu->dp_etapa_preparatoria_dias_transcurridos_estado = 2;
+                                                $dp_semaforo                                         = 2;
+                                            }
+                                            elseif($meses_transcurridos >= 6)
+                                            {
+                                                $iu->dp_etapa_preparatoria_dias_transcurridos_estado = 2;
+                                                $dp_semaforo                                         = 3;
+                                            }
+                                        }
+                                    }
                                 }
 
                         // === ROJO ===

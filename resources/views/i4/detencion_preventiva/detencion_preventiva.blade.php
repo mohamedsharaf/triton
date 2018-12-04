@@ -415,7 +415,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button id="button_segip" type="button" class="btn btn-info" onclick="utilitarios([70]);">Validar SEGIP</button>
+                        {{-- <button id="button_segip" type="button" class="btn btn-info" onclick="utilitarios([70]);">Validar SEGIP</button> --}}
                         <button type="button" class="btn btn-primary" onclick="utilitarios([50]);">Guardar</button>
                         <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div>
