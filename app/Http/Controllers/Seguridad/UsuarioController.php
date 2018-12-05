@@ -1171,7 +1171,7 @@ class UsuarioController extends Controller
                     $page_limit = trim($request->input('page_limit'));
 
                     $query = I4Funcionario::whereRaw("CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres)) LIKE '%$nombre%'")
-                                ->select(DB::raw("id, UPPER(CONVERT(CAST(CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres)) AS BINARY) USING utf8)) AS text"))
+                                ->select(DB::raw("id, UPPER(CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres))) AS text"))
                                 ->orderByRaw("CONCAT_WS(' ', ApPat, ApMat, Nombres) ASC")
                                 ->limit($page_limit)
                                 ->get()

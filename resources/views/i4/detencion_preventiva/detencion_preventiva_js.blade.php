@@ -30,6 +30,7 @@
     // === FORMULARIOS ===
         var form_1 = "#form_1";
         var form_2 = "#form_2";
+        var form_3 = "#form_3";
 
     // === JQGRID ===
         var jqgrid1  = "#jqgrid1";
@@ -152,9 +153,15 @@
         //=== INICIALIZAR ===
             $('#peligro_procesal_id').append(peligro_procesal_select);
 
+            $('#dp_semaforo_3').append(dp_semaforo_select);
+
+            $('#departamento_id_3').append(departamento_select);
+
         //=== SELECT2 ===
-            $("#peligro_procesal_id").select2();
+            $("#peligro_procesal_id, #dp_semaforo_3, #departamento_id_3").select2();
             $("#peligro_procesal_id").appendTo("#peligro_procesal_id_div");
+            $("#dp_semaforo_3").appendTo("#dp_semaforo_3_div");
+            $("#departamento_id_3").appendTo("#departamento_id_3_div");
 
             $('#recinto_carcelario_id').select2({
                 maximumSelectionLength: 1,
@@ -181,8 +188,56 @@
             });
             $("#recinto_carcelario_id").appendTo("#recinto_carcelario_id_div");
 
+            $('#delito_id_3').select2({
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 20,
+                            estado    : 1,
+                            tipo      : 102,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#delito_id_3").appendTo("#delito_id_3_div");
+
+            $('#funcionario_id_3').select2({
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 20,
+                            estado    : 1,
+                            tipo      : 103,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#funcionario_id_3").appendTo("#funcionario_id_3_div");
+
         //=== DATEPICKER 3 ===
-            $('#dp_fecha_detencion_preventiva, #dp_fecha_conclusion_detencion, #dp_madre_lactante_1_fecha_nacimiento_menor, #dp_custodia_menor_6_fecha_nacimiento_menor, #FechaNac').datepicker({
+            $('#dp_fecha_detencion_preventiva, #dp_fecha_conclusion_detencion, #dp_madre_lactante_1_fecha_nacimiento_menor, #dp_custodia_menor_6_fecha_nacimiento_menor, #FechaNac, #fecha_denuncia_del_3, #fecha_denuncia_al_3').datepicker({
                 startView            : 2,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -832,7 +887,13 @@
                                 win.focus();
                             }
                             else{
-                                $('#modal_2').modal();
+                                $('#dp_semaforo_3').select2("val", "");
+                                $('#departamento_id_3').select2("val", "");
+                                $('#delito_id_3').select2("val", "");
+                                $('#funcionario_id_3').select2("val", "");
+                                $(form_3)[0].reset();
+
+                                $('#modal_3').modal();
                             }
                         }
                     })
@@ -1002,7 +1063,7 @@
                     return false;
                 }
                 break;
-            // === CARACTERISTICAS DEL DETENIDO MODAL ===
+            // === MOSTRAR CARACTERISTICAS DEL DETENIDO MODAL ===
             case 80:
                 $(form_2)[0].reset();
 
@@ -1064,6 +1125,56 @@
                     }
 
                 $('#modal_2').modal();
+                break;
+            // === REPORTES EXCEL ===
+            case 81:
+                var concatenar_valores = '?tipo=11';
+
+                var dp_semaforo        = $("#dp_semaforo_3").val();
+                var departamento_id    = $("#departamento_id_3").val();
+                var delito_id          = $("#delito_id_3").val();
+                var funcionario_id     = $("#funcionario_id_3_div").val();
+                var fecha_denuncia_del = $("#fecha_denuncia_del_3").val();
+                var fecha_denuncia_al  = $("#fecha_denuncia_al_3").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(dp_semaforo) != ''){
+                    concatenar_valores += '&dp_semaforo=' + dp_semaforo;
+                }
+
+                if($.trim(departamento_id) != ''){
+                    concatenar_valores += '&departamento_id=' + departamento_id;
+                }
+
+                if($.trim(delito_id) != ''){
+                    concatenar_valores += '&delito_id=' + delito_id;
+                }
+
+                if($.trim(funcionario_id) != ''){
+                    concatenar_valores += '&funcionario_id=' + funcionario_id;
+                }
+
+                if($.trim(fecha_denuncia_del) != ''){
+                    concatenar_valores += '&fecha_denuncia_del=' + fecha_denuncia_del;
+                }
+
+                if($.trim(fecha_denuncia_al) != ''){
+                    concatenar_valores += '&fecha_denuncia_al=' + fecha_denuncia_al;
+                }
+
+                if(valor_sw){
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
                 break;
             // === MENSAJE ERROR ===
             case 100:
