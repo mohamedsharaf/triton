@@ -124,7 +124,6 @@ class Persona extends Model
         "dp_custodia_menor_6_fecha_nacimiento_menor",
         "dp_mayor_3",
         "dp_minimo_previsto_delito",
-        "dp_pena_menor_4",
         "dp_delito_pena_menor_4",
         "dp_delito_patrimonial_menor_6",
         "dp_etapa_preparatoria_dias_transcurridos_estado",

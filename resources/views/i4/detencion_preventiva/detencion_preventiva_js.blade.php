@@ -381,7 +381,7 @@
                         $("#dp_madre_lactante_1_fecha_nacimiento_menor").prop('disabled', false);
                         $("#div_dp_madre_lactante_1_fecha_nacimiento_menor").slideDown("slow");
 
-                        $("#dp_enfermo_terminal_tipo").val(val_json.dp_madre_lactante_1_fecha_nacimiento_menor);
+                        $("#dp_madre_lactante_1_fecha_nacimiento_menor").val(val_json.dp_madre_lactante_1_fecha_nacimiento_menor);
                     }
 
                     if(val_json.dp_custodia_menor_6 == 2){
@@ -389,7 +389,7 @@
                         $("#dp_custodia_menor_6_fecha_nacimiento_menor").prop('disabled', false);
                         $("#div_dp_custodia_menor_6_fecha_nacimiento_menor").slideDown("slow");
 
-                        $("#dp_etapa_gestacion_semana").val(val_json.dp_custodia_menor_6_fecha_nacimiento_menor);
+                        $("#dp_custodia_menor_6_fecha_nacimiento_menor").val(val_json.dp_custodia_menor_6_fecha_nacimiento_menor);
                     }
 
                     if(val_json.reincidencia == 2){
@@ -572,7 +572,8 @@
                             width      : 130,
                             align      : "center",
                             stype      :'select',
-                            editoptions: {value:dp_semaforo_jqgrid}
+                            editoptions: {value:dp_semaforo_jqgrid},
+                            hidden     : true
                         },
                         {
                             name       : "n_detenidos",
@@ -897,7 +898,7 @@
                             maxlength: 40
                         },
                         sexo_id:{
-                            required: true
+                            // required: true
                         },
                         "peligro_procesal_id[]":{
                             // required : true
@@ -1000,6 +1001,69 @@
 
                     return false;
                 }
+                break;
+            // === CARACTERISTICAS DEL DETENIDO MODAL ===
+            case 80:
+                $(form_2)[0].reset();
+
+                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                $('#modal_3_title').empty();
+                $('#modal_3_title').append(ret.Caso + ' - ' + $.trim(ret.ApPat + ' ' + ret.ApMat) + ' ' + ret.Nombres);
+
+                // === CARACTERISTICAS DEL DETENIDO ===
+                    if(val_json.dp_etapa_gestacion_estado == 2){
+                        $('#dp_etapa_gestacion_estado_1').prop('checked', true);
+                        $("#dp_etapa_gestacion_semana_1").val(val_json.dp_etapa_gestacion_semana);
+                    }
+
+                    if(val_json.dp_enfermo_terminal_estado == 2){
+                        $('#dp_enfermo_terminal_estado_1').prop('checked', true);
+                        $("#dp_enfermo_terminal_tipo_1").val(val_json.dp_enfermo_terminal_tipo);
+                    }
+
+                    if(val_json.dp_madre_lactante_1 == 2){
+                        $('#dp_madre_lactante_1_1').prop('checked', true);
+                        $("#dp_madre_lactante_1_fecha_nacimiento_menor_1").val(val_json.dp_madre_lactante_1_fecha_nacimiento_menor);
+                    }
+
+                    if(val_json.dp_custodia_menor_6 == 2){
+                        $('#dp_custodia_menor_6_1').prop('checked', true);
+                        $("#dp_custodia_menor_6_fecha_nacimiento_menor_1").val(val_json.dp_custodia_menor_6_fecha_nacimiento_menor);
+                    }
+
+                    if(val_json.reincidencia == 2){
+                        $('#reincidencia_1').prop('checked', true);
+                    }
+
+                    if(val_json.dp_persona_mayor_65 == 2){
+                        $('#dp_custodia_menor_6_1').prop('checked', true);
+                    }
+                    $("#edad_1").val(val_json.Edad);
+
+                    if(val_json.dp_delito_pena_menor_4 == 2){
+                        $('#dp_delito_pena_menor_4_1').prop('checked', true);
+                    }
+
+                    if(val_json.dp_delito_patrimonial_menor_6 == 2){
+                        $('#dp_delito_patrimonial_menor_6_1').prop('checked', true);
+                    }
+
+                    if(val_json.dp_etapa_preparatoria_dias_transcurridos_estado == 2){
+                        $('#dp_etapa_preparatoria_dias_transcurridos_estado_1').prop('checked', true);
+                    }
+                    $("#dp_etapa_preparatoria_dias_transcurridos_numero_1").val(val_json.dp_etapa_preparatoria_dias_transcurridos_numero);
+
+                    if(val_json.dp_mayor_3 == 2){
+                        $('#dp_mayor_3_1').prop('checked', true);
+                    }
+
+                    if(val_json.dp_minimo_previsto_delito == 2){
+                        $('#dp_minimo_previsto_delito_1').prop('checked', true);
+                    }
+
+                $('#modal_2').modal();
                 break;
             // === MENSAJE ERROR ===
             case 100:

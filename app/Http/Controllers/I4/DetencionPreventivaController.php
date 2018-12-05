@@ -206,7 +206,6 @@ class DetencionPreventivaController extends Controller
                     a2.dp_custodia_menor_6_fecha_nacimiento_menor,
                     a2.dp_mayor_3,
                     a2.dp_minimo_previsto_delito,
-                    a2.dp_pena_menor_4,
                     a2.dp_delito_pena_menor_4,
                     a2.dp_delito_patrimonial_menor_6,
                     a2.dp_etapa_preparatoria_dias_transcurridos_estado,
@@ -278,7 +277,6 @@ class DetencionPreventivaController extends Controller
                     a2.dp_custodia_menor_6_fecha_nacimiento_menor,
                     a2.dp_mayor_3,
                     a2.dp_minimo_previsto_delito,
-                    a2.dp_pena_menor_4,
                     a2.dp_delito_pena_menor_4,
                     a2.dp_delito_patrimonial_menor_6,
                     a2.dp_etapa_preparatoria_dias_transcurridos_estado,
@@ -399,7 +397,6 @@ class DetencionPreventivaController extends Controller
                         'dp_custodia_menor_6_fecha_nacimiento_menor'      => $row["dp_custodia_menor_6_fecha_nacimiento_menor"],
                         'dp_mayor_3'                                      => $row["dp_mayor_3"],
                         'dp_minimo_previsto_delito'                       => $row["dp_minimo_previsto_delito"],
-                        'dp_pena_menor_4'                                 => $row["dp_pena_menor_4"],
                         'dp_delito_pena_menor_4'                          => $row["dp_delito_pena_menor_4"],
                         'dp_delito_patrimonial_menor_6'                   => $row["dp_delito_patrimonial_menor_6"],
                         'dp_etapa_preparatoria_dias_transcurridos_estado' => $row["dp_etapa_preparatoria_dias_transcurridos_estado"],
@@ -420,8 +417,8 @@ class DetencionPreventivaController extends Controller
 
                         $this->utilitarios(array('tipo' => '3', 'valor1' => $row["estado_segip"], 'valor2' => $row["NumDocId"])),
 
-                        $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo"])),
-                        $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo_delito"])),
+                        $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo"], 'id' => $row["persona_id"])),
+                        $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo_delito"], 'id' => $row["persona_id"])),
                         $row["n_detenidos"],
                         $this->dp_estado[$row["dp_estado"]],
                         $row["Caso"],
@@ -637,52 +634,40 @@ class DetencionPreventivaController extends Controller
                         $iu->recinto_carcelario_id         = $data1['recinto_carcelario_id'];
 
                         // === AMARILLO ===
+                            $iu->dp_etapa_gestacion_estado = 1;
+                            $iu->dp_etapa_gestacion_semana = NULL;
                             if($data1['dp_etapa_gestacion_estado'] != NULL && $data1['sexo_id'] == '2')
                             {
                                 $iu->dp_etapa_gestacion_estado = $data1['dp_etapa_gestacion_estado'];
                                 $iu->dp_etapa_gestacion_semana = $data1['dp_etapa_gestacion_semana'];
                                 $dp_semaforo                   = 2;
                             }
-                            else
-                            {
-                                $iu->dp_etapa_gestacion_estado = 1;
-                                $iu->dp_etapa_gestacion_semana = NULL;
-                            }
 
+                            $iu->dp_enfermo_terminal_estado = 1;
+                            $iu->dp_enfermo_terminal_tipo   = NULL;
                             if($data1['dp_enfermo_terminal_estado'] != NULL)
                             {
                                 $iu->dp_enfermo_terminal_estado = $data1['dp_enfermo_terminal_estado'];
                                 $iu->dp_enfermo_terminal_tipo   = $data1['dp_enfermo_terminal_tipo'];
                                 $dp_semaforo                    = 2;
                             }
-                            else
-                            {
-                                $iu->dp_enfermo_terminal_estado = 1;
-                                $iu->dp_enfermo_terminal_tipo   = NULL;
-                            }
 
+                            $iu->dp_madre_lactante_1                        = 1;
+                            $iu->dp_madre_lactante_1_fecha_nacimiento_menor = NULL;
                             if($data1['dp_madre_lactante_1'] != NULL && $data1['sexo_id'] == '2')
                             {
                                 $iu->dp_madre_lactante_1                        = $data1['dp_madre_lactante_1'];
                                 $iu->dp_madre_lactante_1_fecha_nacimiento_menor = $data1['dp_madre_lactante_1_fecha_nacimiento_menor'];
                                 $dp_semaforo                                    = 2;
                             }
-                            else
-                            {
-                                $iu->dp_madre_lactante_1                        = 1;
-                                $iu->dp_madre_lactante_1_fecha_nacimiento_menor = NULL;
-                            }
 
+                            $iu->dp_custodia_menor_6                        = 1;
+                            $iu->dp_custodia_menor_6_fecha_nacimiento_menor = NULL;
                             if($data1['dp_custodia_menor_6'] != NULL)
                             {
                                 $iu->dp_custodia_menor_6                        = $data1['dp_custodia_menor_6'];
                                 $iu->dp_custodia_menor_6_fecha_nacimiento_menor = $data1['dp_custodia_menor_6_fecha_nacimiento_menor'];
                                 $dp_semaforo                                    = 2;
-                            }
-                            else
-                            {
-                                $iu->dp_custodia_menor_6                        = 1;
-                                $iu->dp_custodia_menor_6_fecha_nacimiento_menor = NULL;
                             }
 
                             if($data1['reincidencia'] != NULL)
@@ -690,18 +675,16 @@ class DetencionPreventivaController extends Controller
                                 $iu->reincidencia = $data1['reincidencia'];
                             }
 
+                            $iu->dp_persona_mayor_65 = 1;
                             if($persona_mayor_65["edad_sw"])
                             {
                                 $iu->dp_persona_mayor_65 = 2;
                                 $dp_semaforo             = 2;
                             }
-                            else
-                            {
-                                $iu->dp_persona_mayor_65 = 1;
-                            }
                             $iu->Edad = $persona_mayor_65["edad"];
 
                             // === DELITOS CON PENAS HASTA 4 AÑOS ===
+                                $iu->dp_delito_pena_menor_4 = 1;
                                 if(count($consulta1) > 0)
                                 {
                                     if($consulta1->PenaMaxima != NULL)
@@ -711,22 +694,11 @@ class DetencionPreventivaController extends Controller
                                             $iu->dp_delito_pena_menor_4 = 2;
                                             $dp_semaforo                = 2;
                                         }
-                                        else
-                                        {
-                                            $iu->dp_delito_pena_menor_4 = 1;
-                                        }
                                     }
-                                    else
-                                    {
-                                        $iu->dp_delito_pena_menor_4 = 1;
-                                    }
-                                }
-                                else
-                                {
-                                    $iu->dp_delito_pena_menor_4 = 1;
                                 }
 
                             // === DELITOS DE CONTENIDO PATRIMONIAL CON PENA HASTA 6 AÑOS ===
+                                $iu->dp_delito_patrimonial_menor_6 = 1;
                                 if(count($consulta1) > 0)
                                 {
                                     if($consulta1->PenaMaxima != NULL)
@@ -738,24 +710,8 @@ class DetencionPreventivaController extends Controller
                                                 $iu->dp_delito_patrimonial_menor_6 = 2;
                                                 $dp_semaforo                       = 2;
                                             }
-                                            else
-                                            {
-                                                $iu->dp_delito_patrimonial_menor_6 = 1;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $iu->dp_delito_patrimonial_menor_6 = 1;
                                         }
                                     }
-                                    else
-                                    {
-                                        $iu->dp_delito_patrimonial_menor_6 = 1;
-                                    }
-                                }
-                                else
-                                {
-                                    $iu->dp_delito_patrimonial_menor_6 = 1;
                                 }
 
                             // === DETENCIONES PREVENTIVAS EN ETAPA PREPARATORIA 5 MESES Y 6 MESES ===
@@ -796,6 +752,8 @@ class DetencionPreventivaController extends Controller
                                 }
 
                         // === ROJO ===
+                            $iu->dp_mayor_3                = 1;
+                            $iu->dp_minimo_previsto_delito = 1;
                             if($data1['dp_fecha_detencion_preventiva'] != NULL)
                             {
                                 $anios_transcurridos = $i4->getAnioTranscurrido(["fecha" => $data1['dp_fecha_detencion_preventiva']]);
@@ -805,10 +763,6 @@ class DetencionPreventivaController extends Controller
                                     {
                                         $iu->dp_mayor_3 = 2;
                                         $dp_semaforo    = 3;
-                                    }
-                                    else
-                                    {
-                                        $iu->dp_mayor_3 = 1;
                                     }
 
                                 // === LOS QUE PASARON EL MINIMO DE LA PENA PREVISTA ===
@@ -821,25 +775,8 @@ class DetencionPreventivaController extends Controller
                                                 $iu->dp_minimo_previsto_delito = 2;
                                                 $dp_semaforo                   = 3;
                                             }
-                                            else
-                                            {
-                                                $iu->dp_minimo_previsto_delito = 1;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $iu->dp_minimo_previsto_delito = 1;
                                         }
                                     }
-                                    else
-                                    {
-                                        $iu->dp_minimo_previsto_delito = 1;
-                                    }
-                            }
-                            else
-                            {
-                                $iu->dp_mayor_3                = 1;
-                                $iu->dp_minimo_previsto_delito = 1;
                             }
 
                         $iu->dp_semaforo = $dp_semaforo;
@@ -1243,11 +1180,11 @@ class DetencionPreventivaController extends Controller
                             a2.dp_custodia_menor_6_fecha_nacimiento_menor,
                             a2.dp_mayor_3,
                             a2.dp_minimo_previsto_delito,
-                            a2.dp_pena_menor_4,
                             a2.dp_delito_pena_menor_4,
                             a2.dp_delito_patrimonial_menor_6,
                             a2.dp_etapa_preparatoria_dias_transcurridos_estado,
                             a2.dp_etapa_preparatoria_dias_transcurridos_numero,
+                            a2.reincidencia,
 
                             UPPER(a3.Delito) AS delito_principal,
 
@@ -1313,11 +1250,11 @@ class DetencionPreventivaController extends Controller
                             a2.dp_custodia_menor_6_fecha_nacimiento_menor,
                             a2.dp_mayor_3,
                             a2.dp_minimo_previsto_delito,
-                            a2.dp_pena_menor_4,
                             a2.dp_delito_pena_menor_4,
                             a2.dp_delito_patrimonial_menor_6,
                             a2.dp_etapa_preparatoria_dias_transcurridos_estado,
                             a2.dp_etapa_preparatoria_dias_transcurridos_numero,
+                            a2.reincidencia,
 
                             a3.Delito,
 
@@ -1401,34 +1338,35 @@ class DetencionPreventivaController extends Controller
 
                                     'MUNICIPIO',
                                     'OFICINA',
-                                    'DIVISION'
+                                    'DIVISION',
 
-                                    // '¿MUJER GESTANTE?',
-                                    // 'SEMANAS DE GESTACION',
+                                    '¿ES REINCIDENTE?',
 
-                                    // '¿CON ENFERMEDAD TERMINAL?',
-                                    // 'TIPO DE ENFERMEDAD TERMINAL',
+                                    '¿MUJER GESTANTE?',
+                                    'SEMANAS DE GESTACION',
 
-                                    // '¿MAYOR A 65 AÑOS?',
-                                    // 'EDAD',
+                                    '¿CON ENFERMEDAD TERMINAL?',
+                                    'TIPO DE ENFERMEDAD TERMINAL',
 
-                                    // '¿MADRE DE MENOR LACTANTE A UN AÑO?',
-                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+                                    '¿MADRE DE MENOR LACTANTE A UN AÑO?',
+                                    'FECHA DE NACIMIENTO DEL MENOR',
 
-                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
-                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+                                    '¿CUSTODIA A MENOR DE SEIS AÑOS?',
+                                    'FECHA DE NACIMIENTO DEL MENOR',
 
-                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
-                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+                                    '¿MAYOR A 65 AÑOS?',
+                                    'EDAD',
 
-                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
-                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+                                    '¿DELITO CON PENA HASTA CUATRO AÑOS?',
 
-                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
-                                    // 'FECHA DE NACIMIENTO DEL MENOR',
+                                    '¿DELITO DE CONTENIDO PATRIMONIAL CON PENA HASTA 6 AÑOS?',
 
-                                    // 'CUSTODIA A MENOR DE SEIS AÑOS?',
-                                    // 'FECHA DE NACIMIENTO DEL MENOR'
+                                    '¿DETENCION PREVENTIVA EN ETAPA PREPARATORIA QUE TENGA MAS DE 5 MESES?',
+                                    'MESES EN ETAPA PREPARATORIA',
+
+                                    '¿DETENCION PREVENTIVA MAS DE 3 AÑOS?',
+
+                                    '¿EL DETENIDO PREVENTIVO PASO LA PENA MINIMA PREVISTA EN EL DELITO?'
                                 ]);
 
                                 $sheet->row(1, function($row){
@@ -1477,7 +1415,35 @@ class DetencionPreventivaController extends Controller
 
                                         $row1["municipio"],
                                         $row1["oficina"],
-                                        $row1["division"]
+                                        $row1["division"],
+
+                                        ($row1["reincidencia"] == 1) ? "0" : "1",
+
+                                        ($row1["dp_etapa_gestacion_estado"] == 1) ? "0" : "1",
+                                        $row1["dp_etapa_gestacion_semana"],
+
+                                        ($row1["dp_enfermo_terminal_estado"] == 1) ? "0" : "1",
+                                        $row1["dp_enfermo_terminal_tipo"],
+
+                                        ($row1["dp_madre_lactante_1"] == 1) ? "0" : "1",
+                                        $row1["dp_madre_lactante_1_fecha_nacimiento_menor"],
+
+                                        ($row1["dp_custodia_menor_6"] == 1) ? "0" : "1",
+                                        $row1["dp_custodia_menor_6_fecha_nacimiento_menor"],
+
+                                        ($row1["dp_persona_mayor_65"] == 1) ? "0" : "1",
+                                        $row1["Edad"],
+
+                                        ($row1["dp_delito_pena_menor_4"] == 1) ? "0" : "1",
+
+                                        ($row1["dp_delito_patrimonial_menor_6"] == 1) ? "0" : "1",
+
+                                        ($row1["dp_etapa_preparatoria_dias_transcurridos_estado"] == 1) ? "0" : "1",
+                                        $row1["dp_etapa_preparatoria_dias_transcurridos_numero"],
+
+                                        ($row1["dp_mayor_3"] == 1) ? "0" : "1",
+
+                                        ($row1["dp_minimo_previsto_delito"] == 1) ? "0" : "1"
                                     ]);
 
                                     $c++;
@@ -1504,7 +1470,7 @@ class DetencionPreventivaController extends Controller
                                     }
                                 }
 
-                                $sheet->cells('A2:Z' . ($c), function($cells){
+                                $sheet->cells('A2:AQ' . ($c), function($cells){
                                     $cells->setAlignment('center');
                                 });
 
@@ -1677,23 +1643,50 @@ class DetencionPreventivaController extends Controller
     {
         switch($valor['tipo'])
         {
+            // case '1':
+            //     switch($valor['valor'])
+            //     {
+            //         case '1':
+            //             $respuesta = '<span class="label label-primary font-sm">' . $this->dp_semaforo[$valor['valor']] . '</span>';
+            //             return($respuesta);
+            //             break;
+            //         case '2':
+            //             $respuesta = '<span class="label label-warning font-sm">' . $this->dp_semaforo[$valor['valor']] . '</span>';
+            //             return($respuesta);
+            //             break;
+            //         case '3':
+            //             $respuesta = '<span class="label label-danger font-sm">' . $this->dp_semaforo[$valor['valor']] . '</span>';
+            //             return($respuesta);
+            //             break;
+            //         default:
+            //             $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
+            //             return($respuesta);
+            //             break;
+            //     }
+            //     break;
             case '1':
                 switch($valor['valor'])
                 {
                     case '1':
-                        $respuesta = '<span class="label label-primary font-sm">' . $this->dp_semaforo[$valor['valor']] . '</span>';
+                        $respuesta = '<button class="btn btn-xs btn-primary" onclick="utilitarios([80, ' . $valor['id'] . ']);" title="Ver características del detenido">
+                            <strong>' . $this->dp_semaforo[$valor['valor']] . '</strong>
+                        </button>';
                         return($respuesta);
                         break;
                     case '2':
-                        $respuesta = '<span class="label label-warning font-sm">' . $this->dp_semaforo[$valor['valor']] . '</span>';
+                        $respuesta = '<button class="btn btn-xs btn-warning" onclick="utilitarios([80, ' . $valor['id'] . ']);" title="Ver características del detenido">
+                            <strong>' . $this->dp_semaforo[$valor['valor']] . '</strong>
+                        </button>';
                         return($respuesta);
                         break;
                     case '3':
-                        $respuesta = '<span class="label label-danger font-sm">' . $this->dp_semaforo[$valor['valor']] . '</span>';
+                        $respuesta = '<button class="btn btn-xs btn-danger" onclick="utilitarios([80, ' . $valor['id'] . ']);" title="Ver características del detenido">
+                            <strong>' . $this->dp_semaforo[$valor['valor']] . '</strong>
+                        </button>';
                         return($respuesta);
                         break;
                     default:
-                        $respuesta = '<span class="label label-default font-sm">SIN ESTADO</span>';
+                        $respuesta = '';
                         return($respuesta);
                         break;
                 }

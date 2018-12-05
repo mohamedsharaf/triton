@@ -422,6 +422,220 @@
                 </div>
             </div>
         </div>
+
+        <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+
+                        <h4 class="modal-title">
+                            CARACTERISTICAS DEL DETENIDO
+                        </h4>
+
+                        <small class="font-bold" id="modal_3_title">
+
+                        </small>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="form_2" role="form" action="#">
+                            <div class="row">
+
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <strong>¿Mujer gestante?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_etapa_gestacion_estado_1" name="dp_etapa_gestacion_estado_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_etapa_gestacion_estado_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group" style="padding-left: 20px;">
+                                        <label for="dp_etapa_gestacion_semana_1" class="text-warning">Semanas de gestación</label>
+                                        <input type="text" class="form-control" id="dp_etapa_gestacion_semana_1" name="dp_etapa_gestacion_semana_1" placeholder="Semanas de gestación" value="0" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Con enfermedad terminal?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_enfermo_terminal_estado_1" name="dp_enfermo_terminal_estado_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_enfermo_terminal_estado_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group" style="padding-left: 20px;">
+                                        <label for="dp_enfermo_terminal_tipo_1" class="text-warning">Tipo de enfermedad terminal</label>
+                                        <input type="text" class="form-control" id="dp_enfermo_terminal_tipo_1" name="dp_enfermo_terminal_tipo_1" placeholder="Tipo de enfermedad terminal" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Madre de menor lactante a un año?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_madre_lactante_1_1" name="dp_madre_lactante_1_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_madre_lactante_1_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group" style="padding-left: 20px;">
+                                        <label for="dp_madre_lactante_1_fecha_nacimiento_menor_1" class="text-warning">Fecha de nacimiento del menor</label>
+                                        <input type="text" class="form-control" id="dp_madre_lactante_1_fecha_nacimiento_menor_1" name="dp_madre_lactante_1_fecha_nacimiento_menor_1" placeholder="año-mes-día" data-mask="9999-99-99" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Custodia a menor de seis años?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_custodia_menor_6_1" name="dp_custodia_menor_6_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_custodia_menor_6_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group" style="padding-left: 20px;">
+                                        <label for="dp_custodia_menor_6_fecha_nacimiento_menor_1" class="text-warning">Fecha de nacimiento del menor</label>
+                                        <input type="text" class="form-control" id="dp_custodia_menor_6_fecha_nacimiento_menor_1" name="dp_custodia_menor_6_fecha_nacimiento_menor_1" placeholder="año-mes-día" data-mask="9999-99-99" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Es reincidente?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="reincidencia_1" name="reincidencia_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="reincidencia_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Mayor a 65 años?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_persona_mayor_65_1" name="dp_persona_mayor_65_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_persona_mayor_65_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group" style="padding-left: 20px;">
+                                        <label for="edad_1" class="text-warning">Edad</label>
+                                        <input type="text" class="form-control" id="edad_1" name="edad_1" placeholder="Edad del detenido preventivo" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Delito con pena hasta cuatro años?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_delito_pena_menor_4_1" name="dp_delito_pena_menor_4_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_delito_pena_menor_4_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Delito de contenido patrimonial con pena hasta 6 años?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_delito_patrimonial_menor_6_1" name="dp_delito_patrimonial_menor_6_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_delito_patrimonial_menor_6_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Detención preventiva en etapa preparatoria que tenga más de 5 meses?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_etapa_preparatoria_dias_transcurridos_estado_1" name="dp_etapa_preparatoria_dias_transcurridos_estado_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_etapa_preparatoria_dias_transcurridos_estado_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group" style="padding-left: 20px;">
+                                        <label for="dp_etapa_preparatoria_dias_transcurridos_numero_1" class="text-warning">Meses en etapa preparatoria</label>
+                                        <input type="text" class="form-control" id="dp_etapa_preparatoria_dias_transcurridos_numero_1" name="dp_etapa_preparatoria_dias_transcurridos_numero_1" placeholder="Cantidad de meses en etapa preparatoria" disabled>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿Detención preventiva más de 3 años?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_mayor_3_1" name="dp_mayor_3_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_mayor_3_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <strong>¿El detenido preventivo paso la pena mínimo previsto en el delito?</strong>
+
+                                        <span class="pull-right">
+                                            <div class="onoffswitch">
+                                                <input type="checkbox" class="onoffswitch-checkbox" id="dp_minimo_previsto_delito_1" name="dp_minimo_previsto_delito_1" value="2" disabled>
+                                                <label class="onoffswitch-label" for="dp_minimo_previsto_delito_1">
+                                                    <span class="onoffswitch-inner"></span>
+                                                    <span class="onoffswitch-switch"></span>
+                                                </label>
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 @endsection
 
 @section('js_plugins')
