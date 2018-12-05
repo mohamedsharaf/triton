@@ -1290,12 +1290,12 @@ class UsuarioController extends Controller
                         {
                             if($where_1_sw)
                             {
-                                $where_1    .= " AND ($tabla1.rol_id=" . $valor1;
+                                $where_1    .= " AND ($tabla1.grupo_id=" . $valor1;
                                 $where_1_sw = FALSE;
                             }
                             else
                             {
-                                $where_1 .= " OR $tabla1.rol_id=" . $valor1;
+                                $where_1 .= " OR $tabla1.grupo_id=" . $valor1;
                             }
                         }
                         $where_1 .= ")";
