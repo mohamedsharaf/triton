@@ -873,15 +873,15 @@
                 $(form_1).validate({
                     rules: {
                         CodCasoJuz:{
-                            // required : true,
+                            required : true,
                             maxlength: 20
                         },
                         NumDocId:{
-                            // required : true,
+                            required : true,
                             maxlength: 20
                         },
                         FechaNac:{
-                            // required: true,
+                            required: true,
                             date    : true
                         },
                         ApPat:{
@@ -901,14 +901,14 @@
                             // required: true
                         },
                         "peligro_procesal_id[]":{
-                            // required : true
+                            required : true
                         },
                         dp_fecha_detencion_preventiva:{
-                            // required: true,
+                            required: true,
                             date    : true
                         },
                         recinto_carcelario_id:{
-                            // required: true
+                            required: true
                         },
 
                         dp_enfermo_terminal_tipo:{

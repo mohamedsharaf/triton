@@ -529,28 +529,31 @@ class DetencionPreventivaController extends Controller
                     }
 
                 // === VALIDATE ===
-                    // try
-                    // {
-                    //     $validator = $this->validate($request,[
-                    //         'Muni_id'      => 'required',
-                    //         'tipo_recinto' => 'required',
-                    //         'nombre'       => 'required|max: 500'
-                    //     ],
-                    //     [
-                    //         'Muni_id.required' => 'El campo UBICACION es obligatorio.',
+                    try
+                    {
+                        $validator = $this->validate($request,[
+                            'NumDocId' => 'required',
+                            'FechaNac' => 'required',
+                            'Nombres'  => 'required|max: 500',
+                            'sexo_id'  => 'required'
+                        ],
+                        [
+                            'NumDocId.required' => 'El campo DOCUMENTO DE IDENTIDAD es obligatorio.',
 
-                    //         'tipo_recinto.required' => 'El campo TIPO DE RECINTO es obligatorio.',
+                            'FechaNac.required' => 'El campo FECHA DE NACIMIENTO es obligatorio.',
 
-                    //         'nombre.required' => 'El campo NOMBRE es obligatorio.',
-                    //         'nombre.max'     => 'El campo NOMBRE debe contener :max caracteres como máximo.'
-                    //     ]);
-                    // }
-                    // catch (Exception $e)
-                    // {
-                    //     $respuesta['error_sw'] = 2;
-                    //     $respuesta['error']    = $e;
-                    //     return json_encode($respuesta);
-                    // }
+                            'Nombres.required' => 'El campo NOMBRE es obligatorio.',
+                            'Nombres.max'     => 'El campo NOMBRE debe contener :max caracteres como máximo.',
+
+                            'sexo_id.required' => 'El campo SEXO es obligatorio.'
+                        ]);
+                    }
+                    catch (Exception $e)
+                    {
+                        $respuesta['error_sw'] = 2;
+                        $respuesta['error']    = $e;
+                        return json_encode($respuesta);
+                    }
 
                 // === OPERACION ===
                     $data1['caso_id']             = trim($request->input('caso_id'));
