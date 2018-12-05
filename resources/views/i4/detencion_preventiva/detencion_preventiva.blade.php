@@ -684,7 +684,7 @@
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label for="fecha_denuncia_del_3">Fecha denuncia del</label>
-                                                <input type="text" class="form-control" id="fecha_denuncia_del_3" name="fecha_denuncia_del_3" placeholder="Documento de identidad">
+                                                <input type="text" class="form-control" id="fecha_denuncia_del_3" name="fecha_denuncia_del_3" placeholder="año-mes-día">
                                             </div>
                                         </div>
 
