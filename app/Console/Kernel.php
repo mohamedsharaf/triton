@@ -12,6 +12,8 @@ use App\Models\Rrhh\RrhhLogMarcacion;
 use App\Models\Rrhh\RrhhPersonaBiometrico;
 
 use App\Models\I4\Caso;
+use App\Models\I4\Delito;
+use App\Models\I4\Actividad;
 
 use TADPHP\TADFactory;
 use TADPHP\TAD;

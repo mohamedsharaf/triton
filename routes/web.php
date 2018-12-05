@@ -67,6 +67,7 @@
     Route::get('/usuario', 'Seguridad\UsuarioController@index')->name('usuario');
         Route::match(["get", "post"], '/usuario/view_jqgrid', 'Seguridad\UsuarioController@view_jqgrid');
         Route::post('/usuario/send_ajax', 'Seguridad\UsuarioController@send_ajax');
+        Route::match(["get", "post"], '/usuario/reportes', 'Seguridad\UsuarioController@reportes');
 
 //=== UNIDADES DESCONCENTRADAS ===
     Route::get('/unidad_desconcentrada', 'Institucion\UnidadDesconcentradaController@index')->name('unidad_desconcentrada');
