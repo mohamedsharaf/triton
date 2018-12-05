@@ -121,6 +121,7 @@
 
     // === FORMULARIO 1 ===
         var form_1 = "#form_1";
+        var form_2 = "#form_2";
 
     // === ESTADO ===
         var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
@@ -162,13 +163,15 @@
         });
 
     // === LUGAR DE DEPENDENCIA ===
-        var lugar_dependencia_json   = $.parseJSON('{!! json_encode($lugar_dependencia_array) !!}');
-        var lugar_dependencia_select = '';
-        var lugar_dependencia_jqgrid = ':Todos';
+        var lugar_dependencia_json     = $.parseJSON('{!! json_encode($lugar_dependencia_array) !!}');
+        var lugar_dependencia_select   = '';
+        var lugar_dependencia_1_select = '';
+        var lugar_dependencia_jqgrid   = ': Todos';
 
         $.each(lugar_dependencia_json, function(index, value) {
-            lugar_dependencia_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-            lugar_dependencia_jqgrid += ';' + value.nombre + ':' + value.nombre;
+            lugar_dependencia_select   += '<option value        = "' + value.id + '">' + value.nombre + '</option>';
+            lugar_dependencia_1_select += '<option value        = "' + value.nombre + '">' + value.nombre + '</option>';
+            lugar_dependencia_jqgrid   += ';' + value.nombre + ': ' + value.nombre;
         });
 
     // === DROPZONE ===
@@ -225,17 +228,21 @@
             });
             $("#i4_funcionario_id").appendTo("#i4_funcionario_id_div");
 
-            $('#rol_id').append(rol_select);
+            $('#rol_id, #rol_id_1').append(rol_select);
             $("#rol_id").select2({
                 maximumSelectionLength: 1
             });
             $("#rol_id").appendTo("#rol_id_div");
 
             $('#lugar_dependencia').append(lugar_dependencia_select);
-            $("#lugar_dependencia").select2();
+            $('#lugar_dependencia_1').append(lugar_dependencia_1_select);
+            $("#lugar_dependencia, #rol_id_1, #grupo_id_1, #lugar_dependencia_1").select2();
             $("#lugar_dependencia").appendTo("#lugar_dependencia_div");
+            $("#rol_id_1").appendTo("#rol_id_1_div");
+            $("#grupo_id_1").appendTo("#grupo_id_1_div");
+            $("#lugar_dependencia_1").appendTo("#lugar_dependencia_div");
 
-            $('#grupo_id').append(grupo_select);
+            $('#grupo_id, #grupo_id_1').append(grupo_select);
             $("#grupo_id").select2({
                 maximumSelectionLength: 1
             });
@@ -510,20 +517,25 @@
                     }
                 })
                 @endif
-                // .navSeparatorAdd(pjqgrid1,{
-                //   sepclass : "ui-separator"
-                // })
-                // .navButtonAdd(pjqgrid1,{
-                //   "id"          : "print1",
-                //   caption       : "",
-                //   title         : 'Reportes',
-                //   buttonicon    : "ui-icon ui-icon-print",
-                //   onClickButton : function(){
-                //       var valor1 = new Array();
-                //       valor1[0]  = 13;
-                //       utilitarios(valor1);
-                //   }
-                // })
+                @if(in_array(['codigo' => '0104'], $permisos))
+                    .navSeparatorAdd(pjqgrid1,{
+                        sepclass : "ui-separator"
+                    })
+                    .navButtonAdd(pjqgrid1,{
+                        "id"          : "print1",
+                        caption       : "",
+                        title         : 'Reportes',
+                        buttonicon    : "ui-icon ui-icon-print",
+                        onClickButton : function(){
+                            $('#rol_id_1').select2("val", "");
+                            $('#grupo_id_1').select2("val", "");
+                            $('#lugar_dependencia_1').select2("val", "");
+                            $(form_2)[0].reset();
+
+                            $('#modal_2').modal();
+                        }
+                    })
+                @endif
                 ;
                 break;
             // === ABRIR MODAL ===
@@ -753,6 +765,45 @@
                         this.removeAllFiles(true);
                     }
                 });
+                break;
+            // === REPORTES EXCEL ===
+            case 18:
+                var concatenar_valores = '?tipo=10';
+
+                var rol               = $("#rol_id_1").val();
+                var grupo             = $("#grupo_id_1").val();
+                var lugar_dependencia = $("#lugar_dependencia_1").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(rol) != ''){
+                    concatenar_valores += '&rol=' + rol;
+                }
+
+                if($.trim(grupo) != ''){
+                    concatenar_valores += '&grupo=' + grupo;
+                }
+
+                if($.trim(lugar_dependencia) != ''){
+                    concatenar_valores += '&lugar_dependencia=' + lugar_dependencia;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error = 'El campo LUGARES DE DEPENDENCIA es obligatorio.';
+                }
+
+                if(valor_sw){
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
                 break;
             // === MENSAJE ERROR ===
             case 100:

@@ -202,6 +202,55 @@
           </div>
         </div>
       </div>
+
+      <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+
+                    <h4 class="modal-title">
+                        REPORTE USUARIO
+                    </h4>
+                </div>
+
+                <div class="modal-body">
+                    <form id="form_2" role="form" action="#">
+                        <div class="row">
+
+                            <div class="col-sm-12">
+                                <div id="rol_id_1_div" class="form-group">
+                                    <label for="rol_id_1">Rol</label>
+                                    <select name="rol_id_1[]" id="rol_id_1" data-placeholder="Rol del usuario" multiple="multiple" style="width: 100%;">
+                                    </select>
+                                </div>
+
+                                <div id="grupo_id_div" class="form-group">
+                                    <label for="grupo_id_1">Grupo</label>
+                                    <select name="grupo_id_1[]" id="grupo_id_1" data-placeholder="Grupo del usuario" multiple="multiple" style="width: 100%;">
+                                    </select>
+                                </div>
+
+                                <div id="lugar_dependencia_div" class="form-group">
+                                    <label for="lugar_dependencia_1">Lugares de dependencia</label>
+                                    <select name="lugar_dependencia_1[]" id="lugar_dependencia_1" data-placeholder="Lugar de dependencia" multiple="multiple" style="width: 100%;">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="utilitarios([18]);">Excel</button>
+                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js_plugins')

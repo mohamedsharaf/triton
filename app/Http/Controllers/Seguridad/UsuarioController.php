@@ -27,6 +27,8 @@ use App\Mail\DatoUsuarioMail;
 
 use App\Models\I4\Funcionario AS I4Funcionario;
 
+use Maatwebsite\Excel\Facades\Excel;
+
 use Exception;
 
 class UsuarioController extends Controller
@@ -1216,6 +1218,232 @@ class UsuarioController extends Controller
         }
     }
 
+    public function reportes(Request $request)
+    {
+        $tipo = $request->input('tipo');
+
+        switch($tipo)
+        {
+            case '10':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1 = array();
+
+                // === PERMISOS ===
+                    if(!in_array(['codigo' => '0104'], $this->permisos))
+                    {
+                        return "No tiene permiso para GENERAR REPORTES.";
+                    }
+
+                // === ANALISIS DE LAS VARIABLES ===
+                    if( ! ($request->has('lugar_dependencia')))
+                    {
+                        return "LUGAR DE DEPENDENCIA es obligatorio.";
+                    }
+
+                //=== CARGAR VARIABLES ===
+                    $data1['rol']               = $request->input('rol');
+                    $data1['grupo']             = $request->input('grupo');
+                    $data1['lugar_dependencia'] = $request->input('lugar_dependencia');
+
+                //=== CONSULTA BASE DE DATOS ===
+                    $tabla1 = "users";
+                    $tabla2 = "rrhh_personas";
+                    $tabla3 = "seg_roles";
+                    $tabla4 = "seg_grupos";
+
+                    $where = "TRUE";
+                    if($request->has('rol'))
+                    {
+                        $where_1    = "";
+                        $where_1_sw = TRUE;
+                        $rol_array  = explode(",", $data1['rol']);
+                        foreach ($rol_array as $valor1)
+                        {
+                            if($where_1_sw)
+                            {
+                                $where_1    .= " AND ($tabla1.rol_id=" . $valor1;
+                                $where_1_sw = FALSE;
+                            }
+                            else
+                            {
+                                $where_1 .= " OR $tabla1.rol_id=" . $valor1;
+                            }
+                        }
+                        $where_1 .= ")";
+                        $where   .= $where_1;
+                    }
+
+                    if($request->has('grupo'))
+                    {
+                        $where_1     = "";
+                        $where_1_sw  = TRUE;
+                        $grupo_array = explode(",", $data1['grupo']);
+                        foreach ($grupo_array as $valor1)
+                        {
+                            if($where_1_sw)
+                            {
+                                $where_1    .= " AND ($tabla1.rol_id=" . $valor1;
+                                $where_1_sw = FALSE;
+                            }
+                            else
+                            {
+                                $where_1 .= " OR $tabla1.rol_id=" . $valor1;
+                            }
+                        }
+                        $where_1 .= ")";
+                        $where   .= $where_1;
+                    }
+
+                    if($request->has('lugar_dependencia'))
+                    {
+                        $where_1                 = "";
+                        $where_1_sw              = TRUE;
+                        $lugar_dependencia_array = explode(",", $data1['lugar_dependencia']);
+                        foreach ($lugar_dependencia_array as $valor1)
+                        {
+                            if($where_1_sw)
+                            {
+                                $where_1    .= " AND ($tabla1.lugar_dependencia ILIKE '%" . $valor1 . "%'";
+                                $where_1_sw = FALSE;
+                            }
+                            else
+                            {
+                                $where_1 .= " OR $tabla1.lugar_dependencia ILIKE '%" . $valor1 . "%'";
+                            }
+                        }
+                        $where_1 .= ")";
+                        $where   .= $where_1;
+                    }
+
+                    $select = "
+                        $tabla1.id,
+                        $tabla1.rol_id,
+                        $tabla1.persona_id,
+                        $tabla1.grupo_id,
+                        $tabla1.estado,
+                        $tabla1.name,
+                        $tabla1.imagen,
+                        $tabla1.email,
+                        $tabla1.lugar_dependencia,
+                        $tabla1.i4_funcionario_id,
+                        $tabla1.i4_funcionario_id_estado,
+
+                        a2.n_documento,
+                        a2.nombre,
+                        a2.ap_paterno,
+                        a2.ap_materno,
+                        a2.ap_esposo,
+
+                        a3.nombre AS rol,
+
+                        a4.nombre AS grupo
+                    ";
+
+                    $consulta1 = User::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.persona_id")
+                                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.rol_id")
+                                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.grupo_id")
+                                    ->whereRaw($where)
+                                    ->select(DB::raw($select))
+                                    ->orderBy("a2.ap_paterno", "ASC")
+                                    ->orderBy("a2.ap_materno", "ASC")
+                                    ->orderBy("a2.nombre", "ASC")
+                                    ->get()
+                                    ->toArray();
+
+                //=== EXCEL ===
+                    if(count($consulta1) > 0)
+                    {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+                        Excel::create('usuario_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                            $excel->sheet('Usuarios', function($sheet) use($consulta1){
+                                $sheet->row(1, [
+                                    'ESTADO',
+                                    '¿I4?',
+
+                                    'CI',
+                                    'NOMBRE COMPLETO',
+
+                                    'CORREO ELECTRONICO',
+                                    'ROL',
+                                    'GRUPO',
+                                    'LUGAR DE DEPENDENCIA'
+                                ]);
+
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                $sw = FALSE;
+                                $c  = 1;
+
+                                foreach($consulta1 as $index1 => $row1)
+                                {
+                                    $nombre_completo = trim($row1["ap_paterno"] . " " . $row1["ap_materno"]) . " " . $row1["nombre"];
+
+                                    $sheet->row($c+1, [
+                                        $this->estado[$row1["estado"]],
+                                        $this->no_si[$row1["i4_funcionario_id_estado"]],
+
+                                        $row1["n_documento"],
+                                        $nombre_completo,
+
+                                        $row1["email"],
+                                        $row1["rol"],
+                                        $row1["grupo"],
+                                        $this->utilitarios(array('tipo' => '5', 'd_json' => $row1["lugar_dependencia"]))
+                                    ]);
+
+                                    $c++;
+
+                                    if($sw)
+                                    {
+                                        $sheet->row($c, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+                                $sheet->cells('A2:B' . ($c), function($cells){
+                                    $cells->setAlignment('center');
+                                });
+
+                                $sheet->cells('C2:F' . ($c), function($cells){
+                                    $cells->setAlignment('left');
+                                });
+
+                                $sheet->setAutoSize(true);
+                            });
+                        })->export('xlsx');
+                    }
+                    else
+                    {
+                        return "No se encontraron resultados.";
+                    }
+                break;
+            default:
+                break;
+        }
+    }
+
     private function utilitarios($valor)
     {
         switch($valor['tipo'])
@@ -1283,6 +1511,26 @@ class UsuarioController extends Controller
                         return($respuesta);
                         break;
                 }
+                break;
+            case '5':
+                $respuesta = '';
+                if($valor['d_json'] != '')
+                {
+                    $sw = TRUE;
+                    foreach(json_decode($valor['d_json']) as $valor)
+                    {
+                        if($sw)
+                        {
+                            $respuesta .= $valor;
+                            $sw = FALSE;
+                        }
+                        else
+                        {
+                            $respuesta .= ", " . $valor;
+                        }
+                    }
+                }
+                return($respuesta);
                 break;
             default:
                 break;

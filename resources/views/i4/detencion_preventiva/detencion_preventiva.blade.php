@@ -165,7 +165,7 @@
                         <h5 style="margin-top: 6px;"><i class="fa fa-table"></i> {{ $title_table }}</h5>
 
                         <div class="ibox-tools" style="margin-top: 4px;">
-                            <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
+                            <a href="https://docs.google.com/document/d/1el2OIH_AnXndBSTiH5YCujQdRJ1HL4V3y04f1DhAYqI/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
                                 <strong>Manual</strong>
                             </a>
 
