@@ -362,7 +362,7 @@ class Kernel extends ConsoleKernel
                 {
                     foreach ($consulta1 as $row1)
                     {
-                        $consulta2 = Delito::where('id', $data1['delito_principal_id'])
+                        $consulta2 = Delito::where('id', $row1['delito_principal_id'])
                                         ->select("Delito", "PenaMinima", "PenaMaxima", "ClaseDelito")
                                         ->first();
 
