@@ -407,7 +407,7 @@ class Kernel extends ConsoleKernel
 
                             // === DELITOS CON PENAS HASTA 4 AÑOS ===
                                 $iu->dp_delito_pena_menor_4 = 1;
-                                if(count($consulta2) > 0)
+                                if($consulta2)
                                 {
                                     if($consulta2->PenaMaxima != NULL)
                                     {
@@ -421,7 +421,7 @@ class Kernel extends ConsoleKernel
 
                             // === DELITOS DE CONTENIDO PATRIMONIAL CON PENA HASTA 6 AÑOS ===
                                 $iu->dp_delito_patrimonial_menor_6 = 1;
-                                if(count($consulta2) > 0)
+                                if($consulta2)
                                 {
                                     if($consulta2->PenaMaxima != NULL)
                                     {
@@ -447,7 +447,7 @@ class Kernel extends ConsoleKernel
                                                     ->select("id", "Fecha")
                                                     ->first();
 
-                                    if(count($consulta3) > 0)
+                                    if($consulta3)
                                     {
                                         $f_transcurrido      = $i4->getFechaTranscurrido(["fecha" => $consulta3->Fecha]);
                                         $meses_transcurridos = ($f_transcurrido["f_transcurrido"]->y * 12) + $f_transcurrido["f_transcurrido"]->m;
@@ -481,7 +481,7 @@ class Kernel extends ConsoleKernel
                                     }
 
                                 // === LOS QUE PASARON EL MINIMO DE LA PENA PREVISTA ===
-                                    if(count($consulta2) > 0)
+                                    if($consulta2)
                                     {
                                         if($consulta2->PenaMinima != NULL)
                                         {
@@ -500,7 +500,7 @@ class Kernel extends ConsoleKernel
                     }
                 }
 
-            })->daily();
+            })->dailyAt('08:30');
     }
 
     /**
