@@ -15,6 +15,7 @@ use App\Models\Rrhh\RrhhPersona;
 use App\Models\I4\Caso;
 use App\Models\I4\Delito;
 use App\Models\I4\Actividad;
+use App\Models\I4\Persona;
 
 use TADPHP\TADFactory;
 use TADPHP\TAD;
@@ -500,7 +501,7 @@ class Kernel extends ConsoleKernel
                     }
                 }
 
-            })->dailyAt('08:30');
+            })->dailyAt('09:00');
     }
 
     /**
