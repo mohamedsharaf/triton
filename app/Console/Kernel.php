@@ -10,6 +10,7 @@ use App\Models\Rrhh\RrhhBiometrico;
 use App\Models\Rrhh\RrhhLogAlerta;
 use App\Models\Rrhh\RrhhLogMarcacion;
 use App\Models\Rrhh\RrhhPersonaBiometrico;
+use App\Models\Rrhh\RrhhPersona;
 
 use App\Models\I4\Caso;
 use App\Models\I4\Delito;
