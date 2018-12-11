@@ -455,6 +455,78 @@ class DetencionPreventivaController extends Controller
                 }
                 return json_encode($respuesta);
                 break;
+            case '2':
+                if($request->has('caso_id'))
+                {
+                    $caso_id = $request->input('caso_id');
+                }
+
+                $jqgrid = new JqgridClass($request);
+
+                $tabla1 = "Persona";
+                $tabla2 = "EstadoLibertad";
+
+                $select = "
+                    $tabla1.id,
+                    UPPER($tabla1.Nombres) AS Nombres,
+                    UPPER($tabla1.ApPat) AS ApPat,
+                    UPPER($tabla1.ApMat) AS ApMat,
+                    $tabla1.NumDocId,
+                    $tabla1.EstadoLibertad AS estado_libertad_id,
+
+                    UPPER(a2.EstadoLibertad) AS estado_libertad
+                ";
+
+                $array_where = "Persona.EsDenunciado=1 AND Persona.Caso=" . $caso_id;
+
+                $array_where .= $jqgrid->getWhere();
+
+                $count = Persona::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.EstadoLibertad")
+                    ->whereRaw($array_where)
+                    ->count();
+
+                $limit_offset = $jqgrid->getLimitOffset($count);
+
+                $query = Persona::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.EstadoLibertad")
+                    ->whereRaw($array_where)
+                    ->select(DB::raw($select))
+                    ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
+                    ->offset($limit_offset['start'])
+                    ->limit($limit_offset['limit'])
+                    ->get()
+                    ->toArray();
+
+                $respuesta = [
+                    'page'    => $limit_offset['page'],
+                    'total'   => $limit_offset['total_pages'],
+                    'records' => $count
+                ];
+
+                $i = 0;
+                foreach ($query as $row)
+                {
+                    $val_array = array(
+                        'estado_libertad_id' => $row["estado_libertad_id"]
+                    );
+
+                    $respuesta['rows'][$i]['id'] = $row["id"];
+                    $respuesta['rows'][$i]['cell'] = array(
+                        '',
+
+                        $row["estado_libertad"],
+
+                        $row["NumDocId"],
+                        $row["ApPat"],
+                        $row["ApMat"],
+                        $row["Nombres"],
+
+                        //=== VARIABLES OCULTOS ===
+                            json_encode($val_array)
+                    );
+                    $i++;
+                }
+                return json_encode($respuesta);
+                break;
             default:
                 $respuesta = [
                     'page'    => 0,
@@ -1066,6 +1138,54 @@ class DetencionPreventivaController extends Controller
                 //=== RESPUESTA ===
                     return json_encode($respuesta);
                 break;
+            // === ELIMINAR FUNCIONARIO DEL CARGO ===
+            case '4':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>ALERTA</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo
+                    );
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if(!in_array(['codigo' => '2003'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para cambiar el ESTADO DE LIBERTAD.";
+                        return json_encode($respuesta);
+                    }
+
+                // === CONSULTA ===
+                    $consulta2 = Persona::where('id', '=', $id)
+                            ->count();
+
+                //=== OPERACION ===
+                    if($consulta2 == '1')
+                    {
+                        $iu                 = Persona::find($id);
+                        $iu->EstadoLibertad = 4;
+                        $iu->save();
+
+                        $respuesta['sw'] = 1;
+                        $respuesta['respuesta'] .= "Se cambio el estado de liberdad.";
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "No existe la persona.";
+                    }
+
+                return json_encode($respuesta);
+                break;
             // === SELECT2 DEPARTAMENTO, MUNICIPIO, RECINTO CARCELARIO  ===
             case '101':
                 if($request->has('q'))
@@ -1147,6 +1267,43 @@ class DetencionPreventivaController extends Controller
                             ]
                         ];
                         return json_encode($respuesta);
+                    }
+                }
+                break;
+            // === SELECT2 CASO ===
+            case '104':
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $grupo_id          = Auth::user()->grupo_id;
+                    $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+
+                    $array_where = "Caso.EstadoCaso=1 AND a2.FechaBaja IS NULL";
+                    if($grupo_id == 2 && $i4_funcionario_id != "")
+                    {
+                        $array_where .= " AND a2.Funcionario=" . $i4_funcionario_id . " AND Caso.Caso LIKE '%$nombre%'";
+
+                        $query = Caso::leftJoin("CasoFuncionario AS a2", "a2.Caso", "=", "Caso.id")
+                                    ->whereRaw($array_where)
+                                    ->select(DB::raw("Caso.id, UPPER(Caso.Caso) AS text"))
+                                    ->orderByRaw("Caso.Caso ASC")
+                                    ->limit($page_limit)
+                                    ->get()
+                                    ->toArray();
+
+                        if(count($query) > 0)
+                        {
+                            $respuesta = [
+                                "results"  => $query,
+                                "paginate" => [
+                                    "more" =>true
+                                ]
+                            ];
+                            return json_encode($respuesta);
+                        }
                     }
                 }
                 break;
@@ -1629,6 +1786,7 @@ class DetencionPreventivaController extends Controller
                         a2.dp_etapa_preparatoria_dias_transcurridos_estado,
                         a2.dp_etapa_preparatoria_dias_transcurridos_numero,
                         a2.reincidencia,
+                        a2.updated_at,
 
                         UPPER(a3.Delito) AS delito_principal,
 
@@ -1699,6 +1857,7 @@ class DetencionPreventivaController extends Controller
                         a2.dp_etapa_preparatoria_dias_transcurridos_estado,
                         a2.dp_etapa_preparatoria_dias_transcurridos_numero,
                         a2.reincidencia,
+                        a2.updated_at,
 
                         a3.Delito,
 
@@ -1901,7 +2060,9 @@ class DetencionPreventivaController extends Controller
 
                                     '¿DETENCION PREVENTIVA MAS DE 3 AÑOS?',
 
-                                    '¿EL DETENIDO PREVENTIVO PASO LA PENA MINIMA PREVISTA EN EL DELITO?'
+                                    '¿EL DETENIDO PREVENTIVO PASO LA PENA MINIMA PREVISTA EN EL DELITO?',
+
+                                    'ULTIMA MODIFICACION'
                                 ]);
 
                                 $sheet->row(1, function($row){
@@ -1978,7 +2139,9 @@ class DetencionPreventivaController extends Controller
 
                                         ($row1["dp_mayor_3"] == 1) ? "0" : "1",
 
-                                        ($row1["dp_minimo_previsto_delito"] == 1) ? "0" : "1"
+                                        ($row1["dp_minimo_previsto_delito"] == 1) ? "0" : "1",
+
+                                        $row1["updated_at"]
                                     ]);
 
                                     $c++;
@@ -2005,7 +2168,7 @@ class DetencionPreventivaController extends Controller
                                     }
                                 }
 
-                                $sheet->cells('A2:AQ' . ($c), function($cells){
+                                $sheet->cells('A2:AR' . ($c), function($cells){
                                     $cells->setAlignment('center');
                                 });
 

@@ -707,6 +707,50 @@
                 </div>
             </div>
         </div>
+
+        <div id="modal_4" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+
+                        <h4 class="modal-title">
+                            AGREGAR DETENIDO PREVENTIVO
+                        </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="form_4" role="form" action="#">
+                            <input type="hidden" id="tipo4" name="tipo" value="4"/>
+                            {{ csrf_field() }}
+                            <div class="row">
+                                <div id="caso_id_4_div" class="form-group">
+                                    <label for="caso_id">Caso</label>
+                                    <select name="caso_id" id="caso_id_4" data-placeholder="Caso" multiple="multiple" style="width: 100%;">
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="ibox-content" style="padding: 0px 0px 0px 0px;">
+                            <div id="div_jqgrid2" class="jqGrid_wrapper">
+                                <table id="jqgrid2"></table>
+                                <div id="pjqgrid2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([51]);">Buscar</button>
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                    </div> --}}
+                </div>
+            </div>
+        </div>
+
 @endsection
 
 @section('js_plugins')

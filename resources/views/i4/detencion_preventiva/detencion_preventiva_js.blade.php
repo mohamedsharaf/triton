@@ -31,6 +31,7 @@
         var form_1 = "#form_1";
         var form_2 = "#form_2";
         var form_3 = "#form_3";
+        var form_4 = "#form_4";
 
     // === JQGRID ===
         var jqgrid1  = "#jqgrid1";
@@ -236,6 +237,45 @@
             });
             $("#funcionario_id_3").appendTo("#funcionario_id_3_div");
 
+            $('#caso_id_4').select2({
+                maximumSelectionLength: 1,
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 20,
+                            estado    : 1,
+                            tipo      : 104,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#caso_id_4").appendTo("#caso_id_4_div");
+
+            $("#caso_id_4").on("change", function(){
+                if($(this).val() != ''){
+                    $(jqgrid2).jqGrid('setGridParam',{
+                        url     : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&caso_id=' + $(this).val(),
+                        datatype: 'json'
+                    }).trigger('reloadGrid');
+                }
+                else{
+                    $(jqgrid2).jqGrid('setGridParam',{
+                        datatype: 'local'
+                    }).trigger('reloadGrid');
+                }
+            });
+
         //=== DATEPICKER 3 ===
             $('#dp_fecha_detencion_preventiva, #dp_fecha_conclusion_detencion, #dp_madre_lactante_1_fecha_nacimiento_menor, #dp_custodia_menor_6_fecha_nacimiento_menor, #FechaNac, #fecha_denuncia_del_3, #fecha_denuncia_al_3').datepicker({
                 startView            : 2,
@@ -322,6 +362,10 @@
             valor1[0]  = 40;
             utilitarios(valor1);
 
+            var valor1 = new Array();
+            valor1[0]  = 41;
+            utilitarios(valor1);
+
         // === VALIDATE 1 ===
             var valor1 = new Array();
             valor1[0]  = 60;
@@ -361,6 +405,7 @@
             // === JQGRID REDIMENCIONAR ===
             case 0:
                 $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
+                $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
                 break;
 
             // === EDICION MODAL ===
@@ -868,6 +913,11 @@
                         title         : 'Agregar nueva fila',
                         buttonicon    : "ui-icon ui-icon-plusthick",
                         onClickButton : function(){
+                            $('#modal_4').modal();
+
+                            setTimeout(function(){
+                                $(jqgrid2).jqGrid('setGridWidth', $("#div_jqgrid2").width());
+                            }, 300);
                         }
                     })
                 @endif
@@ -900,7 +950,159 @@
                 @endif
                 ;
                 break;
-            // === PROCESO DE VERIFICACION ===
+            // === JQGRID 2 ===
+            case 41:
+                var edit1      = true;
+                var ancho1     = 5;
+                var ancho_d    = 29;
+                @if(in_array(['codigo' => '2003'], $permisos))
+                    if(grupo_id == 2 && i4_funcionario_id != ''){
+                        edit1  = false;
+                        ancho1 += ancho_d;
+                    }
+                @endif
+
+                $(jqgrid2).jqGrid({
+                    caption     : '',
+                    datatype    : 'local',
+                    mtype       : 'post',
+                    height      : 'auto',
+                    pager       : pjqgrid2,
+                    rowNum      : 10,
+                    rowList     : [10, 20, 30],
+                    sortname    : 'Persona.ApPat',
+                    sortorder   : "asc",
+                    viewrecords : true,
+                    shrinkToFit : false,
+                    hidegrid    : false,
+                    multiboxonly: true,
+                    altRows     : true,
+                    // rownumbers  : true,
+                    // subGrid     : subgrid_sw,
+                    // multiselect  : true,
+                    //autowidth     : true,
+                    //gridview      :true,
+                    //forceFit      : true,
+                    //toolbarfilter : true,
+                    colNames : [
+                        "",
+
+                        "ESTADO DE LIBERTAD",
+
+                        "DOCUMENTO",
+                        "AP. PATERNO",
+                        "AP. MATERNO",
+                        "NOMBRE(S)",
+
+                        ""
+                    ],
+                    colModel : [
+                        {
+                            name    : "act",
+                            index   : "",
+                            width   : ancho1,
+                            align   : "center",
+                            fixed   : true,
+                            sortable: false,
+                            resize  : false,
+                            search  : false,
+                            hidden  : edit1
+                        },
+
+                        {
+                            name : "EstadoLibertad",
+                            index: "Persona.EstadoLibertad",
+                            width: 180,
+                            align: "center"
+                        },
+
+                        {
+                            name : "NumDocId",
+                            index: "a2.NumDocId",
+                            width: 120,
+                            align: "left"
+                        },
+                        {
+                            name : "ApPat",
+                            index: "Persona.ApPat",
+                            width: 150,
+                            align: "left"
+                        },
+                        {
+                            name : "ApMat",
+                            index: "Persona.ApMat",
+                            width: 150,
+                            align: "left"
+                        },
+                        {
+                            name : "Nombres",
+                            index: "Persona.Nombres",
+                            width: 200,
+                            align: "left"
+                        },
+
+                        // === OCULTO ===
+                            {
+                                name  : "val_json",
+                                index : "",
+                                width : 10,
+                                align : "center",
+                                search: false,
+                                hidden: true
+                            }
+                    ],
+                    loadComplete : function(){
+                        $("tr.jqgrow:odd").addClass('myAltRowClass');
+                    },
+                    gridComplete : function() {
+                        var ids = $(jqgrid2).jqGrid('getDataIDs');
+                        for(var i = 0; i < ids.length; i++){
+                            var cl       = ids[i];
+                            var ret      = $(jqgrid2).jqGrid('getRowData', cl);
+                            var val_json = $.parseJSON(ret.val_json);
+
+                            var ed = "";
+                            @if(in_array(['codigo' => '2003'], $permisos))
+                                if(grupo_id == 2 && i4_funcionario_id != ''){
+                                    if(val_json.estado_libertad_id != 4){
+                                        ed = "<button type='button' class='btn btn-xs btn-warning' title='Cambiar a detención preventiva' onclick=\"utilitarios([51, " + cl + "]);\"><i class='fa fa-random'></i></button>";
+                                    }
+                                }
+                            @endif
+
+                            $(jqgrid2).jqGrid('setRowData', ids[i], {
+                                act : $.trim(ed)
+                            });
+                        }
+                    }
+                });
+
+                $(jqgrid2).jqGrid('setGroupHeaders', {
+                    useColSpanStyle: true,
+                    groupHeaders   :[
+                        {
+                            startColumnName: 'NumDocId',
+                            numberOfColumns: 4,
+                            titleText      : 'DENUNCIADO',
+                        }
+                    ]
+                });
+
+                // $(jqgrid2).jqGrid('filterToolbar',{
+                //     searchOnEnter : true,
+                //     stringResult  : true,
+                //     defaultSearch : 'cn'
+                // });
+
+                $(jqgrid2).jqGrid('navGrid', pjqgrid2, {
+                    edit  : false,
+                    add   : false,
+                    del   : false,
+                    search: false
+                })
+                ;
+                break;
+            // === EDITAR - PROCESO DE VERIFICACION ===
             case 50:
                 if($(form_1).valid()){
                     swal({
@@ -928,6 +1130,51 @@
                     valor1[2]  = "¡Favor complete o corrija los datos solicitados!";
                     utilitarios(valor1);
                 }
+                break;
+            // === AÑADIR - PERSONA CON DETENCION PREVENTIVA ===
+            case 51:
+                var ret      = $(jqgrid2).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                var nombre_completo = $.trim($.trim(ret.ApPat + " " + ret.ApMat) + " " + ret.Nombres);
+
+                swal({
+                    title             : "ESTADO DE LIBERTAD",
+                    text              : "¿Esta seguro de cambiar a DETENCION PREVENTIVA a la persona " + nombre_completo + "?",
+                    type              : "warning",
+                    showCancelButton  : true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText : "Cambiar",
+                    cancelButtonText  : "Cancelar",
+                    closeOnConfirm    : false,
+                    closeOnCancel     : false
+                },
+                function(isConfirm){
+                    if (isConfirm){
+                        // swal.close();
+
+                        swal({
+                            title            : "CAMBIANDO ESTADO DE LIBERTAD",
+                            text             : "Espere que se cambie a DETENCION PREVENTIVA.",
+                            allowEscapeKey   : false,
+                            showConfirmButton: false,
+                            type             : "info"
+                        });
+                        $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                        var valor1 = new Array();
+                        valor1[0]  = 150;
+                        valor1[1]  = url_controller + '/send_ajax';
+                        valor1[2]  = 'POST';
+                        valor1[3]  = true;
+                        valor1[4]  = "tipo=4&id=" + valor[1] + "&_token=" + csrf_token;
+                        valor1[5]  = 'json';
+                        utilitarios(valor1);
+                    }
+                    else{
+                        swal.close();
+                    }
+                });
                 break;
             // === VALIDACION ===
             case 60:
@@ -1294,6 +1541,32 @@
                                     // valor1[1]  = data.titulo;
                                     // valor1[2]  = data.respuesta;
                                     // utilitarios(valor1);
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            // === ELIMINAR FUNCIONARIO DEL CARGO ===
+                            case '4':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid2).trigger("reloadGrid");
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid2).trigger("reloadGrid");
                                 }
                                 else if(data.sw === 2){
                                     window.location.reload();
