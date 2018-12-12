@@ -1741,6 +1741,7 @@ class DetencionPreventivaController extends Controller
                     $tabla12 = "Oficina";
                     $tabla13 = "Muni";
                     $tabla14 = "Dep";
+                    $tabla15 = "ClaseDelito";
 
                     $select = "
                         $tabla1.id,
@@ -1789,6 +1790,8 @@ class DetencionPreventivaController extends Controller
                         a2.updated_at,
 
                         UPPER(a3.Delito) AS delito_principal,
+
+                        UPPER(a16.ClaseDelito) AS clase_delito,
 
                         UPPER(a4.EtapaCaso) AS etapa_caso,
 
@@ -1860,6 +1863,8 @@ class DetencionPreventivaController extends Controller
                         a2.updated_at,
 
                         a3.Delito,
+
+                        a16.ClaseDelito,
 
                         a4.EtapaCaso,
 
@@ -1986,6 +1991,7 @@ class DetencionPreventivaController extends Controller
                         ->leftJoin("$tabla12 AS a13", "a13.id", "=", "a12.Oficina")
                         ->leftJoin("$tabla13 AS a14", "a14.id", "=", "a13.Muni")
                         ->leftJoin("$tabla14 AS a15", "a15.id", "=", "a14.Dep")
+                        ->leftJoin("$tabla15 AS a16", "a16.id", "=", "a3.ClaseDelito")
                         ->whereRaw($where)
                         ->select(DB::raw($select))
                         ->orderBy("$tabla1.FechaDenuncia", "ASC")
@@ -2020,6 +2026,7 @@ class DetencionPreventivaController extends Controller
                                     'FECHA DENUNCIA',
                                     'DELITO PRINCIPAL',
                                     'DELITOS',
+                                    'CLASE DE DELITO',
 
                                     'FECHA DE LA DETENCION',
                                     'FECHA DE LA CONCLUSION DE LA DETENCION',
@@ -2099,6 +2106,7 @@ class DetencionPreventivaController extends Controller
                                         $row1["FechaDenuncia"],
                                         $row1["delito_principal"],
                                         $row1["delitos"],
+                                        $row1["clase_delito"],
 
                                         $row1["dp_fecha_detencion_preventiva"],
                                         $row1["dp_fecha_conclusion_detencion"],
@@ -2168,7 +2176,7 @@ class DetencionPreventivaController extends Controller
                                     }
                                 }
 
-                                $sheet->cells('A2:AR' . ($c), function($cells){
+                                $sheet->cells('A2:AS' . ($c), function($cells){
                                     $cells->setAlignment('center');
                                 });
 
