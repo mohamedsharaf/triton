@@ -1212,8 +1212,8 @@
                             required : true
                         },
                         dp_fecha_detencion_preventiva:{
-                            required: true,
-                            date    : true
+                            required: true
+                            // date    : true
                         },
                         recinto_carcelario_id:{
                             required: true
