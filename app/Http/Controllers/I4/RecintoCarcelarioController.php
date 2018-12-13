@@ -416,6 +416,9 @@ class RecintoCarcelarioController extends Controller
 
                         $array_where = "TRUE";
 
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
+
                         $consulta1 = RecintoCarcelario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.Muni_id")
                             ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.Dep")
                             ->whereRaw($array_where)
@@ -427,8 +430,6 @@ class RecintoCarcelarioController extends Controller
                 //=== EXCEL ===
                     if(count($consulta1) > 0)
                     {
-                        set_time_limit(3600);
-                        ini_set('memory_limit','-1');
                         Excel::create('recintos_carcelarios_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
                             $excel->sheet('RECINTOS CARCELARIOS', function($sheet) use($consulta1){
                                 $sheet->row(1, [
