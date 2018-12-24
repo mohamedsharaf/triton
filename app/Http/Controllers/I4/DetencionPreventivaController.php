@@ -643,7 +643,7 @@ class DetencionPreventivaController extends Controller
 
                     $data1['peligro_procesal_id']           = $request->input('peligro_procesal_id');
                     $data1['dp_fecha_detencion_preventiva'] = trim($request->input('dp_fecha_detencion_preventiva'));
-                    $data1['dp_fecha_conclusion_detencion'] = trim($request->input('dp_fecha_conclusion_detencion'));
+                    // $data1['dp_fecha_conclusion_detencion'] = trim($request->input('dp_fecha_conclusion_detencion'));
                     $data1['recinto_carcelario_id']         = trim($request->input('recinto_carcelario_id'));
 
                     $data1['dp_etapa_gestacion_estado'] = trim($request->input('dp_etapa_gestacion_estado'));
@@ -705,7 +705,7 @@ class DetencionPreventivaController extends Controller
                         $iu->Sexo  = $data1['sexo_id'];
 
                         $iu->dp_fecha_detencion_preventiva = $data1['dp_fecha_detencion_preventiva'];
-                        $iu->dp_fecha_conclusion_detencion = $data1['dp_fecha_conclusion_detencion'];
+                        // $iu->dp_fecha_conclusion_detencion = $data1['dp_fecha_conclusion_detencion'];
                         $iu->recinto_carcelario_id         = $data1['recinto_carcelario_id'];
 
                         // === AMARILLO ===
@@ -1522,7 +1522,6 @@ class DetencionPreventivaController extends Controller
                             $excel->sheet('Personas detenidas', function($sheet) use($consulta1){
                                 $sheet->row(1, [
                                     'SEMAFORO',
-                                    'SEMAFORO DELITO',
                                     'NUMERO DE DETENIDOS',
                                     'NUMERO DE CASO',
                                     'IANUS / NUREJ',
@@ -1569,7 +1568,6 @@ class DetencionPreventivaController extends Controller
                                     'FECHA DE NACIMIENTO DEL MENOR',
 
                                     '¿MAYOR A 65 AÑOS?',
-                                    'EDAD',
 
                                     '¿DELITO CON PENA HASTA CUATRO AÑOS?',
 
@@ -1599,7 +1597,6 @@ class DetencionPreventivaController extends Controller
                                 {
                                     $sheet->row($c+1, [
                                         $this->dp_semaforo[$row1["dp_semaforo"]],
-                                        $this->dp_semaforo[$row1["dp_semaforo_delito"]],
                                         $row1["n_detenidos"],
                                         $row1["Caso"],
                                         $row1["CodCasoJuz"],
@@ -1646,7 +1643,6 @@ class DetencionPreventivaController extends Controller
                                         $row1["dp_custodia_menor_6_fecha_nacimiento_menor"],
 
                                         ($row1["dp_persona_mayor_65"] == 1) ? "0" : "1",
-                                        $row1["Edad"],
 
                                         ($row1["dp_delito_pena_menor_4"] == 1) ? "0" : "1",
 
@@ -1684,7 +1680,7 @@ class DetencionPreventivaController extends Controller
                                     }
                                 }
 
-                                $sheet->cells('A2:AQ' . ($c), function($cells){
+                                $sheet->cells('A2:AO' . ($c), function($cells){
                                     $cells->setAlignment('center');
                                 });
 
@@ -2008,7 +2004,6 @@ class DetencionPreventivaController extends Controller
                             $excel->sheet('Personas detenidas', function($sheet) use($consulta1){
                                 $sheet->row(1, [
                                     'SEMAFORO',
-                                    'SEMAFORO DELITO',
                                     'NUMERO DE DETENIDOS',
                                     'NUMERO DE CASO',
                                     'IANUS / NUREJ',
@@ -2056,7 +2051,6 @@ class DetencionPreventivaController extends Controller
                                     'FECHA DE NACIMIENTO DEL MENOR',
 
                                     '¿MAYOR A 65 AÑOS?',
-                                    'EDAD',
 
                                     '¿DELITO CON PENA HASTA CUATRO AÑOS?',
 
@@ -2088,7 +2082,6 @@ class DetencionPreventivaController extends Controller
                                 {
                                     $sheet->row($c+1, [
                                         $this->dp_semaforo[$row1["dp_semaforo"]],
-                                        $this->dp_semaforo[$row1["dp_semaforo_delito"]],
                                         $row1["n_detenidos"],
                                         $row1["Caso"],
                                         $row1["CodCasoJuz"],
@@ -2136,7 +2129,6 @@ class DetencionPreventivaController extends Controller
                                         $row1["dp_custodia_menor_6_fecha_nacimiento_menor"],
 
                                         ($row1["dp_persona_mayor_65"] == 1) ? "0" : "1",
-                                        $row1["Edad"],
 
                                         ($row1["dp_delito_pena_menor_4"] == 1) ? "0" : "1",
 
@@ -2176,7 +2168,7 @@ class DetencionPreventivaController extends Controller
                                     }
                                 }
 
-                                $sheet->cells('A2:AS' . ($c), function($cells){
+                                $sheet->cells('A2:AQ' . ($c), function($cells){
                                     $cells->setAlignment('center');
                                 });
 

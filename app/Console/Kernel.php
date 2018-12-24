@@ -322,186 +322,186 @@ class Kernel extends ConsoleKernel
             })->hourly();
 
         //=== OPERACION DIARIA DEL DETENIDO PREVENTIVO ===
-            // $schedule->call(function(){
-            //     $i4 = new I4Class();
+            $schedule->call(function(){
+                $i4 = new I4Class();
 
-            //     $tabla1  = "Caso";
-            //     $tabla2  = "Persona";
+                $tabla1  = "Caso";
+                $tabla2  = "Persona";
 
-            //     $select = "
-            //         $tabla1.id,
-            //         $tabla1.DelitoPrincipal,
-            //         $tabla1.EtapaCaso,
+                $select = "
+                    $tabla1.id,
+                    $tabla1.DelitoPrincipal,
+                    $tabla1.EtapaCaso,
 
-            //         a2.id AS persona_id,
-            //         a2.FechaNac,
-            //         a2.dp_fecha_detencion_preventiva,
-            //         a2.dp_fecha_conclusion_detencion,
+                    a2.id AS persona_id,
+                    a2.FechaNac,
+                    a2.dp_fecha_detencion_preventiva,
+                    a2.dp_fecha_conclusion_detencion,
 
-            //         a2.dp_semaforo,
-            //         a2.dp_etapa_gestacion_estado,
-            //         a2.dp_enfermo_terminal_estado,
-            //         a2.dp_persona_mayor_65,
-            //         a2.dp_madre_lactante_1,
-            //         a2.dp_custodia_menor_6,
-            //         a2.dp_mayor_3,
-            //         a2.dp_minimo_previsto_delito,
-            //         a2.dp_pena_menor_4,
-            //         a2.dp_delito_pena_menor_4,
-            //         a2.dp_delito_patrimonial_menor_6,
-            //         a2.dp_etapa_preparatoria_dias_transcurridos_estado
-            //     ";
+                    a2.dp_semaforo,
+                    a2.dp_etapa_gestacion_estado,
+                    a2.dp_enfermo_terminal_estado,
+                    a2.dp_persona_mayor_65,
+                    a2.dp_madre_lactante_1,
+                    a2.dp_custodia_menor_6,
+                    a2.dp_mayor_3,
+                    a2.dp_minimo_previsto_delito,
+                    a2.dp_pena_menor_4,
+                    a2.dp_delito_pena_menor_4,
+                    a2.dp_delito_patrimonial_menor_6,
+                    a2.dp_etapa_preparatoria_dias_transcurridos_estado
+                ";
 
-            //     $where = "$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4";
+                $where = "$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4";
 
-            //     $consulta1 = Caso::leftJoin("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
-            //                     ->whereRaw($where)
-            //                     ->select(DB::raw($select))
-            //                     ->get()
-            //                     ->toArray();
+                $consulta1 = Caso::leftJoin("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
+                                ->whereRaw($where)
+                                ->select(DB::raw($select))
+                                ->get()
+                                ->toArray();
 
-            //     if(count($consulta1) > 0)
-            //     {
-            //         foreach ($consulta1 as $row1)
-            //         {
-            //             $consulta2 = Delito::where('id', $row1['DelitoPrincipal'])
-            //                             ->select("Delito", "PenaMinima", "PenaMaxima", "ClaseDelito")
-            //                             ->first();
+                if(count($consulta1) > 0)
+                {
+                    foreach ($consulta1 as $row1)
+                    {
+                        $consulta2 = Delito::where('id', $row1['DelitoPrincipal'])
+                                        ->select("Delito", "PenaMinima", "PenaMaxima", "ClaseDelito")
+                                        ->first();
 
-            //             $dp_semaforo = 1;
+                        $dp_semaforo = 1;
 
-            //             $iu = Persona::find($row1['persona_id']);
+                        $iu = Persona::find($row1['persona_id']);
 
-            //             // === AMARILLO ===
-            //                 if($row1['dp_etapa_gestacion_estado'] == 2)
-            //                 {
-            //                     $dp_semaforo = 2;
-            //                 }
+                        // === AMARILLO ===
+                            if($row1['dp_etapa_gestacion_estado'] == 2)
+                            {
+                                $dp_semaforo = 2;
+                            }
 
-            //                 if($row1['dp_enfermo_terminal_estado'] == 2)
-            //                 {
-            //                     $dp_semaforo = 2;
-            //                 }
+                            if($row1['dp_enfermo_terminal_estado'] == 2)
+                            {
+                                $dp_semaforo = 2;
+                            }
 
-            //                 if($row1['dp_madre_lactante_1'] == 2)
-            //                 {
-            //                     $dp_semaforo = 2;
-            //                 }
+                            if($row1['dp_madre_lactante_1'] == 2)
+                            {
+                                $dp_semaforo = 2;
+                            }
 
-            //                 if($row1['dp_custodia_menor_6'] == 2)
-            //                 {
-            //                     $dp_semaforo = 2;
-            //                 }
+                            if($row1['dp_custodia_menor_6'] == 2)
+                            {
+                                $dp_semaforo = 2;
+                            }
 
-            //                 $iu->dp_persona_mayor_65 = 1;
-            //                 $iu->Edad                = NULL;
-            //                 if($row1['FechaNac'] != "")
-            //                 {
-            //                     $persona_mayor_65 = $i4->getPersonaMayor65(["FechaNac" => $row1['FechaNac']]);
-            //                     if($persona_mayor_65["edad_sw"])
-            //                     {
-            //                         $iu->dp_persona_mayor_65 = 2;
-            //                         $dp_semaforo             = 2;
-            //                     }
-            //                     $iu->Edad = $persona_mayor_65["edad"];
-            //                 }
+                            $iu->dp_persona_mayor_65 = 1;
+                            $iu->Edad                = NULL;
+                            if($row1['FechaNac'] != "")
+                            {
+                                $persona_mayor_65 = $i4->getPersonaMayor65(["FechaNac" => $row1['FechaNac']]);
+                                if($persona_mayor_65["edad_sw"])
+                                {
+                                    $iu->dp_persona_mayor_65 = 2;
+                                    $dp_semaforo             = 2;
+                                }
+                                $iu->Edad = $persona_mayor_65["edad"];
+                            }
 
-            //                 // === DELITOS CON PENAS HASTA 4 AÑOS ===
-            //                     $iu->dp_delito_pena_menor_4 = 1;
-            //                     if($consulta2)
-            //                     {
-            //                         if($consulta2->PenaMaxima != NULL)
-            //                         {
-            //                             if($consulta2->PenaMaxima <= 4)
-            //                             {
-            //                                 $iu->dp_delito_pena_menor_4 = 2;
-            //                                 $dp_semaforo                = 2;
-            //                             }
-            //                         }
-            //                     }
+                            // === DELITOS CON PENAS HASTA 4 AÑOS ===
+                                $iu->dp_delito_pena_menor_4 = 1;
+                                if($consulta2)
+                                {
+                                    if($consulta2->PenaMaxima != NULL)
+                                    {
+                                        if($consulta2->PenaMaxima <= 4)
+                                        {
+                                            $iu->dp_delito_pena_menor_4 = 2;
+                                            $dp_semaforo                = 2;
+                                        }
+                                    }
+                                }
 
-            //                 // === DELITOS DE CONTENIDO PATRIMONIAL CON PENA HASTA 6 AÑOS ===
-            //                     $iu->dp_delito_patrimonial_menor_6 = 1;
-            //                     if($consulta2)
-            //                     {
-            //                         if($consulta2->PenaMaxima != NULL)
-            //                         {
-            //                             if(($consulta2->ClaseDelito == 7) || ($consulta2->ClaseDelito == 9))
-            //                             {
-            //                                 if($consulta2->PenaMaxima <= 6)
-            //                                 {
-            //                                     $iu->dp_delito_patrimonial_menor_6 = 2;
-            //                                     $dp_semaforo                       = 2;
-            //                                 }
-            //                             }
-            //                         }
-            //                     }
+                            // === DELITOS DE CONTENIDO PATRIMONIAL CON PENA HASTA 6 AÑOS ===
+                                $iu->dp_delito_patrimonial_menor_6 = 1;
+                                if($consulta2)
+                                {
+                                    if($consulta2->PenaMaxima != NULL)
+                                    {
+                                        if(($consulta2->ClaseDelito == 7) || ($consulta2->ClaseDelito == 9))
+                                        {
+                                            if($consulta2->PenaMaxima <= 6)
+                                            {
+                                                $iu->dp_delito_patrimonial_menor_6 = 2;
+                                                $dp_semaforo                       = 2;
+                                            }
+                                        }
+                                    }
+                                }
 
-            //                 // === DETENCIONES PREVENTIVAS EN ETAPA PREPARATORIA 5 MESES Y 6 MESES ===
-            //                     $iu->dp_etapa_preparatoria_dias_transcurridos_estado = 1;
-            //                     $iu->dp_etapa_preparatoria_dias_transcurridos_numero = NULL;
-            //                     if($row1["EtapaCaso"] == 2)
-            //                     {
-            //                         $consulta3 = Actividad::where('Caso', $row1['id'])
-            //                                         ->where('ActividadActualizaEstadoCaso', 1)
-            //                                         ->where('TipoActividad', 26)
-            //                                         ->select("id", "Fecha")
-            //                                         ->first();
+                            // === DETENCIONES PREVENTIVAS EN ETAPA PREPARATORIA 5 MESES Y 6 MESES ===
+                                $iu->dp_etapa_preparatoria_dias_transcurridos_estado = 1;
+                                $iu->dp_etapa_preparatoria_dias_transcurridos_numero = NULL;
+                                if($row1["EtapaCaso"] == 2)
+                                {
+                                    $consulta3 = Actividad::where('Caso', $row1['id'])
+                                                    ->where('ActividadActualizaEstadoCaso', 1)
+                                                    ->where('TipoActividad', 26)
+                                                    ->select("id", "Fecha")
+                                                    ->first();
 
-            //                         if($consulta3)
-            //                         {
-            //                             $f_transcurrido      = $i4->getFechaTranscurrido(["fecha" => $consulta3->Fecha]);
-            //                             $meses_transcurridos = ($f_transcurrido["f_transcurrido"]->y * 12) + $f_transcurrido["f_transcurrido"]->m;
+                                    if($consulta3)
+                                    {
+                                        $f_transcurrido      = $i4->getFechaTranscurrido(["fecha" => $consulta3->Fecha]);
+                                        $meses_transcurridos = ($f_transcurrido["f_transcurrido"]->y * 12) + $f_transcurrido["f_transcurrido"]->m;
 
-            //                             $iu->dp_etapa_preparatoria_dias_transcurridos_numero = $meses_transcurridos;
-            //                             if(($meses_transcurridos >=5) && ($meses_transcurridos < 6))
-            //                             {
-            //                                 $iu->dp_etapa_preparatoria_dias_transcurridos_estado = 2;
-            //                                 $dp_semaforo                                         = 2;
-            //                             }
-            //                             elseif($meses_transcurridos >= 6)
-            //                             {
-            //                                 $iu->dp_etapa_preparatoria_dias_transcurridos_estado = 2;
-            //                                 $dp_semaforo                                         = 3;
-            //                             }
-            //                         }
-            //                     }
+                                        $iu->dp_etapa_preparatoria_dias_transcurridos_numero = $meses_transcurridos;
+                                        if(($meses_transcurridos >=5) && ($meses_transcurridos < 6))
+                                        {
+                                            $iu->dp_etapa_preparatoria_dias_transcurridos_estado = 2;
+                                            $dp_semaforo                                         = 2;
+                                        }
+                                        elseif($meses_transcurridos >= 6)
+                                        {
+                                            $iu->dp_etapa_preparatoria_dias_transcurridos_estado = 2;
+                                            $dp_semaforo                                         = 3;
+                                        }
+                                    }
+                                }
 
-            //             // === ROJO ===
-            //                 $iu->dp_mayor_3                = 1;
-            //                 $iu->dp_minimo_previsto_delito = 1;
-            //                 if($row1['dp_fecha_detencion_preventiva'] != "")
-            //                 {
-            //                     $anios_transcurridos = $i4->getAnioTranscurrido(["fecha" => $row1['dp_fecha_detencion_preventiva']]);
+                        // === ROJO ===
+                            $iu->dp_mayor_3                = 1;
+                            $iu->dp_minimo_previsto_delito = 1;
+                            if($row1['dp_fecha_detencion_preventiva'] != "")
+                            {
+                                $anios_transcurridos = $i4->getAnioTranscurrido(["fecha" => $row1['dp_fecha_detencion_preventiva']]);
 
-            //                     // === FECHA DE DETENCION ===
-            //                         if($anios_transcurridos["anio"] >= 3)
-            //                         {
-            //                             $iu->dp_mayor_3 = 2;
-            //                             $dp_semaforo    = 3;
-            //                         }
+                                // === FECHA DE DETENCION ===
+                                    if($anios_transcurridos["anio"] >= 3)
+                                    {
+                                        $iu->dp_mayor_3 = 2;
+                                        $dp_semaforo    = 3;
+                                    }
 
-            //                     // === LOS QUE PASARON EL MINIMO DE LA PENA PREVISTA ===
-            //                         if($consulta2)
-            //                         {
-            //                             if($consulta2->PenaMinima != NULL)
-            //                             {
-            //                                 if($consulta2->PenaMinima <= $anios_transcurridos["anio"])
-            //                                 {
-            //                                     $iu->dp_minimo_previsto_delito = 2;
-            //                                     $dp_semaforo                   = 3;
-            //                                 }
-            //                             }
-            //                         }
-            //                 }
+                                // === LOS QUE PASARON EL MINIMO DE LA PENA PREVISTA ===
+                                    if($consulta2)
+                                    {
+                                        if($consulta2->PenaMinima != NULL)
+                                        {
+                                            if($consulta2->PenaMinima <= $anios_transcurridos["anio"])
+                                            {
+                                                $iu->dp_minimo_previsto_delito = 2;
+                                                $dp_semaforo                   = 3;
+                                            }
+                                        }
+                                    }
+                            }
 
-            //             $iu->dp_semaforo = $dp_semaforo;
+                        $iu->dp_semaforo = $dp_semaforo;
 
-            //             $iu->save();
-            //         }
-            //     }
+                        $iu->save();
+                    }
+                }
 
-            // })->daily();
+            })->daily();
     }
 
     /**

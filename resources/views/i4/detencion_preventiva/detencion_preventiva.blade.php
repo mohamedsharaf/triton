@@ -300,10 +300,10 @@
                                         <input type="text" class="form-control" id="dp_fecha_detencion_preventiva" name="dp_fecha_detencion_preventiva" placeholder="año-mes-día" data-mask="9999-99-99">
                                     </div>
 
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label for="dp_fecha_conclusion_detencion">Fecha de la conclusión de la detención</label>
                                         <input type="text" class="form-control" id="dp_fecha_conclusion_detencion" name="dp_fecha_conclusion_detencion" placeholder="año-mes-día" data-mask="9999-99-99">
-                                    </div>
+                                    </div> --}}
 
                                     <div id="recinto_carcelario_id_div" class="form-group">
                                         <label for="recinto_carcelario_id">Recinto carcelario</label>
@@ -747,6 +747,48 @@
                         <button type="button" class="btn btn-primary" onclick="utilitarios([51]);">Buscar</button>
                         <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div> --}}
+                </div>
+            </div>
+        </div>
+
+        <div id="modal_5" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+
+                        <h4 class="modal-title">
+                            SENTENCIA
+                        </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="form_5" role="form" action="#">
+                            <input type="hidden" id="persona_id_5" name="id" value=""/>
+                            <input type="hidden" id="caso_id_5" name="caso_id" value=""/>
+                            <input type="hidden" id="tipo5" name="tipo" value="5"/>
+                            {{ csrf_field() }}
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label for="dp_fecha_conclusion_detencion_5">Fecha de la conclusión de la detención</label>
+                                        <input type="text" class="form-control" id="dp_fecha_conclusion_detencion_5" name="dp_fecha_conclusion_detencion" placeholder="año-mes-día" data-mask="9999-99-99">
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([52]);">Guardar</button>
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -32,6 +32,7 @@
         var form_2 = "#form_2";
         var form_3 = "#form_3";
         var form_4 = "#form_4";
+        var form_5 = "#form_5";
 
     // === JQGRID ===
         var jqgrid1  = "#jqgrid1";
@@ -277,7 +278,7 @@
             });
 
         //=== DATEPICKER 3 ===
-            $('#dp_fecha_detencion_preventiva, #dp_fecha_conclusion_detencion, #dp_madre_lactante_1_fecha_nacimiento_menor, #dp_custodia_menor_6_fecha_nacimiento_menor, #FechaNac, #fecha_denuncia_del_3, #fecha_denuncia_al_3').datepicker({
+            $('#dp_fecha_detencion_preventiva, #dp_fecha_conclusion_detencion_5, #dp_madre_lactante_1_fecha_nacimiento_menor, #dp_custodia_menor_6_fecha_nacimiento_menor, #FechaNac, #fecha_denuncia_del_3, #fecha_denuncia_al_3').datepicker({
                 startView            : 2,
                 // todayBtn          : "linked",
                 // keyboardNavigation: false,
@@ -520,6 +521,10 @@
 
                 $('#modal_1').modal();
                 break;
+            // === SENTENCIADOS ===
+            case 21:
+                $('#modal_5').modal();
+                break;
             // === RESETEAR - FORMULARIO ===
             case 30:
                 $("#persona_id").val('');
@@ -566,6 +571,12 @@
                 var ancho1     = 5;
                 var ancho_d    = 29;
                 @if(in_array(['codigo' => '2003'], $permisos))
+                    if(grupo_id == 2 && i4_funcionario_id != ''){
+                        edit1  = false;
+                        ancho1 += ancho_d;
+                    }
+                @endif
+                @if(in_array(['codigo' => '2005'], $permisos))
                     if(grupo_id == 2 && i4_funcionario_id != ''){
                         edit1  = false;
                         ancho1 += ancho_d;
@@ -863,8 +874,15 @@
                                 }
                             @endif
 
+                            var sen = "";
+                            @if(in_array(['codigo' => '2005'], $permisos))
+                                if(grupo_id == 2 && i4_funcionario_id != ''){
+                                    sen = " <button type='button' class='btn btn-xs btn-danger' title='Sentencia' onclick=\"utilitarios([21, " + cl + "]);\"><i class='fa fa-gavel'></i></button>";
+                                }
+                            @endif
+
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed)
+                                act : $.trim(ed + sen)
                             });
                         }
                     }
