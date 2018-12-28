@@ -12,7 +12,7 @@ class EstadoLibertad extends Model
     protected $fillable = [
         "id",
         "version",
-        "EstadoLibertad"  
+        "EstadoLibertad"
     ];
 
     protected $guarded  = [];

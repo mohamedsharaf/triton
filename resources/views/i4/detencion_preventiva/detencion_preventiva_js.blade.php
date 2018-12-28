@@ -148,6 +148,16 @@
             departamento_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
+    // === ESTADO DE LIBERTAD ===
+        var estado_libertad_json   = $.parseJSON('{!! json_encode($estado_libertad_array) !!}');
+        var estado_libertad_select = '';
+        var estado_libertad_jqgrid = ':Todos';
+
+        $.each(estado_libertad_json, function(index, value) {
+            estado_libertad_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            estado_libertad_jqgrid += ';' + value.nombre + ':' + value.nombre;
+        });
+
     // === DROPZONE ===
         Dropzone.autoDiscover = false;
 
@@ -159,11 +169,18 @@
 
             $('#departamento_id_3').append(departamento_select);
 
+            $('#estado_libertad_id_5').append(estado_libertad_select);
+
         //=== SELECT2 ===
             $("#peligro_procesal_id, #dp_semaforo_3, #departamento_id_3").select2();
             $("#peligro_procesal_id").appendTo("#peligro_procesal_id_div");
             $("#dp_semaforo_3").appendTo("#dp_semaforo_3_div");
             $("#departamento_id_3").appendTo("#departamento_id_3_div");
+
+            $("#estado_libertad_id_5").select2({
+                maximumSelectionLength: 1
+            });
+            $("#estado_libertad_id_5").appendTo("#estado_libertad_id_5_div");
 
             $('#recinto_carcelario_id').select2({
                 maximumSelectionLength: 1,
@@ -291,7 +308,7 @@
             });
 
         //=== TOUCHSPIN ===
-            $("#dp_etapa_gestacion_semana").TouchSpin({
+            $("#dp_etapa_gestacion_semana, #anio_sentencia_5, #mes_sentencia_5, #dia_sentencia_5").TouchSpin({
                 buttondown_class: 'btn btn-white',
                 buttonup_class: 'btn btn-white'
             });

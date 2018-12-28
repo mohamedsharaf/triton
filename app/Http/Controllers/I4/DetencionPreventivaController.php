@@ -33,6 +33,7 @@ use App\Models\I4\RecintoCarcelario;
 use App\Models\I4\PersonaPeligroProcesal;
 use App\Models\I4\Dep;
 use App\Models\I4\EtapaCaso;
+use App\Models\I4\EstadoLibertad;
 
 use App\Models\UbicacionGeografica\UbgeMunicipio;
 use App\Models\Rrhh\RrhhPersona;
@@ -121,6 +122,11 @@ class DetencionPreventivaController extends Controller
                                                 ->toArray(),
                 'departamento_array'     => Dep::select(DB::raw("id, UPPER(Dep) AS nombre"))
                                                 ->orderBy("Dep")
+                                                ->get()
+                                                ->toArray(),
+                'estado_libertad_array'  => EstadoLibertad::select(DB::raw("id, UPPER(EstadoLibertad) AS nombre"))
+                                                ->where("id", "<>", 4)
+                                                ->orderBy("EstadoLibertad")
                                                 ->get()
                                                 ->toArray()
             ];

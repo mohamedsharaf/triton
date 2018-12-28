@@ -763,6 +763,9 @@
                         <h4 class="modal-title">
                             SENTENCIA
                         </h4>
+
+                        <small class="font-bold" id="modal_52_title">
+                        </small>
                     </div>
 
                     <div class="modal-body">
@@ -778,9 +781,38 @@
                                         <label for="dp_fecha_conclusion_detencion_5">Fecha de la conclusión de la detención</label>
                                         <input type="text" class="form-control" id="dp_fecha_conclusion_detencion_5" name="dp_fecha_conclusion_detencion" placeholder="año-mes-día" data-mask="9999-99-99">
                                     </div>
+
+                                    <div id="estado_libertad_id_5_div" class="form-group">
+                                        <label for="estado_libertad_id_5">Estado de libertad</label>
+                                        <select name="estado_libertad_id_5" id="estado_libertad_id_5" data-placeholder="Estado de libertad" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <h4 class="m-t-none m-b">Tiempo de sentencia</h4>
+
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label for="anio_sentencia_5" class="text-warning">Años</label>
+                                                <input type="text" class="form-control" id="anio_sentencia_5" name="anio_sentencia_5" placeholder="Años de sentencia" value="0">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label for="mes_sentencia_5" class="text-warning">Meses</label>
+                                                <input type="text" class="form-control" id="mes_sentencia_5" name="mes_sentencia_5" placeholder="Meses de sentencia" value="0">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label for="dia_sentencia_5" class="text-warning">Días</label>
+                                                <input type="text" class="form-control" id="dia_sentencia_5" name="dia_sentencia_5" placeholder="Días de sentencia" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-
-
                             </div>
                         </form>
                     </div>
