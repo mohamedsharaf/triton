@@ -783,7 +783,6 @@
                     <div class="modal-body">
                         <form id="form_5" role="form" action="#">
                             <input type="hidden" id="persona_id_5" name="id" value=""/>
-                            <input type="hidden" id="caso_id_5" name="caso_id" value=""/>
                             {{ csrf_field() }}
 
                             <div class="row">

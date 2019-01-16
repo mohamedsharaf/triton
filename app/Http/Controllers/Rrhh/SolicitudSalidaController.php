@@ -2279,7 +2279,7 @@ class SolicitudSalidaController extends Controller
 
                     $fh_actual            = date("Y-m-d H-i-s");
                     $dir_logo_institucion = public_path($this->public_dir) . '/' . 'logo_fge_256.png';
-                    $dir_logo_pais        = public_path($this->public_dir) . '/' . 'escudo_logo_300.png';
+                    $dir_logo_pais        = public_path($this->public_dir) . '/' . 'logo_fge_256_2018_3.png';
                     $dir_marca_agua       = public_path($this->public_dir) . '/' . 'marca_agua_500.png';
 
                     // === VALIDAR IMAGENES ===
@@ -2465,31 +2465,31 @@ class SolicitudSalidaController extends Controller
                                 'style' => array()
                             ));
 
-                            $this->utilitarios(array(
-                                'tipo'      => '100',
-                                'file'      => $data2['dir_logo_institucion'],
-                                'x'         => 10,
-                                'y'         => 10,
-                                'w'         => 0,
-                                'h'         => 20,
-                                'type'      => 'PNG',
-                                'link'      => '',
-                                'align'     => '',
-                                'resize'    => FALSE,
-                                'dpi'       => 300,
-                                'palign'    => '',
-                                'ismask'    => FALSE,
-                                'imgsmask'  => FALSE,
-                                'border'    => 0,
-                                'fitbox'    => FALSE,
-                                'hidden'    => FALSE,
-                                'fitonpage' => FALSE
-                            ));
+                            // $this->utilitarios(array(
+                            //     'tipo'      => '100',
+                            //     'file'      => $data2['dir_logo_institucion'],
+                            //     'x'         => 10,
+                            //     'y'         => 10,
+                            //     'w'         => 0,
+                            //     'h'         => 20,
+                            //     'type'      => 'PNG',
+                            //     'link'      => '',
+                            //     'align'     => '',
+                            //     'resize'    => FALSE,
+                            //     'dpi'       => 300,
+                            //     'palign'    => '',
+                            //     'ismask'    => FALSE,
+                            //     'imgsmask'  => FALSE,
+                            //     'border'    => 0,
+                            //     'fitbox'    => FALSE,
+                            //     'hidden'    => FALSE,
+                            //     'fitonpage' => FALSE
+                            // ));
 
                             $this->utilitarios(array(
                                 'tipo'      => '100',
                                 'file'      => $data2['dir_logo_pais'],
-                                'x'         => 171,
+                                'x'         => 183,
                                 'y'         => 10,
                                 'w'         => 0,
                                 'h'         => 20,
@@ -2507,26 +2507,26 @@ class SolicitudSalidaController extends Controller
                                 'fitonpage' => FALSE
                             ));
 
-                            $this->utilitarios(array(
-                                'tipo'      => '100',
-                                'file'      => $data2['dir_marca_agua'],
-                                'x'         => 63,
-                                'y'         => 39,
-                                'w'         => 0,
-                                'h'         => 90,
-                                'type'      => '',
-                                'link'      => '',
-                                'align'     => '',
-                                'resize'    => TRUE,
-                                'dpi'       => 140,
-                                'palign'    => '',
-                                'ismask'    => FALSE,
-                                'imgsmask'  => FALSE,
-                                'border'    => 0,
-                                'fitbox'    => FALSE,
-                                'hidden'    => FALSE,
-                                'fitonpage' => FALSE
-                            ));
+                            // $this->utilitarios(array(
+                            //     'tipo'      => '100',
+                            //     'file'      => $data2['dir_marca_agua'],
+                            //     'x'         => 63,
+                            //     'y'         => 39,
+                            //     'w'         => 0,
+                            //     'h'         => 90,
+                            //     'type'      => '',
+                            //     'link'      => '',
+                            //     'align'     => '',
+                            //     'resize'    => TRUE,
+                            //     'dpi'       => 140,
+                            //     'palign'    => '',
+                            //     'ismask'    => FALSE,
+                            //     'imgsmask'  => FALSE,
+                            //     'border'    => 0,
+                            //     'fitbox'    => FALSE,
+                            //     'hidden'    => FALSE,
+                            //     'fitonpage' => FALSE
+                            // ));
 
                             $pdf->Ln(10);
                             // $pdf->SetFont('times', 'B', 14);
