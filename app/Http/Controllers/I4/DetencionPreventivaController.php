@@ -42,6 +42,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use PDF;
 
 use Exception;
+use App\Models\I4\EstadoCaso;
 
 class DetencionPreventivaController extends Controller
 {
@@ -95,21 +96,36 @@ class DetencionPreventivaController extends Controller
 
         if(in_array(['codigo' => '2001'], $this->permisos))
         {
+            $consulta1 = Funcionario::join("Division AS a2", "a2.id", "=", "Funcionario.Division")
+                                    ->join("Oficina AS a3", "a3.id", "=", "a2.Oficina")
+                                    ->join("Muni AS a4", "a4.id", "=", "a3.Muni")
+                                    ->join("Dep AS a5", "a5.id", "=", "a4.Dep")
+                                    ->whereRaw("Funcionario.id=" . $this->i4_funcionario_id)
+                                    ->select(DB::raw("a4.Dep AS departamento_id"))
+                                    ->first();
+
+            $departamento_id_i4 = 0;
+            if(!($consulta1 === null))
+            {
+                $departamento_id_i4 = $consulta1["departamento_id"];
+            }
+
             $data = [
                 'rol_id'                 => $this->rol_id,
                 'grupo_id'               => $this->grupo_id,
                 'i4_funcionario_id'      => $this->i4_funcionario_id,
                 'permisos'               => $this->permisos,
-                'title'                  => 'Detención preventiva',
+                'title'                  => 'Estado de libertad',
                 'home'                   => 'Inicio',
                 'sistema'                => 'i4',
-                'modulo'                 => 'Detención preventiva',
-                'title_table'            => 'Detención preventiva',
+                'modulo'                 => 'Estado de libertad',
+                'title_table'            => 'Estado de libertad',
                 'no_si_array'            => $this->no_si,
                 'dp_estado_array'        => $this->dp_estado,
                 'tipo_recinto_array'     => $this->tipo_recinto,
                 'dp_semaforo_array'      => $this->dp_semaforo,
                 'sexo_array'             => $this->sexo,
+                'departamento_id_i4'     => $departamento_id_i4,
                 'peligro_procesal_array' => PeligroProcesal::where('estado', 1)
                                                 ->select("id", "nombre")
                                                 ->orderBy("nombre")
@@ -126,6 +142,18 @@ class DetencionPreventivaController extends Controller
                                                 ->toArray(),
                 'estado_libertad_array'  => EstadoLibertad::select(DB::raw("id, UPPER(EstadoLibertad) AS nombre"))
                                                 ->where("id", "<>", 4)
+                                                ->orderBy("EstadoLibertad")
+                                                ->get()
+                                                ->toArray(),
+                'estado_caso_array'       => EstadoCaso::select(DB::raw("id, UPPER(EstadoCaso) AS nombre"))
+                                                ->orderBy("EstadoCaso")
+                                                ->get()
+                                                ->toArray(),
+                'etapa_caso_array_all'    => EtapaCaso::select(DB::raw("id, UPPER(EtapaCaso) AS nombre"))
+                                                ->orderBy("EtapaCaso")
+                                                ->get()
+                                                ->toArray(),
+                'estado_libertad_array_all' => EstadoLibertad::select(DB::raw("id, UPPER(EstadoLibertad) AS nombre"))
                                                 ->orderBy("EstadoLibertad")
                                                 ->get()
                                                 ->toArray()
@@ -219,6 +247,9 @@ class DetencionPreventivaController extends Controller
                     a2.estado_segip,
                     a2.reincidencia,
 
+                    a2.se_fecha_inicio_sentencia,
+                    a2.se_tiempo_sentencia,
+
                     UPPER(a3.Delito) AS delito_principal,
 
                     UPPER(a4.EtapaCaso) AS etapa_caso,
@@ -239,9 +270,7 @@ class DetencionPreventivaController extends Controller
                     UPPER(GROUP_CONCAT(DISTINCT a6.Funcionario ORDER BY a6.Funcionario ASC SEPARATOR '::')) AS funcionario,
 
                     UPPER(GROUP_CONCAT(DISTINCT a9.nombre ORDER BY a9.nombre ASC SEPARATOR '::')) AS peligro_procesal,
-                    UPPER(GROUP_CONCAT(DISTINCT a9.id ORDER BY a9.id ASC SEPARATOR '::')) AS peligro_procesal_id,
-
-                    UPPER(GROUP_CONCAT(DISTINCT a11.Delito ORDER BY a11.Delito ASC SEPARATOR '::')) AS delitos
+                    UPPER(GROUP_CONCAT(DISTINCT a9.id ORDER BY a9.id ASC SEPARATOR '::')) AS peligro_procesal_id
                 ";
 
                 $group_by = "
@@ -290,6 +319,9 @@ class DetencionPreventivaController extends Controller
                     a2.estado_segip,
                     a2.reincidencia,
 
+                    a2.se_fecha_inicio_sentencia,
+                    a2.se_tiempo_sentencia,
+
                     a3.Delito,
 
                     a4.EtapaCaso,
@@ -308,13 +340,29 @@ class DetencionPreventivaController extends Controller
                     a15.Dep
                 ";
 
-                $array_where = '';
+                $array_where = "TRUE ";
+                if($request->input('estado_caso') != 'null')
+                {
+                    $array_where .= " AND $tabla1.EstadoCaso=" . $request->input('estado_caso');
+                }
+                if($request->input('etapa_caso') != 'null')
+                {
+                    $array_where .= " AND $tabla1.EtapaCaso=" . $request->input('etapa_caso');
+                }
+                if($request->input('estado_libertad') != 'null')
+                {
+                    $array_where .= " AND a2.EstadoLibertad=" . $request->input('estado_libertad');
+                }
+                if($request->input('departamento') != 'null')
+                {
+                    $array_where .= " AND a14.Dep=" . $request->input('departamento');
+                }
 
                 $user_id           = Auth::user()->id;
                 $grupo_id          = Auth::user()->grupo_id;
                 $i4_funcionario_id = Auth::user()->i4_funcionario_id;
 
-                $array_where .= "$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4 AND a5.FechaBaja IS NULL";
+                $array_where .= " AND a5.FechaBaja IS NULL";
                 if($grupo_id == 2 && $i4_funcionario_id != "")
                 {
                     $array_where .= " AND a5.funcionario=" . $i4_funcionario_id;
@@ -329,8 +377,8 @@ class DetencionPreventivaController extends Controller
                             ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a2.recinto_carcelario_id")
                             ->leftJoin("$tabla8 AS a8", "a8.persona_id", "=", "a2.id")
                             ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.peligro_procesal_id")
-                            ->leftJoin("$tabla10 AS a10", "a10.Caso", "=", "$tabla1.id")
-                            ->leftJoin("$tabla3 AS a11", "a11.id", "=", "a10.Delito")
+                            // ->leftJoin("$tabla10 AS a10", "a10.Caso", "=", "$tabla1.id")
+                            // ->leftJoin("$tabla3 AS a11", "a11.id", "=", "a10.Delito")
                             ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.DivisionFis")
                             ->leftJoin("$tabla12 AS a13", "a13.id", "=", "a12.Oficina")
                             ->leftJoin("$tabla13 AS a14", "a14.id", "=", "a13.Muni")
@@ -353,8 +401,8 @@ class DetencionPreventivaController extends Controller
                             ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a2.recinto_carcelario_id")
                             ->leftJoin("$tabla8 AS a8", "a8.persona_id", "=", "a2.id")
                             ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.peligro_procesal_id")
-                            ->leftJoin("$tabla10 AS a10", "a10.Caso", "=", "$tabla1.id")
-                            ->leftJoin("$tabla3 AS a11", "a11.id", "=", "a10.Delito")
+                            // ->leftJoin("$tabla10 AS a10", "a10.Caso", "=", "$tabla1.id")
+                            // ->leftJoin("$tabla3 AS a11", "a11.id", "=", "a10.Delito")
                             ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.DivisionFis")
                             ->leftJoin("$tabla12 AS a13", "a13.id", "=", "a12.Oficina")
                             ->leftJoin("$tabla13 AS a14", "a14.id", "=", "a13.Muni")
@@ -414,7 +462,10 @@ class DetencionPreventivaController extends Controller
                         'municipio_id'    => $row["municipio_id"],
                         'departamento_id' => $row["departamento_id"],
 
-                        'peligro_procesal_id' => $row["peligro_procesal_id"]
+                        'peligro_procesal_id' => $row["peligro_procesal_id"],
+
+                        'se_fecha_inicio_sentencia' => $row["se_fecha_inicio_sentencia"],
+                        'se_tiempo_sentencia'       => $row["se_tiempo_sentencia"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["persona_id"];
@@ -426,7 +477,7 @@ class DetencionPreventivaController extends Controller
                         $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo"], 'id' => $row["persona_id"])),
                         $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo_delito"], 'id' => $row["persona_id"])),
                         $row["n_detenidos"],
-                        $this->dp_estado[$row["dp_estado"]],
+                        ($row["dp_estado"] =="") ? "" : $this->dp_estado[$row["dp_estado"]],
                         $row["Caso"],
                         $row["CodCasoJuz"],
                         $row["departamento"],
@@ -441,7 +492,7 @@ class DetencionPreventivaController extends Controller
 
                         $row["FechaDenuncia"],
                         $row["delito_principal"],
-                        $this->utilitarios(array('tipo' => '51', 'valor' => $row["delitos"])),
+                        // $this->utilitarios(array('tipo' => '51', 'valor' => $row["delitos"])),
 
                         $row["dp_fecha_detencion_preventiva"],
                         $row["dp_fecha_conclusion_detencion"],
@@ -1190,6 +1241,82 @@ class DetencionPreventivaController extends Controller
                         $respuesta['respuesta'] .= "No existe la persona.";
                     }
 
+                return json_encode($respuesta);
+                break;
+            // === SENTENCIA ===
+            case '5':
+                // === SEGURIDAD ===
+                    $this->rol_id   = Auth::user()->rol_id;
+                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                        ->select("seg_permisos.codigo")
+                                        ->get()
+                                        ->toArray();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'         => 0,
+                        'titulo'     => '<div class="text-center"><strong>SENTENCIA</strong></div>',
+                        'respuesta'  => '',
+                        'tipo'       => $tipo,
+                        'iu'         => 1,
+                        'error_sw'   => 1
+                    );
+                    $opcion = 'n';
+
+                // === PERMISOS ===
+                    $id = trim($request->input('id'));
+                    if($id != '')
+                    {
+                        $opcion = 'e';
+                        if(!in_array(['codigo' => '2003'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para MODIFICAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+                    else
+                    {
+                        if(!in_array(['codigo' => '2002'], $this->permisos))
+                        {
+                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
+                // === OPERACION ===
+                    $data1['EstadoLibertad']            = 5;
+                    $data1['se_fecha_inicio_sentencia'] = trim($request->input('se_fecha_inicio_sentencia'));
+                    $data1['se_tiempo_sentencia']       = json_encode([
+                        "anio" => trim($request->input('anio_sentencia')),
+                        "mes"  => trim($request->input('mes_sentencia')),
+                        "dia"  => trim($request->input('dia_sentencia'))
+                    ]);
+
+                // === CONVERTIR VALORES VACIOS A NULL ===
+                    foreach ($data1 as $llave => $valor)
+                    {
+                        if ($valor == '')
+                            $data1[$llave] = NULL;
+                    }
+
+                // === REGISTRAR MODIFICAR VALORES ===
+                    if($opcion == 'n')
+                    {
+                    }
+                    else
+                    {
+                        $iu                            = Persona::find($id);
+                        $iu->EstadoLibertad            = $data1['EstadoLibertad'];
+                        $iu->se_fecha_inicio_sentencia = $data1['se_fecha_inicio_sentencia'];
+                        $iu->se_tiempo_sentencia       = $data1['se_tiempo_sentencia'];
+                        $iu->save();
+
+                        $respuesta['respuesta'] .= "La SENTENCIA se modificaron con éxito.";
+                        $respuesta['sw']         = 1;
+                        $respuesta['iu']         = 2;
+                    }
                 return json_encode($respuesta);
                 break;
             // === SELECT2 DEPARTAMENTO, MUNICIPIO, RECINTO CARCELARIO  ===

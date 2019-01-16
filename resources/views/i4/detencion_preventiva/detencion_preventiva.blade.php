@@ -165,6 +165,18 @@
                         <h5 style="margin-top: 6px;"><i class="fa fa-table"></i> {{ $title_table }}</h5>
 
                         <div class="ibox-tools" style="margin-top: 4px;">
+                            <select id="estado_caso_buscar" data-placeholder="Estado del caso">
+                            </select>
+
+                            <select id="etapa_caso_buscar" data-placeholder="Etapa del caso">
+                            </select>
+
+                            <select id="estado_libertad_buscar" data-placeholder="Estado de libertad">
+                            </select>
+
+                            <select id="departamento_buscar" data-placeholder="Departamento">
+                            </select>
+
                             <a href="https://docs.google.com/document/d/1el2OIH_AnXndBSTiH5YCujQdRJ1HL4V3y04f1DhAYqI/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
                                 <strong>Manual</strong>
                             </a>
@@ -300,10 +312,10 @@
                                         <input type="text" class="form-control" id="dp_fecha_detencion_preventiva" name="dp_fecha_detencion_preventiva" placeholder="año-mes-día" data-mask="9999-99-99">
                                     </div>
 
-                                    {{-- <div class="form-group">
+                                    <div class="form-group">
                                         <label for="dp_fecha_conclusion_detencion">Fecha de la conclusión de la detención</label>
                                         <input type="text" class="form-control" id="dp_fecha_conclusion_detencion" name="dp_fecha_conclusion_detencion" placeholder="año-mes-día" data-mask="9999-99-99">
-                                    </div> --}}
+                                    </div>
 
                                     <div id="recinto_carcelario_id_div" class="form-group">
                                         <label for="recinto_carcelario_id">Recinto carcelario</label>
@@ -772,20 +784,18 @@
                         <form id="form_5" role="form" action="#">
                             <input type="hidden" id="persona_id_5" name="id" value=""/>
                             <input type="hidden" id="caso_id_5" name="caso_id" value=""/>
-                            <input type="hidden" id="tipo5" name="tipo" value="5"/>
                             {{ csrf_field() }}
 
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="form-group">
-                                        <label for="dp_fecha_conclusion_detencion_5">Fecha de la conclusión de la detención</label>
-                                        <input type="text" class="form-control" id="dp_fecha_conclusion_detencion_5" name="dp_fecha_conclusion_detencion" placeholder="año-mes-día" data-mask="9999-99-99">
+                                        <label for="dp_fecha_detencion_preventiva_5">Fecha de la detención</label>
+                                        <input type="text" class="form-control" id="dp_fecha_detencion_preventiva_5" name="dp_fecha_detencion_preventiva" placeholder="año-mes-día" data-mask="9999-99-99" disabled>
                                     </div>
 
-                                    <div id="estado_libertad_id_5_div" class="form-group">
-                                        <label for="estado_libertad_id_5">Estado de libertad</label>
-                                        <select name="estado_libertad_id_5" id="estado_libertad_id_5" data-placeholder="Estado de libertad" multiple="multiple" style="width: 100%;">
-                                        </select>
+                                    <div class="form-group">
+                                        <label for="se_fecha_inicio_sentencia_5">Fecha inicio de la condena</label>
+                                        <input type="text" class="form-control" id="se_fecha_inicio_sentencia_5" name="se_fecha_inicio_sentencia" placeholder="año-mes-día" data-mask="9999-99-99">
                                     </div>
 
                                     <h4 class="m-t-none m-b">Tiempo de sentencia</h4>

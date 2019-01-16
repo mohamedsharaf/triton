@@ -132,7 +132,10 @@ class Persona extends Model
         "created_at",
         "update_at",
         "estado_segip",
-        "reincidencia"
+        "reincidencia",
+
+        "se_fecha_inicio_sentencia",
+        "se_tiempo_sentencia"
     ];
 
     protected $guarded  = [];

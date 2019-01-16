@@ -43,6 +43,9 @@ class AddColumnasToPersonaTable extends Migration
             $table->date('update_at')->nullable();
             $table->smallInteger('estado_segip')->default('1')->unsigned();
             $table->smallInteger('reincidencia')->default('1')->unsigned();
+
+            $table->date('se_fecha_inicio_sentencia')->nullable();
+            $table->string('se_tiempo_sentencia', 500)->nullable();
         });
     }
 
