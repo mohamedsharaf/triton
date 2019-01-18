@@ -84,6 +84,9 @@ class DetencionPreventivaController extends Controller
 
     public function index()
     {
+        // $i4 = new I4Class();
+        // dd($i4->getSemaforoDelitos());
+
         $this->rol_id            = Auth::user()->rol_id;
         $this->grupo_id          = Auth::user()->grupo_id;
         $this->i4_funcionario_id = Auth::user()->i4_funcionario_id;
@@ -251,6 +254,8 @@ class DetencionPreventivaController extends Controller
                     a2.se_tiempo_sentencia,
 
                     UPPER(a3.Delito) AS delito_principal,
+                    a3.PenaMinima,
+                    a3.PenaMaxima,
 
                     UPPER(a4.EtapaCaso) AS etapa_caso,
 
@@ -323,6 +328,8 @@ class DetencionPreventivaController extends Controller
                     a2.se_tiempo_sentencia,
 
                     a3.Delito,
+                    a3.PenaMinima,
+                    a3.PenaMaxima,
 
                     a4.EtapaCaso,
 
@@ -465,7 +472,10 @@ class DetencionPreventivaController extends Controller
                         'peligro_procesal_id' => $row["peligro_procesal_id"],
 
                         'se_fecha_inicio_sentencia' => $row["se_fecha_inicio_sentencia"],
-                        'se_tiempo_sentencia'       => $row["se_tiempo_sentencia"]
+                        'se_tiempo_sentencia'       => $row["se_tiempo_sentencia"],
+
+                        'PenaMinima' => $row["PenaMinima"],
+                        'PenaMaxima' => $row["PenaMaxima"]
                     );
 
                     $respuesta['rows'][$i]['id'] = $row["persona_id"];
@@ -475,7 +485,7 @@ class DetencionPreventivaController extends Controller
                         $this->utilitarios(array('tipo' => '3', 'valor1' => $row["estado_segip"], 'valor2' => $row["NumDocId"])),
 
                         $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo"], 'id' => $row["persona_id"])),
-                        $this->utilitarios(array('tipo' => '1', 'valor' => $row["dp_semaforo_delito"], 'id' => $row["persona_id"])),
+                        $this->utilitarios(array('tipo' => '2', 'valor' => $row["dp_semaforo_delito"], 'id' => $row["persona_id"])),
                         $row["n_detenidos"],
                         ($row["dp_estado"] =="") ? "" : $this->dp_estado[$row["dp_estado"]],
                         $row["Caso"],
@@ -1655,6 +1665,7 @@ class DetencionPreventivaController extends Controller
                             $excel->sheet('Personas detenidas', function($sheet) use($consulta1){
                                 $sheet->row(1, [
                                     'SEMAFORO',
+                                    'SEMAFORO DELITO',
                                     'NUMERO DE DETENIDOS',
                                     'NUMERO DE CASO',
                                     'IANUS / NUREJ',
@@ -1730,6 +1741,7 @@ class DetencionPreventivaController extends Controller
                                 {
                                     $sheet->row($c+1, [
                                         $this->dp_semaforo[$row1["dp_semaforo"]],
+                                        $this->dp_semaforo[$row1["dp_semaforo_delito"]],
                                         $row1["n_detenidos"],
                                         $row1["Caso"],
                                         $row1["CodCasoJuz"],
@@ -2137,6 +2149,7 @@ class DetencionPreventivaController extends Controller
                             $excel->sheet('Personas detenidas', function($sheet) use($consulta1){
                                 $sheet->row(1, [
                                     'SEMAFORO',
+                                    'SEMAFORO DELITO',
                                     'NUMERO DE DETENIDOS',
                                     'NUMERO DE CASO',
                                     'IANUS / NUREJ',
@@ -2215,6 +2228,7 @@ class DetencionPreventivaController extends Controller
                                 {
                                     $sheet->row($c+1, [
                                         $this->dp_semaforo[$row1["dp_semaforo"]],
+                                        $this->dp_semaforo[$row1["dp_semaforo_delito"]],
                                         $row1["n_detenidos"],
                                         $row1["Caso"],
                                         $row1["CodCasoJuz"],
@@ -2512,6 +2526,33 @@ class DetencionPreventivaController extends Controller
                         break;
                     case '3':
                         $respuesta = '<button class="btn btn-xs btn-danger" onclick="utilitarios([80, ' . $valor['id'] . ']);" title="Ver características del detenido">
+                            <strong>' . $this->dp_semaforo[$valor['valor']] . '</strong>
+                        </button>';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                }
+                break;
+            case '2':
+                switch($valor['valor'])
+                {
+                    case '1':
+                        $respuesta = '<button class="btn btn-xs btn-primary" onclick="utilitarios([82, ' . $valor['id'] . ']);" title="Ver características del detenido">
+                            <strong>' . $this->dp_semaforo[$valor['valor']] . '</strong>
+                        </button>';
+                        return($respuesta);
+                        break;
+                    case '2':
+                        $respuesta = '<button class="btn btn-xs btn-warning" onclick="utilitarios([82, ' . $valor['id'] . ']);" title="Ver características del detenido">
+                            <strong>' . $this->dp_semaforo[$valor['valor']] . '</strong>
+                        </button>';
+                        return($respuesta);
+                        break;
+                    case '3':
+                        $respuesta = '<button class="btn btn-xs btn-danger" onclick="utilitarios([82, ' . $valor['id'] . ']);" title="Ver características del detenido">
                             <strong>' . $this->dp_semaforo[$valor['valor']] . '</strong>
                         </button>';
                         return($respuesta);

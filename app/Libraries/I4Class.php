@@ -3,6 +3,7 @@ namespace App\Libraries;
 
 use App\Models\I4\Caso;
 use App\Models\I4\Persona;
+use App\Models\I4\Delito;
 
 use DateTime;
 
@@ -156,5 +157,69 @@ class I4Class
             default:
                 break;
         }
+    }
+
+    public function getSemaforoDelitos()
+    {
+        set_time_limit(3600);
+        ini_set('memory_limit','-1');
+
+        // === INICIALIZACION DE VARIABLES ===
+            $respuesta = array(
+                'respuesta' => '',
+                'sw'        => 0
+            );
+
+        // === CONSULTA ===
+            $tabla1 = "Caso";
+            $tabla2 = "Persona";
+            $tabla3 = "Delito";
+
+            $consulta1 = Caso::leftJoin("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
+                ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.DelitoPrincipal")
+                ->whereRaw("$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4 AND a3.PenaMaxima >= 10")
+                ->select("$tabla1.id", "a2.id AS persona_id", "a3.PenaMaxima")
+                ->orderBy("$tabla1.id")
+                ->get();
+
+            $consulta2 = Caso::leftJoin("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
+                ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.DelitoPrincipal")
+                ->whereRaw("$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4 AND a3.PenaMaxima >= 6 AND a3.PenaMaxima < 10")
+                ->select("$tabla1.id", "a2.id AS persona_id", "a3.PenaMaxima")
+                ->orderBy("$tabla1.id")
+                ->get();
+
+            // $consulta3 = Caso::leftJoin("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
+            //     ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.DelitoPrincipal")
+            //     ->whereRaw("$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4 AND a3.PenaMaxima < 6")
+            //     ->select("$tabla1.id", "a2.id AS persona_id", "a3.PenaMaxima")
+            //     ->orderBy("$tabla1.id")
+            //     ->get();
+
+        // === OPERACION ===
+            if($consulta1->count() > 0)
+            {
+                foreach($consulta1->toArray() AS $row1)
+                {
+                    $iu                     = Persona::find($row1["persona_id"]);
+                    $iu->dp_semaforo_delito = 3;
+                    $iu->save();
+                }
+            }
+
+            if($consulta2->count() > 0)
+            {
+                foreach($consulta2->toArray() AS $row2)
+                {
+                    $iu                     = Persona::find($row2["persona_id"]);
+                    $iu->dp_semaforo_delito = 2;
+                    $iu->save();
+                }
+            }
+
+            $respuesta['respuesta'] .= 'Se logró modificar los semaforos de los delitos.';
+            $respuesta['sw']         = 1;
+
+        return $respuesta;
     }
 }

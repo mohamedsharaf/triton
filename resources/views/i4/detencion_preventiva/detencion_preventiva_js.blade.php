@@ -804,8 +804,7 @@
                             width      : 130,
                             align      : "center",
                             stype      :'select',
-                            editoptions: {value:dp_semaforo_jqgrid},
-                            hidden     : true
+                            editoptions: {value:dp_semaforo_jqgrid}
                         },
                         {
                             name       : "n_detenidos",
@@ -1629,6 +1628,13 @@
                     valor1[2]  = valor_error;
                     utilitarios(valor1);
                 }
+                break;
+            // === SEMAFORO DELITO ===
+            case 82:
+                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
+                var val_json = $.parseJSON(ret.val_json);
+
+                alert("PENA MINIMA: " + val_json.PenaMinima + "\nPENA MAXIMA: " + val_json.PenaMaxima)
                 break;
             // === MENSAJE ERROR ===
             case 100:

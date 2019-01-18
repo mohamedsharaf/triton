@@ -319,6 +319,7 @@ class Kernel extends ConsoleKernel
             $schedule->call(function(){
                 $i4 = new I4Class();
                 $i4->getNumeroDetenidos();
+                $i4->getSemaforoDelitos();
             })->hourly();
 
         //=== OPERACION DIARIA DEL DETENIDO PREVENTIVO ===
