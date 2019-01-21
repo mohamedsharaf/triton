@@ -1702,7 +1702,7 @@
 
                             if((val_json.validar_superior == '1') && (val_json.validar_rrhh == '1') && (val_json.estado == '2')){
                                 @if(in_array(['codigo' => '1003'], $permisos))
-                                    del2 = " <button type='button' class='btn btn-xs btn-warning' title='Habilitar PAPELETA DE SALIDA' onclick=\"utilitarios([18, " + cl + ", 1, 2]);\"><i class='fa fa-check'></i></button>";
+                                    // del2 = " <button type='button' class='btn btn-xs btn-warning' title='Habilitar PAPELETA DE SALIDA' onclick=\"utilitarios([18, " + cl + ", 1, 2]);\"><i class='fa fa-check'></i></button>";
                                 @else
                                     del2 = '';
                                 @endif

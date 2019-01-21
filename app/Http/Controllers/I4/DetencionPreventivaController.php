@@ -393,10 +393,9 @@ class DetencionPreventivaController extends Controller
                             ->whereRaw($array_where)
                             ->select(DB::raw("a2.id"))
                             ->groupBy(DB::raw("a2.id"))
-                            ->get()
-                            ->toArray();
+                            ->get();
 
-                $count = count($query1);
+                $count = $query1->count();
 
                 $limit_offset = $jqgrid->getLimitOffset($count);
 

@@ -699,6 +699,21 @@ class SolicitudSalidaController extends Controller
                         return json_encode($respuesta);
                     }
 
+                    if($opcion == 'e')
+                    {
+                        $consulta10 = RrhhSalida::where('id', '=', $id)
+                            ->select('id', 'f_salida')
+                            ->first();
+
+                        $anio_actual_salida    = date('Y', strtotime($consulta10['f_salida']));
+                        $anio_modificar_salida = date('Y', strtotime($data1['f_salida']));
+                        if($anio_actual_salida != $anio_modificar_salida)
+                        {
+                            $respuesta['respuesta'] .= "No se puede cambiar el año de una FECHA DE SALIDA.";
+                            return json_encode($respuesta);
+                        }
+                    }
+
                     $consulta1 = RrhhTipoSalida::where('id', '=', $data1['tipo_salida_id'])
                         ->select('lugar_dependencia_id', 'nombre', 'tipo_salida', 'tipo_cronograma', 'hd_mes')
                         ->first();
@@ -1343,6 +1358,21 @@ class SolicitudSalidaController extends Controller
                     {
                         $respuesta['respuesta'] .= "No se puede procesar su SOLICITUD DE SALIDA porque los datos corresponde a otra persona.";
                         return json_encode($respuesta);
+                    }
+
+                    if($opcion == 'e')
+                    {
+                        $consulta10 = RrhhSalida::where('id', '=', $id)
+                            ->select('id', 'f_salida')
+                            ->first();
+
+                        $anio_actual_salida    = date('Y', strtotime($consulta10['f_salida']));
+                        $anio_modificar_salida = date('Y', strtotime($data1['f_salida']));
+                        if($anio_actual_salida != $anio_modificar_salida)
+                        {
+                            $respuesta['respuesta'] .= "No se puede cambiar el año de una FECHA DE SALIDA.";
+                            return json_encode($respuesta);
+                        }
                     }
 
                     // === INFORMACION DEL FUNCIONARIO ===

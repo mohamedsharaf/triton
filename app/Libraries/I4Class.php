@@ -189,12 +189,12 @@ class I4Class
                 ->orderBy("$tabla1.id")
                 ->get();
 
-            // $consulta3 = Caso::leftJoin("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
-            //     ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.DelitoPrincipal")
-            //     ->whereRaw("$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4 AND a3.PenaMaxima < 6")
-            //     ->select("$tabla1.id", "a2.id AS persona_id", "a3.PenaMaxima")
-            //     ->orderBy("$tabla1.id")
-            //     ->get();
+            $consulta3 = Caso::leftJoin("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
+                ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.DelitoPrincipal")
+                ->whereRaw("$tabla1.EstadoCaso=1 AND a2.EstadoLibertad=4 AND a3.PenaMaxima < 6")
+                ->select("$tabla1.id", "a2.id AS persona_id", "a3.PenaMaxima")
+                ->orderBy("$tabla1.id")
+                ->get();
 
         // === OPERACION ===
             if($consulta1->count() > 0)
@@ -213,6 +213,16 @@ class I4Class
                 {
                     $iu                     = Persona::find($row2["persona_id"]);
                     $iu->dp_semaforo_delito = 2;
+                    $iu->save();
+                }
+            }
+
+            if($consulta3->count() > 0)
+            {
+                foreach($consulta3->toArray() AS $row3)
+                {
+                    $iu                     = Persona::find($row3["persona_id"]);
+                    $iu->dp_semaforo_delito = 1;
                     $iu->save();
                 }
             }
