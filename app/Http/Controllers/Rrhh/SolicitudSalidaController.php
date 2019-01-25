@@ -2671,7 +2671,7 @@ class SolicitudSalidaController extends Controller
                                         'tipo'    => '111',
                                         'x1'      => $x1,
                                         'y1'      => $y1,
-                                        'txt'     => "AUTORIZADO POR FISCAL DEPARAMETAL",
+                                        'txt'     => "AUTORIZADO POR FISCAL DEPARTAMENTAL",
                                         'border'  => 'LRTB',
                                         'align'   => 'C',
                                         'fill'    => $fill,

@@ -482,7 +482,7 @@
                 autoclose: true,
                 format   : "yyyy-mm-dd",
                 // startDate: '-' + {!! $n_dias !!} + 'd',
-                startDate: '-60d',
+                startDate: '-30d',
                 endDate  : '+1y',
                 language : "es"
             });
