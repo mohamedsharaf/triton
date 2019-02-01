@@ -654,7 +654,14 @@ class UsuarioController extends Controller
                             {
                                 $iu->password = $password;
                             }
-                            $iu->rol_id                   = $rol_id;
+                            if($estado == 2)
+                            {
+                                $iu->rol_id = 7;
+                            }
+                            else
+                            {
+                                $iu->rol_id = $rol_id;
+                            }
                             $iu->grupo_id                 = $grupo_id;
                             $iu->i4_funcionario_id        = $i4_funcionario_id;
                             $iu->i4_funcionario_id_estado = $i4_funcionario_id_estado;

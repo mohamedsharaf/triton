@@ -62,7 +62,9 @@ class SolicitudController extends Controller
             '10' => 'ORGANO JUDICIAL',
             '11' => 'OTROS MINISTERIOS',
             '12' => 'OTRAS INSTITUCIONAES',
-            '13' => 'DE OFICIO'
+            '13' => 'DE OFICIO',
+            '14' => 'MIEMBROS DEL MINISTERIO PUBLICO',
+            '15' => 'SERVIDOR PUBLICO'
         ];
 
         $this->etapa_proceso = [
