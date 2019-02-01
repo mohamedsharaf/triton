@@ -179,4 +179,10 @@
     Route::post('/recinto_carcelario/send_ajax', 'I4\RecintoCarcelarioController@send_ajax');
     Route::match(["get", "post"], '/recinto_carcelario/reportes', 'I4\RecintoCarcelarioController@reportes');
 
+//=== I4 - PLATAFORMA ===
+    Route::get('/plataforma', 'I4\PlataformaController@index')->name('plataforma');
+    Route::match(["get", "post"], '/plataforma/view_jqgrid', 'I4\PlataformaController@view_jqgrid');
+    Route::post('/plataforma/send_ajax', 'I4\PlataformaController@send_ajax');
+    Route::match(["get", "post"], '/plataforma/reportes', 'I4\PlataformaController@reportes');
+
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');
