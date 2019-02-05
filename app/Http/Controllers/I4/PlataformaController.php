@@ -16,8 +16,9 @@ use App\Models\Seguridad\SegPermisoRol;
 use App\Models\Seguridad\SegLdUser;
 use App\User;
 
-use App\Models\I4\RecintoCarcelario;
-use App\Models\I4\Muni;
+use App\Models\I4\Caso;
+use App\Models\I4\CasoFuncionario;
+
 use App\Models\I4\Dep;
 
 use Maatwebsite\Excel\Facades\Excel;
@@ -35,47 +36,40 @@ class PlataformaController extends Controller
             '1' => 'HABILITADO',
             '2' => 'INHABILITADO'
         ];
-
-        $this->tipo_recinto = [
-            '1' => 'RECINTO PENITENCIARIO',
-            '2' => 'CARCELETA',
-            '3' => 'CENTRO DE REHABILITACION JUVENIL'
-        ];
     }
 
     public function index()
     {
-        // $this->rol_id            = Auth::user()->rol_id;
+        $this->rol_id            = Auth::user()->rol_id;
 
-        // $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
-        //     ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
-        //     ->select("seg_permisos.codigo")
-        //     ->get()
-        //     ->toArray();
+        $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+            ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+            ->select("seg_permisos.codigo")
+            ->get()
+            ->toArray();
 
-        // if(in_array(['codigo' => '2101'], $this->permisos))
-        // {
-        //     $data = [
-        //         'rol_id'             => $this->rol_id,
-        //         'permisos'           => $this->permisos,
-        //         'title'              => 'Recintos carcelarios',
-        //         'home'               => 'Inicio',
-        //         'sistema'            => 'i4',
-        //         'modulo'             => 'Recinto carcelario',
-        //         'title_table'        => 'Recintos carcelarios',
-        //         'estado_array'       => $this->estado,
-        //         'tipo_recinto_array' => $this->tipo_recinto,
-        //         'departamento_array' => Dep::select(DB::raw("id, UPPER(Dep) AS nombre"))
-        //                                     ->orderBy("Dep")
-        //                                     ->get()
-        //                                     ->toArray()
-        //     ];
-        //     return view('i4.recinto_carcelario.recinto_carcelario')->with($data);
-        // }
-        // else
-        // {
-        //     return back()->withInput();
-        // }
+        if(in_array(['codigo' => '2201'], $this->permisos))
+        {
+            $data = [
+                'rol_id'             => $this->rol_id,
+                'permisos'           => $this->permisos,
+                'title'              => 'Plataforma',
+                'home'               => 'Inicio',
+                'sistema'            => 'i4',
+                'modulo'             => 'Plataforma',
+                'title_table'        => 'Plataforma',
+                'estado_array'       => $this->estado,
+                'departamento_array' => Dep::select(DB::raw("id, UPPER(Dep) AS nombre"))
+                                            ->orderBy("Dep")
+                                            ->get()
+                                            ->toArray()
+            ];
+            return view('i4.plataforma.plataforma')->with($data);
+        }
+        else
+        {
+            return back()->withInput();
+        }
     }
 
     public function view_jqgrid(Request $request)
@@ -273,7 +267,7 @@ class PlataformaController extends Controller
                     $data1['estado']       = trim($request->input('estado'));
                     $data1['Muni_id']      = trim($request->input('Muni_id'));
                     $data1['tipo_recinto'] = trim($request->input('tipo_recinto'));
-                    $data1['nombre']       = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                    $data1['nombre']       = $util->getNoAcentoNoComilla(trim($request->input('nombre')));
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
                     foreach ($data1 as $llave => $valor)
@@ -336,7 +330,110 @@ class PlataformaController extends Controller
                 return json_encode($respuesta);
                 break;
 
-            // === SELECT2 DEPARTAMENTO, MUNICIPIO  ===
+            // === BUSCANDO CASO ===
+            case '100':
+                // === LIBRERIAS ===
+                    $util = new UtilClass();
+
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'        => 0,
+                        'sw_1'      => 0,
+                        'titulo'    => '<div class = "text-center"><strong>BUSQUEDA DEL CASO</strong></div>',
+                        'respuesta' => '',
+                        'tipo'      => $tipo
+                    );
+
+                //=== CAMPOS ENVIADOS ===
+                    $data1['caso'] = strtoupper($util->getNoAcentoNoComilla(trim($request->input('caso'))));
+
+                    if($data1['caso'] == "")
+                    {
+                        $respuesta['respuesta'] .= "El campo CASO está vacio.";
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $tabla1  = "Caso";
+                    $tabla2  = "Delito";
+                    $tabla3  = "EtapaCaso";
+                    $tabla4  = "EstadoCaso";
+                    $tabla5  = "OrigenCaso";
+
+                    $select1 = "
+                        $tabla1.id,
+                        $tabla1.Caso,
+                        $tabla1.CodCasoJuz,
+                        $tabla1.FechaDenuncia,
+                        $tabla1.DelitoPrincipal,
+                        $tabla1.EtapaCaso,
+                        $tabla1.EstadoCaso,
+                        $tabla1.OrigenCaso,
+                        $tabla1.triton_modificado,
+                        $tabla1.n_detenidos,
+                        $tabla1.DivisionFis AS division_id,
+
+                        UPPER(a2.Delito) AS delito_principal,
+
+                        UPPER(a3.EtapaCaso) AS etapa_caso,
+
+                        UPPER(a4.EstadoCaso) AS estado_caso,
+
+                        UPPER(a5.OrigenCaso) AS origen_caso
+                    ";
+
+                    $where1 = "$tabla1.Caso='" . $data1['caso'] . "'";
+
+                    $cosulta1 = Caso::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.DelitoPrincipal")
+                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.EtapaCaso")
+                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.EstadoCaso")
+                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.OrigenCaso")
+                        ->whereRaw($where1)
+                        ->select(DB::raw($select1))
+                        ->first();
+
+                    if($cosulta1 === null)
+                    {
+                        $respuesta['respuesta'] .= "No se encontró el CASO.";
+                        return json_encode($respuesta);
+                    }
+
+                    $tabla1  = "CasoFuncionario";
+                    $tabla2  = "Funcionario";
+
+                    $select2 = "
+                        $tabla1.Caso AS caso_id,
+
+                        UPPER(GROUP_CONCAT(DISTINCT a2.Funcionario ORDER BY a2.Funcionario ASC SEPARATOR ', ')) AS funcionario
+                    ";
+
+                    $group_by_2 = "
+                        $tabla1.Caso
+                    ";
+
+                    $where2 = "$tabla1.Caso=" . $cosulta1['id'] . " AND $tabla1.FechaBaja IS NULL";
+
+                    $cosulta2 = CasoFuncionario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.Funcionario")
+                        ->whereRaw($where2)
+                        ->select(DB::raw($select2))
+                        ->groupBy(DB::raw($group_by_2))
+                        ->first();
+
+                    if( ! ($cosulta2 === null))
+                    {
+                        $respuesta['sw_1'] = 1;
+                        $respuesta['cosulta2'] = $cosulta2;
+                    }
+
+                    $respuesta['cosulta1'] = $cosulta1;
+
+                    $respuesta['respuesta'] .= "El CASO fue encontrado.";
+                    $respuesta['sw']         = 1;
+
+                return json_encode($respuesta);
+                break;
+            // === SELECT2 DEPARTAMENTO, MUNICIPIO ===
             case '101':
                 if($request->has('q'))
                 {
