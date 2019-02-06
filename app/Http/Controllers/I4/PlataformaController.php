@@ -323,6 +323,7 @@ class PlataformaController extends Controller
                     $iu->Asignado                     = $i4_funcionario_id;
                     $iu->FechaIni                     = $f_actual;
                     $iu->FechaFin                     = $f_actual;
+                    $iu->estado_triton                = 1;
                     $iu->ActividadActualizaEstadoCaso = 0;
 
                     $iu->timestamps = false;
