@@ -463,9 +463,9 @@ class PlataformaController extends Controller
                     $select3 = "
                         $tabla1.id,
                         $tabla1.Fecha,
-                        $tabla1.Actividad,
+                        UPPER($tabla1.Actividad) AS Actividad,
 
-                        a2.TipoActividad
+                        UPPER(a2.TipoActividad) AS TipoActividad
                     ";
 
                     $where3 = "$tabla1.Caso=" . $cosulta1['id'];
