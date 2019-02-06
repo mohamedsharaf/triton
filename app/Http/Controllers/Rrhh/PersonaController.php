@@ -525,7 +525,6 @@ class PersonaController extends Controller
                                             {
                                                 unlink(public_path($this->public_dir) . '/' . $consulta1->certificacion_file_segip);
                                             }
-
                                         }
                                     }
 

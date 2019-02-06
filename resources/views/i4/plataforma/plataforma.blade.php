@@ -165,9 +165,11 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="m-b-md">
-                                    <button type="button" class="btn btn-success btn-xs pull-right" onclick="utilitarios([10]);">
-                                        <strong>Añadir actividad</strong>
-                                    </button>
+                                    @if(in_array(['codigo' => '2202'], $permisos))
+                                        <button type="button" class="btn btn-success btn-xs pull-right" onclick="utilitarios([10]);">
+                                            <strong>Añadir actividad</strong>
+                                        </button>
+                                    @endif
 
                                     <h2><strong>Descripción del caso</strong></h2>
                                 </div>
@@ -216,6 +218,35 @@
                                     <dd id="delito_principal_b">VIOLENCIA FAMILIAR</dd>
                                 </dl>
                             </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">N°</th>
+                                        <th class="text-center">FECHA</th>
+                                        <th class="text-center">TIPO DE ACTIVIDAD</th>
+                                        <th class="text-center">ACTIVIDAD DESCRIPCION</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="actividad_tabla_b">
+                                    <tr>
+                                        <td class="text-right">
+                                            1
+                                        </td>
+                                        <td class="text-center">
+                                            2018-01-01
+                                        </td>
+                                        <td>
+                                            INFORME
+                                        </td>
+                                        <td>
+                                            HOLA
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -302,8 +333,6 @@
                     <div class="modal-body">
                         <form id="form_1" role="form" action="#">
                             <input type="hidden" id="caso_id_1" name="id" value=""/>
-                            <input type="hidden" id="tipo1" name="tipo" value="1"/>
-                            {{ csrf_field() }}
 
                             <div class="row">
                                 <div class="col-sm-12">

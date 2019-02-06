@@ -42,14 +42,14 @@
             estado_jqgrid += ';' + index + ':' + value;
         });
 
-    // === DEPARTAMENTO ===
-        var departamento_json   = $.parseJSON('{!! json_encode($departamento_array) !!}');
-        var departamento_select = '';
-        var departamento_jqgrid = ':Todos';
+    // === TIPO DE ACTIVIDAD ===
+        var tipo_actividad_json   = $.parseJSON('{!! json_encode($tipo_actividad_array) !!}');
+        var tipo_actividad_select = '';
+        var tipo_actividad_jqgrid = ':Todos';
 
-        $.each(departamento_json, function(index, value) {
-            departamento_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-            departamento_jqgrid += ';' + value.nombre + ':' + value.nombre;
+        $.each(tipo_actividad_json, function(index, value) {
+            tipo_actividad_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            tipo_actividad_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
     // === DROPZONE ===
@@ -60,7 +60,8 @@
             var valor1 = new Array();
             valor1[0]  = 30;
             utilitarios(valor1);
-            // $('#tipo_recinto').append(tipo_recinto_select);
+
+            $('#tipo_actividad_id_1').append(tipo_actividad_select);
 
         //=== SELECT2 ===
             $("#tipo_actividad_id_1").select2({
@@ -92,6 +93,11 @@
             //     }
             // });
             // $("#Muni_id").appendTo("#Muni_id_div");
+
+        // === DROPZONE ===
+            var valor1 = new Array();
+            valor1[0]  = 80;
+            utilitarios(valor1);
 
         //=== TOUCHSPIN ===
             // $("#dp_etapa_gestacion_semana").TouchSpin({
@@ -200,17 +206,21 @@
                 break;
             // === BORRAR INFORMACION ===
             case 30:
-                $('#caso_b, #etapa_caso_b, #origen_caso_b, #estado_caso_b, #f_denuncia_b, #fiscal_asignado_b, #delito_principal_b').empty();
+                $('#caso_b, #etapa_caso_b, #origen_caso_b, #estado_caso_b, #f_denuncia_b, #fiscal_asignado_b, #delito_principal_b, #modal_1_title, #actividad_tabla_b').empty();
                 break;
             // === RESETEAR FORMULARIO 1 ===
             case 31:
                 $("#caso_id_1").val('');
 
-                // $('#Muni_id').select2("val", "");
-                // $('#Muni_id option').remove();
-                // $('#tipo_recinto').select2("val", "");
+                $('#tipo_actividad_id_1').select2("val", "");
+                $("#actvidad_1").val('');
 
                 $(form_1)[0].reset();
+                break;
+            // === RESETEAR FORMULARIO 1 ===
+            case 32:
+                $('#tipo_actividad_id_1').select2("val", "");
+                $("#actvidad_1").val('');
                 break;
             // === JQGRID 1 ===
             case 40:
@@ -493,6 +503,119 @@
                 var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
                 win.focus();
                 break;
+            // === DROPZONE 1 ===
+            case 80:
+                $("#dropzoneForm_1").dropzone({
+                    url              : url_controller + "/send_ajax",
+                    method           : 'post',
+                    addRemoveLinks   : true,
+                    maxFilesize      : 5, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles    : 'application/pdf',
+                    paramName        : "file", // The name that will be used to transfer the file
+                    maxFiles         : 1,
+                    clickable        : true,
+                    parallelUploads  : 1,
+                    params: {
+                        tipo  : 1,
+                        _token: csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize : 1,
+                    autoProcessQueue     : true,
+
+                    dictRemoveFile              : 'Eliminar',
+                    dictCancelUpload            : 'Cancelar',
+                    dictCancelUploadConfirmation: '¿Confirme la cancelación?',
+                    dictDefaultMessage          : "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage         : 'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText            : 'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType         : 'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig              : 'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded        : 'Número máximo de archivos superado.',
+                    init: function(){
+                        this.on("sending", function(file, xhr, formData){
+                            formData.append("caso_id", $("#caso_id_1").val());
+                            formData.append("tipo_actividad_id", $("#tipo_actividad_id_1").val());
+                            formData.append("actvidad", $("#actvidad_1").val());
+                        });
+                    },
+                    success: function(file, response){
+                        var data = $.parseJSON(response);
+                        if(data.sw === 1){
+                            var valor1 = new Array();
+                            valor1[0]  = 100;
+                            valor1[1]  = data.titulo;
+                            valor1[2]  = data.respuesta;
+                            utilitarios(valor1);
+
+                            var valor1 = new Array();
+                            valor1[0]  = 32;
+                            utilitarios(valor1);
+
+                            $('#actividad_tabla_b').empty();
+
+                            if(data.sw_1 === 1){
+                                var actividad_tabla = ""
+
+                                var valor1 = new Array();
+                                valor1[0]  = 90;
+                                valor1[1]  = data.cosulta3;
+                                actividad_tabla = utilitarios(valor1);
+
+                                $('#actividad_tabla_b').append(actividad_tabla);
+                            }
+
+                            $('#modal_1').modal('hide');
+                        }
+                        else if(data.sw === 0){
+                            if(data.error_sw === 1){
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = data.respuesta;
+                                utilitarios(valor1);
+                            }
+                            else
+                            {
+                                var respuesta_server = '';
+                                $.each(data.error.response.original, function(index, value) {
+                                    respuesta_server += value + '<br>';
+                                });
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = respuesta_server;
+                                utilitarios(valor1);
+                            }
+                        }
+                        else if(data.sw === 2){
+                            window.location.reload();
+                        }
+                        this.removeAllFiles(true);
+                    }
+                });
+                break;
+            // === LLENAR TABLA 1 ===
+            case 90:
+                var respuesta = "";
+                var c = 1;
+                $.each(valor[1], function(index, value) {
+                    respuesta += '<tr>';
+                    respuesta += '<td class="text-right">' + c++ + '</td>';
+                    respuesta += '<td class="text-center">' + value.Fecha + '</td>';
+                    respuesta += '<td>' + value.TipoActividad + '</td>';
+
+                    var actividad = "";
+                    if(value.Actividad != null){
+                        actividad = value.Actividad;
+                    }
+                    respuesta += '<td>' + actividad + '</td>';
+                    respuesta += '</tr>';
+                });
+                return respuesta;
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -576,6 +699,17 @@
 
                                     if(data.sw_1 === 1){
                                         $('#fiscal_asignado_b').append(data.cosulta2.funcionario);
+                                    }
+
+                                    if(data.sw_2 === 1){
+                                        var actividad_tabla = ""
+
+                                        var valor1 = new Array();
+                                        valor1[0]  = 90;
+                                        valor1[1]  = data.cosulta3;
+                                        actividad_tabla = utilitarios(valor1);
+
+                                        $('#actividad_tabla_b').append(actividad_tabla);
                                     }
 
                                     $("#caso_id_1").val(data.cosulta1.id)

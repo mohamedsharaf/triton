@@ -18,6 +18,10 @@ use App\User;
 
 use App\Models\I4\Caso;
 use App\Models\I4\CasoFuncionario;
+use App\Models\I4\TipoActividad;
+use App\Models\I4\Actividad;
+use App\Models\I4\Funcionario;
+use App\Models\I4\Calendario;
 
 use App\Models\I4\Dep;
 
@@ -51,16 +55,17 @@ class PlataformaController extends Controller
         if(in_array(['codigo' => '2201'], $this->permisos))
         {
             $data = [
-                'rol_id'             => $this->rol_id,
-                'permisos'           => $this->permisos,
-                'title'              => 'Plataforma',
-                'home'               => 'Inicio',
-                'sistema'            => 'i4',
-                'modulo'             => 'Plataforma',
-                'title_table'        => 'Plataforma',
-                'estado_array'       => $this->estado,
-                'departamento_array' => Dep::select(DB::raw("id, UPPER(Dep) AS nombre"))
-                                            ->orderBy("Dep")
+                'rol_id'               => $this->rol_id,
+                'permisos'             => $this->permisos,
+                'title'                => 'Plataforma',
+                'home'                 => 'Inicio',
+                'sistema'              => 'i4',
+                'modulo'               => 'Plataforma',
+                'title_table'          => 'Plataforma',
+                'estado_array'         => $this->estado,
+                'tipo_actividad_array' => TipoActividad::select(DB::raw("id, UPPER(TipoActividad) AS nombre"))
+                                            ->where("estado_plataforma", "=", 1)
+                                            ->orderBy("TipoActividad")
                                             ->get()
                                             ->toArray()
             ];
@@ -195,7 +200,7 @@ class PlataformaController extends Controller
 
         switch($tipo)
         {
-            // === INSERT UPDATE ===
+            // === INSERT UPDATE UPLOAD ===
             case '1':
                 // === SEGURIDAD ===
                     $this->rol_id   = Auth::user()->rol_id;
@@ -211,49 +216,40 @@ class PlataformaController extends Controller
                     $data1     = array();
                     $respuesta = array(
                         'sw'         => 0,
-                        'titulo'     => '<div class="text-center"><strong>Recinto carcelario</strong></div>',
+                        'sw_1'       => 0,
+                        'titulo'     => '<div class="text-center"><strong>Añadir actividad</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
-                        'iu'         => 1,
                         'error_sw'   => 1
                     );
                     $opcion = 'n';
 
                 // === PERMISOS ===
-                    $id = trim($request->input('id'));
-                    if($id != '')
+                    if(!in_array(['codigo' => '2202'], $this->permisos))
                     {
-                        $opcion = 'e';
-                        if(!in_array(['codigo' => '2103'], $this->permisos))
-                        {
-                            $respuesta['respuesta'] .= "No tiene permiso para MODIFICAR.";
-                            return json_encode($respuesta);
-                        }
-                    }
-                    else
-                    {
-                        if(!in_array(['codigo' => '2102'], $this->permisos))
-                        {
-                            $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
-                            return json_encode($respuesta);
-                        }
+                        $respuesta['respuesta'] .= "No tiene permiso para AÑADIR ACTIVIDAD.";
+                        return json_encode($respuesta);
                     }
 
                 // === VALIDATE ===
                     try
                     {
                         $validator = $this->validate($request,[
-                            'Muni_id'      => 'required',
-                            'tipo_recinto' => 'required',
-                            'nombre'       => 'required|max: 500'
+                            'caso_id'           => 'required',
+                            'tipo_actividad_id' => 'required',
+                            'actvidad'          => 'max           : 120',
+                            'file'              => 'required|mimes:pdf|max: 5120'
                         ],
                         [
-                            'Muni_id.required' => 'El campo UBICACION es obligatorio.',
+                            'caso_id.required' => 'El campo ID DEL CASO es obligatorio.',
 
-                            'tipo_recinto.required' => 'El campo TIPO DE RECINTO es obligatorio.',
+                            'tipo_actividad_id.required' => 'El campo TIPO DE ACTIVIDAD es obligatorio.',
 
-                            'nombre.required' => 'El campo NOMBRE es obligatorio.',
-                            'nombre.max'     => 'El campo NOMBRE debe contener :max caracteres como máximo.'
+                            'actvidad.max' => 'El campo ACTIVIDAD debe contener :max caracteres como máximo.',
+
+                            'file.required' => 'El archivo PDF es obligatorio.',
+                            'file.mimes'    => 'El archivo subido debe de ser de tipo PDF.',
+                            'file.max'      => 'El archivo debe pesar 5120 kilobytes como máximo.'
                         ]);
                     }
                     catch (Exception $e)
@@ -264,10 +260,20 @@ class PlataformaController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $data1['estado']       = trim($request->input('estado'));
-                    $data1['Muni_id']      = trim($request->input('Muni_id'));
-                    $data1['tipo_recinto'] = trim($request->input('tipo_recinto'));
-                    $data1['nombre']       = $util->getNoAcentoNoComilla(trim($request->input('nombre')));
+                    $data1['caso_id']           = trim($request->input('caso_id'));
+                    $data1['tipo_actividad_id'] = trim($request->input('tipo_actividad_id'));
+                    $data1['actvidad']          = strtoupper($util->getNoAcentoNoComilla(trim($request->input('actvidad'))));
+
+                    if($request->hasFile('file'))
+                    {
+                        $documento        = $request->file('file');
+                        $documento_base64 = file_get_contents($documento->getRealPath());
+
+                        $documento_name = $documento->getClientOriginalName();
+
+                        // $respuesta['respuesta']    = $documento_name;
+                        // return json_encode($respuesta);
+                    }
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
                     foreach ($data1 as $llave => $valor)
@@ -277,56 +283,80 @@ class PlataformaController extends Controller
                     }
 
                 // === REGISTRAR MODIFICAR VALORES ===
-                    if($opcion == 'n')
+                    $f_actual          = date("Y-m-d");
+                    $fd_actual         = date("Y-m-d H:i:s");
+                    $fd_actual_1       = date("Y-m-d_H-i-s");
+                    $ip                = $request->ip();
+                    $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+
+                    $consulta1 = Funcionario::where("id", "=", $i4_funcionario_id)
+                                    ->select("Funcionario", "UserId")
+                                    ->first();
+
+                    $consulta2 = Calendario::where("Calendario", "=", $f_actual)
+                                    ->select("id")
+                                    ->first();
+
+                    $iu                = new Actividad;
+                    $iu->Caso          = $data1['caso_id'];
+                    $iu->TipoActividad = $data1['tipo_actividad_id'];
+                    $iu->Actividad     = $data1['actvidad'];
+
+                    $iu->version              = 1;
+                    $iu->Fecha                = $f_actual;
+                    $iu->AllanamientoPositivo = 0;
+                    $iu->RequisaPositiva      = 0;
+
+                    $iu->Documento  = $documento_base64;
+                    $iu->_Documento = $documento_name;
+
+                    $iu->CreatorUser                  = $consulta1["UserId"];
+                    $iu->CreatorFullName              = strtoupper($consulta1["Funcionario"]);
+                    $iu->CreationDate                 = $fd_actual;
+                    $iu->CreationIP                   = $ip;
+                    $iu->UpdaterUser                  = $consulta1["UserId"];
+                    $iu->UpdaterFullName              = strtoupper($consulta1["Funcionario"]);
+                    $iu->UpdaterDate                  = $fd_actual;
+                    $iu->UpdaterIP                    = $ip;
+                    $iu->EstadoDocumento              = 2;
+                    $iu->CalFecha                     = $consulta2["id"];
+                    $iu->Asignado                     = $i4_funcionario_id;
+                    $iu->FechaIni                     = $f_actual;
+                    $iu->FechaFin                     = $f_actual;
+                    $iu->ActividadActualizaEstadoCaso = 0;
+
+                    $iu->timestamps = false;
+
+                    $iu->save();
+
+                    $tabla1 = "Actividad";
+                    $tabla2 = "TipoActividad";
+
+                    $select3 = "
+                        $tabla1.id,
+                        $tabla1.Fecha,
+                        $tabla1.Actividad,
+
+                        a2.TipoActividad
+                    ";
+
+                    $where3 = "$tabla1.Caso=" . $data1['caso_id'];
+
+                    $cosulta3 = Actividad::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.TipoActividad")
+                        ->whereRaw($where3)
+                        ->select(DB::raw($select3))
+                        ->orderBy("$tabla1.CreationDate", "DESC")
+                        ->get()
+                        ->toArray();
+
+                    if( ! ($cosulta3 === null))
                     {
-                        $consulta1 = RecintoCarcelario::where('nombre', '=', $data1['nombre'])
-                            ->where('Muni_id', '=', $data1['Muni_id'])
-                            ->count();
-
-                        if($consulta1 < 1)
-                        {
-                            $iu               = new RecintoCarcelario;
-                            $iu->Muni_id      = $data1['Muni_id'];
-                            $iu->estado       = $data1['estado'];
-                            $iu->tipo_recinto = $data1['tipo_recinto'];
-                            $iu->nombre       = $data1['nombre'];
-
-                            $iu->save();
-
-                            $respuesta['respuesta'] .= "El RECINTO CARCELARIO fue registrado con éxito.";
-                            $respuesta['sw']         = 1;
-                        }
-                        else
-                        {
-                            $respuesta['respuesta'] .= "El NOMBRE del RECINTO CARCELARIO ya fue registrado.";
-                        }
+                        $respuesta['sw_1'] = 1;
+                        $respuesta['cosulta3'] = $cosulta3;
                     }
-                    else
-                    {
-                        $consulta1 = RecintoCarcelario::where('nombre', '=', $data1['nombre'])
-                            ->where('Muni_id', '=', $data1['Muni_id'])
-                            ->where('id', '<>', $id)
-                            ->count();
 
-                        if($consulta1 < 1)
-                        {
-                            $iu               = RecintoCarcelario::find($id);
-                            $iu->Muni_id      = $data1['Muni_id'];
-                            $iu->estado       = $data1['estado'];
-                            $iu->tipo_recinto = $data1['tipo_recinto'];
-                            $iu->nombre       = $data1['nombre'];
-
-                            $iu->save();
-
-                            $respuesta['respuesta'] .= "El RECINTO CARCELARIO se edito con éxito.";
-                            $respuesta['sw']         = 1;
-                            $respuesta['iu']         = 2;
-                        }
-                        else
-                        {
-                            $respuesta['respuesta'] .= "El NOMBRE del RECINTO CARCELARIO ya fue registrado.";
-                        }
-                    }
+                    $respuesta['respuesta'] .= "El RECINTO CARCELARIO fue registrado con éxito.";
+                    $respuesta['sw']         = 1;
                 return json_encode($respuesta);
                 break;
 
@@ -340,6 +370,7 @@ class PlataformaController extends Controller
                     $respuesta = array(
                         'sw'        => 0,
                         'sw_1'      => 0,
+                        'sw_2'      => 0,
                         'titulo'    => '<div class = "text-center"><strong>BUSQUEDA DEL CASO</strong></div>',
                         'respuesta' => '',
                         'tipo'      => $tipo
@@ -399,8 +430,8 @@ class PlataformaController extends Controller
                         return json_encode($respuesta);
                     }
 
-                    $tabla1  = "CasoFuncionario";
-                    $tabla2  = "Funcionario";
+                    $tabla1 = "CasoFuncionario";
+                    $tabla2 = "Funcionario";
 
                     $select2 = "
                         $tabla1.Caso AS caso_id,
@@ -424,6 +455,32 @@ class PlataformaController extends Controller
                     {
                         $respuesta['sw_1'] = 1;
                         $respuesta['cosulta2'] = $cosulta2;
+                    }
+
+                    $tabla1 = "Actividad";
+                    $tabla2 = "TipoActividad";
+
+                    $select3 = "
+                        $tabla1.id,
+                        $tabla1.Fecha,
+                        $tabla1.Actividad,
+
+                        a2.TipoActividad
+                    ";
+
+                    $where3 = "$tabla1.Caso=" . $cosulta1['id'];
+
+                    $cosulta3 = Actividad::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.TipoActividad")
+                        ->whereRaw($where3)
+                        ->select(DB::raw($select3))
+                        ->orderBy("$tabla1.CreationDate", "DESC")
+                        ->get()
+                        ->toArray();
+
+                    if( ! ($cosulta3 === null))
+                    {
+                        $respuesta['sw_2'] = 1;
+                        $respuesta['cosulta3'] = $cosulta3;
                     }
 
                     $respuesta['cosulta1'] = $cosulta1;
