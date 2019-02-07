@@ -45,6 +45,7 @@ class PlataformaController extends Controller
     public function index()
     {
         $this->rol_id            = Auth::user()->rol_id;
+        $this->i4_funcionario_id = Auth::user()->i4_funcionario_id;
 
         $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
             ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
@@ -56,6 +57,7 @@ class PlataformaController extends Controller
         {
             $data = [
                 'rol_id'               => $this->rol_id,
+                'i4_funcionario_id'    => $this->i4_funcionario_id,
                 'permisos'             => $this->permisos,
                 'title'                => 'Plataforma',
                 'home'                 => 'Inicio',
