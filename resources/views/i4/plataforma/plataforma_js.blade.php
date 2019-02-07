@@ -497,9 +497,9 @@
                     }
                 });
                 break;
-            // === REPORTE EXCEL ===
+            // === REPORTE PDF - GENERAR RECIBIDO ===
             case 70:
-                var concatenar_valores = '?tipo=10';
+                var concatenar_valores = '?tipo=1&id=' + valor[1];
                 var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
                 win.focus();
                 break;
@@ -612,6 +612,19 @@
                         actividad = value.Actividad;
                     }
                     respuesta += '<td>' + actividad + '</td>';
+
+                    @if(in_array(['codigo' => '2202'], $permisos) AND $i4_funcionario_id != '')
+                        respuesta += '<td class="text-center">';
+
+                        if(value.estado_triton == 1){
+                            respuesta += '<button type="button" class="btn btn-xs btn-success" title="Generar recibido" onclick="utilitarios([70, ' + value.id + ']);">';
+                            respuesta += '<i class="fa fa-print"></i>';
+                            respuesta += '</button>';
+                        }
+
+                        respuesta += '</td>';
+                    @endif
+
                     respuesta += '</tr>';
                 });
                 return respuesta;

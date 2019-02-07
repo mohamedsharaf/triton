@@ -228,6 +228,9 @@
                                         <th class="text-center">FECHA</th>
                                         <th class="text-center">TIPO DE ACTIVIDAD</th>
                                         <th class="text-center">ACTIVIDAD DESCRIPCION</th>
+                                        @if(in_array(['codigo' => '2202'], $permisos) AND $i4_funcionario_id != '')
+                                            <th></th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody id="actividad_tabla_b">
@@ -243,6 +246,11 @@
                                         </td>
                                         <td>
                                             HOLA
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-xs btn-success" title="Generar " onclick="utilitarios([70, 1]);">
+                                                <i class="fa fa-print"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
