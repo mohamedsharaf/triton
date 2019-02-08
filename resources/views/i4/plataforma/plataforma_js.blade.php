@@ -162,7 +162,7 @@
             case 0:
                 $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
                 break;
-            // === ABRIR MODAL ===
+            // === ABRIR MODAL - REGISTRAR ACTIVIDAD ===
             case 10:
                 if($("#caso_id_1").val() != ''){
                     $('#modal_1_title').empty();
@@ -177,6 +177,13 @@
                     valor1[2]  = 'No existe CASO para añadir actividad.';
                     utilitarios(valor1);
                 }
+                break;
+            // === ABRIR MODAL ===
+            case 11:
+                $('#modal_2_title').empty();
+                $('#modal_2_title').append('REPORTES');
+
+                $('#modal_2').modal();
                 break;
             // === EDICION MODAL ===
             case 20:

@@ -220,7 +220,11 @@
                             </div>
                         </div>
 
-                        <div class="table-responsive">
+                        @if($i4_funcionario_id == '')
+                            <div class="table-responsive" style="display: none;">
+                        @else
+                            <div class="table-responsive">
+                        @endif
                             <table class="table table-striped table-hover table-bordered">
                                 <thead>
                                     <tr>
@@ -281,11 +285,15 @@
                 </p>
 
                 <div class="text-center m-t-md">
-                    <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
+                    {{-- <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
                         <strong>Manual</strong>
-                    </a>
+                    </a> --}}
 
                     <button type="button" class="btn btn-xs btn-info" onclick="utilitarios([30]);utilitarios([31]);"><strong>Limpiar</strong></button>
+
+                    @if(in_array(['codigo' => '2203'], $permisos))
+                        <button type="button" class="btn btn-xs btn-success" onclick="utilitarios([11]);"><strong>Reportes</strong></button>
+                    @endif
                 </div>
 
                 <br>
