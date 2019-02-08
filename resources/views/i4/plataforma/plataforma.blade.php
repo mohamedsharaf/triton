@@ -221,6 +221,22 @@
                         </div>
 
                         @if($i4_funcionario_id == '')
+                            <div class="row" style="display: none;">
+                        @else
+                            <div class="row">
+                        @endif
+                            <div class="col-lg-12">
+                                <dl class="dl-horizontal">
+                                    <dt>Denunciante:</dt>
+                                    <dd id="denunciante_b">MARIO ARIEL ARANCIBIA PEREZ, MARIA ANTONIETA SANCHEZ RIOS, CARLOS PAREDES MARIO, MARIA PEREZ SANCHEZ, CARLOS ROMERO MONTALVO</dd>
+
+                                    <dt>Denunciado:</dt>
+                                    <dd id="denunciado_b">JUAN PEREZ CASTRO MAMANI, SANDRA IRALA FLORES, MARIO ALACA RICO</dd>
+                                </dl>
+                            </div>
+                        </div>
+
+                        @if($i4_funcionario_id == '')
                             <div class="table-responsive" style="display: none;">
                         @else
                             <div class="table-responsive">
