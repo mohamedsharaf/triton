@@ -32,14 +32,14 @@
         var jqgrid1  = "#jqgrid1";
         var pjqgrid1 = "#pjqgrid1";
 
-    // === ESTADO ===
-        var estado_json   = $.parseJSON('{!! json_encode($estado_array) !!}');
-        var estado_select = '';
-        var estado_jqgrid = ':Todos';
+    // === TIPO DE REPORTE ===
+        var tipo_reporte_json   = $.parseJSON('{!! json_encode($tipo_reporte_array) !!}');
+        var tipo_reporte_select = '';
+        var tipo_reporte_jqgrid = ':Todos';
 
-        $.each(estado_json, function(index, value) {
-            estado_select += '<option value="' + index + '">' + value + '</option>';
-            estado_jqgrid += ';' + index + ':' + value;
+        $.each(tipo_reporte_json, function(index, value) {
+            tipo_reporte_select += '<option value="' + index + '">' + value + '</option>';
+            tipo_reporte_jqgrid += ';' + index + ':' + value;
         });
 
     // === TIPO DE ACTIVIDAD ===
@@ -63,36 +63,68 @@
 
             $('#tipo_actividad_id_1').append(tipo_actividad_select);
 
+            $('#tipo_reporte_2').append(tipo_reporte_select);
+
         //=== SELECT2 ===
             $("#tipo_actividad_id_1").select2({
                 maximumSelectionLength: 1
             });
             $("#tipo_actividad_id_1").appendTo("#tipo_actividad_id_1_div");
 
-            // $('#Muni_id').select2({
-            //     maximumSelectionLength: 1,
-            //     minimumInputLength    : 2,
-            //     ajax                  : {
-            //         url     : url_controller + '/send_ajax',
-            //         type    : 'post',
-            //         dataType: 'json',
-            //         data    : function (params) {
-            //             return {
-            //                 q         : params.term,
-            //                 page_limit: 20,
-            //                 estado    : 1,
-            //                 tipo      : 101,
-            //                 _token    : csrf_token
-            //             };
-            //         },
-            //         results: function (data, page) {
-            //             return {
-            //                 results: data
-            //             };
-            //         }
-            //     }
-            // });
-            // $("#Muni_id").appendTo("#Muni_id_div");
+            $("#tipo_reporte_2").select2({
+                maximumSelectionLength: 1
+            });
+            $("#tipo_reporte_2").appendTo("#tipo_reporte_2_div");
+
+            $('#division_id_2').select2({
+                maximumSelectionLength: 1,
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 20,
+                            estado    : 1,
+                            tipo      : 101,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#division_id_2").appendTo("#division_id_2_div");
+
+            $('#funcionario_id_2').select2({
+                maximumSelectionLength: 1,
+                minimumInputLength    : 2,
+                ajax                  : {
+                    url     : url_controller + '/send_ajax',
+                    type    : 'post',
+                    dataType: 'json',
+                    data    : function (params) {
+                        return {
+                            q         : params.term,
+                            page_limit: 20,
+                            estado    : 1,
+                            tipo      : 102,
+                            _token    : csrf_token
+                        };
+                    },
+                    results: function (data, page) {
+                        return {
+                            results: data
+                        };
+                    }
+                }
+            });
+            $("#funcionario_id_2").appendTo("#funcionario_id_2_div");
 
         // === DROPZONE ===
             var valor1 = new Array();

@@ -380,46 +380,55 @@
                     </div>
 
                     <div class="modal-body">
-                        <form id="form_3" role="form" action="#">
+                        <form id="form_2" role="form" action="#">
                             <div class="row">
-
                                 <div class="col-sm-12">
-                                    <div id="dp_semaforo_3_div" class="form-group">
-                                        <label for="dp_semaforo_3">Semáforo</label>
-                                        <select name="dp_semaforo_3[]" id="dp_semaforo_3" data-placeholder="Semáforo" multiple="multiple" style="width: 100%;">
+                                    <div id="tipo_reporte_2_div" class="form-group">
+                                        <label for="tipo_reporte_2">Tipo de reporte</label>
+                                        <select name="tipo_reporte_2" id="tipo_reporte_2" data-placeholder="Tipo de reporte" multiple="multiple" style="width: 100%;">
                                         </select>
                                     </div>
 
-                                    <div id="departamento_id_3_div" class="form-group">
-                                        <label for="departamento_id_3">Departamento</label>
-                                        <select name="departamento_id_3[]" id="departamento_id_3" data-placeholder="Departamento" multiple="multiple" style="width: 100%;">
+                                    <div id="division_id_2_div" class="form-group">
+                                        <label for="division_id_2">División</label>
+                                        <select name="division_id_2" id="division_id_2" data-placeholder="Departamento" multiple="multiple" style="width: 100%;">
                                         </select>
                                     </div>
 
-                                    <div id="delito_id_3_div" class="form-group">
-                                        <label for="delito_id_3">Delito</label>
-                                        <select name="delito_id_3[]" id="delito_id_3" data-placeholder="Delitos" multiple="multiple" style="width: 100%;">
-                                        </select>
-                                    </div>
-
-                                    <div id="funcionario_id_3_div" class="form-group">
-                                        <label for="funcionario_id_3">Fiscal a cargo</label>
-                                        <select name="funcionario_id_3[]" id="funcionario_id_3" data-placeholder="Fiscal a cargo" multiple="multiple" style="width: 100%;">
+                                    <div id="funcionario_id_2_div" class="form-group">
+                                        <label for="funcionario_id_2">Fiscal</label>
+                                        <select name="funcionario_id_2" id="funcionario_id_2" data-placeholder="Fiscal" multiple="multiple" style="width: 100%;">
                                         </select>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="fecha_denuncia_del_3">Fecha denuncia del</label>
-                                                <input type="text" class="form-control" id="fecha_denuncia_del_3" name="fecha_denuncia_del_3" placeholder="año-mes-día">
+                                                <label for="fecha_del_2">Fecha ingreso del</label>
+                                                <input type="text" class="form-control" id="fecha_del_2" name="fecha_del_2" placeholder="año-mes-día" data-mask="9999-99-99">
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="fecha_denuncia_al_3">Fecha denuncia al</label>
-                                                <input type="text" class="form-control" id="fecha_denuncia_al_3" name="fecha_denuncia_al_3" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                <label for="hora_del_2">Hora ingreso del</label>
+                                                <input type="text" class="form-control" id="hora_del_2" name="hora_del_2" placeholder="hora:minuto" data-mask="99:99">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="fecha_al_2">Fecha ingreso al</label>
+                                                <input type="text" class="form-control" id="fecha_al_2" name="fecha_al_2" placeholder="año-mes-día" data-mask="9999-99-99">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="hora_al_2">Hora ingreso al</label>
+                                                <input type="text" class="form-control" id="hora_al_2" name="hora_al_2" placeholder="hora:minuto" data-mask="99:99">
                                             </div>
                                         </div>
                                     </div>
@@ -429,7 +438,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="utilitarios([81]);">Excel</button>
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([71]);">PDF</button>
                         <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div>
                 </div>

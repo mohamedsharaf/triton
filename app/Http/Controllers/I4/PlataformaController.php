@@ -37,9 +37,8 @@ class PlataformaController extends Controller
     {
         $this->middleware('auth');
 
-        $this->estado = [
-            '1' => 'HABILITADO',
-            '2' => 'INHABILITADO'
+        $this->tipo_reporte = [
+            '1' => 'MEMORIALES'
         ];
 
         $this->public_dir = '/image/logo';
@@ -67,7 +66,7 @@ class PlataformaController extends Controller
                 'sistema'              => 'i4',
                 'modulo'               => 'Plataforma',
                 'title_table'          => 'Plataforma',
-                'estado_array'         => $this->estado,
+                'tipo_reporte_array'   => $this->tipo_reporte,
                 'tipo_actividad_array' => TipoActividad::select(DB::raw("id, UPPER(TipoActividad) AS nombre"))
                                             ->where("estado_plataforma", "=", 1)
                                             ->orderBy("TipoActividad")
