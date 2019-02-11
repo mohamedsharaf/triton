@@ -364,6 +364,77 @@
                 </div>
             </div>
         </div>
+
+        <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+
+                        <h4 class="modal-title">
+                            REPORTES
+                        </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="form_3" role="form" action="#">
+                            <div class="row">
+
+                                <div class="col-sm-12">
+                                    <div id="dp_semaforo_3_div" class="form-group">
+                                        <label for="dp_semaforo_3">Semáforo</label>
+                                        <select name="dp_semaforo_3[]" id="dp_semaforo_3" data-placeholder="Semáforo" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div id="departamento_id_3_div" class="form-group">
+                                        <label for="departamento_id_3">Departamento</label>
+                                        <select name="departamento_id_3[]" id="departamento_id_3" data-placeholder="Departamento" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div id="delito_id_3_div" class="form-group">
+                                        <label for="delito_id_3">Delito</label>
+                                        <select name="delito_id_3[]" id="delito_id_3" data-placeholder="Delitos" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div id="funcionario_id_3_div" class="form-group">
+                                        <label for="funcionario_id_3">Fiscal a cargo</label>
+                                        <select name="funcionario_id_3[]" id="funcionario_id_3" data-placeholder="Fiscal a cargo" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="fecha_denuncia_del_3">Fecha denuncia del</label>
+                                                <input type="text" class="form-control" id="fecha_denuncia_del_3" name="fecha_denuncia_del_3" placeholder="año-mes-día">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="fecha_denuncia_al_3">Fecha denuncia al</label>
+                                                <input type="text" class="form-control" id="fecha_denuncia_al_3" name="fecha_denuncia_al_3" placeholder="año-mes-día" data-mask="9999-99-99">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([81]);">Excel</button>
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 @endsection
 
 @section('js_plugins')

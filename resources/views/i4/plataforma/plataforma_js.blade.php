@@ -180,9 +180,6 @@
                 break;
             // === ABRIR MODAL ===
             case 11:
-                $('#modal_2_title').empty();
-                $('#modal_2_title').append('REPORTES');
-
                 $('#modal_2').modal();
                 break;
             // === EDICION MODAL ===
@@ -213,7 +210,7 @@
                 break;
             // === BORRAR INFORMACION ===
             case 30:
-                $('#caso_b, #etapa_caso_b, #origen_caso_b, #estado_caso_b, #f_denuncia_b, #fiscal_asignado_b, #delito_principal_b, #modal_1_title, #actividad_tabla_b').empty();
+                $('#caso_b, #etapa_caso_b, #origen_caso_b, #estado_caso_b, #f_denuncia_b, #fiscal_asignado_b, #delito_principal_b, #modal_1_title, #actividad_tabla_b, #denunciante_b, #denunciado_b').empty();
                 break;
             // === RESETEAR FORMULARIO 1 ===
             case 31:
@@ -730,6 +727,14 @@
                                         actividad_tabla = utilitarios(valor1);
 
                                         $('#actividad_tabla_b').append(actividad_tabla);
+                                    }
+
+                                    if(data.sw_3 === 1){
+                                        $('#denunciante_b').append(data.cosulta4.denunciante);
+                                    }
+
+                                    if(data.sw_4 === 1){
+                                        $('#denunciado_b').append(data.cosulta5.denunciado);
                                     }
 
                                     $("#caso_id_1").val(data.cosulta1.id)

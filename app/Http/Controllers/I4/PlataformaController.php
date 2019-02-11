@@ -22,6 +22,7 @@ use App\Models\I4\TipoActividad;
 use App\Models\I4\Actividad;
 use App\Models\I4\Funcionario;
 use App\Models\I4\Calendario;
+use App\Models\I4\Persona;
 
 use App\Models\I4\Dep;
 
@@ -377,6 +378,8 @@ class PlataformaController extends Controller
                         'sw'        => 0,
                         'sw_1'      => 0,
                         'sw_2'      => 0,
+                        'sw_3'      => 0,
+                        'sw_4'      => 0,
                         'titulo'    => '<div class = "text-center"><strong>BUSQUEDA DEL CASO</strong></div>',
                         'respuesta' => '',
                         'tipo'      => $tipo
@@ -392,103 +395,158 @@ class PlataformaController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $tabla1  = "Caso";
-                    $tabla2  = "Delito";
-                    $tabla3  = "EtapaCaso";
-                    $tabla4  = "EstadoCaso";
-                    $tabla5  = "OrigenCaso";
+                    //=== CONSULTA 1 ===
+                        $tabla1  = "Caso";
+                        $tabla2  = "Delito";
+                        $tabla3  = "EtapaCaso";
+                        $tabla4  = "EstadoCaso";
+                        $tabla5  = "OrigenCaso";
 
-                    $select1 = "
-                        $tabla1.id,
-                        $tabla1.Caso,
-                        $tabla1.CodCasoJuz,
-                        $tabla1.FechaDenuncia,
-                        $tabla1.DelitoPrincipal,
-                        $tabla1.EtapaCaso,
-                        $tabla1.EstadoCaso,
-                        $tabla1.OrigenCaso,
-                        $tabla1.triton_modificado,
-                        $tabla1.n_detenidos,
-                        $tabla1.DivisionFis AS division_id,
+                        $select1 = "
+                            $tabla1.id,
+                            $tabla1.Caso,
+                            $tabla1.CodCasoJuz,
+                            $tabla1.FechaDenuncia,
+                            $tabla1.DelitoPrincipal,
+                            $tabla1.EtapaCaso,
+                            $tabla1.EstadoCaso,
+                            $tabla1.OrigenCaso,
+                            $tabla1.triton_modificado,
+                            $tabla1.n_detenidos,
+                            $tabla1.DivisionFis AS division_id,
 
-                        UPPER(a2.Delito) AS delito_principal,
+                            UPPER(a2.Delito) AS delito_principal,
 
-                        UPPER(a3.EtapaCaso) AS etapa_caso,
+                            UPPER(a3.EtapaCaso) AS etapa_caso,
 
-                        UPPER(a4.EstadoCaso) AS estado_caso,
+                            UPPER(a4.EstadoCaso) AS estado_caso,
 
-                        UPPER(a5.OrigenCaso) AS origen_caso
-                    ";
+                            UPPER(a5.OrigenCaso) AS origen_caso
+                        ";
 
-                    $where1 = "$tabla1.Caso='" . $data1['caso'] . "'";
+                        $where1 = "$tabla1.Caso='" . $data1['caso'] . "'";
 
-                    $cosulta1 = Caso::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.DelitoPrincipal")
-                        ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.EtapaCaso")
-                        ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.EstadoCaso")
-                        ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.OrigenCaso")
-                        ->whereRaw($where1)
-                        ->select(DB::raw($select1))
-                        ->first();
+                        $cosulta1 = Caso::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.DelitoPrincipal")
+                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.EtapaCaso")
+                            ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.EstadoCaso")
+                            ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.OrigenCaso")
+                            ->whereRaw($where1)
+                            ->select(DB::raw($select1))
+                            ->first();
 
-                    if($cosulta1 === null)
-                    {
-                        $respuesta['respuesta'] .= "No se encontró el CASO.";
-                        return json_encode($respuesta);
-                    }
+                        if($cosulta1 === null)
+                        {
+                            $respuesta['respuesta'] .= "No se encontró el CASO.";
+                            return json_encode($respuesta);
+                        }
 
-                    $tabla1 = "CasoFuncionario";
-                    $tabla2 = "Funcionario";
+                    //=== CONSULTA 3 ===
+                        $tabla1 = "CasoFuncionario";
+                        $tabla2 = "Funcionario";
 
-                    $select2 = "
-                        $tabla1.Caso AS caso_id,
+                        $select2 = "
+                            $tabla1.Caso AS caso_id,
 
-                        UPPER(GROUP_CONCAT(DISTINCT a2.Funcionario ORDER BY a2.Funcionario ASC SEPARATOR ', ')) AS funcionario
-                    ";
+                            UPPER(GROUP_CONCAT(DISTINCT a2.Funcionario ORDER BY a2.Funcionario ASC SEPARATOR ', ')) AS funcionario
+                        ";
 
-                    $group_by_2 = "
-                        $tabla1.Caso
-                    ";
+                        $group_by_2 = "
+                            $tabla1.Caso
+                        ";
 
-                    $where2 = "$tabla1.Caso=" . $cosulta1['id'] . " AND $tabla1.FechaBaja IS NULL";
+                        $where2 = "$tabla1.Caso=" . $cosulta1['id'] . " AND $tabla1.FechaBaja IS NULL";
 
-                    $cosulta2 = CasoFuncionario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.Funcionario")
-                        ->whereRaw($where2)
-                        ->select(DB::raw($select2))
-                        ->groupBy(DB::raw($group_by_2))
-                        ->first();
+                        $cosulta2 = CasoFuncionario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.Funcionario")
+                            ->whereRaw($where2)
+                            ->select(DB::raw($select2))
+                            ->groupBy(DB::raw($group_by_2))
+                            ->first();
 
-                    if( ! ($cosulta2 === null))
-                    {
-                        $respuesta['sw_1'] = 1;
-                        $respuesta['cosulta2'] = $cosulta2;
-                    }
+                        if( ! ($cosulta2 === null))
+                        {
+                            $respuesta['sw_1']     = 1;
+                            $respuesta['cosulta2'] = $cosulta2;
+                        }
 
-                    $tabla1 = "Actividad";
-                    $tabla2 = "TipoActividad";
+                    //=== CONSULTA 3 ===
+                        $tabla1 = "Actividad";
+                        $tabla2 = "TipoActividad";
 
-                    $select3 = "
-                        $tabla1.id,
-                        $tabla1.Fecha,
-                        UPPER($tabla1.Actividad) AS Actividad,
-                        $tabla1.estado_triton,
+                        $select3 = "
+                            $tabla1.id,
+                            $tabla1.Fecha,
+                            UPPER($tabla1.Actividad) AS Actividad,
+                            $tabla1.estado_triton,
 
-                        UPPER(a2.TipoActividad) AS TipoActividad
-                    ";
+                            UPPER(a2.TipoActividad) AS TipoActividad
+                        ";
 
-                    $where3 = "$tabla1.Caso=" . $cosulta1['id'];
+                        $where3 = "$tabla1.Caso=" . $cosulta1['id'];
 
-                    $cosulta3 = Actividad::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.TipoActividad")
-                        ->whereRaw($where3)
-                        ->select(DB::raw($select3))
-                        ->orderBy("$tabla1.CreationDate", "DESC")
-                        ->get()
-                        ->toArray();
+                        $cosulta3 = Actividad::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.TipoActividad")
+                            ->whereRaw($where3)
+                            ->select(DB::raw($select3))
+                            ->orderBy("$tabla1.CreationDate", "DESC")
+                            ->get()
+                            ->toArray();
 
-                    if( ! ($cosulta3 === null))
-                    {
-                        $respuesta['sw_2'] = 1;
-                        $respuesta['cosulta3'] = $cosulta3;
-                    }
+                        if( ! ($cosulta3 === null))
+                        {
+                            $respuesta['sw_2'] = 1;
+                            $respuesta['cosulta3'] = $cosulta3;
+                        }
+
+                    //=== CONSULTA 4 ===
+                        $tabla1 = "Persona";
+
+                        $select4 = "
+                            $tabla1.Caso AS caso_id,
+
+                            UPPER(GROUP_CONCAT(DISTINCT $tabla1.Persona ORDER BY $tabla1.Persona ASC SEPARATOR ', ')) AS denunciante
+                        ";
+
+                        $group_by_4 = "
+                            $tabla1.Caso
+                        ";
+
+                        $where4 = "$tabla1.Caso=" . $cosulta1['id'] . " AND $tabla1.EsDenunciante=1";
+
+                        $cosulta4 = Persona::whereRaw($where4)
+                            ->select(DB::raw($select4))
+                            ->groupBy(DB::raw($group_by_4))
+                            ->first();
+
+                        if( ! ($cosulta4 === null))
+                        {
+                            $respuesta['sw_3']     = 1;
+                            $respuesta['cosulta4'] = $cosulta4;
+                        }
+
+                    //=== CONSULTA 5 ===
+                        $tabla1 = "Persona";
+
+                        $select5 = "
+                            $tabla1.Caso AS caso_id,
+
+                            UPPER(GROUP_CONCAT(DISTINCT $tabla1.Persona ORDER BY $tabla1.Persona ASC SEPARATOR ', ')) AS denunciado
+                        ";
+
+                        $group_by_5 = "
+                            $tabla1.Caso
+                        ";
+
+                        $where5 = "$tabla1.Caso=" . $cosulta1['id'] . " AND $tabla1.EsDenunciado=1";
+
+                        $cosulta5 = Persona::whereRaw($where5)
+                            ->select(DB::raw($select5))
+                            ->groupBy(DB::raw($group_by_5))
+                            ->first();
+
+                        if( ! ($cosulta5 === null))
+                        {
+                            $respuesta['sw_4']     = 1;
+                            $respuesta['cosulta5'] = $cosulta5;
+                        }
 
                     $respuesta['cosulta1'] = $cosulta1;
 
