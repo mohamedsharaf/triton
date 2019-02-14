@@ -20,6 +20,8 @@
 
         <link href="{!! asset('inspinia_v27/css/plugins/orgchart/jquery.orgchart.min.css') !!}" rel="stylesheet">
 
+        <link href="{!! asset('inspinia_v27/css/plugins/clockpicker/clockpicker.css') !!}" rel="stylesheet">
+
     <!-- Dropzone -->
         <link href="{!! asset('inspinia_v27/css/plugins/dropzone/basic.css') !!}" rel="stylesheet">
         <link href="{!! asset('inspinia_v27/css/plugins/dropzone/dropzone.css') !!}" rel="stylesheet">
@@ -30,6 +32,10 @@
 
 @section('css')
     <style type="text/css">
+        .clockpicker-popover {
+            z-index: 999999;
+        }
+
         #alertmod_table_list_2 {
             top: 900px !important;
         }
@@ -395,7 +401,7 @@
                                         </select>
                                     </div>
 
-                                    <div id="funcionario_id_2_div" class="form-group">
+                                    <div id="funcionario_id_2_div" class="form-group" style="display:none;">
                                         <label for="funcionario_id_2">Fiscal</label>
                                         <select name="funcionario_id_2" id="funcionario_id_2" data-placeholder="Fiscal" multiple="multiple" style="width: 100%;">
                                         </select>
@@ -404,15 +410,15 @@
                                     <div class="row">
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="fecha_del_2">Fecha ingreso del</label>
-                                                <input type="text" class="form-control" id="fecha_del_2" name="fecha_del_2" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                <label for="fecha_del_2">Fecha del</label>
+                                            <input type="text" class="form-control" id="fecha_del_2" name="fecha_del_2" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date('Y-m-d') }}">
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="hora_del_2">Hora ingreso del</label>
-                                                <input type="text" class="form-control" id="hora_del_2" name="hora_del_2" placeholder="hora:minuto" data-mask="99:99">
+                                                <label for="hora_del_2">Hora del</label>
+                                                <input type="text" class="form-control" id="hora_del_2" name="hora_del_2" placeholder="hora:minuto" data-mask="99:99" value="00:00">
                                             </div>
                                         </div>
                                     </div>
@@ -420,15 +426,15 @@
                                     <div class="row">
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="fecha_al_2">Fecha ingreso al</label>
-                                                <input type="text" class="form-control" id="fecha_al_2" name="fecha_al_2" placeholder="año-mes-día" data-mask="9999-99-99">
+                                                <label for="fecha_al_2">Fecha al</label>
+                                                <input type="text" class="form-control" id="fecha_al_2" name="fecha_al_2" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date('Y-m-d') }}">
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="hora_al_2">Hora ingreso al</label>
-                                                <input type="text" class="form-control" id="hora_al_2" name="hora_al_2" placeholder="hora:minuto" data-mask="99:99">
+                                                <label for="hora_al_2">Hora al</label>
+                                                <input type="text" class="form-control" id="hora_al_2" name="hora_al_2" placeholder="hora:minuto" data-mask="99:99" value="{{ date('H:i') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -483,6 +489,9 @@
     <!-- Data picker -->
         <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
         <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>
+
+    <!-- Clock picker -->
+        <script src="{{ asset('inspinia_v27/js/plugins/clockpicker/clockpicker.js') }}"></script>
 
     <!-- OrgChart -->
         <script src="{{ asset('inspinia_v27/js/plugins/orgchart/html2canvas.min.js') }}"></script>

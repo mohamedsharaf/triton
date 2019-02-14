@@ -3660,7 +3660,7 @@ class SolicitudSalidaController extends Controller
 
                         // PDF::lastPage();
 
-                    PDF::Output('papeleta_salida_' . date("YmdHis") . '.pdf', 'I');;
+                    PDF::Output('papeleta_salida_' . date("YmdHis") . '.pdf', 'I');
                 }
                 else
                 {

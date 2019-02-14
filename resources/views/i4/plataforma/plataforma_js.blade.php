@@ -77,7 +77,7 @@
             $("#tipo_reporte_2").appendTo("#tipo_reporte_2_div");
 
             $('#division_id_2').select2({
-                maximumSelectionLength: 1,
+                // maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
                     url     : url_controller + '/send_ajax',
@@ -87,7 +87,6 @@
                         return {
                             q         : params.term,
                             page_limit: 20,
-                            estado    : 1,
                             tipo      : 101,
                             _token    : csrf_token
                         };
@@ -130,6 +129,27 @@
             var valor1 = new Array();
             valor1[0]  = 80;
             utilitarios(valor1);
+
+        //=== DATEPICKER 3 ===
+            $('#fecha_del_2, #fecha_al_2').datepicker({
+                // startView            : 2,
+                // todayBtn          : "linked",
+                // keyboardNavigation: false,
+                // forceParse        : false,
+                autoclose            : true,
+                format               : "yyyy-mm-dd",
+                startDate            : '-100y',
+                endDate              : '+0d',
+                language             : "es"
+            });
+
+        //=== CLOCKPICKER ===
+            $('#hora_del_2, #hora_al_2').clockpicker({
+                autoclose: true,
+                placement: 'top',
+                align    : 'left',
+                donetext : 'Hecho'
+            });
 
         //=== TOUCHSPIN ===
             // $("#dp_etapa_gestacion_semana").TouchSpin({
@@ -538,6 +558,81 @@
                 var concatenar_valores = '?tipo=1&id=' + valor[1];
                 var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
                 win.focus();
+                break;
+            // === REPORTE PDF - REPORTES ===
+            case 71:
+                var concatenar_valores = '?tipo=2';
+
+                var tipo_reporte   = $("#tipo_reporte_2").val();
+                var division_id    = $("#division_id_2").val();
+                var funcionario_id = $("#funcionario_id_2").val();
+                var fecha_del      = $("#fecha_del_2").val();
+                var hora_del       = $("#hora_del_2").val();
+                var fecha_al       = $("#fecha_al_2").val();
+                var hora_al        = $("#hora_al_2").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(tipo_reporte) != ''){
+                    concatenar_valores += '&tipo_reporte=' + tipo_reporte;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error = 'El campo TIPO DE REPORTE es obligatorio';
+                }
+
+                if($.trim(division_id) != ''){
+                    concatenar_valores += '&division_id=' + division_id;
+                }
+
+                if($.trim(funcionario_id) != ''){
+                    concatenar_valores += '&funcionario_id=' + funcionario_id;
+                }
+
+                if($.trim(fecha_del) != ''){
+                    concatenar_valores += '&fecha_del=' + fecha_del;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error = 'El campo FECHA DEL es obligatorio';
+                }
+
+                if($.trim(hora_del) != ''){
+                    concatenar_valores += '&hora_del=' + hora_del;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error = 'El campo HORA DEL es obligatorio';
+                }
+
+                if($.trim(fecha_al) != ''){
+                    concatenar_valores += '&fecha_al=' + fecha_al;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error = 'El campo FECHA AL es obligatorio';
+                }
+
+                if($.trim(hora_al) != ''){
+                    concatenar_valores += '&hora_al=' + hora_al;
+                }
+                else{
+                    valor_sw    = false;
+                    valor_error = 'El campo HORA AL es obligatorio';
+                }
+
+                if(valor_sw){
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                }
+                else{
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = valor_error;
+                    utilitarios(valor1);
+                }
                 break;
             // === DROPZONE 1 ===
             case 80:

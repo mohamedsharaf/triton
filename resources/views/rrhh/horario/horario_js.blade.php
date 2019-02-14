@@ -230,6 +230,8 @@
 
             $('#h_ingreso, #h_salida, #marcacion_ingreso_del, #marcacion_ingreso_al, #marcacion_salida_del, #marcacion_salida_al').clockpicker({
                 autoclose: true,
+                placement: 'top',
+                align    : 'left',
                 donetext : 'Hecho'
             });
 
