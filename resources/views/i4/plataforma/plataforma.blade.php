@@ -401,7 +401,7 @@
                                         </select>
                                     </div>
 
-                                    <div id="funcionario_id_2_div" class="form-group" style="display:none;">
+                                    <div id="funcionario_id_2_div" class="form-group">
                                         <label for="funcionario_id_2">Fiscal</label>
                                         <select name="funcionario_id_2" id="funcionario_id_2" data-placeholder="Fiscal" multiple="multiple" style="width: 100%;">
                                         </select>

@@ -101,7 +101,7 @@
             $("#division_id_2").appendTo("#division_id_2_div");
 
             $('#funcionario_id_2').select2({
-                maximumSelectionLength: 1,
+                // maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
                     url     : url_controller + '/send_ajax',
