@@ -19,10 +19,14 @@
                         </span>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        {{-- <li><a href="profile.html">Mi perfil</a></li> --}}
-                        {{-- <li><a href="contacts.html">Mi declaración</a></li>
-                        <li><a href="mailbox.html">Mi hoja de vida</a></li> --}}
-                        {{-- <li class="divider"></li> --}}
+                        <li><a href="{{ url('/home') }}">Mi perfil</a></li>
+                        @if(in_array(['codigo' => '1001'], $permisos))
+                            <li><a href="{{ isActiveRoute('solicitud_salida') }}">Solicitud de salida</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '1101'], $permisos))
+                            <li><a href="{{ isActiveRoute('confirmar_salida') }}">Confirmar salida</a></li>
+                        @endif
+                        <li class="divider"></li>
                         <li><a href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">Cerrar sesión</a></li>
                     </ul>
                 </div>
@@ -123,12 +127,15 @@
                 </li>
             @endif
 
-            @if(in_array(['codigo' => '2001'], $permisos) || in_array(['codigo' => '2101'], $permisos) || in_array(['codigo' => '2201'], $permisos))
-                <li class="{{ isActiveRoute('detencion_preventiva') }}{{ isActiveRoute('recinto_carcelario') }}{{ isActiveRoute('plataforma') }}">
+            @if(in_array(['codigo' => '2001'], $permisos) || in_array(['codigo' => '2101'], $permisos) || in_array(['codigo' => '2201'], $permisos) || in_array(['codigo' => '2501'], $permisos))
+                <li class="{{ isActiveRoute('detencion_preventiva') }}{{ isActiveRoute('recinto_carcelario') }}{{ isActiveRoute('plataforma') }}{{ isActiveRoute('notificacion') }}">
                     <a href="#"><i class="fa fa-plug"></i> <span class="nav-label">i4</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         @if(in_array(['codigo' => '2201'], $permisos))
                             <li class="{{ isActiveRoute('plataforma') }}"><a href="{{ url('/plataforma') }}">Plataforma</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '2501'], $permisos))
+                            <li class="{{ isActiveRoute('notificacion') }}"><a href="{{ url('/notificacion') }}">Notificaciones</a></li>
                         @endif
                         @if(in_array(['codigo' => '2001'], $permisos))
                             <li class="{{ isActiveRoute('detencion_preventiva') }}"><a href="{{ url('/detencion_preventiva') }}">Estado de libertad</a></li>
