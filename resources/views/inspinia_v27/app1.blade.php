@@ -44,5 +44,38 @@
 
     @yield('js_plugins')
     @yield('js')
+    <script>
+      $(document).ready(function(){
+        notificaciones();
+      });
+
+      function notificaciones(){
+        // if(Notification){
+        //   if(Notification.permission !== "granted"){
+        //     Notification.requestPermission();
+        //   }
+
+        //   var title = "PRUEBA";
+        //   var extra = {
+        //     icon: "{!! url('image/logo/logo_fge_256_2018_3.png') !!}",
+        //     body: "SERA"
+        //   };
+
+        //   var noti = new Notification(title, extra);
+
+        //   noti.onclick = {
+
+        //   };
+
+        //   noti.onClose = {
+
+        //   };
+
+        //   setTimeout(function(){
+        //     noti.close()
+        //   }, 10000);
+        // }
+      }
+    </script>
   </body>
 </html>
