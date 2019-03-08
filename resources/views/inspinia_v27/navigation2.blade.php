@@ -142,14 +142,14 @@
                     </ul>
                 </li>
             @endif
-            @if(in_array(['codigo' => '2401'], $permisos) || in_array(['codigo' => '2402'], $permisos) || in_array(['codigo' => '2403'], $permisos))
+            @if(in_array(['codigo' => '2401'], $permisos))
                 <li class="{{ isActiveRoute('institucion') }}">
                     <a href="#"><i class="fa fa-code-fork"></i> <span class="nav-label">Derivaciones</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
-                        @if(in_array(['codigo' => '2401'], $permisos) || in_array(['codigo' => '2402'], $permisos) || in_array(['codigo' => '2403'], $permisos))
+                        @if(in_array(['codigo' => '2401'], $permisos))
                             <li class="{{ isActiveRoute('institucion') }}"><a href="{{ url('/institucion') }}">Institución</a></li>
                         @endif
-                        @if(in_array(['codigo' => '2401'], $permisos) || in_array(['codigo' => '2402'], $permisos) || in_array(['codigo' => '2403'], $permisos))
+                        @if(in_array(['codigo' => '2401'], $permisos))
                             <li class="{{ isActiveRoute('derivacion') }}"><a href="{{ url('/derivacion') }}">Orientación y derivación</a></li>
                         @endif
                     </ul>
