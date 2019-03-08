@@ -222,6 +222,31 @@ class InstitucionController extends Controller
                         return json_encode($respuesta);
                     }
                 }
+                // === VALIDATE ===
+                try
+                {
+                    $validator = $this->validate($request,[
+                        'nombre'    => 'required|max:50',
+                        'municipio' => 'required',
+                        'email'     => 'required|email',
+                        'direccion' => 'required',
+                        'telefono'  => 'required',
+                    ],
+                    [
+                        'nombre.required' => 'El campo NOMBRE es obligatorio',
+                        'nombre.max' => 'El campo NOMBRE debe tener :max caracteres como máximo',
+                        'celular.required' => 'El campo CELULAR es obligatorio',
+                        'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
+                        'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
+                        'municipio.required' => 'El campo LUGAR DE NACIMIENTO es obligatorio.'
+                    ]);
+                }
+                catch (Exception $e)
+                {
+                    $respuesta['error_sw'] = 2;
+                    $respuesta['error']    = $e;
+                    return json_encode($respuesta);
+                }
                 //=== OPERACION ===
                 $estado         = trim($request->input('estado'));
                 $nombre         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));

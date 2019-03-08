@@ -450,12 +450,21 @@
             case 16:
                 $(form_1).validate({
                     rules: {
-                        municipio_id:{
-                            required: true
-                        },
                         nombre:{
                             required : true,
                             maxlength: 1000
+                        },
+                        municipio:{
+                            required: true
+                        },
+                        email:{
+                            required: true
+                        },
+                        direccion:{
+                            required: true
+                        },
+                        telefono:{
+                            required: true
                         }
                     }
                 });
