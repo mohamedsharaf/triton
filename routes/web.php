@@ -41,7 +41,10 @@
         Route::match(["get", "post"], '/home/view_jqgrid', 'HomeController@view_jqgrid');
         Route::post('/home/send_ajax', 'HomeController@send_ajax');
         Route::match(["get", "post"], '/home/reportes', 'HomeController@reportes');
-
+//=== GESTOR DE GRUPOS ===
+    Route::get('/grupo', 'Seguridad\GrupoController@index')->name('grupo');
+    Route::match(["get", "post"], '/grupo/view_jqgrid', 'Seguridad\GrupoController@view_jqgrid');
+    Route::post('/grupo/send_ajax', 'Seguridad\GrupoController@send_ajax');
 //=== GESTOR DE MODULOS ===
     Route::get('/modulo', 'Seguridad\ModuloController@index')->name('modulo');
         // Route::post('/modulo/view_jqgrid', 'Seguridad\ModuloController@view_jqgrid');
@@ -184,5 +187,15 @@
     Route::match(["get", "post"], '/plataforma/view_jqgrid', 'I4\PlataformaController@view_jqgrid');
     Route::post('/plataforma/send_ajax', 'I4\PlataformaController@send_ajax');
     Route::match(["get", "post"], '/plataforma/reportes', 'I4\PlataformaController@reportes');
+
+    //=== DERIVACIONES - INSTITUCIONES ===
+    Route::get('/institucion', 'Institucion\InstitucionController@index')->name('institucion');
+    Route::match(["get", "post"], '/institucion/view_jqgrid', 'Institucion\InstitucionController@view_jqgrid');
+    Route::post('/institucion/send_ajax', 'Institucion\InstitucionController@send_ajax');
+
+    //=== DERIVACIONES ===
+    Route::get('/derivacion', 'Dpvt\DerivacionController@index')->name('derivacion');
+    Route::match(["get", "post"], '/derivacion/view_jqgrid', 'Dpvt\DerivacionController@view_jqgrid');
+    Route::post('/derivacion/send_ajax', 'Dpvt\DerivacionController@send_ajax');
 
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');
