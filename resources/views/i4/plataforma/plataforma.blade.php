@@ -171,7 +171,7 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="m-b-md">
-                                    @if(in_array(['codigo' => '2202'], $permisos) AND $i4_funcionario_id != '')
+                                    @if(in_array(['codigo' => '2502'], $permisos) AND $i4_funcionario_id != '')
                                         <button type="button" class="btn btn-success btn-xs pull-right" onclick="utilitarios([10]);">
                                             <strong>Añadir actividad</strong>
                                         </button>
@@ -208,7 +208,7 @@
                                         <span id="estado_caso_b" class="label label-warning">ABIERTO</span>
                                     </dd>
 
-                                    <dt>Feca de la denuncia:</dt>
+                                    <dt>Fecha de la denuncia:</dt>
                                     <dd id="f_denuncia_b">25 DE ENERO 2019</dd>
                                 </dl>
                             </div>

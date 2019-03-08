@@ -127,14 +127,20 @@
                 </li>
             @endif
 
-            @if(in_array(['codigo' => '2001'], $permisos) || in_array(['codigo' => '2101'], $permisos) || in_array(['codigo' => '2201'], $permisos) || in_array(['codigo' => '2501'], $permisos))
-                <li class="{{ isActiveRoute('detencion_preventiva') }}{{ isActiveRoute('recinto_carcelario') }}{{ isActiveRoute('plataforma') }}{{ isActiveRoute('notificacion') }}">
+            @if(in_array(['codigo' => '2001'], $permisos) || in_array(['codigo' => '2101'], $permisos) || in_array(['codigo' => '2201'], $permisos) || in_array(['codigo' => '2501'], $permisos) || in_array(['codigo' => '2701'], $permisos))
+                <li class="{{ isActiveRoute('detencion_preventiva') }}{{ isActiveRoute('recinto_carcelario') }}{{ isActiveRoute('plataforma') }}{{ isActiveRoute('notificacion') }}{{ isActiveRoute('central_notificacion') }}">
                     <a href="#"><i class="fa fa-plug"></i> <span class="nav-label">i4</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         @if(in_array(['codigo' => '2201'], $permisos))
                             <li class="{{ isActiveRoute('plataforma') }}"><a href="{{ url('/plataforma') }}">Plataforma</a></li>
                         @endif
                         @if(in_array(['codigo' => '2501'], $permisos))
+                            <li class="{{ isActiveRoute('notificacion') }}"><a href="{{ url('/notificacion') }}">Notificaciones</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '2701'], $permisos))
+                            <li class="{{ isActiveRoute('central_notificacion') }}"><a href="{{ url('/central_notificacion') }}"><small>Central de notificaciones</small></a></li>
+                        @endif
+                        @if(in_array(['codigo' => '2601'], $permisos))
                             <li class="{{ isActiveRoute('notificacion') }}"><a href="{{ url('/notificacion') }}">Notificaciones</a></li>
                         @endif
                         @if(in_array(['codigo' => '2001'], $permisos))

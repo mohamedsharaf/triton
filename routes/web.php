@@ -185,4 +185,10 @@
     Route::post('/plataforma/send_ajax', 'I4\PlataformaController@send_ajax');
     Route::match(["get", "post"], '/plataforma/reportes', 'I4\PlataformaController@reportes');
 
+//=== I4 - NOTIFICACIONES ===
+    Route::get('/notificacion', 'I4\NotificacionController@index')->name('notificacion');
+    Route::match(["get", "post"], '/notificacion/view_jqgrid', 'I4\NotificacionController@view_jqgrid');
+    Route::post('/notificacion/send_ajax', 'I4\NotificacionController@send_ajax');
+    Route::match(["get", "post"], '/notificacion/reportes', 'I4\NotificacionController@reportes');
+
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');
