@@ -171,7 +171,7 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="m-b-md">
-                                    @if(in_array(['codigo' => '2502'], $permisos) AND $i4_funcionario_id != '')
+                                    @if(in_array(['codigo' => '2202'], $permisos) AND $i4_funcionario_id != '')
                                         <button type="button" class="btn btn-success btn-xs pull-right" onclick="utilitarios([10]);">
                                             <strong>Añadir actividad</strong>
                                         </button>

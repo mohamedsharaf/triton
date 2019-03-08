@@ -13,7 +13,7 @@ class CreateI4NotiNotificacionesTable extends Migration
      */
     public function up()
     {
-        Schema::connection('mysql')->create('noti_notificaciones', function (Blueprint $table) {
+        Schema::connection('mysql')->create('i4_noti_notificaciones', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('caso_id')->unsigned()->nullable();
             $table->integer('persona_id')->unsigned()->nullable();
@@ -53,51 +53,6 @@ class CreateI4NotiNotificacionesTable extends Migration
             $table->string('notificacion_testigo_n_documento', 20)->nullable();
 
             $table->timestamps();
-
-            $table->foreign('caso_id')
-                ->references('id')
-                ->on('Caso')
-                ->onDelete('cascade');
-
-            $table->foreign('persona_id')
-                ->references('id')
-                ->on('Persona')
-                ->onDelete('cascade');
-
-            $table->foreign('abogado_id')
-                ->references('id')
-                ->on('Abogado')
-                ->onDelete('cascade');
-
-            $table->foreign('actividad_solicitante_id')
-                ->references('id')
-                ->on('Actividad')
-                ->onDelete('cascade');
-
-            $table->foreign('actividad_notificacion_id')
-                ->references('id')
-                ->on('Actividad')
-                ->onDelete('cascade');
-
-            $table->foreign('funcionario_solicitante_id')
-                ->references('id')
-                ->on('Funcionario')
-                ->onDelete('cascade');
-
-            $table->foreign('funcionario_notificador_id')
-                ->references('id')
-                ->on('Funcionario')
-                ->onDelete('cascade');
-
-            $table->foreign('funcionario_entrega_id')
-                ->references('id')
-                ->on('Funcionario')
-                ->onDelete('cascade');
-
-            $table->foreign('estado_notificacion_id')
-                ->references('id')
-                ->on('EstadoNotificacion')
-                ->onDelete('cascade');
         });
     }
 
@@ -108,6 +63,6 @@ class CreateI4NotiNotificacionesTable extends Migration
      */
     public function down()
     {
-        Schema::connection('mysql')->dropIfExists('noti_notificaciones');
+        Schema::connection('mysql')->dropIfExists('i4_noti_notificaciones');
     }
 }
