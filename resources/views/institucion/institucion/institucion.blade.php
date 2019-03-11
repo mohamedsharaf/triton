@@ -144,6 +144,10 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label id="labelrespcontacto" for="respcontacto">Contacto</label>
+                                    <input type="text" class="form-control" id="respcontacto" name="respcontacto" placeholder="Persona operativa">
+                                </div>
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <div class="form-group">

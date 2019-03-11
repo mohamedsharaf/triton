@@ -102,7 +102,8 @@ class InstitucionController extends Controller
             b.direccion,
             b.telefono,
             b.celular,
-            b.email
+            b.email,
+            case when b.institucion_id is not null then b.respcontacto else $institucion1.respcontacto end
             ";
 
             $array_where = "$institucion1.institucion_id is null";
@@ -146,6 +147,7 @@ class InstitucionController extends Controller
                     $row["telefono"],
                     $row["celular"],
                     $row["email"],
+                    $row["respcontacto"],
                     //=== VARIABLES OCULTOS ===
                     json_encode($val_array)
                 );
@@ -226,19 +228,21 @@ class InstitucionController extends Controller
                 try
                 {
                     $validator = $this->validate($request,[
-                        'nombre'    => 'required|max:50',
-                        'municipio' => 'required',
-                        'email'     => 'required|email',
-                        'direccion' => 'required',
-                        'telefono'  => 'required',
+                        'nombre'       => 'required|max:50',
+                        'municipio'    => 'required',
+                        'email'        => 'required|email',
+                        'respcontacto' => 'required',
+                        'direccion'    => 'required',
+                        'telefono'     => 'required',
                     ],
                     [
-                        'nombre.required' => 'El campo NOMBRE es obligatorio',
-                        'nombre.max' => 'El campo NOMBRE debe tener :max caracteres como máximo',
-                        'celular.required' => 'El campo CELULAR es obligatorio',
-                        'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
-                        'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
-                        'municipio.required' => 'El campo LUGAR DE NACIMIENTO es obligatorio.'
+                        'nombre.required'       => 'El campo NOMBRE es obligatorio',
+                        'nombre.max'            => 'El campo NOMBRE debe tener :max caracteres como máximo',
+                        'celular.required'      => 'El campo CELULAR es obligatorio',
+                        'email.required'        => 'El campo CORREO ELECTRONICO es obligatorio.',
+                        'email.email'           => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
+                        'respcontacto.required' => 'El campo RESPONSABLE/CONTACTO es obligatorio.',
+                        'municipio.required'    => 'El campo LUGAR DE NACIMIENTO es obligatorio.'
                     ]);
                 }
                 catch (Exception $e)
@@ -248,29 +252,31 @@ class InstitucionController extends Controller
                     return json_encode($respuesta);
                 }
                 //=== OPERACION ===
-                $estado         = trim($request->input('estado'));
-                $nombre         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
-                $zona           = strtoupper($util->getNoAcentoNoComilla(trim($request->input('zona'))));
-                $direccion      = strtoupper($util->getNoAcentoNoComilla(trim($request->input('direccion'))));
-                $telefono       = trim($request->input('telefono'));
-                $celular        = trim($request->input('celular'));
+                $estado          = trim($request->input('estado'));
+                $nombre          = strtoupper($util->getNoAcentoNoComilla(trim($request->input('nombre'))));
+                $zona            = strtoupper($util->getNoAcentoNoComilla(trim($request->input('zona'))));
+                $direccion       = strtoupper($util->getNoAcentoNoComilla(trim($request->input('direccion'))));
+                $telefono        = trim($request->input('telefono'));
+                $celular         = trim($request->input('celular'));
                 $email           = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
+                $respcontacto    = strtoupper($util->getNoAcentoNoComilla(trim($request->input('respcontacto'))));
                 $municipio_id    = trim($request->input('municipio'));
-                $institucion_id    = trim($request->input('institucion'));
+                $institucion_id  = trim($request->input('institucion'));
                 $instituciontipo = trim($request->input('instituciontipo'));
                 if($opcion == 'n')
                 {
                     $c_nombre = InstInstitucion::where('nombre', '=', $nombre)->count();
                     if($c_nombre < 1)
                     {
-                        $iu         = new InstInstitucion;
-                        $iu->estado = $estado;
-                        $iu->nombre = $nombre;
-                        $iu->zona = $zona;
-                        $iu->direccion = $direccion;
-                        $iu->telefono = $telefono;
-                        $iu->celular = $celular;
-                        $iu->email = $email;
+                        $iu               = new InstInstitucion;
+                        $iu->estado       = $estado;
+                        $iu->nombre       = $nombre;
+                        $iu->zona         = $zona;
+                        $iu->direccion    = $direccion;
+                        $iu->telefono     = $telefono;
+                        $iu->celular      = $celular;
+                        $iu->email        = $email;
+                        $iu->respcontacto = $respcontacto;
                         if ($instituciontipo == '2')
                             $iu->institucion_id = $institucion_id;
                         $iu->ubge_municipios_id = $municipio_id;
@@ -290,14 +296,15 @@ class InstitucionController extends Controller
 
                     if($c_nombre < 1)
                     {
-                        $iu         = InstInstitucion::find($id);
-                        $iu->estado     = $estado;
-                        $iu->nombre     = $nombre;
-                        $iu->zona       = $zona;
-                        $iu->direccion  = $direccion;
-                        $iu->telefono   = $telefono;
-                        $iu->celular    = $celular;
-                        $iu->email      = $email;
+                        $iu               = InstInstitucion::find($id);
+                        $iu->estado       = $estado;
+                        $iu->nombre       = $nombre;
+                        $iu->zona         = $zona;
+                        $iu->direccion    = $direccion;
+                        $iu->telefono     = $telefono;
+                        $iu->celular      = $celular;
+                        $iu->email        = $email;
+                        $iu->respcontacto = $respcontacto;
                         if ($instituciontipo == '2')
                             $iu->institucion_id = $institucion_id;
                         $iu->ubge_municipios_id = $municipio_id;

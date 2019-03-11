@@ -121,9 +121,6 @@
 
         $('#f_nacimiento').datepicker({
             startView            : 2,
-            // todayBtn          : "linked",
-            // keyboardNavigation: false,
-            // forceParse        : false,
             autoclose            : true,
             format               : "yyyy-mm-dd",
             startDate            : '-100y',
@@ -375,8 +372,8 @@
                 $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
                 $("#nombre").val(ret.nombre);
                 $("#direccion").val(ret.direccion);
-                $('#modal_1').modal(); */
-                break;
+                $('#modal_1').modal();
+                break; */
             // === REPORTES MODAL ===
             case 13:
                 alert("REPORTE");
@@ -385,20 +382,20 @@
             case 14:
                 $('#modal_1_title').empty();
                 $('#modal_1_title').append('Registrar Derivación');
-                $('#estado_civil').select2("val", "");
-                $('#estado_civil option').remove();
                 $('#institucion_id').select2("val", "");
                 $('#institucion_id option').remove();
                 $('#municipio_id_nacimiento').select2("val", "");
                 $('#municipio_id_nacimiento option').remove();
                 $('#municipio_id_residencia').select2("val", "");
                 $('#municipio_id_residencia option').remove();
+                $('#estado_civil').select2("val", "");
+                $("#persona_id").val('');
                 $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
             case 15:
                 if($(form_1).valid()){
-                    var persona_id = $('#id').val();
+                    var persona_id = $('#persona_id').val();
                     if (persona_id != '') {
                         $('#tipo1').val(2);
                     }
@@ -497,6 +494,51 @@
                         switch(data.tipo){
                             // === INSERT UPDATE ===
                             case '1':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                    if(data.iu === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 14;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.iu === 2){
+                                        $('#modal_1').modal('hide');
+                                    }
+                                }
+                                else if(data.sw === 0){
+                                    if(data.error_sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else
+                                    {
+                                        var respuesta_server = '';
+                                        $.each(data.error.response.original, function(index, value) {
+                                            respuesta_server += value + '<br>';
+                                        });
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = respuesta_server;
+                                        utilitarios(valor1);
+                                    }
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
+                            case '2':
                                 if(data.sw === 1){
                                     var valor1 = new Array();
                                     valor1[0]  = 100;

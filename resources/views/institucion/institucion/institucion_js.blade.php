@@ -52,6 +52,8 @@
             $('#instituciontipo').val('1');
             $('#institucion_id').select2("val", "");
             $('#institucion_id option').remove();
+            $('#labelrespcontacto').text('Contacto');
+            $('#respcontacto').attr('placeholder', 'Persona operativa');
         });
         $("#btnOficina").on("click", function(){
             $('#btnOficina').removeClass('btn-white');
@@ -60,6 +62,8 @@
             $('#btnInstitucion').addClass('btn-white');
             $('#institucion_id_div').show();
             $('#instituciontipo').val('2');
+            $('#labelrespcontacto').text('Responsable');
+            $('#respcontacto').attr('placeholder', 'Responsable oficina derivada');
         });
 
         $('#institucion_id').select2({
@@ -195,6 +199,7 @@
                         "TELEFONO",
                         "CELULAR",
                         "EMAIL",
+                        "CONTACTO/RESPONSABLE",
                         ""
                     ],
                     colModel : [
@@ -262,6 +267,12 @@
                         {
                             name       : "email",
                             index      : "inst_instituciones.email",
+                            width      : 150,
+                            align      : "left"
+                        },
+                        {
+                            name       : "respcontacto",
+                            index      : "inst_instituciones.respcontacto",
                             width      : 150,
                             align      : "left"
                         },
@@ -398,6 +409,7 @@
                 $("#direccion").val(ret.direccion);
                 $("#telefono").val(ret.telefono);
                 $("#celular").val(ret.celular);
+                $("#respcontacto").val(ret.respcontacto);
                 $('#modal_1').modal();
                 break;
             // === REPORTES MODAL ===
@@ -458,6 +470,9 @@
                             required: true
                         },
                         email:{
+                            required: true
+                        },
+                        respcontacto:{
                             required: true
                         },
                         direccion:{

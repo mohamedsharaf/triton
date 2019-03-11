@@ -71,7 +71,7 @@ class DerivacionController extends Controller
                             ->select("seg_permisos.codigo")
                             ->get()
                             ->toArray();
-        if($this->rol_id == 1)
+        if(in_array(['codigo' => '2601'], $this->permisos))
         {
             $data = [
                 'rol_id'                => $this->rol_id,
@@ -193,7 +193,7 @@ class DerivacionController extends Controller
                 'respuesta' => 'No es solicitud AJAX.'
             ];
             return json_encode($respuesta);
-        }
+        }   
 
         $tipo = $request->input('tipo');
 
@@ -201,6 +201,12 @@ class DerivacionController extends Controller
         {
             // === INSERT UPDATE DERIVACIONES===
             case '1':
+                $this->rol_id   = Auth::user()->rol_id;
+                $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                    ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                    ->select("seg_permisos.codigo")
+                    ->get()
+                    ->toArray();
                 // === LIBRERIAS ===
                 $util = new UtilClass();
 
@@ -220,11 +226,19 @@ class DerivacionController extends Controller
                 if($id != '')
                 {
                     $opcion = 'e';
-                    //$data1['updated_at'] = $f_modificacion;
+                    if(!in_array(['codigo' => '2603'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                        return json_encode($respuesta);
+                    }
                 }
                 else
                 {
-                // $data1['created_at'] = $f_modificacion;
+                    if(!in_array(['codigo' => '2602'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para REGISTRAR.";
+                        return json_encode($respuesta);
+                    }
                 }
                 // === VALIDATE ===
                 try
@@ -238,7 +252,6 @@ class DerivacionController extends Controller
                         'f_nacimiento'            => 'required|date',
                         'domicilio'               => 'max:500',
                         'email'                   => 'required|email',
-                        //'password'          => 'min:6|max:16',
                         'celular'                 => 'required|max:15',
                         'municipio_id_nacimiento' => 'required',
                         'motivo'                  => 'required',
@@ -417,6 +430,17 @@ class DerivacionController extends Controller
                 $data['persona_id']     = trim($request->input('id'));
 
                 $visitante = RrhhVisitante::where('persona_id', '=', $data['persona_id'])->first();
+                $idvisitante = $visitante['id'];
+                if ($visitante === null) {
+                    $data['email']          = strtolower($util->getNoAcentoNoComilla(trim($request->input('email'))));
+                    //======== INSERTAR VISITANTE =======
+                    $visitante              = new RrhhVisitante;
+                    $visitante->estado      = $data['estado'];
+                    $visitante->email       = $data['email'];
+                    $visitante->persona_id  = $data['persona_id'];
+                    $visitante->save();
+                    $idvisitante = $visitante->id;
+                }
 
                 //======== INSERTAR DERIVACION =======
                 $derivacion = new PvtDerivacion;
@@ -425,7 +449,7 @@ class DerivacionController extends Controller
                 $derivacion->relato         = $data['relato'];
                 $derivacion->fecha          = date("Y-m-d");
                 $derivacion->institucion_id = $data['institucion_id'];
-                $derivacion->visitante_id   = $visitante['id'];
+                $derivacion->visitante_id   = $idvisitante;
                 $derivacion->save();
 
                 $respuesta['respuesta'] .= "La DERIVACION fue registrada con éxito.";

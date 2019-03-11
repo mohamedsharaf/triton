@@ -17,7 +17,8 @@ class InstInstitucion extends Model
         'direccion',
         'telefono',
         'celular',
-        'email'
+        'email',
+        'respcontacto'
     ];
 
     protected $guarded = [];
