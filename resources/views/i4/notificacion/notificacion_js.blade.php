@@ -821,6 +821,7 @@
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
 
+                                    $('#modal_2_title').empty();
                                     $('#caso_b, #modal_2_title').append(data.cosulta1.Caso);
                                     $('#etapa_caso_b').append(data.cosulta1.etapa_caso);
                                     $('#origen_caso_b').append(data.cosulta1.origen_caso);
@@ -849,6 +850,13 @@
 
                                     if(data.sw_4 === 1){
                                         $('#denunciado_b').append(data.cosulta5.denunciado);
+                                    }
+
+                                    if(data.sw_6 === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 91;
+                                        valor1[1]  = data.cosulta3;
+                                        actividad_tabla = utilitarios(valor1);
                                     }
 
                                     $("#caso_id_1").val(data.cosulta1.id)

@@ -472,6 +472,7 @@ class NotificacionController extends Controller
                             $tabla1.id,
                             $tabla1.Fecha,
                             UPPER($tabla1.Actividad) AS Actividad,
+                            $tabla1._Documento,
 
                             UPPER(a2.TipoActividad) AS TipoActividad,
                             a2.Notificaciones,

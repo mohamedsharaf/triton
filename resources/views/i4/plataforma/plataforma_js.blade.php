@@ -834,6 +834,7 @@
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
 
+                                    $('#modal_2_title').empty();
                                     $('#caso_b, #modal_2_title').append(data.cosulta1.Caso);
                                     $('#etapa_caso_b').append(data.cosulta1.etapa_caso);
                                     $('#origen_caso_b').append(data.cosulta1.origen_caso);
