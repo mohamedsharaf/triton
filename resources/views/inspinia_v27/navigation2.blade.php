@@ -109,6 +109,9 @@
                         @if(in_array(['codigo' => '0301'], $permisos))
                             <li class="{{ isActiveRoute('auo') }}"><a href="{{ url('/auo') }}">Unidad organizacional</a></li>
                         @endif
+                        @if(in_array(['codigo' => '2401'], $permisos))
+                            <li class="{{ isActiveRoute('auo') }}"><a href="{{ url('/auo') }}">Catalogo de Instituciones</a></li>
+                        @endif
                         @if(in_array(['codigo' => '0401'], $permisos))
                             <li class="{{ isActiveRoute('cargo') }}"><a href="{{ url('/cargo') }}">Cargo</a></li>
                         @endif
@@ -152,6 +155,19 @@
                     </ul>
                 </li>
             @endif
+            @if(in_array(['codigo' => '2401'], $permisos))
+                <li class="{{ isActiveRoute('institucion') }}">
+                    <a href="#"><i class="fa fa-code-fork"></i> <span class="nav-label">Derivaciones</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        @if(in_array(['codigo' => '2401'], $permisos))
+                            <li class="{{ isActiveRoute('institucion') }}"><a href="{{ url('/institucion') }}">Institución</a></li>
+                        @endif
+                        @if(in_array(['codigo' => '2401'], $permisos))
+                            <li class="{{ isActiveRoute('derivacion') }}"><a href="{{ url('/derivacion') }}">Orientación y derivación</a></li>
+                        @endif
+                    </ul>
+                </li>
+            @endif
 
             @if(in_array(['codigo' => '1901'], $permisos))
                 <li class="{{ isActiveRoute('solicitud_dpvt') }}">
@@ -165,7 +181,7 @@
             @endif
 
             @if(in_array(['codigo' => '0101'], $permisos) || ($rol_id === 1))
-                <li class="{{ isActiveRoute('usuario') }}{{ isActiveRoute('permiso_rol') }}{{ isActiveRoute('rol') }}{{ isActiveRoute('permiso') }}{{ isActiveRoute('modulo') }}">
+                <li class="{{ isActiveRoute('usuario') }}{{ isActiveRoute('permiso_rol') }}{{ isActiveRoute('rol') }}{{ isActiveRoute('permiso') }}{{ isActiveRoute('modulo') }}{{isActiveRoute('grupo')}}">
                     <a href="#"><i class="fa fa-lock"></i> <span class="nav-label">Seguridad</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         @if(in_array(['codigo' => '0101'], $permisos))
@@ -173,6 +189,9 @@
                         @endif
                         @if($rol_id === 1)
                             <li class="{{ isActiveRoute('permiso_rol') }}"><a href="{{ url('/permiso_rol') }}">Asignación de permisos</a></li>
+                        @endif
+                        @if($rol_id === 1)
+                            <li class="{{ isActiveRoute('grupo') }}"><a href="{{ url('/grupo') }}">Gestor de grupos</a></li>
                         @endif
                         @if($rol_id === 1)
                             <li class="{{ isActiveRoute('rol') }}"><a href="{{ url('/rol') }}">Gestor de roles</a></li>
