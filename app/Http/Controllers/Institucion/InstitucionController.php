@@ -90,20 +90,26 @@ class InstitucionController extends Controller
 
             $institucion1 = "inst_instituciones";
             $institucion2 = "inst_instituciones";
-            $municipio = "ubge_municipios";
+            $municipio    = "ubge_municipios";
+            $provincia    = "ubge_provincias";
+            $departamento = "ubge_departamentos";
 
             $select = "
             b.id,
+            b.ubge_municipios_id,
+            $institucion1.id as institucion_id,
             b.estado,
             b.nombre,
             $institucion1.nombre as institucion,
-            c.nombre as municipio,
-            b.zona,
             b.direccion,
+            b.zona,
             b.telefono,
             b.celular,
             b.email,
-            case when b.institucion_id is not null then b.respcontacto else $institucion1.respcontacto end
+            case when b.institucion_id is not null then b.respcontacto else $institucion1.respcontacto end,
+            c.nombre as municipio,
+            d.nombre as provincia,
+            e.nombre as departamento
             ";
 
             $array_where = "$institucion1.institucion_id is null";
@@ -113,7 +119,10 @@ class InstitucionController extends Controller
 
             $limit_offset = $jqgrid->getLimitOffset($count);
 
-            $query = InstInstitucion::leftJoin("$institucion2 AS b", "b.institucion_id", "=", "$institucion1.id")     ->leftJoin("$municipio AS c", "c.id", "=", "$institucion1.ubge_municipios_id")
+            $query = InstInstitucion::leftJoin("$institucion2 AS b", "b.institucion_id", "=", "$institucion1.id")
+                ->leftJoin("$municipio AS c", "c.id", "=", "$institucion1.ubge_municipios_id")
+                ->leftJoin("$provincia AS d", "d.id", "=", "c.provincia_id")
+                ->leftJoin("$departamento AS e", "e.id", "=", "d.departamento_id")
                 ->whereRaw($array_where)
                 ->select(DB::raw($select))
                 ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -132,7 +141,9 @@ class InstitucionController extends Controller
             foreach ($query as $row)
             {
                 $val_array = array(
-                    'estado'=> $row["estado"]
+                    'estado'       => $row["estado"],
+                    'municipio_id' => $row["ubge_municipios_id"],
+                    'institucion_id' => $row["institucion_id"]
                 );
 
                 $respuesta['rows'][$i]['id'] = $row["id"];
@@ -141,13 +152,15 @@ class InstitucionController extends Controller
                     $this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
                     $row["nombre"],
                     $row["institucion"],
-                    $row["municipio"],
                     $row["direccion"],
                     $row["zona"],
                     $row["telefono"],
                     $row["celular"],
                     $row["email"],
                     $row["respcontacto"],
+                    $row["municipio"],
+                    $row["provincia"],
+                    $row["departamento"],
                     //=== VARIABLES OCULTOS ===
                     json_encode($val_array)
                 );

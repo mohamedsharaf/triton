@@ -456,7 +456,6 @@
                             maxlength: 15
                         },
                         email:{
-                            required: true,
                             email: true
                         },
                         municipio_id_nacimiento:{

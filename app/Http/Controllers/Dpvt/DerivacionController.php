@@ -251,7 +251,7 @@ class DerivacionController extends Controller
                         'ap_materno'              => 'max:50',
                         'f_nacimiento'            => 'required|date',
                         'domicilio'               => 'max:500',
-                        'email'                   => 'required|email',
+                        'email'                   => 'email',
                         'celular'                 => 'required|max:15',
                         'municipio_id_nacimiento' => 'required',
                         'motivo'                  => 'required',
@@ -259,21 +259,20 @@ class DerivacionController extends Controller
                         'institucion'             => 'required'
                     ],
                     [
-                        'n_documento.required' => 'El campo CEDULA DE IDENTIDAD es obligatorio',
-                        'n_documento.max' => 'El campo CEDULA DE IDENTIDAD debe ser :max caracteres como máximo.',
-                        'nombre.required' => 'El campo NOMBRE es obligatorio',
-                        'nombre.max' => 'El campo NOMBRE debe tener :max caracteres como máximo',
-                        'ap_paterno.max' => 'El campo APELLIDO PATERNO debe tener :max caracteres como máximo',
-                        'ap_materno.max' => 'El campo APELLIDO MATERNO debe tener :max caracteres como máximo',
-                        'f_nacimiento.required' => 'El campo FECHA DE NACIMIENTO es obligatorio',
-                        'celular.required' => 'El campo CELULAR es obligatorio',
-                        'celular.max' => 'El campo CELULAR debe tener :max caracteres como máximo',
-                        'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
-                        'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
+                        'n_documento.required'             => 'El campo CEDULA DE IDENTIDAD es obligatorio',
+                        'n_documento.max'                  => 'El campo CEDULA DE IDENTIDAD debe ser :max caracteres como máximo.',
+                        'nombre.required'                  => 'El campo NOMBRE es obligatorio',
+                        'nombre.max'                       => 'El campo NOMBRE debe tener :max caracteres como máximo',
+                        'ap_paterno.max'                   => 'El campo APELLIDO PATERNO debe tener :max caracteres como máximo',
+                        'ap_materno.max'                   => 'El campo APELLIDO MATERNO debe tener :max caracteres como máximo',
+                        'f_nacimiento.required'            => 'El campo FECHA DE NACIMIENTO es obligatorio',
+                        'celular.required'                 => 'El campo CELULAR es obligatorio',
+                        'celular.max'                      => 'El campo CELULAR debe tener :max caracteres como máximo',
+                        'email.email'                      => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
                         'municipio_id_nacimiento.required' => 'El campo LUGAR DE NACIMIENTO es obligatorio.',
-                        'motivo.required' => 'El campo MOTIVO es obligatorio.',
-                        'relato.required' => 'El campo RELATO es obligatorio.',
-                        'institucion.required' => 'El campo INSTITUCION es obligatorio.'
+                        'motivo.required'                  => 'El campo MOTIVO es obligatorio.',
+                        'relato.required'                  => 'El campo RELATO es obligatorio.',
+                        'institucion.required'             => 'El campo INSTITUCION es obligatorio.'
                     ]);
                 }
                 catch (Exception $e)
