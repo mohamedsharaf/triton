@@ -267,7 +267,7 @@
                 autoclose            : true,
                 format               : "yyyy-mm-dd",
                 startDate            : '-20y',
-                endDate              : '0d',
+                endDate              : '+30d',
                 language             : "es"
             });
 

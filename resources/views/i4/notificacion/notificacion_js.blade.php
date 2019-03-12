@@ -51,6 +51,10 @@
             valor1[0]  = 30;
             utilitarios(valor1);
 
+            var valor1 = new Array();
+            valor1[0]  = 31;
+            utilitarios(valor1);
+
             $('#tipo_actividad_id_1').append(tipo_actividad_select);
 
         //=== SELECT2 ===
@@ -99,6 +103,19 @@
                 }
             });
 
+        // === CHECKED SELECT ===
+            $("#denunciante_all_select").click(function(){
+                $(".denunciante_class").prop("checked", this.checked);
+            });
+
+            $("#denunciado_all_select").click(function(){
+                $(".denunciado_class").prop("checked", this.checked);
+            });
+
+            $("#victima_all_select").click(function(){
+                $(".victima_class").prop("checked", this.checked);
+            });
+
         // === DROPZONE ===
             var valor1 = new Array();
             valor1[0]  = 80;
@@ -119,7 +136,9 @@
                 break;
             // === ABRIR MODAL - REGISTRAR ACTIVIDAD ===
             case 10:
-                if($("#caso_id_1").val() != ''){
+                if(valor[1] != ''){
+                    $("#actividad_id").val(valor[1]);
+
                     $('#modal_1_title').empty();
                     $('#modal_1_title').append('NOTIFICAR');
 
@@ -129,7 +148,7 @@
                     var valor1 = new Array();
                     valor1[0]  = 101;
                     valor1[1]  = '<div class="text-center"><strong>ERROR</strong></div>';
-                    valor1[2]  = 'No existe CASO para NOTIFICAR.';
+                    valor1[2]  = 'No existe ACTIVIDAD para NOTIFICAR.';
                     utilitarios(valor1);
                 }
                 break;
@@ -169,17 +188,13 @@
                 break;
             // === RESETEAR FORMULARIO 1 ===
             case 31:
-                $("#caso_id_1").val('');
+                $("#denunciante_tabla, #denunciado_tabla, #victima_tabla").slideUp();
 
-                $('#tipo_actividad_id_1').select2("val", "");
-                $("#actvidad_1").val('');
+                $('#denunciante_tabla_body, #denunciado_tabla_body, #victima_tabla_body').empty();
+
+                $("#actividad_id, #solicitud_asunto").val('');
 
                 $(form_1)[0].reset();
-                break;
-            // === RESETEAR FORMULARIO 1 ===
-            case 32:
-                $('#tipo_actividad_id_1').select2("val", "");
-                $("#actvidad_1").val('');
                 break;
             // === JQGRID 1 ===
             case 40:
@@ -691,60 +706,155 @@
                 break;
             // === LLENAR FORMULARIO 1 ===
             case 91:
-                var respuesta = "";
+                var valor1 = new Array();
+                valor1[0]  = 31;
+                utilitarios(valor1);
+
+                var respuesta         = "";
+                var denunciado_table  = "";
+                var denunciante_table = "";
+                var victima_table     = "";
+                var denunciado_c      = 0;
+                var denunciante_c     = 0;
+                var victima_c         = 0;
+
+                // >=2
+                var ubicacion_sw = 0;
+                var ubicacion    = "";
+
+                // >=4
+                var ubicacion_abogado_sw = 0;
+                var ubicacion_abogado    = "";
+
                 var c = 1;
+
                 $.each(valor[1], function(index, value) {
-                    respuesta += '<tr>';
-                    respuesta += '<td class="text-right">' + c++ + '</td>';
-                    respuesta += '<td class="text-center">' + value.Fecha + '</td>';
-                    respuesta += '<td>' + value.TipoActividad + '</td>';
+                    // === UBICACION PERSONA ===
+                        if(value.DirDom == null){
+                            ubicacion += "SIN DIRECCION";
+                        }
+                        else{
+                            ubicacion += value.DirDom;
+                            ubicacion_sw++;
+                        }
 
-                    var actividad = "";
-                    if(value.Actividad != null){
-                        actividad = value.Actividad;
+                        if(value.ZonaDom == null){
+                            ubicacion += ", SIN ZONA";
+                        }
+                        else{
+                            ubicacion += ", " + value.ZonaDom;
+                            ubicacion_sw++;
+                        }
+
+                        if(value.TelDom == null){
+                            ubicacion += ", SIN TELEFONO";
+                        }
+                        else{
+                            ubicacion += ", " + value.TelDom;
+                        }
+
+                        if(value.CelularDom == null){
+                            ubicacion += ", SIN CELULAR";
+                        }
+                        else{
+                            ubicacion += ", " + value.CelularDom;
+                        }
+
+                    // === UBICACION ABOGADO ===
+                        if(value.abogado_id != null){
+                            if(value.abogado_DirDom == null){
+                                ubicacion_abogado += "SIN DIRECCION";
+                            }
+                            else{
+                                ubicacion_abogado += value.abogado_DirDom;
+                                ubicacion_abogado_sw++;
+                            }
+
+                            if(value.abogado_ZonaDom == null){
+                                ubicacion_abogado += ", SIN ZONA";
+                            }
+                            else{
+                                ubicacion_abogado += ", " + value.abogado_ZonaDom;
+                                ubicacion_abogado_sw++;
+                            }
+
+                            if(value.abogado_TelDom == null){
+                                ubicacion_abogado += ", SIN TELEFONO";
+                            }
+                            else{
+                                ubicacion_abogado += ", " + value.abogado_TelDom;
+                            }
+
+                            if(value.abogado_CelularDom == null){
+                                ubicacion_abogado += ", SIN CELULAR";
+                            }
+                            else{
+                                ubicacion_abogado += ", " + value.abogado_CelularDom;
+                                ubicacion_abogado_sw++;
+                            }
+
+                            if(value.abogado_EMailPrivado == null){
+                                ubicacion_abogado += ", SIN CORREO ELECTRONICO";
+                            }
+                            else{
+                                ubicacion_abogado += ", " + value.abogado_EMailPrivado;
+                                ubicacion_abogado_sw++;
+                            }
+                        }
+                        else{
+                            ubicacion_abogado = "SIN ABOGADO";
+                        }
+
+                    if(value.EsDenunciado == 1){
+                        denunciado_table += '<tr>';
+
+                        denunciado_table += '<td class="text-center">';
+                        // if(ubicacion_sw == 2 || ubicacion_abogado_sw == 4){
+                            denunciado_table += '<input type="checkbox" class="denunciado_class" name="denunciante_select[]" value="' + value.id + '">';
+                        // }
+                        denunciado_table += '</td>';
+
+                        denunciado_table += '<td>' + value.Persona + '</td>';
+
+                        denunciado_table += '<td>' + ubicacion + '</td>';
+
+                        denunciado_table += '<td>' + ubicacion_abogado + '</td>';
+
+                        denunciado_table += '</tr>';
+
+                        denunciado_c++;
                     }
-                    respuesta += '<td>' + actividad + '</td>';
+                    else if(value.EsDenunciante == 1){
 
-                    var sw_tupla   = false;
-                    var sw_tupla_1 = true;
+                        denunciante_c++;
+                    }
+                    else if(value.EsVictima == 1){
 
-                    @if(in_array(['codigo' => '2502'], $permisos) AND $i4_funcionario_id != '')
-                        if(value.estado_notificacion == 1){
-                            respuesta += '<td class="text-center">';
-                            respuesta += '<button type="button" class="btn btn-xs btn-primary" title="Eliminar notificación" onclick="utilitarios([10, ' + value.id + ']);">';
-                            respuesta += '<i class="fa fa-envelope"></i>';
-                            respuesta += '</button>';
-                            respuesta += '</td>';
-
-                            sw_tupla_1 = false;
-                        }
-
-                        sw_tupla = true;
-                    @endif
-
-                    @if(in_array(['codigo' => '2503'], $permisos) AND $i4_funcionario_id != '')
-                        if(value.Notificaciones == 1){
-                            respuesta += '<td class="text-center">';
-                            respuesta += '<button type="button" class="btn btn-xs btn-danger" title="Eliminar notificación" onclick="utilitarios([70, ' + value.id + ']);">';
-                            respuesta += '<i class="fa fa-trash"></i>';
-                            respuesta += '</button>';
-
-                            respuesta += '</td>';
-
-                            sw_tupla_1 = false;
-                        }
-                        sw_tupla = true;
-                    @endif
-
-                    if(sw_tupla){
-                        if(sw_tupla_1){
-                            respuesta += '<td class="text-center">';
-                                    respuesta += '</td>';
-                        }
+                        victima_c++;
                     }
 
-                    respuesta += '</tr>';
+                    ubicacion_sw = 0;
+                    ubicacion    = "";
+
+                    ubicacion_abogado_sw = 0;
+                    ubicacion_abogado    = "";
                 });
+
+                if(denunciado_c > 0){
+                    $('#denunciado_tabla_body').append(denunciado_table);
+                    $("#denunciado_tabla").slideDown();
+                }
+
+                if(denunciante_c > 0){
+                    $('#denunciante_tabla_body').append(denunciante_table);
+                    $("#denunciante_tabla").slideDown();
+                }
+
+                if(victima_c > 0){
+                    $('#victima_tabla_body').append(victima_table);
+                    $("#victima_tabla").slideDown();
+                }
+
                 return respuesta;
                 break;
             // === MENSAJE ERROR ===
@@ -855,14 +965,9 @@
                                     if(data.sw_6 === 1){
                                         var valor1 = new Array();
                                         valor1[0]  = 91;
-                                        valor1[1]  = data.cosulta3;
-                                        actividad_tabla = utilitarios(valor1);
+                                        valor1[1]  = data.cosulta6;
+                                        utilitarios(valor1);
                                     }
-
-                                    $("#caso_id_1").val(data.cosulta1.id)
-
-                                    $("#caso").val('');
-                                    $("#caso").focus();
                                 }
                                 else if(data.sw === 0){
                                     var valor1 = new Array();

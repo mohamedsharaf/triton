@@ -548,6 +548,7 @@ class NotificacionController extends Controller
 
                     //=== CONSULTA 6 ===
                         $tabla1 = "Persona";
+                        $tabla2 = "Abogado";
 
                         $select6 = "
                             $tabla1.id,
@@ -558,12 +559,20 @@ class NotificacionController extends Controller
                             $tabla1.CelularDom,
                             $tabla1.EsDenunciado,
                             $tabla1.EsDenunciante,
-                            $tabla1.EsVictima
+                            $tabla1.EsVictima,
+
+                            a2.id AS abogado_id,
+                            a2.DirDom AS abogado_DirDom,
+                            a2.ZonaDom AS abogado_ZonaDom,
+                            a2.TelDom AS abogado_TelDom,
+                            a2.CelularDom AS abogado_CelularDom,
+                            a2.EMailPrivado AS abogado_EMailPrivado
                         ";
 
                         $where6 = "$tabla1.Caso=" . $cosulta1['id'];
 
-                        $cosulta6 = Persona::whereRaw($where6)
+                        $cosulta6 = Persona::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.Abogado")
+                            ->whereRaw($where6)
                             ->select(DB::raw($select6))
                             ->orderBy("$tabla1.Persona", "ASC")
                             ->get();

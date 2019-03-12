@@ -324,7 +324,7 @@
 
     <!-- === MODAL === -->
         <div id="modal_1" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-xlg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">
@@ -342,29 +342,159 @@
 
                     <div class="modal-body">
                         <form id="form_1" role="form" action="#">
-                            <input type="hidden" id="caso_id_1" name="id" value=""/>
-
+                            <input type="hidden" id="actividad_id" name="id" value=""/>
+                            <input type="hidden" id="tipo1" name="tipo" value=""/>
+                            {{ csrf_field() }}
                             <div class="row">
-                                <div class="col-sm-12">
-                                    <div id="tipo_actividad_id_1_div" class="form-group">
-                                        <label for="tipo_actividad_id_1">Tipo de actividad</label>
-                                        <select name="tipo_actividad_id_1" id="tipo_actividad_id_1" data-placeholder="Tipo de actividad" multiple="multiple" style="width: 100%;">
-                                        </select>
-                                    </div>
+                                <div id="denunciado_tabla" class="table-responsive">
+                                    <table class="table table-striped table-hover table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">
+                                                    <input type="checkbox" name="denunciado_all_select" id="denunciado_all_select">
+                                                </th>
+                                                <th class="text-center">DENUNCIADO</th>
+                                                <th class="text-center">UBICACION</th>
+                                                <th class="text-center">¿CON ABOGADO?</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="denunciado_tabla_body">
+                                            <tr>
+                                                <td class="text-center">
+                                                    <input type="checkbox" class="denunciado_class" name="denunciado_select[]" value="">
+                                                </td>
+                                                <td>
+                                                    JORGE PEREZ CAMACHO
+                                                </td>
+                                                <td>
+                                                    CALLE LOA 562
+                                                </td>
+                                                <td class="text-center">
+                                                    SI
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center">
+                                                    <input type="checkbox" class="denunciado_class" name="denunciado_select[]" value="">
+                                                </td>
+                                                <td>
+                                                    JORGE PEREZ CAMACHO
+                                                </td>
+                                                <td>
+                                                    CALLE LOA 562
+                                                </td>
+                                                <td class="text-center">
+                                                    SI
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
 
+                                <div id="denunciante_tabla" class="table-responsive">
+                                    <table class="table table-striped table-hover table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">
+                                                    <input type="checkbox" name="denunciante_all_select" id="denunciante_all_select">
+                                                </th>
+                                                <th class="text-center">DENUNCIANTE</th>
+                                                <th class="text-center">UBICACION</th>
+                                                <th class="text-center">¿CON ABOGADO?</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="denunciante_tabla_body">
+                                            <tr>
+                                                <td class="text-center">
+                                                    <input type="checkbox" class="denunciante_class" name="denunciante_select[]" value="">
+                                                </td>
+                                                <td>
+                                                    JORGE PEREZ CAMACHO
+                                                </td>
+                                                <td>
+                                                    CALLE LOA 562
+                                                </td>
+                                                <td class="text-center">
+                                                    SI
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center">
+                                                    <input type="checkbox" class="denunciante_class" name="denunciante_select[]" value="">
+                                                </td>
+                                                <td>
+                                                    JORGE PEREZ CAMACHO
+                                                </td>
+                                                <td>
+                                                    CALLE LOA 562
+                                                </td>
+                                                <td class="text-center">
+                                                    SI
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div id="victima_tabla" class="table-responsive">
+                                    <table class="table table-striped table-hover table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">
+                                                    <input type="checkbox" name="victima_all_select" id="victima_all_select">
+                                                </th>
+                                                <th class="text-center">VICTIMA</th>
+                                                <th class="text-center">UBICACION</th>
+                                                <th class="text-center">¿CON ABOGADO?</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="victima_tabla_body">
+                                            <tr>
+                                                <td class="text-center">
+                                                    <input type="checkbox" class="victima_class" name="victima_select[]" value="">
+                                                </td>
+                                                <td>
+                                                    JORGE PEREZ CAMACHO
+                                                </td>
+                                                <td>
+                                                    CALLE LOA 562
+                                                </td>
+                                                <td class="text-center">
+                                                    SI
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center">
+                                                    <input type="checkbox" class="victima_class" name="victima_select[]" value="">
+                                                </td>
+                                                <td>
+                                                    JORGE PEREZ CAMACHO
+                                                </td>
+                                                <td>
+                                                    CALLE LOA 562
+                                                </td>
+                                                <td class="text-center">
+                                                    SI
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="col-sm-12">
                                     <div class="form-group">
-                                        <label for="actvidad_1">Actividad</label>
-                                        <input type="text" class="form-control" id="actvidad_1" name="actvidad_1" placeholder="Actividad">
+                                        <label for="solicitud_asunto">Asunto</label>
+                                        <input type="text" class="form-control" id="solicitud_asunto" name="solicitud_asunto" placeholder="Asunto">
                                     </div>
                                 </div>
                             </div>
                         </form>
+                    </div>
 
-                        <form action="#" class="dropzone" id="dropzoneForm_1">
-                            <div class="fallback">
-                                <input name="file" type="file"/>
-                            </div>
-                        </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([52]);">Notificar</button>
+
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div>
                 </div>
             </div>
