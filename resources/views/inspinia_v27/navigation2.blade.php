@@ -109,9 +109,6 @@
                         @if(in_array(['codigo' => '0301'], $permisos))
                             <li class="{{ isActiveRoute('auo') }}"><a href="{{ url('/auo') }}">Unidad organizacional</a></li>
                         @endif
-                        @if(in_array(['codigo' => '2401'], $permisos))
-                            <li class="{{ isActiveRoute('auo') }}"><a href="{{ url('/auo') }}">Catalogo de Instituciones</a></li>
-                        @endif
                         @if(in_array(['codigo' => '0401'], $permisos))
                             <li class="{{ isActiveRoute('cargo') }}"><a href="{{ url('/cargo') }}">Cargo</a></li>
                         @endif
