@@ -193,13 +193,15 @@
                         "ESTADO",
                         "OFICINA",
                         "INSTITUCION",
-                        "MUNICIPIO",
-                        "ZONA",
                         "DIRECCION",
+                        "ZONA",
                         "TELEFONO",
                         "CELULAR",
                         "EMAIL",
                         "CONTACTO/RESPONSABLE",
+                        "MUNICIPIO",
+                        "PROVINCIA",
+                        "DEPARTAMENTO",
                         ""
                     ],
                     colModel : [
@@ -235,21 +237,15 @@
                             align: "left"
                         },
                         {
-                            name       : "municipio",
-                            index      : "c.nombre",
-                            width      : 150,
+                            name       : "direccion",
+                            index      : "inst_instituciones.direccion",
+                            width      : 200,
                             align      : "left"
                         },
                         {
                             name       : "zona",
                             index      : "inst_instituciones.zona",
                             width      : 150,
-                            align      : "left"
-                        },
-                        {
-                            name       : "direccion",
-                            index      : "inst_instituciones.direccion",
-                            width      : 200,
                             align      : "left"
                         },
                         {
@@ -273,6 +269,24 @@
                         {
                             name       : "respcontacto",
                             index      : "inst_instituciones.respcontacto",
+                            width      : 150,
+                            align      : "left"
+                        },
+                        {
+                            name       : "municipio",
+                            index      : "c.nombre",
+                            width      : 150,
+                            align      : "left"
+                        },
+                        {
+                            name       : "provincia",
+                            index      : "d.nombre",
+                            width      : 150,
+                            align      : "left"
+                        },
+                        {
+                            name       : "departamento",
+                            index      : "e.nombre",
                             width      : 150,
                             align      : "left"
                         },
@@ -397,11 +411,13 @@
                 var val_json = $.parseJSON(ret.val_json);
 
                 $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
-                /* if(ret.municipio != ""){
+                if(ret.municipio != ""){
                     var dpm = ret.departamento + ', ' + ret.provincia + ', ' + ret.municipio;
                     $('#municipio_id').append('<option value="' + val_json.municipio_id + '">' + dpm + '</option>');
                     $("#municipio_id").select2("val", val_json.municipio_id);
-                } */
+                }
+                $('#institucion_id').append('<option value="' + val_json.institucion_id + '">' + ret.institucion + '</option>');
+                $("#institucion_id").select2("val", val_json.institucion_id);
                 $("#edinstitucion_id").val(valor[1]);
                 $("#nombre").val(ret.nombre);
                 $("#email").val(ret.email);
@@ -427,6 +443,7 @@
 
                 $('#municipio_id').select2("val", "");
                 $('#municipio_id option').remove();
+                $("#edinstitucion_id").val('');
                 $(form_1)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
@@ -470,7 +487,8 @@
                             required: true
                         },
                         email:{
-                            required: true
+                            required: true,
+                            email: true
                         },
                         respcontacto:{
                             required: true
