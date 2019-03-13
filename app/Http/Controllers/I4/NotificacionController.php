@@ -21,8 +21,8 @@ use App\Models\I4\CasoFuncionario;
 use App\Models\I4\TipoActividad;
 use App\Models\I4\Actividad;
 use App\Models\I4\Funcionario;
-use App\Models\I4\Calendario;
 use App\Models\I4\Persona;
+use App\Models\I4\I4NotiNotificacion;
 
 use App\Models\I4\Division;
 use App\Models\I4\Dep;
@@ -218,7 +218,7 @@ class NotificacionController extends Controller
                     $respuesta = array(
                         'sw'         => 0,
                         'sw_1'       => 0,
-                        'titulo'     => '<div class="text-center"><strong>Añadir actividad</strong></div>',
+                        'titulo'     => '<div class="text-center"><strong>NOTIFICAR</strong></div>',
                         'respuesta'  => '',
                         'tipo'       => $tipo,
                         'error_sw'   => 1
@@ -226,9 +226,9 @@ class NotificacionController extends Controller
                     $opcion = 'n';
 
                 // === PERMISOS ===
-                    if(!in_array(['codigo' => '2202'], $this->permisos))
+                    if(!in_array(['codigo' => '2502'], $this->permisos))
                     {
-                        $respuesta['respuesta'] .= "No tiene permiso para AÑADIR ACTIVIDAD.";
+                        $respuesta['respuesta'] .= "No tiene permiso para NOTIFICAR.";
                         return json_encode($respuesta);
                     }
 
@@ -236,21 +236,16 @@ class NotificacionController extends Controller
                     try
                     {
                         $validator = $this->validate($request,[
-                            'caso_id'           => 'required',
-                            'tipo_actividad_id' => 'required',
-                            'actvidad'          => 'max           : 120',
-                            'file'              => 'required|mimes:pdf|max: 5120'
+                            'caso_id'          => 'required',
+                            'actividad_id'     => 'required',
+                            'solicitud_asunto' => 'max: 500'
                         ],
                         [
-                            'caso_id.required' => 'El campo ID DEL CASO es obligatorio.',
+                            'caso_id.required' => 'El CASO es obligatorio.',
 
-                            'tipo_actividad_id.required' => 'El campo TIPO DE ACTIVIDAD es obligatorio.',
+                            'actividad_id.required' => 'La ACTIVIDAD es obligatorio.',
 
-                            'actvidad.max' => 'El campo ACTIVIDAD debe contener :max caracteres como máximo.',
-
-                            'file.required' => 'El archivo PDF es obligatorio.',
-                            'file.mimes'    => 'El archivo subido debe de ser de tipo PDF.',
-                            'file.max'      => 'El archivo debe pesar 5120 kilobytes como máximo.'
+                            'solicitud_asunto.max' => 'El campo ASUNTO debe contener :max caracteres como máximo.'
                         ]);
                     }
                     catch (Exception $e)
@@ -261,19 +256,15 @@ class NotificacionController extends Controller
                     }
 
                 //=== OPERACION ===
-                    $data1['caso_id']           = trim($request->input('caso_id'));
-                    $data1['tipo_actividad_id'] = trim($request->input('tipo_actividad_id'));
-                    $data1['actvidad']          = strtoupper($util->getNoAcentoNoComilla(trim($request->input('actvidad'))));
+                    $data1['caso_id']                  = trim($request->input('caso_id'));
+                    $data1['actividad_solicitante_id'] = trim($request->input('actividad_id'));
+                    $data1['persona_select']           = $request->input('persona_select');
+                    $data1['solicitud_asunto']         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('solicitud_asunto'))));
 
-                    if($request->hasFile('file'))
+                    if($request->hasFile('persona_select'))
                     {
-                        $documento        = $request->file('file');
-                        $documento_base64 = file_get_contents($documento->getRealPath());
-
-                        $documento_name = $documento->getClientOriginalName();
-
-                        // $respuesta['respuesta']    = $documento_name;
-                        // return json_encode($respuesta);
+                        $respuesta['respuesta'] .= "Por lo menos a una persona se debe de NOTIFICAR.";
+                        return json_encode($respuesta);
                     }
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
@@ -284,82 +275,210 @@ class NotificacionController extends Controller
                     }
 
                 // === REGISTRAR MODIFICAR VALORES ===
-                    $f_actual          = date("Y-m-d");
-                    $fd_actual         = date("Y-m-d H:i:s");
-                    $fd_actual_1       = date("Y-m-d_H-i-s");
-                    $ip                = $request->ip();
-                    $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+                    $fh_actual                  = date("Y-m-d H: i: s");
+                    $funcionario_solicitante_id = Auth::user()->i4_funcionario_id;
+                    $estado_notificacion_id     = 1;
+                    $persona_estado             = 0;
 
-                    $consulta1 = Funcionario::where("id", "=", $i4_funcionario_id)
-                                    ->select("Funcionario", "UserId")
-                                    ->first();
+                    $c_enviadas          = 0;
+                    $c_anterior_enviadas = 0;
+                    $c_no_procesadas     = 0;
 
-                    $consulta2 = Calendario::where("Calendario", "=", $f_actual)
-                                    ->select("id")
-                                    ->first();
-
-                    $iu                = new Actividad;
-                    $iu->Caso          = $data1['caso_id'];
-                    $iu->TipoActividad = $data1['tipo_actividad_id'];
-                    $iu->Actividad     = $data1['actvidad'];
-
-                    $iu->version              = 1;
-                    $iu->Fecha                = $f_actual;
-                    $iu->AllanamientoPositivo = 0;
-                    $iu->RequisaPositiva      = 0;
-
-                    $iu->Documento  = $documento_base64;
-                    $iu->_Documento = $documento_name;
-
-                    $iu->CreatorUser                  = $consulta1["UserId"];
-                    $iu->CreatorFullName              = strtoupper($consulta1["Funcionario"]);
-                    $iu->CreationDate                 = $fd_actual;
-                    $iu->CreationIP                   = $ip;
-                    $iu->UpdaterUser                  = $consulta1["UserId"];
-                    $iu->UpdaterFullName              = strtoupper($consulta1["Funcionario"]);
-                    $iu->UpdaterDate                  = $fd_actual;
-                    $iu->UpdaterIP                    = $ip;
-                    $iu->EstadoDocumento              = 2;
-                    $iu->CalFecha                     = $consulta2["id"];
-                    $iu->Asignado                     = $i4_funcionario_id;
-                    $iu->FechaIni                     = $f_actual;
-                    $iu->FechaFin                     = $f_actual;
-                    $iu->estado_triton                = 1;
-                    $iu->ActividadActualizaEstadoCaso = 0;
-
-                    $iu->timestamps = false;
-
-                    $iu->save();
-
-                    $tabla1 = "Actividad";
-                    $tabla2 = "TipoActividad";
-
-                    $select3 = "
-                        $tabla1.id,
-                        $tabla1.Fecha,
-                        UPPER($tabla1.Actividad) AS Actividad,
-                        $tabla1.estado_triton,
-
-                        UPPER(a2.TipoActividad) AS TipoActividad
-                    ";
-
-                    $where3 = "$tabla1.Caso=" . $data1['caso_id'];
-
-                    $cosulta3 = Actividad::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.TipoActividad")
-                        ->whereRaw($where3)
-                        ->select(DB::raw($select3))
-                        ->orderBy("$tabla1.CreationDate", "DESC")
-                        ->get()
-                        ->toArray();
-
-                    if( ! ($cosulta3 === null))
+                    foreach($data1['persona_select'] as $persona_id)
                     {
-                        $respuesta['sw_1'] = 1;
-                        $respuesta['cosulta3'] = $cosulta3;
+                        $consulta1 = I4NotiNotificacion::where("actividad_solicitante_id", "=", $data1['actividad_solicitante_id'])
+                                        ->where("persona_id", "=", $persona_id)
+                                        ->select("id")
+                                        ->first();
+
+                        if($consulta1 === null)
+                        {
+                            // === CONSULTA 2 ===
+                                $tabla1 = "Persona";
+                                $tabla2 = "Abogado";
+                                $tabla3 = "Muni";
+
+                                $select2 = "
+                                    $tabla1.id,
+                                    UPPER($tabla1.Persona) AS Persona,
+                                    UPPER($tabla1.DirDom) AS DirDom,
+                                    UPPER($tabla1.ZonaDom) AS ZonaDom,
+                                    UPPER($tabla1.NomMuniDom) AS NomMuniDom,
+                                    $tabla1.TelDom,
+                                    $tabla1.CelularDom,
+                                    LOWER($tabla1.EMailPrivado) AS EMailPrivado,
+                                    $tabla1.EsDenunciado,
+                                    $tabla1.EsDenunciante,
+                                    $tabla1.EsVictima,
+
+                                    a2.id AS abogado_id,
+                                    UPPER(a2.DirDom) AS abogado_DirDom,
+                                    UPPER(a2.ZonaDom) AS abogado_ZonaDom,
+                                    a2.TelDom AS abogado_TelDom,
+                                    a2.CelularDom AS abogado_CelularDom,
+                                    LOWER(a2.EMailPrivado) AS abogado_EMailPrivado,
+
+                                    UPPER(a3.Muni) AS municipio
+                                ";
+
+                                $where2 = "$tabla1.id=" . $persona_id;
+
+                                $consulta2 = Persona::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.Abogado")
+                                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.MuniDom")
+                                    ->whereRaw($where2)
+                                    ->select(DB::raw($select2))
+                                    ->first();
+
+                            if(!($consulta2 === null))
+                            {
+                                if($consulta2["EsDenunciado"] == 1)
+                                {
+                                    $persona_estado = 1;
+                                }
+                                else if($consulta2["EsDenunciante"] == 1)
+                                {
+                                    $persona_estado = 2;
+                                }
+                                else if($consulta2["EsVictima"] == 1)
+                                {
+                                    $persona_estado = 3;
+                                }
+
+                                $iu = new I4NotiNotificacion;
+
+                                $iu->caso_id                    = $data1['caso_id'];
+                                $iu->persona_id                 = $persona_id;
+                                $iu->abogado_id                 = $consulta2["abogado_id"];
+                                $iu->actividad_solicitante_id   = $data1["actividad_solicitante_id"];
+                                $iu->funcionario_solicitante_id = $funcionario_solicitante_id;
+                                $iu->estado_notificacion_id     = $estado_notificacion_id;
+
+                                $iu->codigo = $fh_actual;
+
+                                $iu->solicitud_fh     = $fh_actual;
+                                $iu->solicitud_asunto = $data1['solicitud_asunto'];
+
+                                $iu->persona_estado    = $persona_estado;
+                                $iu->persona_direccion = $consulta2["DirDom"];
+                                $iu->persona_zona      = $consulta2["ZonaDom"];
+                                $iu->persona_municipio = $consulta2["NomMuniDom"];
+                                $iu->persona_telefono  = $consulta2["TelDom"];
+                                $iu->persona_celular   = $consulta2["CelularDom"];
+                                $iu->persona_email     = $consulta2["EMailPrivado"];
+
+                                $iu->abogado_direccion = $consulta2["abogado_DirDom"];
+                                $iu->abogado_zona      = $consulta2["abogado_ZonaDom"];
+                                $iu->abogado_municipio = $consulta2["municipio"];
+                                $iu->abogado_telefono  = $consulta2["abogado_TelDom"];
+                                $iu->abogado_celular   = $consulta2["abogado_CelularDom"];
+                                $iu->abogado_email     = $consulta2["abogado_EMailPrivado"];
+
+                                $iu->save();
+
+                                $c_enviadas++;
+                            }
+                            else
+                            {
+                                $c_no_procesadas++;
+                            }
+
+                            // if( ! $cosulta6->isEmpty())
+                            // {
+                            //     $respuesta['sw_6']     = 1;
+                            //     $respuesta['cosulta6'] = $cosulta6->toArray();
+                            // }
+
+
+
+
+
+
+
+
+
+
+                        }
+                        else
+                        {
+                            $c_anterior_enviadas++;
+                        }
                     }
 
-                    $respuesta['respuesta'] .= "El RECINTO CARCELARIO fue registrado con éxito.";
-                    $respuesta['sw']         = 1;
+                    // $fd_actual_1       = date("Y-m-d_H-i-s");
+                    // $ip                = $request->ip();
+                    // $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+
+                    // $consulta1 = Funcionario::where("id", "=", $i4_funcionario_id)
+                    //                 ->select("Funcionario", "UserId")
+                    //                 ->first();
+
+                    // $consulta2 = Calendario::where("Calendario", "=", $f_actual)
+                    //                 ->select("id")
+                    //                 ->first();
+
+                    // $iu                = new Actividad;
+                    // $iu->Caso          = $data1['caso_id'];
+                    // $iu->TipoActividad = $data1['tipo_actividad_id'];
+                    // $iu->Actividad     = $data1['actvidad'];
+
+                    // $iu->version              = 1;
+                    // $iu->Fecha                = $f_actual;
+                    // $iu->AllanamientoPositivo = 0;
+                    // $iu->RequisaPositiva      = 0;
+
+                    // $iu->Documento  = $documento_base64;
+                    // $iu->_Documento = $documento_name;
+
+                    // $iu->CreatorUser                  = $consulta1["UserId"];
+                    // $iu->CreatorFullName              = strtoupper($consulta1["Funcionario"]);
+                    // $iu->CreationDate                 = $fd_actual;
+                    // $iu->CreationIP                   = $ip;
+                    // $iu->UpdaterUser                  = $consulta1["UserId"];
+                    // $iu->UpdaterFullName              = strtoupper($consulta1["Funcionario"]);
+                    // $iu->UpdaterDate                  = $fd_actual;
+                    // $iu->UpdaterIP                    = $ip;
+                    // $iu->EstadoDocumento              = 2;
+                    // $iu->CalFecha                     = $consulta2["id"];
+                    // $iu->Asignado                     = $i4_funcionario_id;
+                    // $iu->FechaIni                     = $f_actual;
+                    // $iu->FechaFin                     = $f_actual;
+                    // $iu->estado_triton                = 1;
+                    // $iu->ActividadActualizaEstadoCaso = 0;
+
+                    // $iu->timestamps = false;
+
+                    // $iu->save();
+
+                    // $tabla1 = "Actividad";
+                    // $tabla2 = "TipoActividad";
+
+                    // $select3 = "
+                    //     $tabla1.id,
+                    //     $tabla1.Fecha,
+                    //     UPPER($tabla1.Actividad) AS Actividad,
+                    //     $tabla1.estado_triton,
+
+                    //     UPPER(a2.TipoActividad) AS TipoActividad
+                    // ";
+
+                    // $where3 = "$tabla1.Caso=" . $data1['caso_id'];
+
+                    // $cosulta3 = Actividad::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.TipoActividad")
+                    //     ->whereRaw($where3)
+                    //     ->select(DB::raw($select3))
+                    //     ->orderBy("$tabla1.CreationDate", "DESC")
+                    //     ->get()
+                    //     ->toArray();
+
+                    // if( ! ($cosulta3 === null))
+                    // {
+                    //     $respuesta['sw_1'] = 1;
+                    //     $respuesta['cosulta3'] = $cosulta3;
+                    // }
+
+                    // $respuesta['respuesta'] .= "El RECINTO CARCELARIO fue registrado con éxito.";
+                    // $respuesta['sw']         = 1;
+
                 return json_encode($respuesta);
                 break;
 
@@ -552,9 +671,9 @@ class NotificacionController extends Controller
 
                         $select6 = "
                             $tabla1.id,
-                            $tabla1.Persona,
-                            $tabla1.DirDom,
-                            $tabla1.ZonaDom,
+                            UPPER($tabla1.Persona) AS Persona,
+                            UPPER($tabla1.DirDom) AS DirDom,
+                            UPPER($tabla1.ZonaDom) AS ZonaDom,
                             $tabla1.TelDom,
                             $tabla1.CelularDom,
                             $tabla1.EsDenunciado,
@@ -562,11 +681,12 @@ class NotificacionController extends Controller
                             $tabla1.EsVictima,
 
                             a2.id AS abogado_id,
-                            a2.DirDom AS abogado_DirDom,
-                            a2.ZonaDom AS abogado_ZonaDom,
+                            UPPER(a2.Abogado) AS abogado,
+                            UPPER(a2.DirDom) AS abogado_DirDom,
+                            UPPER(a2.ZonaDom) AS abogado_ZonaDom,
                             a2.TelDom AS abogado_TelDom,
                             a2.CelularDom AS abogado_CelularDom,
-                            a2.EMailPrivado AS abogado_EMailPrivado
+                            LOWER(a2.EMailPrivado) AS abogado_EMailPrivado
                         ";
 
                         $where6 = "$tabla1.Caso=" . $cosulta1['id'];

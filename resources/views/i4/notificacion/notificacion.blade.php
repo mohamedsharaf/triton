@@ -342,20 +342,21 @@
 
                     <div class="modal-body">
                         <form id="form_1" role="form" action="#">
-                            <input type="hidden" id="actividad_id" name="id" value=""/>
-                            <input type="hidden" id="tipo1" name="tipo" value=""/>
+                            <input type="hidden" id="caso_id_1" name="caso_id" value=""/>
+                            <input type="hidden" id="actividad_id" name="actividad_id" value=""/>
+                            <input type="hidden" id="tipo1" name="tipo" value="1"/>
                             {{ csrf_field() }}
                             <div class="row">
                                 <div id="denunciado_tabla" class="table-responsive">
                                     <table class="table table-striped table-hover table-bordered">
                                         <thead>
                                             <tr>
-                                                <th class="text-center">
+                                                <th class="text-center" width="35px">
                                                     <input type="checkbox" name="denunciado_all_select" id="denunciado_all_select">
                                                 </th>
-                                                <th class="text-center">DENUNCIADO</th>
-                                                <th class="text-center">UBICACION</th>
-                                                <th class="text-center">¿CON ABOGADO?</th>
+                                                <th class="text-center" width="30%">DENUNCIADO</th>
+                                                <th class="text-center" width="35%">UBICACION</th>
+                                                <th class="text-center" width="35%">ABOGADO</th>
                                             </tr>
                                         </thead>
                                         <tbody id="denunciado_tabla_body">
@@ -395,12 +396,12 @@
                                     <table class="table table-striped table-hover table-bordered">
                                         <thead>
                                             <tr>
-                                                <th class="text-center">
+                                                <th class="text-center" width="35px">
                                                     <input type="checkbox" name="denunciante_all_select" id="denunciante_all_select">
                                                 </th>
-                                                <th class="text-center">DENUNCIANTE</th>
-                                                <th class="text-center">UBICACION</th>
-                                                <th class="text-center">¿CON ABOGADO?</th>
+                                                <th class="text-center" width="30%">DENUNCIANTE</th>
+                                                <th class="text-center" width="35%">UBICACION</th>
+                                                <th class="text-center" width="35%">ABOGADO</th>
                                             </tr>
                                         </thead>
                                         <tbody id="denunciante_tabla_body">
@@ -440,12 +441,12 @@
                                     <table class="table table-striped table-hover table-bordered">
                                         <thead>
                                             <tr>
-                                                <th class="text-center">
+                                                <th class="text-center" width="35px">
                                                     <input type="checkbox" name="victima_all_select" id="victima_all_select">
                                                 </th>
-                                                <th class="text-center">VICTIMA</th>
-                                                <th class="text-center">UBICACION</th>
-                                                <th class="text-center">¿CON ABOGADO?</th>
+                                                <th class="text-center" width="30%">VICTIMA</th>
+                                                <th class="text-center" width="35%">UBICACION</th>
+                                                <th class="text-center" width="35%">ABOGADO</th>
                                             </tr>
                                         </thead>
                                         <tbody id="victima_tabla_body">
@@ -492,7 +493,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="utilitarios([52]);">Notificar</button>
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([51]);">Notificar</button>
 
                         <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div>

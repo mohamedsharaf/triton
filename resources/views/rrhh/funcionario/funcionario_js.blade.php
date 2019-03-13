@@ -982,11 +982,11 @@
                         f_salida:{
                             date:true
                         },
-                        sueldo:{
-                            required: true,
-                            number  : true,
-                            min     : 0
-                        },
+                        // sueldo:{
+                        //     required: true,
+                        //     number  : true,
+                        //     min     : 0
+                        // },
                         observaciones:{
                             maxlength: 500
                         },

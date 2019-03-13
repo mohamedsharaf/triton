@@ -55,8 +55,6 @@
             valor1[0]  = 31;
             utilitarios(valor1);
 
-            $('#tipo_actividad_id_1').append(tipo_actividad_select);
-
         //=== SELECT2 ===
             $('#caso_id').select2({
                 // maximumSelectionLength: 1,
@@ -80,11 +78,6 @@
                     }
                 }
             });
-
-            $("#tipo_actividad_id_1").select2({
-                maximumSelectionLength: 1
-            });
-            $("#tipo_actividad_id_1").appendTo("#tipo_actividad_id_1_div");
 
         // === SELECT CHANGE ===
             $("#caso_id").on("change", function(e) {
@@ -115,11 +108,6 @@
             $("#victima_all_select").click(function(){
                 $(".victima_class").prop("checked", this.checked);
             });
-
-        // === DROPZONE ===
-            var valor1 = new Array();
-            valor1[0]  = 80;
-            utilitarios(valor1);
     });
 
     $(window).on('resize.jqGrid', function() {
@@ -139,8 +127,10 @@
                 if(valor[1] != ''){
                     $("#actividad_id").val(valor[1]);
 
-                    $('#modal_1_title').empty();
+                    $('#modal_1_title, #modal_2_title').empty();
                     $('#modal_1_title').append('NOTIFICAR');
+
+                    $('#modal_2_title').append(valor[3] + " - " + valor[2]);
 
                     $('#modal_1').modal();
                 }
@@ -196,183 +186,6 @@
 
                 $(form_1)[0].reset();
                 break;
-            // === JQGRID 1 ===
-            case 40:
-                var edit1      = true;
-                var ancho1     = 5;
-                var ancho_d    = 29;
-                @if(in_array(['codigo' => '2103'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
-                @endif
-
-                $(jqgrid1).jqGrid({
-                    // caption     : title_table,
-                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
-                    datatype    : 'json',
-                    mtype       : 'post',
-                    height      : 'auto',
-                    pager       : pjqgrid1,
-                    rowNum      : 10,
-                    rowList     : [10, 20, 30],
-                    sortname    : 'RecintosCarcelarios.created_at',
-                    sortorder   : "desc",
-                    viewrecords : true,
-                    shrinkToFit : false,
-                    hidegrid    : false,
-                    multiboxonly: true,
-                    altRows     : true,
-                    rownumbers  : true,
-                    // subGrid     : subgrid_sw,
-                    // multiselect  : true,
-                    //autowidth     : true,
-                    //gridview      :true,
-                    //forceFit      : true,
-                    //toolbarfilter : true,
-                    colNames : [
-                        "",
-
-                        "ESTADO",
-                        "TIPO DE RECINTO",
-                        "NOMBRE",
-                        "MUNICIPIO",
-                        "DEPARTAMENTO",
-
-                        ""
-                    ],
-                    colModel : [
-                        {
-                            name    : "act",
-                            index   : "",
-                            width   : ancho1,
-                            align   : "center",
-                            fixed   : true,
-                            sortable: false,
-                            resize  : false,
-                            search  : false,
-                            hidden  : edit1
-                        },
-
-                        {
-                            name       : "estado",
-                            index      : "RecintosCarcelarios.estado",
-                            width      : 120,
-                            align      : "center",
-                            stype      :'select',
-                            editoptions: {value:estado_jqgrid}
-                        },
-                        {
-                            name       : "tipo_recinto",
-                            index      : "RecintosCarcelarios.tipo_recinto",
-                            width      : 165,
-                            align      : "center",
-                            stype      :'select',
-                            editoptions: {value:tipo_recinto_jqgrid}
-                        },
-
-                        {
-                            name : "nombre",
-                            index: "RecintosCarcelarios.nombre",
-                            width: 400,
-                            align: "left"
-                        },
-                        {
-                            name       : "municipio",
-                            index      : "a2.Muni",
-                            width      : 400,
-                            align      : "left"
-                        },
-                        {
-                            name       : "departamento",
-                            index      : "a3.Dep",
-                            width      : 150,
-                            align      : "left",
-                            stype      :'select',
-                            editoptions: {value:departamento_jqgrid}
-                        },
-
-                        // === OCULTO ===
-                            {
-                                name  : "val_json",
-                                index : "",
-                                width : 10,
-                                align : "center",
-                                search: false,
-                                hidden: true
-                            }
-                    ],
-                    loadComplete : function(){
-                        $("tr.jqgrow:odd").addClass('myAltRowClass');
-                    },
-                    gridComplete : function() {
-                        var ids = $(jqgrid1).jqGrid('getDataIDs');
-                        for(var i = 0; i < ids.length; i++){
-                            var cl       = ids[i];
-                            var ret      = $(jqgrid1).jqGrid('getRowData', cl);
-                            var val_json = $.parseJSON(ret.val_json);
-
-                            var ed = "";
-                            @if(in_array(['codigo' => '2103'], $permisos))
-                                ed = "<button type='button' class='btn btn-xs btn-success' title='Modificar recinto carcelario' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                            @endif
-
-                            $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed)
-                            });
-                        }
-                    }
-                });
-
-                $(jqgrid1).jqGrid('filterToolbar',{
-                    searchOnEnter : true,
-                    stringResult  : true,
-                    defaultSearch : 'cn'
-                });
-
-                $(jqgrid1).jqGrid('navGrid', pjqgrid1, {
-                    edit  : false,
-                    add   : false,
-                    del   : false,
-                    search: false
-                })
-                @if(in_array(['codigo' => '2102'], $permisos))
-                    .navSeparatorAdd(pjqgrid1,{
-                        sepclass : "ui-separator"
-                    })
-                    .navButtonAdd(pjqgrid1,{
-                        "id"          : "add1",
-                        caption       : "",
-                        title         : 'Agregar nueva fila',
-                        buttonicon    : "ui-icon ui-icon-plusthick",
-                        onClickButton : function(){
-                            var valor1 = new Array();
-                            valor1[0]  = 30;
-                            utilitarios(valor1);
-
-                            var valor1 = new Array();
-                            valor1[0]  = 10;
-                            utilitarios(valor1);
-                        }
-                    })
-                @endif
-                @if(in_array(['codigo' => '2104'], $permisos))
-                    .navSeparatorAdd(pjqgrid1,{
-                        sepclass : "ui-separator"
-                    })
-                    .navButtonAdd(pjqgrid1,{
-                        "id"          : "print1",
-                        caption       : "",
-                        title         : 'Reportes',
-                        buttonicon    : "ui-icon ui-icon-print",
-                        onClickButton : function(){
-                            var valor1 = new Array();
-                            valor1[0]  = 70;
-                            utilitarios(valor1);
-                        }
-                    })
-                @endif
-                ;
-                break;
             // === BUSQUEDA CASO ===
             case 50:
                 var valor1 = new Array();
@@ -427,7 +240,25 @@
                 break;
             // === PROCESO DE VERIFICACION ===
             case 51:
-                if($(form_1).valid()){
+                var concatenar_valores = '?tipo=2';
+
+                var actividad_id   = $("#actividad_id").val();
+                var personas   = $("input[name='persona_select[]']:checked").val();
+
+                var valor_sw    = true;
+                var valor_error = '';
+
+                if($.trim(actividad_id) == ''){
+                    valor_sw    = false;
+                    valor_error = 'La ACTIVIDAD es obligatorio.';
+                }
+
+                if(personas == undefined){
+                    valor_sw    = false;
+                    valor_error = 'Por lo menos a una persona se debe de NOTIFICAR.';
+                }
+
+                if(valor_sw){
                     swal({
                         title             : "ENVIANDO INFORMACIÓN",
                         text              : "Espere a que guarde la información.",
@@ -450,26 +281,9 @@
                     var valor1 = new Array();
                     valor1[0]  = 101;
                     valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                    valor1[2]  = "¡Favor complete o corrija los datos solicitados!";
+                    valor1[2]  = valor_error;
                     utilitarios(valor1);
                 }
-                break;
-            // === VALIDACION ===
-            case 60:
-                $(form_1).validate({
-                    rules: {
-                        Muni_id:{
-                            required : true
-                        },
-                        tipo_recinto:{
-                            required : true
-                        },
-                        nombre:{
-                            required : true,
-                            maxlength: 500
-                        }
-                    }
-                });
                 break;
             // === REPORTE PDF - GENERAR RECIBIDO ===
             case 70:
@@ -552,100 +366,6 @@
                     utilitarios(valor1);
                 }
                 break;
-            // === DROPZONE 1 ===
-            case 80:
-                $("#dropzoneForm_1").dropzone({
-                    url              : url_controller + "/send_ajax",
-                    method           : 'post',
-                    addRemoveLinks   : true,
-                    maxFilesize      : 5, // MB
-                    dictResponseError: "Ha ocurrido un error en el server.",
-                    acceptedFiles    : 'application/pdf',
-                    paramName        : "file", // The name that will be used to transfer the file
-                    maxFiles         : 1,
-                    clickable        : true,
-                    parallelUploads  : 1,
-                    params: {
-                        tipo  : 1,
-                        _token: csrf_token
-                    },
-                    // forceFallback:true,
-                    createImageThumbnails: true,
-                    maxThumbnailFilesize : 1,
-                    autoProcessQueue     : true,
-
-                    dictRemoveFile              : 'Eliminar',
-                    dictCancelUpload            : 'Cancelar',
-                    dictCancelUploadConfirmation: '¿Confirme la cancelación?',
-                    dictDefaultMessage          : "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
-                    dictFallbackMessage         : 'Su navegador no soporta arrastrar y soltar la carga de archivos.',
-                    dictFallbackText            : 'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
-                    dictInvalidFileType         : 'El archivo no coincide con los tipos de archivo permitidos.',
-                    dictFileTooBig              : 'El archivo es demasiado grande.',
-                    dictMaxFilesExceeded        : 'Número máximo de archivos superado.',
-                    init: function(){
-                        this.on("sending", function(file, xhr, formData){
-                            formData.append("caso_id", $("#caso_id_1").val());
-                            formData.append("tipo_actividad_id", $("#tipo_actividad_id_1").val());
-                            formData.append("actvidad", $("#actvidad_1").val());
-                        });
-                    },
-                    success: function(file, response){
-                        var data = $.parseJSON(response);
-                        if(data.sw === 1){
-                            var valor1 = new Array();
-                            valor1[0]  = 100;
-                            valor1[1]  = data.titulo;
-                            valor1[2]  = data.respuesta;
-                            utilitarios(valor1);
-
-                            var valor1 = new Array();
-                            valor1[0]  = 32;
-                            utilitarios(valor1);
-
-                            $('#actividad_tabla_b').empty();
-
-                            if(data.sw_1 === 1){
-                                var actividad_tabla = ""
-
-                                var valor1 = new Array();
-                                valor1[0]  = 90;
-                                valor1[1]  = data.cosulta3;
-                                actividad_tabla = utilitarios(valor1);
-
-                                $('#actividad_tabla_b').append(actividad_tabla);
-                            }
-
-                            $('#modal_1').modal('hide');
-                        }
-                        else if(data.sw === 0){
-                            if(data.error_sw === 1){
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = data.respuesta;
-                                utilitarios(valor1);
-                            }
-                            else
-                            {
-                                var respuesta_server = '';
-                                $.each(data.error.response.original, function(index, value) {
-                                    respuesta_server += value + '<br>';
-                                });
-                                var valor1 = new Array();
-                                valor1[0]  = 101;
-                                valor1[1]  = data.titulo;
-                                valor1[2]  = respuesta_server;
-                                utilitarios(valor1);
-                            }
-                        }
-                        else if(data.sw === 2){
-                            window.location.reload();
-                        }
-                        this.removeAllFiles(true);
-                    }
-                });
-                break;
             // === LLENAR TABLA 1 ===
             case 90:
                 var respuesta = "";
@@ -668,7 +388,7 @@
                     @if(in_array(['codigo' => '2502'], $permisos) AND $i4_funcionario_id != '')
                         if(value.estado_notificacion == 1){
                             respuesta += '<td class="text-center">';
-                            respuesta += '<button type="button" class="btn btn-xs btn-primary" title="Eliminar notificación" onclick="utilitarios([10, ' + value.id + ']);">';
+                            respuesta += '<button type="button" class="btn btn-xs btn-primary" title="Eliminar notificación" onclick="utilitarios([10, ' + value.id + ', \'' + value.TipoActividad + '\', \'' + valor[2] + '\']);">';
                             respuesta += '<i class="fa fa-envelope"></i>';
                             respuesta += '</button>';
                             respuesta += '</td>';
@@ -731,7 +451,7 @@
                 $.each(valor[1], function(index, value) {
                     // === UBICACION PERSONA ===
                         if(value.DirDom == null){
-                            ubicacion += "SIN DIRECCION";
+                            ubicacion += '<span class="label label-danger font-sm">SIN DIRECCION</span>';
                         }
                         else{
                             ubicacion += value.DirDom;
@@ -739,96 +459,133 @@
                         }
 
                         if(value.ZonaDom == null){
-                            ubicacion += ", SIN ZONA";
+                            ubicacion += ' , <span class="label label-danger font-sm">SIN ZONA</span>';
                         }
                         else{
-                            ubicacion += ", " + value.ZonaDom;
+                            ubicacion += " , " + value.ZonaDom;
                             ubicacion_sw++;
                         }
 
                         if(value.TelDom == null){
-                            ubicacion += ", SIN TELEFONO";
+                            ubicacion += ' , <span class="label label-warning font-sm">SIN TELEFONO</span>';
                         }
                         else{
-                            ubicacion += ", " + value.TelDom;
+                            ubicacion += " , " + value.TelDom;
                         }
 
                         if(value.CelularDom == null){
-                            ubicacion += ", SIN CELULAR";
+                            ubicacion += ' , <span class="label label-warning font-sm">SIN CELULAR</span>';
                         }
                         else{
-                            ubicacion += ", " + value.CelularDom;
+                            ubicacion += " , " + value.CelularDom;
                         }
 
                     // === UBICACION ABOGADO ===
                         if(value.abogado_id != null){
-                            if(value.abogado_DirDom == null){
-                                ubicacion_abogado += "SIN DIRECCION";
+                            if(value.abogado == null){
+                                ubicacion_abogado += '<span class="label label-warning font-sm">SIN NOMBRE</span>';
                             }
                             else{
-                                ubicacion_abogado += value.abogado_DirDom;
+                                ubicacion_abogado += value.abogado;
+                            }
+
+                            if(value.abogado_DirDom == null){
+                                ubicacion_abogado += '<br><span class="label label-danger font-sm">SIN DIRECCION</span>';
+                            }
+                            else{
+                                ubicacion_abogado += '<br>' + value.abogado_DirDom;
                                 ubicacion_abogado_sw++;
                             }
 
                             if(value.abogado_ZonaDom == null){
-                                ubicacion_abogado += ", SIN ZONA";
+                                ubicacion_abogado += ' , <span class="label label-danger font-sm">SIN ZONA</span>';
                             }
                             else{
-                                ubicacion_abogado += ", " + value.abogado_ZonaDom;
+                                ubicacion_abogado += " , " + value.abogado_ZonaDom;
                                 ubicacion_abogado_sw++;
                             }
 
                             if(value.abogado_TelDom == null){
-                                ubicacion_abogado += ", SIN TELEFONO";
+                                ubicacion_abogado += ' , <span class="label label-warning font-sm">SIN TELEFONO</span>';
                             }
                             else{
-                                ubicacion_abogado += ", " + value.abogado_TelDom;
+                                ubicacion_abogado += " , " + value.abogado_TelDom;
                             }
 
                             if(value.abogado_CelularDom == null){
-                                ubicacion_abogado += ", SIN CELULAR";
+                                ubicacion_abogado += ' , <span class="label label-danger font-sm">SIN CELULAR</span>';
                             }
                             else{
-                                ubicacion_abogado += ", " + value.abogado_CelularDom;
+                                ubicacion_abogado += " , " + value.abogado_CelularDom;
                                 ubicacion_abogado_sw++;
                             }
 
                             if(value.abogado_EMailPrivado == null){
-                                ubicacion_abogado += ", SIN CORREO ELECTRONICO";
+                                ubicacion_abogado += ' , <span class="label label-danger font-sm">SIN CORREO ELECTRONICO</span>';
                             }
                             else{
-                                ubicacion_abogado += ", " + value.abogado_EMailPrivado;
+                                ubicacion_abogado += " , " + value.abogado_EMailPrivado;
                                 ubicacion_abogado_sw++;
                             }
                         }
                         else{
-                            ubicacion_abogado = "SIN ABOGADO";
+                            ubicacion_abogado += '<span class="label label-danger font-sm">SIN ABOGADO</span>';
                         }
 
                     if(value.EsDenunciado == 1){
                         denunciado_table += '<tr>';
 
                         denunciado_table += '<td class="text-center">';
-                        // if(ubicacion_sw == 2 || ubicacion_abogado_sw == 4){
-                            denunciado_table += '<input type="checkbox" class="denunciado_class" name="denunciante_select[]" value="' + value.id + '">';
-                        // }
+                        if(ubicacion_sw == 2 || ubicacion_abogado_sw == 4){
+                            denunciado_table += '<input type="checkbox" class="denunciado_class" name="persona_select[]" value="' + value.id + '">';
+                        }
                         denunciado_table += '</td>';
 
-                        denunciado_table += '<td>' + value.Persona + '</td>';
+                        denunciado_table += '<td class="text-center">' + value.Persona + '</td>';
 
-                        denunciado_table += '<td>' + ubicacion + '</td>';
+                        denunciado_table += '<td class="text-center">' + ubicacion + '</td>';
 
-                        denunciado_table += '<td>' + ubicacion_abogado + '</td>';
+                        denunciado_table += '<td class="text-center">' + ubicacion_abogado + '</td>';
 
                         denunciado_table += '</tr>';
 
                         denunciado_c++;
                     }
                     else if(value.EsDenunciante == 1){
+                        denunciante_table += '<tr>';
+
+                                denunciante_table += '<td class="text-center">';
+                        if(ubicacion_sw == 2 || ubicacion_abogado_sw == 4){
+                            denunciante_table += '<input type="checkbox" class="denunciante_class" name="persona_select[]" value="' + value.id + '">';
+                        }
+                        denunciante_table += '</td>';
+
+                        denunciante_table += '<td class="text-center">' + value.Persona + '</td>';
+
+                        denunciante_table += '<td class="text-center">' + ubicacion + '</td>';
+
+                        denunciante_table += '<td class="text-center">' + ubicacion_abogado + '</td>';
+
+                        denunciante_table += '</tr>';
 
                         denunciante_c++;
                     }
                     else if(value.EsVictima == 1){
+                        victima_table += '<tr>';
+
+                        victima_table += '<td class="text-center">';
+                        if(ubicacion_sw == 2 || ubicacion_abogado_sw == 4){
+                            victima_table += '<input type="checkbox" class="victima_class" name="persona_select[]" value="' + value.id + '">';
+                        }
+                        victima_table += '</td>';
+
+                        victima_table += '<td class="text-center">' + value.Persona + '</td>';
+
+                        victima_table += '<td class="text-center">' + ubicacion + '</td>';
+
+                        victima_table += '<td class="text-center">' + ubicacion_abogado + '</td>';
+
+                        victima_table += '</tr>';
 
                         victima_c++;
                     }
@@ -931,8 +688,7 @@
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
 
-                                    $('#modal_2_title').empty();
-                                    $('#caso_b, #modal_2_title').append(data.cosulta1.Caso);
+                                    $('#caso_b').append(data.cosulta1.Caso);
                                     $('#etapa_caso_b').append(data.cosulta1.etapa_caso);
                                     $('#origen_caso_b').append(data.cosulta1.origen_caso);
                                     $('#estado_caso_b').append(data.cosulta1.estado_caso);
@@ -949,6 +705,7 @@
                                         var valor1 = new Array();
                                         valor1[0]  = 90;
                                         valor1[1]  = data.cosulta3;
+                                        valor1[2]  = data.cosulta1.Caso;
                                         actividad_tabla = utilitarios(valor1);
 
                                         $('#actividad_tabla_b').append(actividad_tabla);
@@ -968,6 +725,8 @@
                                         valor1[1]  = data.cosulta6;
                                         utilitarios(valor1);
                                     }
+
+                                    $("#caso_id_1").val(data.cosulta1.id);
                                 }
                                 else if(data.sw === 0){
                                     var valor1 = new Array();

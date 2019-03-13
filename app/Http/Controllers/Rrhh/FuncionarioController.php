@@ -545,7 +545,8 @@ class FuncionarioController extends Controller
                                 'persona_id'                       => 'required',
                                 'f_ingreso'                        => 'required|date',
                                 'f_salida'                         => 'date',
-                                'sueldo'                           => 'required|numeric',
+                                // 'sueldo'                           => 'required|numeric',62
+                                'sueldo'                           => 'numeric',
                                 'lugar_dependencia_id_funcionario' => 'required',
                                 'unidad_desconcentrada_id'         => 'required',
                                 'horario_id_1'                     => 'required'
@@ -558,7 +559,7 @@ class FuncionarioController extends Controller
 
                                 'f_salida.date' => 'El campo FECHA DE SALIDA no corresponde a una fecha válida.',
 
-                                'sueldo.required' => 'El campo SUELDO es obligatorio.',
+                                // 'sueldo.required' => 'El campo SUELDO es obligatorio.',
                                 'sueldo.numeric'  => 'El campo SUELDO debe ser un número.',
 
                                 'lugar_dependencia_id_funcionario.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',
@@ -573,7 +574,8 @@ class FuncionarioController extends Controller
                             $validator = $this->validate($request,[
                                 'persona_id'                       => 'required',
                                 'f_ingreso'                        => 'required|date',
-                                'sueldo'                           => 'required|numeric',
+                                // 'sueldo'                           => 'required|numeric',
+                                'sueldo'                           => 'numeric',
                                 'lugar_dependencia_id_funcionario' => 'required',
                                 'unidad_desconcentrada_id'         => 'required',
                                 'horario_id_1'                     => 'required'
@@ -584,7 +586,7 @@ class FuncionarioController extends Controller
                                 'f_ingreso.required' => 'El campo FECHA DE INGRESO es obligatorio.',
                                 'f_ingreso.date'     => 'El campo FECHA DE INGRESO no corresponde a una fecha válida.',
 
-                                'sueldo.required' => 'El campo SUELDO es obligatorio.',
+                                // 'sueldo.required' => 'El campo SUELDO es obligatorio.',
                                 'sueldo.numeric'  => 'El campo SUELDO debe ser un número.',
 
                                 'lugar_dependencia_id_funcionario.required' => 'El campo LUGAR DE DEPENDENCIA es obligatorio.',

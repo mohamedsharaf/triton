@@ -31,6 +31,7 @@ class CreateI4NotiNotificacionesTable extends Migration
             $table->dateTime('solicitud_fh')->nullable();
             $table->string('solicitud_asunto', 500)->nullable();
 
+            $table->smallInteger('persona_estado')->default('0')->unsigned();
             $table->string('persona_direccion', 200)->nullable();
             $table->string('persona_zona', 200)->nullable();
             $table->string('persona_municipio', 200)->nullable();
