@@ -401,7 +401,7 @@ class HomeController extends Controller
                 ";
 
                 $persona_id = Auth::user()->persona_id;
-                $array_where = "$tabla1.persona_id=" . $persona_id;
+                $array_where = "$tabla1.persona_id=" . $persona_id . " AND $tabla1.fecha <= '" . date('Y-m-d') . "'";
 
                 $count = RrhhAsistencia::leftJoin("$tabla5 AS a3", "a3.id", "=", "$tabla1.unidad_desconcentrada_id")
                     ->leftJoin("$tabla6 AS a4", "a4.id", "=", "a3.lugar_dependencia_id")
