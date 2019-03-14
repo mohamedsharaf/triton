@@ -281,22 +281,30 @@ class InstitucionController extends Controller
                     $c_nombre = InstInstitucion::where('nombre', '=', $nombre)->count();
                     if($c_nombre < 1)
                     {
-                        $iu               = new InstInstitucion;
-                        $iu->estado       = $estado;
-                        $iu->nombre       = $nombre;
-                        $iu->zona         = $zona;
-                        $iu->direccion    = $direccion;
-                        $iu->telefono     = $telefono;
-                        $iu->celular      = $celular;
-                        $iu->email        = $email;
-                        $iu->respcontacto = $respcontacto;
-                        if ($instituciontipo == '2')
-                            $iu->institucion_id = $institucion_id;
-                        $iu->ubge_municipios_id = $municipio_id;
-                        $iu->save();
+                        $correoe = InstInstitucion::where('email', '=', $email)->count();
+                        if ($correoe < 1)
+                        {
+                            $iu               = new InstInstitucion;
+                            $iu->estado       = $estado;
+                            $iu->nombre       = $nombre;
+                            $iu->zona         = $zona;
+                            $iu->direccion    = $direccion;
+                            $iu->telefono     = $telefono;
+                            $iu->celular      = $celular;
+                            $iu->email        = $email;
+                            $iu->respcontacto = $respcontacto;
+                            if ($instituciontipo == '2')
+                                $iu->institucion_id = $institucion_id;
+                            $iu->ubge_municipios_id = $municipio_id;
+                            $iu->save();
 
-                        $respuesta['respuesta'] .= "La INSTITUCION/OFICINA se registro con éxito.";
-                        $respuesta['sw']         = 1;
+                            $respuesta['respuesta'] .= "La INSTITUCION/OFICINA se registro con éxito.";
+                            $respuesta['sw']         = 1;
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El CORREO ELECTRONICO de la INSTITUCION/OFICINA ya fue registrado.";
+                        }
                     }
                     else
                     {
@@ -306,26 +314,33 @@ class InstitucionController extends Controller
                 else
                 {
                     $c_nombre = InstInstitucion::where('nombre', '=', $nombre)->where('id', '<>', $id)->count();
-
                     if($c_nombre < 1)
                     {
-                        $iu               = InstInstitucion::find($id);
-                        $iu->estado       = $estado;
-                        $iu->nombre       = $nombre;
-                        $iu->zona         = $zona;
-                        $iu->direccion    = $direccion;
-                        $iu->telefono     = $telefono;
-                        $iu->celular      = $celular;
-                        $iu->email        = $email;
-                        $iu->respcontacto = $respcontacto;
-                        if ($instituciontipo == '2')
-                            $iu->institucion_id = $institucion_id;
-                        $iu->ubge_municipios_id = $municipio_id;
-                        $iu->save();
+                        $correoe = InstInstitucion::where('email', '=', $email)->where('id', '<>', $id)->count();
+                        if ($correoe < 1)
+                        {
+                            $iu               = InstInstitucion::find($id);
+                            $iu->estado       = $estado;
+                            $iu->nombre       = $nombre;
+                            $iu->zona         = $zona;
+                            $iu->direccion    = $direccion;
+                            $iu->telefono     = $telefono;
+                            $iu->celular      = $celular;
+                            $iu->email        = $email;
+                            $iu->respcontacto = $respcontacto;
+                            if ($instituciontipo == '2')
+                                $iu->institucion_id = $institucion_id;
+                            $iu->ubge_municipios_id = $municipio_id;
+                            $iu->save();
 
-                        $respuesta['respuesta'] .= "El INSTITUCION/OFICINA se edito con éxito.";
-                        $respuesta['sw']         = 1;
-                        $respuesta['iu']         = 2;
+                            $respuesta['respuesta'] .= "El INSTITUCION/OFICINA se edito con éxito.";
+                            $respuesta['sw']         = 1;
+                            $respuesta['iu']         = 2;
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "El CORREO ELECTRONICO de la INSTITUCION/OFICINA ya fue registrado.";
+                        }
                     }
                     else
                     {
