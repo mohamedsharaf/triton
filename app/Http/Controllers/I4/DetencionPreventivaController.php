@@ -771,7 +771,7 @@ class DetencionPreventivaController extends Controller
                         $iu->Sexo  = $data1['sexo_id'];
 
                         $iu->dp_fecha_detencion_preventiva = $data1['dp_fecha_detencion_preventiva'];
-                        // $iu->dp_fecha_conclusion_detencion = $data1['dp_fecha_conclusion_detencion'];
+                        $iu->dp_fecha_conclusion_detencion = $data1['dp_fecha_conclusion_detencion'];
                         $iu->recinto_carcelario_id         = $data1['recinto_carcelario_id'];
 
                         // === AMARILLO ===
