@@ -709,7 +709,7 @@ class DetencionPreventivaController extends Controller
 
                     $data1['peligro_procesal_id']           = $request->input('peligro_procesal_id');
                     $data1['dp_fecha_detencion_preventiva'] = trim($request->input('dp_fecha_detencion_preventiva'));
-                    // $data1['dp_fecha_conclusion_detencion'] = trim($request->input('dp_fecha_conclusion_detencion'));
+                    $data1['dp_fecha_conclusion_detencion'] = trim($request->input('dp_fecha_conclusion_detencion'));
                     $data1['recinto_carcelario_id']         = trim($request->input('recinto_carcelario_id'));
 
                     $data1['dp_etapa_gestacion_estado'] = trim($request->input('dp_etapa_gestacion_estado'));

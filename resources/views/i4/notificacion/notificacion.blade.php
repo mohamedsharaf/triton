@@ -22,20 +22,12 @@
 
         <link href="{!! asset('inspinia_v27/css/plugins/clockpicker/clockpicker.css') !!}" rel="stylesheet">
 
-    <!-- Dropzone -->
-        <link href="{!! asset('inspinia_v27/css/plugins/dropzone/basic.css') !!}" rel="stylesheet">
-        <link href="{!! asset('inspinia_v27/css/plugins/dropzone/dropzone.css') !!}" rel="stylesheet">
-
     <!-- TouchSpin -->
         <link href="{!! asset('inspinia_v27/css/plugins/touchspin/jquery.bootstrap-touchspin.min.css') !!}" rel="stylesheet">
 @endsection
 
 @section('css')
     <style type="text/css">
-        .clockpicker-popover {
-            z-index: 999999;
-        }
-
         #alertmod_table_list_2 {
             top: 900px !important;
         }
@@ -57,90 +49,6 @@
 
         .modal-xlg {
             width: 90%;
-        }
-
-        .orgchart .node{
-          /*box-sizing:border-box;
-          display   :inline-block;
-          position  :relative;
-          margin    :0;
-          padding   :3px;
-          border    :2px dashed transparent;
-          text-align:center;*/
-          width     :auto;
-        }
-
-        .oc-export-btn{
-          right:15px;
-          top  :92px;
-        }
-
-        .orgchart .node .title{
-          text-align      :center;
-          font-size       :12px;
-          font-weight     :700;
-          height          :20px;
-          line-height     :20px;
-          overflow        :hidden;
-          text-overflow   :ellipsis;
-          white-space     :nowrap;
-          background-color:#4587BC;
-          color           :#fff;
-          border-radius   :2px 2px 2px 2px;
-          padding-left    :4px;
-          padding-right   :4px;
-        }
-
-        .orgchart .lines .topLine{
-          border-top:2px solid #0069AA
-        }
-        .orgchart .lines .rightLine{
-          border-right :1px solid #0069AA;
-          float        :none;
-          border-radius:0
-        }
-        .orgchart .lines .leftLine{
-          border-left  :1px solid #0069AA;
-          float        :none;
-          border-radius:0
-        }
-        .orgchart .lines .downLine{
-          background-color:#0069AA;
-          margin          :0 auto;
-          height          :20px;
-          width           :2px;
-          float           :none
-        }
-
-        .wizard>.steps>ul>li:nth-child(1){
-            width: 15%;
-        }
-        .wizard>.steps>ul>li:nth-child(2){
-            width: 15%;
-        }
-        .wizard>.steps>ul>li:nth-child(3){
-            width: 15%;
-        }
-        .wizard>.steps>ul>li:nth-child(4){
-            width: 20%;
-        }
-        .wizard>.steps>ul>li:nth-child(5){
-            width: 15%;
-        }
-        .wizard>.steps>ul>li:nth-child(6){
-            width: 20%;
-        }
-
-        #dropzone_1, #dropzone_2, #dropzone_3, #dropzone_4, #dropzone_5, #dropzone_6, #dropzone_7, #dropzone_8, #dropzone_9, #dropzone_10, #dropzone_11, #dropzone_12{
-            height    : 135px;
-            min-height: 100px;
-        }
-
-        .onoffswitch-inner:before {
-            content: "SI";
-        }
-        .onoffswitch-inner:after {
-            content: "NO";
         }
     </style>
 @endsection
@@ -291,30 +199,12 @@
                     </div>
                 </div>
 
-                {{-- <div class="row m-b-sm m-t-sm">
-                    <div class="col-md-12">
-                        <div class="input-group">
-                            <input type="text" id="caso" placeholder="Caso" class="form-control input-lg m-b" autofocus autocomplete="off" onkeyup="if(event.keyCode == 13){utilitarios([50]);}">
-                            <span class="input-group-btn">
-                            <button type="button" class="btn btn-lg btn-primary" onclick="utilitarios([50]);"> Buscar</button> </span>
-                        </div>
-                    </div>
-                </div> --}}
-
                 <p class="small">
                     Para completar la busqueda debe de seleccionar una opción.
                 </p>
 
                 <div class="text-center m-t-md">
-                    {{-- <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
-                        <strong>Manual</strong>
-                    </a> --}}
-
                     <button type="button" class="btn btn-xs btn-info" onclick="utilitarios([30]);utilitarios([31]);"><strong>Limpiar</strong></button>
-
-                    @if(in_array(['codigo' => '2203'], $permisos))
-                        <button type="button" class="btn btn-xs btn-success" onclick="utilitarios([11]);"><strong>Reportes</strong></button>
-                    @endif
                 </div>
 
                 <br>
@@ -500,108 +390,17 @@
                 </div>
             </div>
         </div>
-
-        <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
-                            <span aria-hidden="true">&times;</span>
-                            <span class="sr-only">Close</span>
-                        </button>
-
-                        <h4 class="modal-title">
-                            REPORTES
-                        </h4>
-                    </div>
-
-                    <div class="modal-body">
-                        <form id="form_2" role="form" action="#">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div id="tipo_reporte_2_div" class="form-group">
-                                        <label for="tipo_reporte_2">Tipo de reporte</label>
-                                        <select name="tipo_reporte_2" id="tipo_reporte_2" data-placeholder="Tipo de reporte" multiple="multiple" style="width: 100%;">
-                                        </select>
-                                    </div>
-
-                                    <div id="division_id_2_div" class="form-group">
-                                        <label for="division_id_2">División</label>
-                                        <select name="division_id_2" id="division_id_2" data-placeholder="Departamento" multiple="multiple" style="width: 100%;">
-                                        </select>
-                                    </div>
-
-                                    <div id="funcionario_id_2_div" class="form-group">
-                                        <label for="funcionario_id_2">Fiscal</label>
-                                        <select name="funcionario_id_2" id="funcionario_id_2" data-placeholder="Fiscal" multiple="multiple" style="width: 100%;">
-                                        </select>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                <label for="fecha_del_2">Fecha del</label>
-                                            <input type="text" class="form-control" id="fecha_del_2" name="fecha_del_2" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date('Y-m-d') }}">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                <label for="hora_del_2">Hora del</label>
-                                                <input type="text" class="form-control" id="hora_del_2" name="hora_del_2" placeholder="hora:minuto" data-mask="99:99" value="00:00">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                <label for="fecha_al_2">Fecha al</label>
-                                                <input type="text" class="form-control" id="fecha_al_2" name="fecha_al_2" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date('Y-m-d') }}">
-                                            </div>
-                                        </div>
-
-                                        <div class="col-sm-6">
-                                            <div class="form-group">
-                                                <label for="hora_al_2">Hora al</label>
-                                                <input type="text" class="form-control" id="hora_al_2" name="hora_al_2" placeholder="hora:minuto" data-mask="99:99" value="{{ date('H:i') }}">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="utilitarios([71]);">PDF</button>
-                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 @endsection
 
 @section('js_plugins')
     <!-- Peity -->
         <script src="{{ asset('inspinia_v27/js/plugins/peity/jquery.peity.min.js') }}"></script>
 
-    <!-- jqGrid -->
-        <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/i18n/grid.locale-es.js') }}"></script>
-        <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/jquery.jqGrid.min.js') }}"></script>
-
     <!-- Custom and plugin javascript -->
         <script src="{{ asset('inspinia_v27/js/inspinia.js') }}"></script>
         <script src="{{ asset('inspinia_v27/js/plugins/pace/pace.min.js') }}"></script>
 
         <script src="{{ asset('inspinia_v27/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
-
-    <!-- Steps -->
-        <script src="{{ asset('inspinia_v27/js/plugins/steps/jquery.steps.js') }}"></script>
-
-    <!-- Jquery Validate -->
-        <script src="{{ asset('inspinia_v27/js/plugins/validate/jquery.validate.min.js') }}"></script>
-        <script src="{{ asset('inspinia_v27/js/plugins/validate/messages_es.js') }}"></script>
 
     <!-- Toastr script -->
         <script src="{{ asset('inspinia_v27/js/plugins/toastr/toastr.min.js') }}"></script>
@@ -615,21 +414,6 @@
 
     <!-- Input Mask-->
         <script src="{{ asset('inspinia_v27/js/plugins/jasny/jasny-bootstrap.min.js') }}"></script>
-
-    <!-- Data picker -->
-        <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
-        <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>
-
-    <!-- Clock picker -->
-        <script src="{{ asset('inspinia_v27/js/plugins/clockpicker/clockpicker.js') }}"></script>
-
-    <!-- OrgChart -->
-        <script src="{{ asset('inspinia_v27/js/plugins/orgchart/html2canvas.min.js') }}"></script>
-        <script src="{{ asset('inspinia_v27/js/plugins/orgchart/jspdf.min.js') }}"></script>
-        <script src="{{ asset('inspinia_v27/js/plugins/orgchart/jquery.orgchart.min.js') }}"></script>
-
-    <!-- DROPZONE -->
-        <script src="{{ asset('inspinia_v27/js/plugins/dropzone/dropzone.js') }}"></script>
 
     <!-- TouchSpin -->
         <script src="{{ asset('inspinia_v27/js/plugins/touchspin/jquery.bootstrap-touchspin.min.js') }}"></script>

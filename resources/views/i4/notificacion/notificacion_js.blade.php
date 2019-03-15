@@ -28,23 +28,6 @@
     // === FORMULARIOS ===
         var form_1 = "#form_1";
 
-    // === JQGRID ===
-        var jqgrid1  = "#jqgrid1";
-        var pjqgrid1 = "#pjqgrid1";
-
-    // === TIPO DE ACTIVIDAD ===
-        var tipo_actividad_json   = $.parseJSON('{!! json_encode($tipo_actividad_array) !!}');
-        var tipo_actividad_select = '';
-        var tipo_actividad_jqgrid = ':Todos';
-
-        $.each(tipo_actividad_json, function(index, value) {
-            tipo_actividad_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
-            tipo_actividad_jqgrid += ';' + value.nombre + ':' + value.nombre;
-        });
-
-    // === DROPZONE ===
-        Dropzone.autoDiscover = false;
-
     $(document).ready(function(){
         //=== INICIALIZAR ===
             var valor1 = new Array();
@@ -110,19 +93,9 @@
             });
     });
 
-    $(window).on('resize.jqGrid', function() {
-        // var valor1 = new Array();
-        // valor1[0]  = 0;
-        // utilitarios(valor1);
-    });
-
     function utilitarios(valor){
         switch(valor[0]){
-            // === JQGRID REDIMENCIONAR ===
-            case 0:
-                $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
-                break;
-            // === ABRIR MODAL - REGISTRAR ACTIVIDAD ===
+            // === ABRIR MODAL - REGISTRAR NOTIFICACION ===
             case 10:
                 if(valor[1] != ''){
                     $("#actividad_id").val(valor[1]);
@@ -133,6 +106,8 @@
                     $('#modal_2_title').append(valor[3] + " - " + valor[2]);
 
                     $('#modal_1').modal();
+
+                    $(form_1)[0].reset();
                 }
                 else{
                     var valor1 = new Array();
@@ -141,36 +116,6 @@
                     valor1[2]  = 'No existe ACTIVIDAD para NOTIFICAR.';
                     utilitarios(valor1);
                 }
-                break;
-            // === ABRIR MODAL ===
-            case 11:
-                $('#modal_2').modal();
-                break;
-            // === EDICION MODAL ===
-            case 20:
-                var valor1 = new Array();
-                valor1[0]  = 30;
-                utilitarios(valor1);
-
-                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
-                var val_json = $.parseJSON(ret.val_json);
-
-                $('#modal_1_title').empty();
-                $('#modal_1_title').append('MODIFICAR RECINTO CARCELARIO');
-
-                $("#recinto_carcelario_id").val(valor[1]);
-
-                $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
-                $("#nombre").val(ret.nombre);
-                if(val_json.ret != ""){
-                    $('#Muni_id').append('<option value="' + val_json.Muni_id + '">' + ret.departamento + ', ' + ret.municipio + '</option>');
-                    $("#Muni_id").select2("val", val_json.Muni_id);
-                }
-                if(ret.tipo_recinto != ""){
-                    $("#tipo_recinto").select2("val", val_json.tipo_recinto);
-                }
-
-                $('#modal_1').modal();
                 break;
             // === BORRAR INFORMACION ===
             case 30:
@@ -276,87 +221,6 @@
                     valor1[4]  = $(form_1).serialize();
                     valor1[5]  = 'json';
                     utilitarios(valor1);
-                }
-                else{
-                    var valor1 = new Array();
-                    valor1[0]  = 101;
-                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
-                    valor1[2]  = valor_error;
-                    utilitarios(valor1);
-                }
-                break;
-            // === REPORTE PDF - GENERAR RECIBIDO ===
-            case 70:
-                var concatenar_valores = '?tipo=1&id=' + valor[1];
-                var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
-                win.focus();
-                break;
-            // === REPORTE PDF - REPORTES ===
-            case 71:
-                var concatenar_valores = '?tipo=2';
-
-                var tipo_reporte   = $("#tipo_reporte_2").val();
-                var division_id    = $("#division_id_2").val();
-                var funcionario_id = $("#funcionario_id_2").val();
-                var fecha_del      = $("#fecha_del_2").val();
-                var hora_del       = $("#hora_del_2").val();
-                var fecha_al       = $("#fecha_al_2").val();
-                var hora_al        = $("#hora_al_2").val();
-
-                var valor_sw    = true;
-                var valor_error = '';
-
-                if($.trim(tipo_reporte) != ''){
-                    concatenar_valores += '&tipo_reporte=' + tipo_reporte;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error = 'El campo TIPO DE REPORTE es obligatorio';
-                }
-
-                if($.trim(division_id) != ''){
-                    concatenar_valores += '&division_id=' + division_id;
-                }
-
-                if($.trim(funcionario_id) != ''){
-                    concatenar_valores += '&funcionario_id=' + funcionario_id;
-                }
-
-                if($.trim(fecha_del) != ''){
-                    concatenar_valores += '&fecha_del=' + fecha_del;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error = 'El campo FECHA DEL es obligatorio';
-                }
-
-                if($.trim(hora_del) != ''){
-                    concatenar_valores += '&hora_del=' + hora_del;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error = 'El campo HORA DEL es obligatorio';
-                }
-
-                if($.trim(fecha_al) != ''){
-                    concatenar_valores += '&fecha_al=' + fecha_al;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error = 'El campo FECHA AL es obligatorio';
-                }
-
-                if($.trim(hora_al) != ''){
-                    concatenar_valores += '&hora_al=' + hora_al;
-                }
-                else{
-                    valor_sw    = false;
-                    valor_error = 'El campo HORA AL es obligatorio';
-                }
-
-                if(valor_sw){
-                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
-                    win.focus();
                 }
                 else{
                     var valor1 = new Array();
@@ -642,16 +506,7 @@
                                     valor1[2]  = data.respuesta;
                                     utilitarios(valor1);
 
-                                    $(jqgrid1).trigger("reloadGrid");
-
-                                    if(data.iu === 1){
-                                        var valor1 = new Array();
-                                        valor1[0]  = 30;
-                                        utilitarios(valor1);
-                                    }
-                                    else if(data.iu === 2){
-                                        $('#modal_1').modal('hide');
-                                    }
+                                    $('#modal_1').modal('hide');
                                 }
                                 else if(data.sw === 0){
                                     if(data.error_sw === 1){
@@ -672,6 +527,8 @@
                                         valor1[2]  = respuesta_server;
                                         utilitarios(valor1);
                                     }
+
+                                    $('#modal_1').modal('hide');
                                 }
                                 else if(data.sw === 2){
                                     window.location.reload();
@@ -751,7 +608,6 @@
                         //console.error("Este callback maneja los errores", result);
                     }
                 });
-
                 return respuesta_ajax;
                 break;
             default:
