@@ -47,19 +47,39 @@
             persona_estado_jqgrid += ';' + index + ':' + value;
         });
 
-    // === PERSONA ESTADO ===
-        var notificacion_estado_json   = $.parseJSON('{!! json_encode($notificacion_estado_array) !!}');
-        var notificacion_estado_select = '';
-        var notificacion_estado_jqgrid = ':Todos';
+    // === SI-NO ===
+        var si_no_json   = $.parseJSON('{!! json_encode($si_no_array) !!}');
+        var si_no_select = '';
+        var si_no_jqgrid = ':Todos';
 
-        $.each(notificacion_estado_json, function(index, value) {
-            notificacion_estado_select += '<option value="' + index + '">' + value + '</option>';
-            notificacion_estado_jqgrid += ';' + index + ':' + value;
+        $.each(si_no_json, function(index, value) {
+            si_no_select += '<option value="' + index + '">' + value + '</option>';
+            si_no_jqgrid += ';' + index + ':' + value;
+        });
+
+    // === DEPARTAMENTO ===
+        var departamento_json   = $.parseJSON('{!! json_encode($departamento_array) !!}');
+        var departamento_select = '';
+        var departamento_jqgrid = ':Todos';
+
+        $.each(departamento_json, function(index, value) {
+            departamento_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            departamento_jqgrid += ';' + value.nombre + ':' + value.nombre;
+        });
+
+    // === ESTADO NOTIFICACION ===
+        var estado_notificacion_json   = $.parseJSON('{!! json_encode($estado_notificacion_array) !!}');
+        var estado_notificacion_select = '';
+        var estado_notificacion_jqgrid = ':Todos';
+
+        $.each(estado_notificacion_json, function(index, value) {
+            estado_notificacion_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            estado_notificacion_jqgrid += ';' + value.nombre + ':' + value.nombre;
         });
 
     // === CONTADOR DE GESTIONES ===
         var anio_filter = '';
-        var f_inicial   = 2019
+        var f_inicial   = 2018
         var f_final     = {!! date('Y') !!};
         for(var i=f_inicial; i <= f_final; i++)
         {
@@ -71,6 +91,22 @@
             //=== INICIALIZAR ===
                 $('#anio_filter').append(anio_filter);
                 $("#anio_filter option[value=" + {!! date('Y') !!} +"]").attr("selected","selected");
+
+            // === CHANGE SELECT GESTION ===
+                $("#anio_filter").on("change", function(){
+                    if(this.value != ''){
+                        $(jqgrid1).jqGrid('setGridParam',{
+                            url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1&anio_filter=' + this.value,
+                            datatype: 'json'
+                        }).trigger('reloadGrid');
+                    }
+                    else{
+                        $(jqgrid1).jqGrid('setGridParam',{
+                            url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                            datatype: 'json'
+                        }).trigger('reloadGrid');
+                    }
+                });
 
             // === JQGRID ===
                 var valor1 = new Array();
@@ -119,13 +155,21 @@
                     var edit1      = true;
                     var ancho1     = 5;
                     var ancho_d    = 29;
-                    @if(in_array(['codigo' => '2703'], $permisos))
-                        // edit1  = false;
-                        // ancho1 += ancho_d;
+                    @if(in_array(['codigo' => '2702'], $permisos))
+                        edit1  = false;
+                        ancho1 += ancho_d;
+                    @endif
+                    @if(in_array(['codigo' => '2703'], $permisos) || in_array(['codigo' => '2704'], $permisos))
+                        edit1  = false;
+                        ancho1 += ancho_d;
+                    @endif
+                    @if(in_array(['codigo' => '2704'], $permisos))
+                        edit1  = false;
+                        ancho1 += ancho_d;
                     @endif
 
                     $(jqgrid1).jqGrid({
-                        url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                        url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1&anio_filter=' + $('#anio_filter').val(),
                         datatype    : 'json',
                         mtype       : 'post',
                         height      : 'auto',
@@ -151,10 +195,28 @@
 
                             "ESTADO",
                             "SITUACION",
-                            "CODIGO",
                             "ESTADO NOTIFICACION",
-                            "MUNICIPIO",
+                            "¿CON PDF?",
+
+                            "CASO",
+
+                            "CODIGO",
+                            "SOLICITUD",
+                            "NOTIFICACION",
+
                             "DEPARTAMENTO",
+
+                            "NOMBRE",
+                            "UBICACION",
+
+                            "NOMBRE",
+                            "UBICACION",
+
+                            "ASUNTO",
+
+                            "OBSERVACION",
+
+                            "TESTIGO",
 
                             ""
                         ],
@@ -173,40 +235,117 @@
 
                             {
                                 name       : "estado",
-                                index      : "RecintosCarcelarios.estado",
-                                width      : 120,
+                                index      : "i4_noti_notificaciones.estado",
+                                width      : 90,
                                 align      : "center",
-                                stype      :'select',
+                                stype      : 'select',
                                 editoptions: {value:estado_jqgrid}
                             },
                             {
-                                name       : "tipo_recinto",
-                                index      : "RecintosCarcelarios.tipo_recinto",
-                                width      : 165,
+                                name       : "persona_estado",
+                                index      : "i4_noti_notificaciones.persona_estado",
+                                width      : 100,
                                 align      : "center",
-                                stype      :'select',
-                                editoptions: {value:tipo_recinto_jqgrid}
+                                stype      : 'select',
+                                editoptions: {value:persona_estado_jqgrid}
+                            },
+                            {
+                                name       : "estado_notificacion",
+                                index      : "a2.EstadoNotificacion",
+                                width      : 160,
+                                align      : "center",
+                                stype      : 'select',
+                                editoptions: {value:estado_notificacion_jqgrid}
+                            },
+                            {
+                                name       : "notificacion_estado",
+                                index      : "i4_noti_notificaciones.notificacion_estado",
+                                width      : 80,
+                                align      : "center",
+                                stype      : 'select',
+                                editoptions: {value:si_no_jqgrid}
                             },
 
                             {
-                                name : "nombre",
-                                index: "RecintosCarcelarios.nombre",
-                                width: 400,
-                                align: "left"
+                                name : "caso",
+                                index: "a5.Caso",
+                                width: 120,
+                                align: "center"
+                            },
+
+                            {
+                                name : "codigo",
+                                index: "i4_noti_notificaciones.codigo",
+                                width: 80,
+                                align: "center"
                             },
                             {
-                                name       : "municipio",
-                                index      : "a2.Muni",
-                                width      : 400,
-                                align      : "left"
+                                name : "solicitud_fh",
+                                index: "i4_noti_notificaciones.solicitud_fh",
+                                width: 135,
+                                align: "center"
                             },
+                            {
+                                name : "notificacion_fh",
+                                index: "i4_noti_notificaciones.notificacion_fh",
+                                width: 135,
+                                align: "center"
+                            },
+
                             {
                                 name       : "departamento",
-                                index      : "a3.Dep",
-                                width      : 150,
-                                align      : "left",
+                                index      : "a9.Dep",
+                                width      : 110,
+                                align      : "center",
                                 stype      :'select',
                                 editoptions: {value:departamento_jqgrid}
+                            },
+
+                            {
+                                name : "persona",
+                                index: "a3.Persona",
+                                width: 250,
+                                align: "center"
+                            },
+                            {
+                                name : "ubicacion_persona",
+                                index: "CONCAT_WS(', ',i4_noti_notificaciones.persona_municipio,i4_noti_notificaciones.persona_zona,i4_noti_notificaciones.persona_direccion,i4_noti_notificaciones.persona_telefono,i4_noti_notificaciones.persona_celular,i4_noti_notificaciones.persona_email)",
+                                width: 350,
+                                align: "left"
+                            },
+
+                            {
+                                name : "abogado",
+                                index: "a4.Abogado",
+                                width: 250,
+                                align: "center"
+                            },
+                            {
+                                name : "ubicacion_abogado",
+                                index: "CONCAT_WS(', ',i4_noti_notificaciones.abogado_municipio,i4_noti_notificaciones.abogado_zona,i4_noti_notificaciones.abogado_direccion,i4_noti_notificaciones.abogado_telefono,i4_noti_notificaciones.abogado_celular,i4_noti_notificaciones.abogado_email)",
+                                width: 350,
+                                align: "left"
+                            },
+
+                            {
+                                name : "solicitud_asunto",
+                                index: "i4_noti_notificaciones.solicitud_asunto",
+                                width: 300,
+                                align: "left"
+                            },
+
+                            {
+                                name : "notificacion_observacion",
+                                index: "i4_noti_notificaciones.notificacion_observacion",
+                                width: 200,
+                                align: "left"
+                            },
+
+                            {
+                                name : "notificacion_testigo_nombre",
+                                index: "i4_noti_notificaciones.notificacion_testigo_nombre",
+                                width: 200,
+                                align: "left"
                             },
 
                             // === OCULTO ===
@@ -229,16 +368,65 @@
                                 var ret      = $(jqgrid1).jqGrid('getRowData', cl);
                                 var val_json = $.parseJSON(ret.val_json);
 
-                                var ed = "";
-                                @if(in_array(['codigo' => '2103'], $permisos))
-                                    ed = "<button type='button' class='btn btn-xs btn-success' title='Modificar recinto carcelario' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                                var noti1 = "";
+                                @if(in_array(['codigo' => '2702'], $permisos))
+                                    noti1 = "<button type='button' class='btn btn-xs btn-primary' title='Notificar' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-bell'></i></button>";
+                                @endif
+
+                                var pdf1 = "";
+                                @if(in_array(['codigo' => '2705'], $permisos))
+                                    if(val_json.uso_entrega >= 3 && val_json.uso_entrega >= 4){
+                                        pdf1 = " <button type='button' class='btn btn-xs btn-info' title='PDF notificación' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-file-pdf-o'></i></button>";
+                                    }
+                                @endif
+
+                                var anul1 = "";
+                                @if(in_array(['codigo' => '2703'], $permisos))
+                                    if(val_json.estado == 1){
+                                        if(val_json.estado_notificacion_id == 1){
+                                            anul1 = " <button type='button' class='btn btn-xs btn-danger' title='Anular notificación' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-trash'></i></button>";
+                                        }
+                                    }
+                                @endif
+
+                                var habi1 = "";
+                                @if(in_array(['codigo' => '2704'], $permisos))
+                                    if(val_json.estado == 2){
+                                        habi1 = " <button type='button' class='btn btn-xs btn-success' title='Habilitar notificación' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-check'></i></button>";
+                                    }
                                 @endif
 
                                 $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                    act : $.trim(ed)
+                                    act : $.trim(noti1 + pdf1 + anul1 + habi1)
                                 });
                             }
                         }
+                    });
+
+                    $(jqgrid1).jqGrid('setGroupHeaders', {
+                    useColSpanStyle: true,
+                    groupHeaders   :[
+                            {
+                                startColumnName: 'estado',
+                                numberOfColumns: 4,
+                                titleText      : 'ESTADOS'
+                            },
+                            {
+                                startColumnName: 'solicitud_fh',
+                                numberOfColumns: 2,
+                                titleText      : 'FECHA Y HORA'
+                            },
+                            {
+                                startColumnName: 'persona',
+                                numberOfColumns: 2,
+                                titleText      : 'PERSONA A NOTIFICAR'
+                            },
+                            {
+                                startColumnName: 'abogado',
+                                numberOfColumns: 2,
+                                titleText      : 'ABOGADO A NOTIFICAR'
+                            }
+                        ]
                     });
 
                     $(jqgrid1).jqGrid('filterToolbar',{
@@ -252,44 +440,7 @@
                         add   : false,
                         del   : false,
                         search: false
-                    })
-                    @if(in_array(['codigo' => '2102'], $permisos))
-                        .navSeparatorAdd(pjqgrid1,{
-                            sepclass : "ui-separator"
-                        })
-                        .navButtonAdd(pjqgrid1,{
-                            "id"          : "add1",
-                            caption       : "",
-                            title         : 'Agregar nueva fila',
-                            buttonicon    : "ui-icon ui-icon-plusthick",
-                            onClickButton : function(){
-                                var valor1 = new Array();
-                                valor1[0]  = 30;
-                                utilitarios(valor1);
-
-                                var valor1 = new Array();
-                                valor1[0]  = 10;
-                                utilitarios(valor1);
-                            }
-                        })
-                    @endif
-                    @if(in_array(['codigo' => '2104'], $permisos))
-                        .navSeparatorAdd(pjqgrid1,{
-                            sepclass : "ui-separator"
-                        })
-                        .navButtonAdd(pjqgrid1,{
-                            "id"          : "print1",
-                            caption       : "",
-                            title         : 'Reportes',
-                            buttonicon    : "ui-icon ui-icon-print",
-                            onClickButton : function(){
-                                var valor1 = new Array();
-                                valor1[0]  = 70;
-                                utilitarios(valor1);
-                            }
-                        })
-                    @endif
-                    ;
+                    });
                     break;
                 // === MENSAJE ERROR ===
                 case 100:

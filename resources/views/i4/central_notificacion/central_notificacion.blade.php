@@ -22,6 +22,10 @@
 
         <link href="{!! asset('inspinia_v27/css/plugins/clockpicker/clockpicker.css') !!}" rel="stylesheet">
 
+    <!-- Dropzone -->
+        <link href="{!! asset('inspinia_v27/css/plugins/dropzone/basic.css') !!}" rel="stylesheet">
+        <link href="{!! asset('inspinia_v27/css/plugins/dropzone/dropzone.css') !!}" rel="stylesheet">
+
     <!-- TouchSpin -->
         <link href="{!! asset('inspinia_v27/css/plugins/touchspin/jquery.bootstrap-touchspin.min.css') !!}" rel="stylesheet">
 @endsection
@@ -79,13 +83,19 @@
                         <h5 style="margin-top: 6px;"><i class="fa fa-table"></i> {{ $title_table }}</h5>
 
                         <div class="ibox-tools" style="margin-top: 4px;">
+                            @if(in_array(['codigo' => '2706'], $permisos))
+                                <button type="button" class="btn btn-info btn-xs">
+                                    <strong>Reportes</strong>
+                                </button>
+                            @endif
+
+                            {{-- <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF; margin-right: 4px;">
+                                <strong>Manual</strong>
+                            </a> --}}
+
                             <select id="anio_filter" data-placeholder="Gestión">
                                 <option value="">Todos</option>
                             </select>
-
-                            <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
-                                <strong>Manual</strong>
-                            </a>
 
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -109,6 +119,10 @@
     <!-- Peity -->
         <script src="{{ asset('inspinia_v27/js/plugins/peity/jquery.peity.min.js') }}"></script>
 
+    <!-- jqGrid -->
+        <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/i18n/grid.locale-es.js') }}"></script>
+        <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/jquery.jqGrid.min.js') }}"></script>
+
     <!-- Custom and plugin javascript -->
         <script src="{{ asset('inspinia_v27/js/inspinia.js') }}"></script>
         <script src="{{ asset('inspinia_v27/js/plugins/pace/pace.min.js') }}"></script>
@@ -127,6 +141,9 @@
 
     <!-- Input Mask-->
         <script src="{{ asset('inspinia_v27/js/plugins/jasny/jasny-bootstrap.min.js') }}"></script>
+
+    <!-- DROPZONE -->
+        <script src="{{ asset('inspinia_v27/js/plugins/dropzone/dropzone.js') }}"></script>
 
     <!-- TouchSpin -->
         <script src="{{ asset('inspinia_v27/js/plugins/touchspin/jquery.bootstrap-touchspin.min.js') }}"></script>
