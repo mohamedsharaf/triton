@@ -17,7 +17,7 @@ class CreatePvtDerivacionesTable extends Migration
             $table->increments('id');
             $table->smallInteger('estado')->default('1')->unsigned();
             $table->string('motivo');
-            $table->string('relato');
+            $table->text('relato');
             $table->date('fecha')->nullable();
             $table->integer('institucion_id')->unsigned()->nullable();
             $table->integer('visitante_id')->unsigned()->nullable();
