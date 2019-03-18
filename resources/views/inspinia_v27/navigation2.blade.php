@@ -140,9 +140,6 @@
                         @if(in_array(['codigo' => '2701'], $permisos))
                             <li class="{{ isActiveRoute('central_notificacion') }}"><a href="{{ url('/central_notificacion') }}"><small>Central de notificaciones</small></a></li>
                         @endif
-                        @if(in_array(['codigo' => '2601'], $permisos))
-                            <li class="{{ isActiveRoute('notificacion') }}"><a href="{{ url('/notificacion') }}">Notificaciones</a></li>
-                        @endif
                         @if(in_array(['codigo' => '2001'], $permisos))
                             <li class="{{ isActiveRoute('detencion_preventiva') }}"><a href="{{ url('/detencion_preventiva') }}">Estado de libertad</a></li>
                         @endif
