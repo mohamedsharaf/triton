@@ -191,16 +191,12 @@
 //=== I4 - NOTIFICACIONES ===
     Route::get('/notificacion', 'I4\NotificacionController@index')->name('notificacion');
     Route::post('/notificacion/send_ajax', 'I4\NotificacionController@send_ajax');
-<<<<<<< HEAD
-    Route::match(["get", "post"], '/notificacion/reportes', 'I4\NotificacionController@reportes');
-=======
 
 //=== I4 - CENTRAL DE NOTIFICACIONES ===
     Route::get('/central_notificacion', 'I4\CentralNotificacionController@index')->name('central_notificacion');
     Route::match(["get", "post"], '/central_notificacion/view_jqgrid', 'I4\CentralNotificacionController@view_jqgrid');
     Route::post('/central_notificacion/send_ajax', 'I4\CentralNotificacionController@send_ajax');
     Route::match(["get", "post"], '/central_notificacion/reportes', 'I4\CentralNotificacionController@reportes');
->>>>>>> origin/master
 
 //=== DERIVACIONES - INSTITUCIONES ===
     Route::get('/institucion', 'Institucion\InstitucionController@index')->name('institucion');
