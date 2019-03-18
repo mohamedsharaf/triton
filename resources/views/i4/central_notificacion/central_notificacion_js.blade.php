@@ -23,6 +23,9 @@
         var url_controller    = "{!! url('/central_notificacion') !!}";
         var csrf_token        = "{!! csrf_token() !!}";
 
+    // === FORMULARIOS ===
+        var form_1 = "#form_1";
+
     // === JQGRID ===
         var jqgrid1  = "#jqgrid1";
         var pjqgrid1 = "#pjqgrid1";
@@ -68,13 +71,18 @@
         });
 
     // === ESTADO NOTIFICACION ===
-        var estado_notificacion_json   = $.parseJSON('{!! json_encode($estado_notificacion_array) !!}');
-        var estado_notificacion_select = '';
-        var estado_notificacion_jqgrid = ':Todos';
+        var estado_notificacion_json     = $.parseJSON('{!! json_encode($estado_notificacion_array) !!}');
+        var estado_notificacion_select   = '';
+        var estado_notificacion_select_1 = '';
+        var estado_notificacion_jqgrid   = ': Todos';
 
         $.each(estado_notificacion_json, function(index, value) {
             estado_notificacion_select += '<option value="' + value.id + '">' + value.nombre + '</option>';
             estado_notificacion_jqgrid += ';' + value.nombre + ':' + value.nombre;
+
+            if(value.estado > 2){
+                estado_notificacion_select_1 += '<option value="' + value.id + '">' + value.nombre + '</option>';
+            }
         });
 
     // === CONTADOR DE GESTIONES ===
@@ -91,6 +99,35 @@
             //=== INICIALIZAR ===
                 $('#anio_filter').append(anio_filter);
                 $("#anio_filter option[value=" + {!! date('Y') !!} +"]").attr("selected","selected");
+
+                $('#estado_notificacion_id').append(estado_notificacion_select_1);
+
+            //=== SELECT2 ===
+                $("#estado_notificacion_id").select2({
+                    maximumSelectionLength: 1
+                });
+                $("#estado_notificacion_id").appendTo("#estado_notificacion_id_div");
+
+            //=== CLOCKPICKER ===
+                $('#solicitud_h').clockpicker({
+                    autoclose: true,
+                    // placement: 'top',
+                    align    : 'left',
+                    donetext : 'Hecho'
+                });
+
+            //=== DATEPICKER 3 ===
+                $('#solicitud_f').datepicker({
+                    // startView            : 2,
+                    // todayBtn          : "linked",
+                    // keyboardNavigation: false,
+                    // forceParse        : false,
+                    autoclose            : true,
+                    format               : "yyyy-mm-dd",
+                    startDate            : '-20y',
+                    endDate              : '+20d',
+                    language             : "es"
+                });
 
             // === CHANGE SELECT GESTION ===
                 $("#anio_filter").on("change", function(){
@@ -149,6 +186,30 @@
                 // === JQGRID REDIMENCIONAR ===
                 case 0:
                     $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
+                    break;
+                // === ABRIR MODAL  ===
+                case 10:
+                    var valor1 = new Array();
+                    valor1[0]  = 20;
+                    utilitarios(valor1);
+
+                    $('#modal_1_title').empty();
+                    $('#modal_1_title').append('NOTIFICAR');
+
+                    $('#modal_2_title').empty();
+                    $('#modal_2_title').append('CASO: ' + valor[2] + ' CODIGO: ' + valor[3]);
+
+                    $('#notificacion_id').val(valor[1]);
+
+                    $('#modal_1').modal();
+                    break;
+                // === RESETEAR - FORMULARIO 1 ===
+                case 20:
+                    $("#notificacion_id").val('');
+
+                    $('#estado_notificacion_id').select2("val", "");
+
+                    $(form_1)[0].reset();
                     break;
                 // === JQGRID 1 ===
                 case 40:
@@ -217,6 +278,10 @@
                             "OBSERVACION",
 
                             "TESTIGO",
+
+                            "SOLICITANTE",
+
+                            "NOTIFICADOR",
 
                             ""
                         ],
@@ -348,6 +413,20 @@
                                 align: "left"
                             },
 
+                            {
+                                name : "funcionario_solicitante",
+                                index: "a11.Funcionario",
+                                width: 250,
+                                align: "left"
+                            },
+
+                            {
+                                name : "funcionario_notificador",
+                                index: "a12.Funcionario",
+                                width: 250,
+                                align: "left"
+                            },
+
                             // === OCULTO ===
                                 {
                                     name  : "val_json",
@@ -370,7 +449,7 @@
 
                                 var noti1 = "";
                                 @if(in_array(['codigo' => '2702'], $permisos))
-                                    noti1 = "<button type='button' class='btn btn-xs btn-primary' title='Notificar' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-bell'></i></button>";
+                                    noti1 = "<button type='button' class='btn btn-xs btn-primary' title='Notificar' onclick=\"utilitarios([10, " + cl + ", '" + ret.caso + "', '" + ret.codigo + "']);\"><i class='fa fa-bell'></i></button>";
                                 @endif
 
                                 var pdf1 = "";

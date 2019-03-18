@@ -54,6 +54,10 @@
         .modal-xlg {
             width: 90%;
         }
+
+        .clockpicker-popover {
+            z-index: 9999;
+        }
     </style>
 @endsection
 
@@ -113,6 +117,133 @@
             </div>
         </div>
     </div>
+
+    <!-- === MODAL === -->
+        <div id="modal_1" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+
+                        <h4 class="modal-title">
+                            <span id="modal_1_title"></span>
+                        </h4>
+
+                        <small class="font-bold" id="modal_2_title">
+                        </small>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="form_1" role="form" action="#">
+                            <input type="hidden" id="notificacion_id" name="id" value=""/>
+                            <input type="hidden" id="tipo1" name="tipo" value="1"/>
+                            {{ csrf_field() }}
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div id="estado_notificacion_id_div" class="form-group">
+                                        <label for="estado_notificacion_id" class="text-success">Estado de la notificación</label>
+                                        <select name="estado_notificacion_id" id="estado_notificacion_id" data-placeholder="Estado de la notificación" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="solicitud_f">Fecha de notificación</label>
+                                            <input type="text" class="form-control" id="solicitud_f" name="solicitud_f" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date('Y-m-d') }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="solicitud_h">Hora de notificación</label>
+                                            <input type="text" class="form-control" id="solicitud_h" name="solicitud_h" placeholder="hora:minuto" data-mask="99:99">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="notificacion_observacion">Observación</label>
+                                        <textarea class="form-control" id="notificacion_observacion" name="notificacion_observacion" placeholder="Observación" rows="2"></textarea>
+                                    </div>
+
+                                    <h3 class="m-t-none m-b text-success">Testigo</h3>
+
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="form-group">
+                                                <label for="notificacion_documento">Número de documento</label>
+                                            <input type="text" class="form-control" id="notificacion_documento" name="notificacion_documento" placeholder="Número de documento"">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-8">
+                                            <div class="form-group">
+                                                <label for="notificacion_testigo_nombre">Nombre</label>
+                                            <input type="text" class="form-control" id="notificacion_testigo_nombre" name="notificacion_testigo_nombre" placeholder="Nombre"">
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    {{-- <div class="form-group">
+                                        <label>Estado</label>
+                                        <br>
+                                        <div class="radio radio-primary radio-inline">
+                                            <input type="radio" id="estado_1" value="1" name="estado" class="estado_class" checked="checked">
+                                            <label for="estado_1"> {!! $estado_array['1'] !!} </label>
+                                        </div>
+
+                                        <div class="radio radio-danger radio-inline">
+                                            <input type="radio" id="estado_2" value="2" name="estado" class="estado_class">
+                                            <label for="estado_2"> {!! $estado_array['2'] !!} </label>
+                                        </div>
+                                    </div>
+
+                                    <div id="Muni_id_div" class="form-group">
+                                        <label for="Muni_id">Ubicación</label>
+                                        <select name="Muni_id" id="Muni_id" data-placeholder="Departamento, Municipio" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div id="tipo_recinto_div" class="form-group">
+                                        <label for="tipo_recinto">Tipo de recinto carcelario</label>
+                                        <select name="tipo_recinto" id="tipo_recinto" data-placeholder="Tipo de recinto carcelario" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="nombre">Nombre del recinto carcelario</label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del recinto carcelario">
+                                    </div> --}}
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="row">
+                            <div class="col-sm-12" id="div_segip">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        {{-- <button id="button_segip" type="button" class="btn btn-info" onclick="utilitarios([70]);">Validar SEGIP</button> --}}
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([50]);">Guardar</button>
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
 @endsection
 
 @section('js_plugins')
@@ -141,6 +272,12 @@
 
     <!-- Input Mask-->
         <script src="{{ asset('inspinia_v27/js/plugins/jasny/jasny-bootstrap.min.js') }}"></script>
+
+    <!-- Data picker -->
+        <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+        <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>
+    <!-- Clock picker -->
+        <script src="{{ asset('inspinia_v27/js/plugins/clockpicker/clockpicker.js') }}"></script>
 
     <!-- DROPZONE -->
         <script src="{{ asset('inspinia_v27/js/plugins/dropzone/dropzone.js') }}"></script>

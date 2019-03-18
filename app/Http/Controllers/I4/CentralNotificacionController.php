@@ -73,7 +73,7 @@ class CentralNotificacionController extends Controller
                                                 ->orderBy("Dep")
                                                 ->get()
                                                 ->toArray(),
-                'estado_notificacion_array' => EstadoNotificacion::select(DB::raw("id, UPPER(EstadoNotificacion) AS nombre"))
+                'estado_notificacion_array' => EstadoNotificacion::select(DB::raw("id, UPPER(EstadoNotificacion) AS nombre, UsoEntrega AS estado"))
                                                 ->where("UsoEntrega", ">", 0)
                                                 ->orderBy("EstadoNotificacion")
                                                 ->get()
@@ -168,7 +168,11 @@ class CentralNotificacionController extends Controller
 
                     a5.Caso,
 
-                    UPPER(a9.Dep) AS departamento
+                    UPPER(a9.Dep) AS departamento,
+
+                    UPPER(a11.Funcionario) AS funcionario_solicitante,
+
+                    UPPER(a12.Funcionario) AS funcionario_notificador
                 ";
 
                 $array_where = '';
@@ -193,6 +197,8 @@ class CentralNotificacionController extends Controller
                             ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Muni")
                             ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.Dep")
                             ->leftJoin("$tabla10 AS a10", "a10.id", "=", "$tabla1.actividad_solicitante_id")
+                            ->leftJoin("$tabla11 AS a11", "a11.id", "=", "$tabla1.funcionario_solicitante_id")
+                            ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.funcionario_notificador_id")
                             ->whereRaw($array_where)
                             ->count();
 
@@ -207,6 +213,8 @@ class CentralNotificacionController extends Controller
                             ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Muni")
                             ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.Dep")
                             ->leftJoin("$tabla10 AS a10", "a10.id", "=", "$tabla1.actividad_solicitante_id")
+                            ->leftJoin("$tabla11 AS a11", "a11.id", "=", "$tabla1.funcionario_solicitante_id")
+                            ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.funcionario_notificador_id")
                             ->whereRaw($array_where)
                             ->select(DB::raw($select))
                             ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
@@ -279,6 +287,10 @@ class CentralNotificacionController extends Controller
                         $row["notificacion_observacion"],
 
                         $row["notificacion_testigo_nombre"],
+
+                        $row["funcionario_solicitante"],
+
+                        $row["funcionario_notificador"],
 
                         //=== VARIABLES OCULTOS ===
                             json_encode($val_array)
