@@ -11,10 +11,12 @@ class PvtDerivacion extends Model
     protected $fillable = [
         'institucion_id',
         'visitante_id',
+        'user_id',
         'estado',
         'motivo',
         'relato',
         'fecha',
+        'codigo'
     ];
 
     protected $guarded = [];

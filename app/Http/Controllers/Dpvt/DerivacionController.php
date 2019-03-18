@@ -19,6 +19,7 @@ use App\Models\Rrhh\RrhhPersona;
 
 use nusoap_client;
 use Exception;
+use PDF;
 use function GuzzleHttp\json_encode;
 
 class DerivacionController extends Controller
@@ -29,6 +30,7 @@ class DerivacionController extends Controller
 
     private $rol_id;
     private $permisos;
+    private $user_id;
 
     /**
     * Create a new controller instance.
@@ -56,6 +58,8 @@ class DerivacionController extends Controller
             'F' => 'FEMENINO',
             'M' => 'MASCULINO'
         ];
+
+        $this->public_dir = '/image/logo';
     }
 
     /**
@@ -121,15 +125,18 @@ class DerivacionController extends Controller
             $derivacion.id,
             $derivacion.estado,
             $derivacion.fecha,
-            p.ap_paterno||' '||case when p.ap_materno is null then '' else p.ap_materno end||' '||p.nombre as nombre,
+            CONCAT_WS(' ', p.ap_paterno, p.ap_materno, p.nombre) as nombre,
             $derivacion.motivo,
-            i.nombre as oficina
-            ";
+            i.nombre as oficina";
             // === CONDICION POR DEFECTO ===
             $array_where = "TRUE";
             $array_where .= $jqgrid->getWhere();
 
-            $count = PvtDerivacion::whereRaw($array_where)->count();
+            $count = PvtDerivacion::leftJoin("$visitante AS v", "v.id", "=", "$derivacion.visitante_id")
+                ->leftJoin("$persona AS p", "p.id", "=", "v.persona_id")
+                ->leftJoin("$institucion AS i", "i.id", "=", "$derivacion.institucion_id")
+                ->whereRaw($array_where)
+                ->count();
 
             $limit_offset = $jqgrid->getLimitOffset($count);
             // === CONSULTA ===
@@ -193,7 +200,7 @@ class DerivacionController extends Controller
                 'respuesta' => 'No es solicitud AJAX.'
             ];
             return json_encode($respuesta);
-        }   
+        }
 
         $tipo = $request->input('tipo');
 
@@ -201,6 +208,7 @@ class DerivacionController extends Controller
         {
             // === INSERT UPDATE DERIVACIONES===
             case '1':
+                $this->user_id  = Auth::user()->id;
                 $this->rol_id   = Auth::user()->rol_id;
                 $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
                     ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
@@ -251,7 +259,6 @@ class DerivacionController extends Controller
                         'ap_materno'              => 'max:50',
                         'f_nacimiento'            => 'required|date',
                         'domicilio'               => 'max:500',
-                        'email'                   => 'email',
                         'celular'                 => 'required|max:15',
                         'municipio_id_nacimiento' => 'required',
                         'motivo'                  => 'required',
@@ -268,7 +275,6 @@ class DerivacionController extends Controller
                         'f_nacimiento.required'            => 'El campo FECHA DE NACIMIENTO es obligatorio',
                         'celular.required'                 => 'El campo CELULAR es obligatorio',
                         'celular.max'                      => 'El campo CELULAR debe tener :max caracteres como máximo',
-                        'email.email'                      => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
                         'municipio_id_nacimiento.required' => 'El campo LUGAR DE NACIMIENTO es obligatorio.',
                         'motivo.required'                  => 'El campo MOTIVO es obligatorio.',
                         'relato.required'                  => 'El campo RELATO es obligatorio.',
@@ -298,7 +304,7 @@ class DerivacionController extends Controller
                 $data['municipio_id_nacimiento'] = trim($request->input('municipio_id_nacimiento'));
                 $data['municipio_id_residencia'] = trim($request->input('municipio_id_residencia'));
                 $data['motivo']                  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('motivo'))));
-                $data['relato']                  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('relato'))));
+                $data['relato']                  = $util->getNoAcentoNoComilla(trim($request->input('relato')));
                 $data['institucion_id']          = trim($request->input('institucion'));
 
                 $n_documento                     = trim($request->input('n_documento'));
@@ -351,11 +357,15 @@ class DerivacionController extends Controller
                         $derivacion->relato         = $data['relato'];
                         $derivacion->fecha          = date("Y-m-d");
                         $derivacion->institucion_id = $data['institucion_id'];
-                        $derivacion->visitante_id = $visitante->id;
+                        $derivacion->visitante_id   = $visitante->id;
+                        $derivacion->user_id        = $this->user_id;
+                        $ultimoCodigo               = DB::table('pvt_derivaciones')->max('codigo');
+                        $derivacion->codigo         = $ultimoCodigo+1;
                         $derivacion->save();
 
                         $respuesta['respuesta'] .= "La DERIVACION fue registrada con éxito.";
                         $respuesta['sw']         = 1;
+                        $respuesta['der_id']     = $derivacion->id;
                     }
                     else
                     {
@@ -368,6 +378,7 @@ class DerivacionController extends Controller
                 break;
             // === INSERT SOLO VISITANTE Y DERIVACION ===
             case '2':
+                $this->user_id  = Auth::user()->id;
                 // === LIBRERIAS ===
                 $util = new UtilClass();
                 // === INICIALIZACION DE VARIABLES ===
@@ -389,7 +400,6 @@ class DerivacionController extends Controller
                         'ap_materno'              => 'max:50',
                         'f_nacimiento'            => 'required|date',
                         'domicilio'               => 'max:500',
-                        'email'                   => 'required|email',
                         'celular'                 => 'required|max:15',
                         'municipio_id_nacimiento' => 'required',
                         'motivo'                  => 'required',
@@ -406,8 +416,6 @@ class DerivacionController extends Controller
                         'f_nacimiento.required' => 'El campo FECHA DE NACIMIENTO es obligatorio',
                         'celular.required' => 'El campo CELULAR es obligatorio',
                         'celular.max' => 'El campo CELULAR debe tener :max caracteres como máximo',
-                        'email.required' => 'El campo CORREO ELECTRONICO es obligatorio.',
-                        'email.email'    => 'El campo CORREO ELECTRONICO no corresponde con una dirección de e-mail válida.',
                         'municipio_id_nacimiento.required' => 'El campo LUGAR DE NACIMIENTO es obligatorio.',
                         'motivo.required' => 'El campo MOTIVO es obligatorio.',
                         'relato.required' => 'El campo RELATO es obligatorio.',
@@ -424,7 +432,7 @@ class DerivacionController extends Controller
                 $data                   = [];
                 $data['estado']         = 1;
                 $data['motivo']         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('motivo'))));
-                $data['relato']         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('relato'))));
+                $data['relato']         = $util->getNoAcentoNoComilla(trim($request->input('relato')));
                 $data['institucion_id'] = trim($request->input('institucion'));
                 $data['persona_id']     = trim($request->input('id'));
 
@@ -449,12 +457,17 @@ class DerivacionController extends Controller
                 $derivacion->fecha          = date("Y-m-d");
                 $derivacion->institucion_id = $data['institucion_id'];
                 $derivacion->visitante_id   = $idvisitante;
+                $derivacion->user_id        = $this->user_id;
+                $ultimoCodigo               = DB::table('pvt_derivaciones')->max('codigo');
+                $derivacion->codigo         = $ultimoCodigo+1;
                 $derivacion->save();
 
                 $respuesta['respuesta'] .= "La DERIVACION fue registrada con éxito.";
                 $respuesta['sw']         = 1;
+                $respuesta['der_id']     = $derivacion->id;
                 //=== respuesta ===
                 return json_encode($respuesta);
+                reportes($derivacion->id);
                 break;
             case '100':
                 if($request->has('q'))
@@ -567,8 +580,250 @@ class DerivacionController extends Controller
                 break;
             }
             break;
+        case '100':
+            PDF::Image(
+                $valor['file'],     // file: nombre del archivo
+                $valor['x'],        // x: abscisa de la esquina superior izquierda LTR, esquina superior derecha RTL
+                $valor['y'],        // y: ordenada de la esquina superior izquierda LTR, esquina superior derecha RTL
+                $valor['w'],        // w: ancho de la imagen, 0=se calcula automaticamente
+                $valor['h'],        // w: altura de la imagen, 0=se calcula automaticamente
+                $valor['type'],     // type: formato de la imagen, JPEG, PNG, GIF  y otros. Si no se especifica, el tipo se infiere de la extensión del archivo
+                $valor['link'],     // link: URL o enlace
+                $valor['align'],    // align: indica la alineacion del puntero junto a la insercion de imagenes en relacion de su altura. T=parte superior derecha LTR o de arriba a la izquierda para RTL, M=de mediana adecuado para LTR o media izquierda para RTL, B=para inferior derecha de LTR o de abajo hacia la izquierda para RTL, N=linea siguiente
+                $valor['resize'],   // resize: TRUE=reduce al tamaño de x-y, FALSE=no reduce nada
+                $valor['dpi'],      // dpi: puntos por pulgada de resolucion utilizado en redimensionamiento
+                $valor['palign'],   // palign: permite centra y alinear. L=alinear a la izquierda, C=centro, R=Alinear a la derecha, ''=cadena vacia, LTR o RTL
+                $valor['ismask'],   // ismask: TRUE=es mascara, FALSE=no es mascara
+                $valor['imgsmask'], // imgsmask: imagen objeto, FALSE=contrario
+                $valor['border'],   // border: borde de la celda 0,1 o L=Left, T=Top, R= Rigth, B=Bottom
+                $valor['fitbox'],   // fitbox: borde de la celda 0,1 o L=Left, T=Top, R= Rigth, B=Bottom
+                $valor['hidden'],   // hidden: TRUE=no muestra la imagen, FALSE=muestra la imagen
+                $valor['fitonpage'] // fitonpage: TRUE=la imagen se redimensiona para no exceder las dimensiones de la pagina, FALSE=no pasa nada
+            );
+            break;
+        case '101':
+            PDF::Rect(
+                $valor['x'],        // x: abscisa de la esquina superior izquierda LTR, esquina superior derecha RTL
+                $valor['y'],        // y: ordenada de la esquina superior izquierda LTR, esquina superior derecha RTL
+                $valor['w'],        // w: ancho
+                $valor['h'],        // w: altura
+                $valor['style'],    // Estilo de renderizado Los valores posibles son:
+                                    // D o cadena vacía: Dibujar (predeterminado).
+                                    // F: llenar.
+                                    // DF o FD: Dibujar y llenar.
+                                    // CNZ: modo de recorte (usando la regla par impar para determinar qué regiones se encuentran dentro del trazado de recorte).
+                                    // CEO: modo de recorte (utilizando la regla del número de devanado distinto de cero para determinar qué regiones se encuentran dentro del trazado de recorte)
+                $valor['border_style'], // Estilo del borde del rectángulo Arreglar como para SetLineStyle . Valor predeterminado: estilo de línea predeterminado (matriz vacía).
+                $valor['fill_color'] // Color de relleno. Formato: matriz (GRIS) o matriz (R, G, B) o matriz (C, M, Y, K). Valor predeterminado: color predeterminado (matriz vacía).
+            );
+            break;
+        case '102':
+            PDF::Line(
+                $valor['x1'],   // x1: Abscisa del primer punto.
+                $valor['y1'],   // y1: Ordenado del primer punto.
+                $valor['x2'],   // x2: Abscisa del segundo punto.
+                $valor['y2'],   // y2: Ordenado del segundo punto
+                $valor['style'] // Estilo de línea Arreglar como para SetLineStyle. Valor predeterminado: estilo de línea predeterminado (matriz vacía).
+            );
+            break;
+        case '110':
+            PDF::Write(
+                $valor['h'],        // Altura de la línea
+                $valor['txt'],      // Cadena para mostrar
+                $valor['link'],     // URL o identificador devuelto por AddLink()
+                $valor['fill'],     // Indica si el fondo debe estar pintado (1) o transparente (0). Valor predeterminado: 0.
+                $valor['align'],    // Permite centrar o alinear el texto. Los valores posibles son:
+                                    // L o cadena vacía: alineación izquierda (valor predeterminado)
+                                    // C: centro
+                                    // R: alinear a la derecha
+                                    // J: justificar
+                $valor['ln'],       // Si es verdadero, coloque el cursor en la parte inferior de la línea; de lo contrario, coloque el cursor en la parte superior de la línea. Si no se especifica, el tipo se infiere de la extensión del archivo
+                $valor['stretch'],  // estirar el modo los caracteres:
+                                    // 0 = deshabilitado
+                                    // 1 = escala horizontal solo si es necesario
+                                    // 2 = escala horizontal forzada
+                                    // 3 = espaciado de caracteres solo si es necesario
+                                    // 4 = espaciado de caracteres forzado
+                $valor['firstline'],// Si es verdadero imprime solo la primera línea y devuelve la cadena restante.
+                $valor['firstblock'],// Si es verdadero, la cadena es el comienzo de una línea.
+                $valor['maxh']      // Altura máxima. El texto restante no impreso será devuelto. Debe se > = $ h y menos espacio restante en la parte inferior de la página, o 0 para desactivar esta función.
+            );
+            break;
+        case '111':
+            PDF::MultiCell(
+                $valor['x1'],       // Ancho celda
+                $valor['y1'],       // Alto celda
+                $valor['txt'],      // Texto a mostrar
+                $valor['border'],   // Border: 0,1 o L=Left, T=Top, R= Rigth, B=Bottom
+                $valor['align'],    // Align: L=Left, C=Center, R=Rigth, J=Justification
+                $valor['fill'],     // Relleno: TRUE, FALSE
+                $valor['ln'],       // Posicion: 0=a la derecha, 1=a la siguiente linea, 2=a continuacion
+                "",                 // X: Posición en unidades de usuario
+                "",                 // Y: Posición en unidades de usuario
+                true,               // reseth: restablece la altura de la ultima celda
+                $valor['stretch'],  // stretch: estiramiento de la fuente, 0=desactivado, 1=horizontal-ancho de la celda, 2=obligatorio horizontal-ancho de la celda, 3= espacio-ancho de la celda, 4=obligatorio espacio-ancho de la celda
+                $valor['ishtml'],   // ishtml: TRUE=texto HTML, FALSE=texto plano
+                true,               // autopadding: TRUE=ajuste interno automatico, FALSE=ajuste manual
+                $valor['y1'],       // maxh: Altura maxima, 0 si ishtml=TRUE.
+                $valor['valign'],   // valign: Alineación del texto T=Top, M=Middle, B=Bottom, si ishtml=TRUE no funciona
+                $valor['fitcell']   // fitcell: TRUE=intenta encajar en la celda. FALSE=desactivado, si ishtml=TRUE no funciona
+            );
+            break;
+        case '112':
+            PDF::write2DBarcode(
+                $valor['code'], // Código para imprimir
+                $valor['type'], // Tipo de código de barras
+                $valor['x'],    // x posición
+                $valor['y'],    // y posición
+                $valor['w'],    // Ancho
+                $valor['h'],    // Altura
+                $valor['style'],// conjunto de opciones:
+                $valor['align'],// Indica la alineación del puntero al lado de la inserción del código de barras con respecto a la altura del código de barras. El valor puede ser:
+                    // T: arriba a la derecha para LTR o arriba a la izquierda para RTL
+                    // M: medio-derecha para LTR o middle-left para RTL
+                    // B: abajo a la derecha para LTR o abajo a la izquierda para RTL
+                    // N: siguiente línea
+                $valor['distort']   // FALSE
+            );
+            break;
         default:
             break;
         }
+    }
+
+    public function reportes(Request $request)
+    {
+        $idderivacion = $request->input('id');
+        $fh_actual            = date("Y-m-d H:i:s");
+        $dir_logo_institucion = public_path($this->public_dir) . '/' . 'logo_fge_256_2018_3.png';
+        // === VALIDAR IMAGENES ===
+        if(!file_exists($dir_logo_institucion))
+        {
+            return "No existe el logo de la institución " . $dir_logo_institucion;
+        }
+        // === CONSULTA A LA BASE DE DATOS ===
+        // === TABLAS PARA LA CONSULTA ===
+        $derivacion  = "pvt_derivaciones";
+        $visitante   = "rrhh_visitantes";
+        $persona     = "rrhh_personas";
+        $institucion = "inst_instituciones";
+        $municipio   = "ubge_municipios";
+        // === COLUMNAS DE LA CONSULTA ===
+        $select = "$persona.n_documento,$persona.nombre,$persona.ap_paterno,$persona.ap_materno,$persona.sexo,$persona.domicilio,$persona.telefono as telfpersona,$persona.celular as celpersona,d.codigo,d.motivo,d.relato,d.fecha,i.nombre as oficina,i.respcontacto,i.telefono as telfinst,i.celular as celinst,i.direccion,i.zona,i.email,m.nombre as municipio";
+        // === CONSULTA ===
+        $consulta = RrhhPersona::join("$visitante AS v", "v.persona_id", "=", "$persona.id")
+            ->join("$derivacion AS d", "d.visitante_id", "=", "v.id")
+            ->join("$institucion AS i", "i.id", "=", "d.institucion_id")
+            ->join("$municipio AS m", "m.id", "=", "i.ubge_municipios_id")
+            ->where("d.id", "=", $idderivacion)
+            ->select(DB::raw($select))
+            ->first();
+
+        /* if($consulta->get()->toArray()->isEmpty())
+        {
+            return dd("No se encontró el registro de DERIVACIÓN");
+        } */
+        // === CARGAR VALORES ===
+        $x1_array = [8,50,50,50,20,32,20,50,100,32,32,20,32,25,20,32];
+
+        $data1 = array(
+            'dir_logo_institucion' => $dir_logo_institucion,
+            'x1_array'             => $x1_array,
+        );
+
+        $data2 = array(
+            'fh_actual' => $fh_actual
+        );
+
+        // === HEADER ===
+        PDF::setHeaderCallback(function($pdf) use($data1, $consulta) {
+            $pdf->Image($data1['dir_logo_institucion'], 180, 3, 0, 23, 'PNG');
+
+            $pdf->Ln(7);
+            $pdf->SetFont('times', 'B', 22);
+            $pdf->Write(0, 'MINISTERIO PÚBLICO', '', 0, 'C', true, 0, false, false, 0);
+
+            $pdf->SetFont('times', 'B', 18);
+            $pdf->Write(0, 'REPORTE DERIVACIÓN', '', 0, 'C', true, 0, false, false, 0);
+
+            $pdf->SetFont('times', 'B', 12);
+            $pdf->Write(0, 'CÓDIGO: MP - '.$consulta['codigo'].' | FECHA: '.date("d/m/Y", strtotime($consulta['fecha'])), '', 0, 'C', true, 0, false, false, 0);
+        });
+
+        // === FOOTER ===
+        PDF::setFooterCallback(function($pdf) use($data2){
+            $style1 = array(
+                'width' => 0.5,
+                'cap'   => 'butt',
+                'join'  => 'miter',
+                'dash'  => '0',
+                'phase' => 10,
+                'color' => array(0, 0, 0)
+            );
+
+            $pdf->Line(10, 268, 206, 268, $style1);
+            $pdf->SetY(-11);
+            $pdf->SetFont("times", "I", 7);
+            $pdf->Cell(65.3, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s", strtotime($data2['fh_actual'])), 0, 0, "L");
+            $pdf->Cell(65.3, 4, 'Usuario: ' . substr(Auth::user()->email, 0, strpos(Auth::user()->email, '@')), 0, 0, "C");
+            $pdf->Cell(65.4, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
+        });
+
+        PDF::setPageUnit('mm');
+
+        PDF::SetMargins(10, 25, 10);
+        PDF::getAliasNbPages();
+        PDF::SetCreator('MINISTERIO PUBLICO');
+        PDF::SetAuthor('TRITON');
+        PDF::SetTitle('REPORTE DE DERIVACION');
+        PDF::SetSubject('DOCUMENTO');
+
+        PDF::SetAutoPageBreak(FALSE, 10);
+
+        // === BODY ===
+        PDF::AddPage('P', 'LETTER');
+
+        $y    = 16.85;
+        $fill = FALSE;
+        PDF::SetFillColor(204, 239, 252);
+        $ta1 = 12;
+        PDF::Ln(10);
+        PDF::SetFont("times", "B", $ta1);
+        PDF::Cell(0, 0, 'DATOS PERSONALES', 1, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Ln(8);
+        PDF::SetFont("times", "", $ta1);
+        PDF::Cell(40, 0, 'CI: '.$consulta['n_documento'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Cell(146, 0, 'Nombre Completo: '.$consulta['nombre'].' '.$consulta['ap_paterno'].' '.$consulta['ap_materno'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Ln(6);
+        if ($consulta['sexo'] == 'M') PDF::Cell(40, 0, 'Sexo: Masculino', 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        else PDF::Cell(40, 0, 'Sexo: Femenino', 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Cell(90, 0, 'Domicilio: '.$consulta['domicilio'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Cell(36, 0, 'Telf.: '.$consulta['telfpersona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Cell(20, 0, 'Cel.: '.$consulta['celpersona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Ln(10);
+        PDF::SetFont("times", "B", $ta1);
+        PDF::Cell(0, 0, 'MOTIVO DE CONSULTA', 1, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Ln(8);
+        PDF::SetFont("times", "", $ta1);
+        PDF::Cell(196, 0, 'MOTIVO: '.$consulta['motivo'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Ln(4);
+        PDF::writeHTML('RELATO: '.$consulta['relato'].'<br />', true, false, true, true, '');
+        PDF::SetFont("times", "B", $ta1);
+        PDF::Cell(0, 0, 'OFICINA DERIVADA', 1, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Ln(8);
+        PDF::SetFont("times", "", $ta1);
+        PDF::Cell(196, 0, 'OFICINA: '.$consulta['oficina'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Ln(6);
+        PDF::Cell(136, 0, 'RESPONSABLE: '.$consulta['respcontacto'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Cell(30, 0, 'Telf.: '.$consulta['telfinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Cell(30, 0, 'Cel.: '.$consulta['celinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Ln(6);
+        PDF::Cell(98, 0, 'Dirección: '.$consulta['direccion'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Cell(98, 0, 'Zona: '.$consulta['zona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Ln(6);
+        PDF::Cell(98, 0, 'Correo Electrónico: '.$consulta['email'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+        PDF::Cell(98, 0, 'Municipio: '.$consulta['municipio'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+
+        PDF::Output('reporte_derivacion_' . date("YmdHis") . '.pdf', 'I');
     }
 }
