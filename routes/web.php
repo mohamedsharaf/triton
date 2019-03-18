@@ -193,7 +193,7 @@
     Route::match(["get", "post"], '/notificacion/view_jqgrid', 'I4\NotificacionController@view_jqgrid');
     Route::post('/notificacion/send_ajax', 'I4\NotificacionController@send_ajax');
     Route::match(["get", "post"], '/notificacion/reportes', 'I4\NotificacionController@reportes');
-    
+
 //=== DERIVACIONES - INSTITUCIONES ===
     Route::get('/institucion', 'Institucion\InstitucionController@index')->name('institucion');
     Route::match(["get", "post"], '/institucion/view_jqgrid', 'Institucion\InstitucionController@view_jqgrid');
@@ -203,5 +203,9 @@
     Route::get('/derivacion', 'Dpvt\DerivacionController@index')->name('derivacion');
     Route::match(["get", "post"], '/derivacion/view_jqgrid', 'Dpvt\DerivacionController@view_jqgrid');
     Route::post('/derivacion/send_ajax', 'Dpvt\DerivacionController@send_ajax');
+
+//=== DERIVACIONES - REPORTES ===
+    Route::get('/derivacion', 'Dpvt\DerivacionController@index')->name('derivacion');
+    Route::match(["get", "post"], '/derivacion/reportes', 'Dpvt\DerivacionController@reportes');
 
 Route::get('/dashboard1', 'Dashboard\Dashboard1Controller@index')->name('home');
