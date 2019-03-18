@@ -226,7 +226,7 @@
                         },
                         {
                             name : "nombre",
-                            index: "inst_instituciones.nombre",
+                            index: "b.nombre",
                             width: 250,
                             align: "left"
                         },
@@ -238,37 +238,37 @@
                         },
                         {
                             name       : "direccion",
-                            index      : "inst_instituciones.direccion",
+                            index      : "b.direccion",
                             width      : 200,
                             align      : "left"
                         },
                         {
                             name       : "zona",
-                            index      : "inst_instituciones.zona",
+                            index      : "b.zona",
                             width      : 150,
                             align      : "left"
                         },
                         {
                             name       : "telefono",
-                            index      : "inst_instituciones.telefono",
+                            index      : "b.telefono",
                             width      : 100,
                             align      : "left"
                         },
                         {
                             name       : "celular",
-                            index      : "inst_instituciones.celular",
+                            index      : "b.celular",
                             width      : 100,
                             align      : "left"
                         },
                         {
                             name       : "email",
-                            index      : "inst_instituciones.email",
+                            index      : "b.email",
                             width      : 150,
                             align      : "left"
                         },
                         {
                             name       : "respcontacto",
-                            index      : "inst_instituciones.respcontacto",
+                            index      : "b.respcontacto",
                             width      : 150,
                             align      : "left"
                         },

@@ -197,7 +197,7 @@
             // === JQGRID 1 ===
             case 10:
                 var edit1      = true;
-                var ancho1     = 5;
+                var ancho1     = 30;
                 var ancho_d    = 29;
                 @if(in_array(['codigo' => '2401'], $permisos))
                     edit1  = false;
@@ -242,13 +242,13 @@
                         },
                         {
                             name : "fecha",
-                            index: "pvt_derivaciones.fecha",
+                            index: "pvt_derivaciones.fecha::text",
                             width: 150,
                             align: "left"
                         },
                         {
                             name : "nombre",
-                            index: "p.ap_paterno||' '||p.ap_materno||' '||p.nombre",
+                            index: "CONCAT_WS(' ', p.ap_paterno, p.ap_materno, p.nombre)",
                             width: 300,
                             align: "left"
                         },
@@ -288,9 +288,12 @@
                             @if(in_array(['codigo' => '2401'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Modificar Derivación' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                             @endif
+                            @if(in_array(['codigo' => '2401'], $permisos))
+                                pd = " <button type='button' class='btn btn-xs btn-warning' title='Imprimir Derivación' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-print'></i></button>";
+                            @endif
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed)
+                                act : $.trim(ed+pd)
                             });
                         }
                     }
@@ -376,7 +379,9 @@
                 break; */
             // === REPORTES MODAL ===
             case 13:
-                alert("REPORTE");
+                var concatenar_valores = '?id=' + valor[1];
+                var win = window.open(url_controller + '/reportes' + concatenar_valores ,  '_blank');
+                win.focus();
                 break;
             // === RESETEAR FORMULARIO ===
             case 14:
@@ -455,9 +460,6 @@
                             required: true,
                             maxlength: 15
                         },
-                        email:{
-                            email: true
-                        },
                         municipio_id_nacimiento:{
                             required: true
                         },
@@ -509,6 +511,10 @@
                                     else if(data.iu === 2){
                                         $('#modal_1').modal('hide');
                                     }
+                                    var valor2 = new Array();
+                                    valor2[0] = 13;
+                                    valor2[1] = data.der_id;
+                                    utilitarios(valor2);
                                 }
                                 else if(data.sw === 0){
                                     if(data.error_sw === 1){
@@ -554,6 +560,10 @@
                                     else if(data.iu === 2){
                                         $('#modal_1').modal('hide');
                                     }
+                                    var valor2 = new Array();
+                                    valor2[0] = 13;
+                                    valor2[1] = data.der_id;
+                                    utilitarios(valor2);
                                 }
                                 else if(data.sw === 0){
                                     if(data.error_sw === 1){

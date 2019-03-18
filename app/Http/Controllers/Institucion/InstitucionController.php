@@ -115,7 +115,12 @@ class InstitucionController extends Controller
             $array_where = "$institucion1.institucion_id is null";
             $array_where .= $jqgrid->getWhere();
 
-            $count = InstInstitucion::whereRaw($array_where)->count();
+            $count = InstInstitucion::leftJoin("$institucion2 AS b", "b.institucion_id", "=", "$institucion1.id")
+                ->leftJoin("$municipio AS c", "c.id", "=", "$institucion1.ubge_municipios_id")
+                ->leftJoin("$provincia AS d", "d.id", "=", "c.provincia_id")
+                ->leftJoin("$departamento AS e", "e.id", "=", "d.departamento_id")
+                ->whereRaw($array_where)
+                ->count();
 
             $limit_offset = $jqgrid->getLimitOffset($count);
 
