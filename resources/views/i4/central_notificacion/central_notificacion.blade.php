@@ -153,15 +153,15 @@
                                     <div class="row">
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="solicitud_f">Fecha de notificación</label>
-                                            <input type="text" class="form-control" id="solicitud_f" name="solicitud_f" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date('Y-m-d') }}">
+                                                <label for="notificacion_f">Fecha de notificación</label>
+                                            <input type="text" class="form-control" id="notificacion_f" name="notificacion_f" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date('Y-m-d') }}">
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label for="solicitud_h">Hora de notificación</label>
-                                            <input type="text" class="form-control" id="solicitud_h" name="solicitud_h" placeholder="hora:minuto" data-mask="99:99">
+                                                <label for="notificacion_h">Hora de notificación</label>
+                                            <input type="text" class="form-control" id="notificacion_h" name="notificacion_h" placeholder="hora:minuto" data-mask="99:99">
                                             </div>
                                         </div>
                                     </div>
@@ -171,13 +171,13 @@
                                         <textarea class="form-control" id="notificacion_observacion" name="notificacion_observacion" placeholder="Observación" rows="2"></textarea>
                                     </div>
 
-                                    <h3 class="m-t-none m-b text-success">Testigo</h3>
+                                    <h3 class="m-t-none m-b text-success class_testigo" style="display:none;">Testigo</h3>
 
-                                    <div class="row">
+                                    <div class="row class_testigo" style="display:none;">
                                         <div class="col-sm-4">
                                             <div class="form-group">
-                                                <label for="notificacion_documento">Número de documento</label>
-                                            <input type="text" class="form-control" id="notificacion_documento" name="notificacion_documento" placeholder="Número de documento"">
+                                                <label for="notificacion_testigo_n_documento">Número de documento</label>
+                                            <input type="text" class="form-control" id="notificacion_testigo_n_documento" name="notificacion_testigo_n_documento" placeholder="Número de documento"">
                                             </div>
                                         </div>
 
@@ -188,40 +188,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-
-
-
-                                    {{-- <div class="form-group">
-                                        <label>Estado</label>
-                                        <br>
-                                        <div class="radio radio-primary radio-inline">
-                                            <input type="radio" id="estado_1" value="1" name="estado" class="estado_class" checked="checked">
-                                            <label for="estado_1"> {!! $estado_array['1'] !!} </label>
-                                        </div>
-
-                                        <div class="radio radio-danger radio-inline">
-                                            <input type="radio" id="estado_2" value="2" name="estado" class="estado_class">
-                                            <label for="estado_2"> {!! $estado_array['2'] !!} </label>
-                                        </div>
-                                    </div>
-
-                                    <div id="Muni_id_div" class="form-group">
-                                        <label for="Muni_id">Ubicación</label>
-                                        <select name="Muni_id" id="Muni_id" data-placeholder="Departamento, Municipio" multiple="multiple" style="width: 100%;">
-                                        </select>
-                                    </div>
-
-                                    <div id="tipo_recinto_div" class="form-group">
-                                        <label for="tipo_recinto">Tipo de recinto carcelario</label>
-                                        <select name="tipo_recinto" id="tipo_recinto" data-placeholder="Tipo de recinto carcelario" multiple="multiple" style="width: 100%;">
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="nombre">Nombre del recinto carcelario</label>
-                                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del recinto carcelario">
-                                    </div> --}}
                                 </div>
                             </div>
                         </form>
@@ -234,16 +200,62 @@
 
                     <div class="modal-footer">
                         {{-- <button id="button_segip" type="button" class="btn btn-info" onclick="utilitarios([70]);">Validar SEGIP</button> --}}
-                        <button type="button" class="btn btn-primary" onclick="utilitarios([50]);">Guardar</button>
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([30]);">Guardar</button>
                         <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
 
+                        <h4 class="modal-title">
+                            Subir documento PDF digitalizado
+                        </h4>
 
+                        <small class="font-bold" id="modal_2_subtitle">
+                        </small>
+                    </div>
 
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <form action="#" class="dropzone" id="dropzoneForm_2">
+                                    <input type="hidden" id="notificacion_id_2" name="id" value=""/>
+                                    <div class="fallback">
+                                        <input name="file" type="file"/>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal_3" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog modal-xlg">
+                <div class="modal-content">
+                    <div class="modal-header" style="padding: 5px 15px 5px 15px;">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                    </div>
+
+                    <div id="div_pdf" class="modal-body">
+
+                    </div>
+                </div>
+            </div>
+        </div>
 @endsection
 
 @section('js_plugins')
@@ -259,6 +271,10 @@
         <script src="{{ asset('inspinia_v27/js/plugins/pace/pace.min.js') }}"></script>
 
         <script src="{{ asset('inspinia_v27/js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+
+    <!-- Jquery Validate -->
+        <script src="{{ asset('inspinia_v27/js/plugins/validate/jquery.validate.min.js') }}"></script>
+        <script src="{{ asset('inspinia_v27/js/plugins/validate/messages_es.js') }}"></script>
 
     <!-- Toastr script -->
         <script src="{{ asset('inspinia_v27/js/plugins/toastr/toastr.min.js') }}"></script>

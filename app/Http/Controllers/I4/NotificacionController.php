@@ -178,7 +178,7 @@ class NotificacionController extends Controller
                     $data1['persona_select']           = $request->input('persona_select');
                     $data1['solicitud_asunto']         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('solicitud_asunto'))));
 
-                    if($request->hasFile('persona_select'))
+                    if( ! $request->has('persona_select'))
                     {
                         $respuesta['respuesta'] .= "Por lo menos a una persona se debe de NOTIFICAR.";
                         return json_encode($respuesta);
