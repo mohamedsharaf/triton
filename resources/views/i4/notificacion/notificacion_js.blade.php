@@ -252,7 +252,7 @@
                     @if(in_array(['codigo' => '2502'], $permisos) AND $i4_funcionario_id != '')
                         if(value.estado_notificacion == 1){
                             respuesta += '<td class="text-center">';
-                            respuesta += '<button type="button" class="btn btn-xs btn-primary" title="Eliminar notificación" onclick="utilitarios([10, ' + value.id + ', \'' + value.TipoActividad + '\', \'' + valor[2] + '\']);">';
+                            respuesta += '<button type="button" class="btn btn-xs btn-primary" title="Notificar" onclick="utilitarios([10, ' + value.id + ', \'' + value.TipoActividad + '\', \'' + valor[2] + '\']);">';
                             respuesta += '<i class="fa fa-envelope"></i>';
                             respuesta += '</button>';
                             respuesta += '</td>';
