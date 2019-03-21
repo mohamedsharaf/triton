@@ -61,9 +61,12 @@
                         <h5 style="margin-top: 6px;"><i class="fa fa-table"></i> {{ $title_table }}</h5>
 
                         <div class="ibox-tools" style="margin-top: 4px;">
-                            <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
-                                <strong>Manual</strong>
+                            <a class="btn btn-primary btn-xs" target="_blank" style="color: #FFFFFF" id="btnReportes">
+                                <strong>Reportes</strong>
                             </a>
+                            {{-- <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
+                                <strong>Manual</strong>
+                            </a> --}}
 
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -250,6 +253,64 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info" onclick="utilitarios([14]);">Limpiar formulario</button>
                     <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">Guardar</button>
+                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal_2" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+
+                    <h4 class="modal-title">
+                        <span id="modal_2_title"></span>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 b-r">
+                            <form id="form_2" role="form" action="#">
+                                {{ csrf_field() }}
+                                <div id="tipo_reporte_div">
+                                    <div class="form-group">
+                                        <label for="tipo_reporte">Tipo de reporte</label>
+                                        <select name="tipo_reporte" id="tipo_reporte" data-placeholder="Tipo de reporte" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="tipo_reporte_div">
+                                    <div class="form-group">
+                                        <label for="oficina_derivada">Oficina derivada</label>
+                                        <select name="oficina_derivada" id="oficina_derivada" data-placeholder="Oficina derivada" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>Fecha del</label>
+                                            <input type="text" class="form-control" id="fecha_del" name="fecha_del" placeholder="Fecha del" data-mask="9999-99-99">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>Fecha al</label>
+                                            <input type="text" class="form-control" id="fecha_al" name="fecha_al" placeholder="Fecha al" data-mask="9999-99-99">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">PDF</button>
                     <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                 </div>
             </div>

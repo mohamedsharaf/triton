@@ -27,6 +27,7 @@ class DerivacionController extends Controller
     private $estado;
     private $estado_civil;
     private $sexo;
+    private $tipo_reporte;
 
     private $rol_id;
     private $permisos;
@@ -59,6 +60,10 @@ class DerivacionController extends Controller
             'M' => 'MASCULINO'
         ];
 
+        $this->tipo_reporte = [
+            '1' => 'REPORTE DERIVACIONES ATENDIDAS',
+        ];
+
         $this->public_dir = '/image/logo';
     }
 
@@ -87,7 +92,8 @@ class DerivacionController extends Controller
                 'title_table'           => 'Registro de personas atendidas, orientadas y derivadas a otras unidades',
                 'estado_array'          => $this->estado,
                 'estado_civil_array'    => $this->estado_civil,
-                'sexo_array'            => $this->sexo
+                'sexo_array'            => $this->sexo,
+                'tipo_reporte_array'    => $this->tipo_reporte
             ];
             return view('dpvt.derivacion.derivacion')->with($data);
         }
@@ -127,9 +133,10 @@ class DerivacionController extends Controller
             $derivacion.fecha,
             CONCAT_WS(' ', p.ap_paterno, p.ap_materno, p.nombre) as nombre,
             $derivacion.motivo,
-            i.nombre as oficina";
+            i.nombre as oficina,
+            $derivacion.codigo";
             // === CONDICION POR DEFECTO ===
-            $array_where = "TRUE";
+            $array_where = "$derivacion.user_id = " . Auth::user()->id;
             $array_where .= $jqgrid->getWhere();
 
             $count = PvtDerivacion::leftJoin("$visitante AS v", "v.id", "=", "$derivacion.visitante_id")
@@ -168,6 +175,7 @@ class DerivacionController extends Controller
                 $respuesta['rows'][$i]['cell'] = array(
                     '',
                     //$this->utilitarios(array('tipo' => '1', 'estado' => $row["estado"])),
+                    'MP-'.$row["codigo"],
                     $row["fecha"],
                     $row["nombre"],
                     $row["motivo"],
@@ -467,7 +475,6 @@ class DerivacionController extends Controller
                 $respuesta['der_id']     = $derivacion->id;
                 //=== respuesta ===
                 return json_encode($respuesta);
-                reportes($derivacion->id);
                 break;
             case '100':
                 if($request->has('q'))
@@ -693,137 +700,140 @@ class DerivacionController extends Controller
 
     public function reportes(Request $request)
     {
-        $idderivacion = $request->input('id');
-        $fh_actual            = date("Y-m-d H:i:s");
-        $dir_logo_institucion = public_path($this->public_dir) . '/' . 'logo_fge_256_2018_3.png';
-        // === VALIDAR IMAGENES ===
-        if(!file_exists($dir_logo_institucion))
+        $tipo = $request->input('tipo');
+        switch($tipo)
         {
-            return "No existe el logo de la institución " . $dir_logo_institucion;
+            case '1':
+                $idderivacion = $request->input('id');
+                $fh_actual            = date("Y-m-d H:i:s");
+                $dir_logo_institucion = public_path($this->public_dir) . '/' . 'logo_fge_256_2018_3.png';
+                // === VALIDAR IMAGENES ===
+                if(!file_exists($dir_logo_institucion))
+                {
+                    return "No existe el logo de la institución " . $dir_logo_institucion;
+                }
+                // === CONSULTA A LA BASE DE DATOS ===
+                // === TABLAS PARA LA CONSULTA ===
+                $derivacion  = "pvt_derivaciones";
+                $visitante   = "rrhh_visitantes";
+                $persona     = "rrhh_personas";
+                $institucion = "inst_instituciones";
+                $municipio   = "ubge_municipios";
+                // === COLUMNAS DE LA CONSULTA ===
+                $select = "$persona.n_documento,$persona.nombre,$persona.ap_paterno,$persona.ap_materno,$persona.sexo,$persona.domicilio,$persona.telefono as telfpersona,$persona.celular as celpersona,d.codigo,d.motivo,d.relato,d.fecha,i.nombre as oficina,i.respcontacto,i.telefono as telfinst,i.celular as celinst,i.direccion,i.zona,i.email,m.nombre as municipio";
+                // === CONSULTA ===
+                $consulta = RrhhPersona::join("$visitante AS v", "v.persona_id", "=", "$persona.id")
+                    ->join("$derivacion AS d", "d.visitante_id", "=", "v.id")
+                    ->join("$institucion AS i", "i.id", "=", "d.institucion_id")
+                    ->join("$municipio AS m", "m.id", "=", "i.ubge_municipios_id")
+                    ->where("d.id", "=", $idderivacion)
+                    ->select(DB::raw($select))
+                    ->first();
+
+                // === CARGAR VALORES ===
+                $x1_array = [8,50,50,50,20,32,20,50,100,32,32,20,32,25,20,32];
+
+                $data1 = array(
+                    'dir_logo_institucion' => $dir_logo_institucion,
+                    'x1_array'             => $x1_array,
+                );
+
+                $data2 = array(
+                    'fh_actual' => $fh_actual
+                );
+
+                // === HEADER ===
+                PDF::setHeaderCallback(function($pdf) use($data1, $consulta) {
+                    $pdf->Image($data1['dir_logo_institucion'], 180, 3, 0, 23, 'PNG');
+
+                    $pdf->Ln(7);
+                    $pdf->SetFont('times', 'B', 22);
+                    $pdf->Write(0, 'MINISTERIO PÚBLICO', '', 0, 'C', true, 0, false, false, 0);
+
+                    $pdf->SetFont('times', 'B', 18);
+                    $pdf->Write(0, 'REPORTE DERIVACIÓN', '', 0, 'C', true, 0, false, false, 0);
+
+                    $pdf->SetFont('times', 'B', 12);
+                    $pdf->Write(0, 'CÓDIGO: MP - '.$consulta['codigo'].' | FECHA: '.date("d/m/Y", strtotime($consulta['fecha'])), '', 0, 'C', true, 0, false, false, 0);
+                });
+
+                // === FOOTER ===
+                PDF::setFooterCallback(function($pdf) use($data2){
+                    $style1 = array(
+                        'width' => 0.5,
+                        'cap'   => 'butt',
+                        'join'  => 'miter',
+                        'dash'  => '0',
+                        'phase' => 10,
+                        'color' => array(0, 0, 0)
+                    );
+
+                    $pdf->Line(10, 268, 206, 268, $style1);
+                    $pdf->SetY(-11);
+                    $pdf->SetFont("times", "I", 7);
+                    $pdf->Cell(65.3, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s", strtotime($data2['fh_actual'])), 0, 0, "L");
+                    $pdf->Cell(65.3, 4, 'Usuario: ' . substr(Auth::user()->email, 0, strpos(Auth::user()->email, '@')), 0, 0, "C");
+                    $pdf->Cell(65.4, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
+                });
+
+                PDF::setPageUnit('mm');
+
+                PDF::SetMargins(10, 25, 10);
+                PDF::getAliasNbPages();
+                PDF::SetCreator('MINISTERIO PUBLICO');
+                PDF::SetAuthor('TRITON');
+                PDF::SetTitle('REPORTE DE DERIVACION');
+                PDF::SetSubject('DOCUMENTO');
+
+                PDF::SetAutoPageBreak(FALSE, 10);
+
+                // === BODY ===
+                PDF::AddPage('P', 'LETTER');
+
+                PDF::SetFillColor(204, 239, 252);
+                $ta1 = 12;
+                PDF::Ln(10);
+                PDF::SetFont("times", "B", $ta1);
+                PDF::Cell(0, 0, 'DATOS PERSONALES', 1, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Ln(8);
+                PDF::SetFont("times", "", $ta1);
+                PDF::Cell(40, 0, 'CI: '.$consulta['n_documento'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(146, 0, 'Nombre Completo: '.$consulta['nombre'].' '.$consulta['ap_paterno'].' '.$consulta['ap_materno'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Ln(6);
+                if ($consulta['sexo'] == 'M') PDF::Cell(40, 0, 'Sexo: Masculino', 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                else PDF::Cell(40, 0, 'Sexo: Femenino', 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(90, 0, 'Domicilio: '.$consulta['domicilio'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(36, 0, 'Telf.: '.$consulta['telfpersona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(20, 0, 'Cel.: '.$consulta['celpersona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Ln(10);
+                PDF::SetFont("times", "B", $ta1);
+                PDF::Cell(0, 0, 'MOTIVO DE CONSULTA', 1, false, 'L', 0, '', 0, false, 'M', 'M');
+                //PDF::Ln(8);
+                PDF::SetFont("times", "", $ta1);
+                //PDF::Cell(196, 0, 'MOTIVO: '.$consulta['motivo'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::writeHTML('MOTIVO: '.$consulta['motivo'], true, false, true, true, '');
+                PDF::writeHTML('RELATO: '.$consulta['relato'].'<br>', true, false, true, true, 'J');
+                PDF::SetFont("times", "B", $ta1);
+                PDF::Cell(0, 0, 'OFICINA DERIVADA', 1, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Ln(8);
+                PDF::SetFont("times", "", $ta1);
+                PDF::Cell(196, 0, 'OFICINA: '.$consulta['oficina'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Ln(6);
+                PDF::Cell(136, 0, 'RESPONSABLE: '.$consulta['respcontacto'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(30, 0, 'Telf.: '.$consulta['telfinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(30, 0, 'Cel.: '.$consulta['celinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Ln(6);
+                PDF::Cell(141, 0, 'Dirección: '.$consulta['direccion'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(55, 0, 'Zona: '.$consulta['zona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Ln(6);
+                PDF::Cell(98, 0, 'Correo Electrónico: '.$consulta['email'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(98, 0, 'Municipio: '.$consulta['municipio'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+
+                PDF::Output('reporte_derivacion_' . date("YmdHis") . '.pdf', 'I');
+                break;
+            case '2':
+                
+                break;
         }
-        // === CONSULTA A LA BASE DE DATOS ===
-        // === TABLAS PARA LA CONSULTA ===
-        $derivacion  = "pvt_derivaciones";
-        $visitante   = "rrhh_visitantes";
-        $persona     = "rrhh_personas";
-        $institucion = "inst_instituciones";
-        $municipio   = "ubge_municipios";
-        // === COLUMNAS DE LA CONSULTA ===
-        $select = "$persona.n_documento,$persona.nombre,$persona.ap_paterno,$persona.ap_materno,$persona.sexo,$persona.domicilio,$persona.telefono as telfpersona,$persona.celular as celpersona,d.codigo,d.motivo,d.relato,d.fecha,i.nombre as oficina,i.respcontacto,i.telefono as telfinst,i.celular as celinst,i.direccion,i.zona,i.email,m.nombre as municipio";
-        // === CONSULTA ===
-        $consulta = RrhhPersona::join("$visitante AS v", "v.persona_id", "=", "$persona.id")
-            ->join("$derivacion AS d", "d.visitante_id", "=", "v.id")
-            ->join("$institucion AS i", "i.id", "=", "d.institucion_id")
-            ->join("$municipio AS m", "m.id", "=", "i.ubge_municipios_id")
-            ->where("d.id", "=", $idderivacion)
-            ->select(DB::raw($select))
-            ->first();
-
-        /* if($consulta->get()->toArray()->isEmpty())
-        {
-            return dd("No se encontró el registro de DERIVACIÓN");
-        } */
-        // === CARGAR VALORES ===
-        $x1_array = [8,50,50,50,20,32,20,50,100,32,32,20,32,25,20,32];
-
-        $data1 = array(
-            'dir_logo_institucion' => $dir_logo_institucion,
-            'x1_array'             => $x1_array,
-        );
-
-        $data2 = array(
-            'fh_actual' => $fh_actual
-        );
-
-        // === HEADER ===
-        PDF::setHeaderCallback(function($pdf) use($data1, $consulta) {
-            $pdf->Image($data1['dir_logo_institucion'], 180, 3, 0, 23, 'PNG');
-
-            $pdf->Ln(7);
-            $pdf->SetFont('times', 'B', 22);
-            $pdf->Write(0, 'MINISTERIO PÚBLICO', '', 0, 'C', true, 0, false, false, 0);
-
-            $pdf->SetFont('times', 'B', 18);
-            $pdf->Write(0, 'REPORTE DERIVACIÓN', '', 0, 'C', true, 0, false, false, 0);
-
-            $pdf->SetFont('times', 'B', 12);
-            $pdf->Write(0, 'CÓDIGO: MP - '.$consulta['codigo'].' | FECHA: '.date("d/m/Y", strtotime($consulta['fecha'])), '', 0, 'C', true, 0, false, false, 0);
-        });
-
-        // === FOOTER ===
-        PDF::setFooterCallback(function($pdf) use($data2){
-            $style1 = array(
-                'width' => 0.5,
-                'cap'   => 'butt',
-                'join'  => 'miter',
-                'dash'  => '0',
-                'phase' => 10,
-                'color' => array(0, 0, 0)
-            );
-
-            $pdf->Line(10, 268, 206, 268, $style1);
-            $pdf->SetY(-11);
-            $pdf->SetFont("times", "I", 7);
-            $pdf->Cell(65.3, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s", strtotime($data2['fh_actual'])), 0, 0, "L");
-            $pdf->Cell(65.3, 4, 'Usuario: ' . substr(Auth::user()->email, 0, strpos(Auth::user()->email, '@')), 0, 0, "C");
-            $pdf->Cell(65.4, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
-        });
-
-        PDF::setPageUnit('mm');
-
-        PDF::SetMargins(10, 25, 10);
-        PDF::getAliasNbPages();
-        PDF::SetCreator('MINISTERIO PUBLICO');
-        PDF::SetAuthor('TRITON');
-        PDF::SetTitle('REPORTE DE DERIVACION');
-        PDF::SetSubject('DOCUMENTO');
-
-        PDF::SetAutoPageBreak(FALSE, 10);
-
-        // === BODY ===
-        PDF::AddPage('P', 'LETTER');
-
-        $y    = 16.85;
-        $fill = FALSE;
-        PDF::SetFillColor(204, 239, 252);
-        $ta1 = 12;
-        PDF::Ln(10);
-        PDF::SetFont("times", "B", $ta1);
-        PDF::Cell(0, 0, 'DATOS PERSONALES', 1, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Ln(8);
-        PDF::SetFont("times", "", $ta1);
-        PDF::Cell(40, 0, 'CI: '.$consulta['n_documento'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Cell(146, 0, 'Nombre Completo: '.$consulta['nombre'].' '.$consulta['ap_paterno'].' '.$consulta['ap_materno'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Ln(6);
-        if ($consulta['sexo'] == 'M') PDF::Cell(40, 0, 'Sexo: Masculino', 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        else PDF::Cell(40, 0, 'Sexo: Femenino', 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Cell(90, 0, 'Domicilio: '.$consulta['domicilio'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Cell(36, 0, 'Telf.: '.$consulta['telfpersona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Cell(20, 0, 'Cel.: '.$consulta['celpersona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Ln(10);
-        PDF::SetFont("times", "B", $ta1);
-        PDF::Cell(0, 0, 'MOTIVO DE CONSULTA', 1, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Ln(8);
-        PDF::SetFont("times", "", $ta1);
-        PDF::Cell(196, 0, 'MOTIVO: '.$consulta['motivo'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Ln(4);
-        PDF::writeHTML('RELATO: '.$consulta['relato'].'<br />', true, false, true, true, '');
-        PDF::SetFont("times", "B", $ta1);
-        PDF::Cell(0, 0, 'OFICINA DERIVADA', 1, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Ln(8);
-        PDF::SetFont("times", "", $ta1);
-        PDF::Cell(196, 0, 'OFICINA: '.$consulta['oficina'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Ln(6);
-        PDF::Cell(136, 0, 'RESPONSABLE: '.$consulta['respcontacto'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Cell(30, 0, 'Telf.: '.$consulta['telfinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Cell(30, 0, 'Cel.: '.$consulta['celinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Ln(6);
-        PDF::Cell(98, 0, 'Dirección: '.$consulta['direccion'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Cell(98, 0, 'Zona: '.$consulta['zona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Ln(6);
-        PDF::Cell(98, 0, 'Correo Electrónico: '.$consulta['email'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-        PDF::Cell(98, 0, 'Municipio: '.$consulta['municipio'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-
-        PDF::Output('reporte_derivacion_' . date("YmdHis") . '.pdf', 'I');
     }
 }
