@@ -933,6 +933,7 @@ class PlataformaController extends Controller
                                     $tabla5 = "Oficina";
                                     $tabla6 = "Muni";
                                     $tabla7 = "CasoFuncionario";
+                                    $tabla8 = "Funcionario";
 
                                     $select1 = "
                                         $tabla1.id,
@@ -1019,7 +1020,7 @@ class PlataformaController extends Controller
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))
-                                                        ->orderBy("a7.Funcionario", "ASC")
+                                                        // ->orderBy("a7.Funcionario", "ASC")
                                                         ->orderBy("a2.CreationDate", "ASC")
                                                         ->get();
                                     }
@@ -1055,7 +1056,7 @@ class PlataformaController extends Controller
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))
-                                                        ->orderBy("a7.Funcionario", "ASC")
+                                                        // ->orderBy("a7.Funcionario", "ASC")
                                                         ->orderBy("a2.CreationDate", "ASC")
                                                         ->get();
                                     }
