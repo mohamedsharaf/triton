@@ -25,6 +25,7 @@
 
     // === FORMULARIOS ===
     var form_1 = "#form_1";
+    var form_2 = "#form_2";
 
     // === JQGRID ===
     var jqgrid1  = "#jqgrid1";
@@ -60,8 +61,22 @@
         sexo_jqgrid += ';' + index + ':' + value;
     });
 
+    // === TIPO REPORTE ===
+    var tipo_reporte_json   = $.parseJSON('{!! json_encode($tipo_reporte_array) !!}');
+    var tipo_reporte_select = '';
+
+    $.each(tipo_reporte_json, function(index, value) {
+        tipo_reporte_select += '<option value="' + index + '">' + value + '</option>';
+    });
+
     $(document).ready(function(){
         //=== INICIALIZAR ===
+        $('#tipo_reporte').append(tipo_reporte_select);
+        $("#tipo_reporte").select2({
+            maximumSelectionLength: 1
+        });
+        $("#tipo_reporte").appendTo("#tipo_reporte_div");
+
         $('#estado_civil').append(estado_civil_select);
         $("#estado_civil").select2({
             maximumSelectionLength: 1
@@ -118,6 +133,31 @@
             }
         });
         $("#institucion_id").appendTo("#institucion_id_div");
+
+        $('#oficina_derivada').select2({
+            maximumSelectionLength: 1,
+            minimumInputLength    : 2,
+            ajax                  : {
+                url     : url_controller + '/send_ajax',
+                type    : 'post',
+                dataType: 'json',
+                data    : function (params) {
+                    return {
+                        q         : params.term,
+                        page_limit: 10,
+                        estado    : 1,
+                        tipo      : 200,
+                        _token    : csrf_token
+                    };
+                },
+                results: function (data, page) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+        $("#oficina_derivada").appendTo("#oficina_derivada_div");
 
         $('#f_nacimiento').datepicker({
             startView            : 2,
@@ -180,6 +220,12 @@
                 utilitarios(valor1);
             }
         });
+
+        // === ABRIR MODAL REPORTES ===
+        $("#btnReportes").on( "click", function() {
+            utilitarios(14);
+            $('#modal_2').modal();
+        });
     });
 
     $(window).on('resize.jqGrid', function() {
@@ -222,6 +268,7 @@
                     rownumbers  : true,
                     colNames : [
                         "",
+                        "CÓDIGO",
                         "FECHA",
                         "NOMBRE",
                         "MOTIVO",
@@ -239,6 +286,12 @@
                             resize  : false,
                             search  : false,
                             hidden  : edit1
+                        },
+                        {
+                            name : "codigo",
+                            index: "pvt_derivaciones.codigo::text",
+                            width: 100,
+                            align: "center"
                         },
                         {
                             name : "fecha",
@@ -289,7 +342,7 @@
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Modificar Derivación' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
                             @endif
                             @if(in_array(['codigo' => '2401'], $permisos))
-                                pd = " <button type='button' class='btn btn-xs btn-warning' title='Imprimir Derivación' onclick=\"utilitarios([13, " + cl + "]);\"><i class='fa fa-print'></i></button>";
+                                pd = " <button type='button' class='btn btn-xs btn-warning' title='Imprimir Derivación' onclick=\"utilitarios([13, " + cl + ", 1]);\"><i class='fa fa-print'></i></button>";
                             @endif
 
                             $(jqgrid1).jqGrid('setRowData', ids[i], {
@@ -335,17 +388,6 @@
                     .navSeparatorAdd(pjqgrid1,{
                         sepclass : "ui-separator"
                     })
-                    .navButtonAdd(pjqgrid1,{
-                        "id"          : "print1",
-                        caption       : "",
-                        title         : 'Reportes',
-                        buttonicon    : "ui-icon ui-icon-print",
-                        onClickButton : function(){
-                            var valor1 = new Array();
-                            valor1[0]  = 70;
-                            utilitarios(valor1);
-                        }
-                    })
                 @endif
                 ;
                 break;
@@ -379,7 +421,7 @@
                 break; */
             // === REPORTES MODAL ===
             case 13:
-                var concatenar_valores = '?id=' + valor[1];
+                var concatenar_valores = '?tipo='+valor[2]+'&id=' + valor[1];
                 var win = window.open(url_controller + '/reportes' + concatenar_valores ,  '_blank');
                 win.focus();
                 break;
@@ -396,6 +438,9 @@
                 $('#estado_civil').select2("val", "");
                 $("#persona_id").val('');
                 $(form_1)[0].reset();
+                $('#modal_2_title').empty();
+                $('#modal_2_title').append('Reportes');
+                $(form_2)[0].reset();
                 break;
             // === GUARDAR REGISTRO ===
             case 15:
@@ -475,6 +520,18 @@
                     }
                 });
                 break;
+            // === FORMULARIO REPORTES ===
+            case 17:
+                if ($(form_2).valid()) {
+                    var oficina_derivada_id = $('#oficina_derivada').val();
+                    var fecha_del = $('#fecha_del').val();
+                    var fecha_al = $('#fecha_al').val();
+                    altert('oficina='+oficina_derivada_id+',fecha del='+fecha_del+'fecha al='+fecha_al);
+                    //var concatenar_valores = '?tipo=2'+valor[2]+'&id=' + valor[1];
+                    //var win = window.open(url_controller + '/reportes' + concatenar_valores ,  '_blank');
+                    //win.focus();
+                }
+                break;
             // === MENSAJE ERROR ===
             case 100:
                 toastr.success(valor[2], valor[1], options1);
@@ -514,6 +571,7 @@
                                     var valor2 = new Array();
                                     valor2[0] = 13;
                                     valor2[1] = data.der_id;
+                                    valor2[2] = 1;
                                     utilitarios(valor2);
                                 }
                                 else if(data.sw === 0){
@@ -563,6 +621,7 @@
                                     var valor2 = new Array();
                                     valor2[0] = 13;
                                     valor2[1] = data.der_id;
+                                    valor2[2] = 1;
                                     utilitarios(valor2);
                                 }
                                 else if(data.sw === 0){
@@ -632,6 +691,8 @@
                     }
                 });
                 break;
+            
+            
             default:
                 break;
         }
