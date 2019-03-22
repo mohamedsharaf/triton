@@ -227,7 +227,7 @@ class HomeController extends Controller
             ->first();
 
         $sw_asistencia = FALSE;
-        if(count($asistencia_array) > 0)
+        if( ! $asistencia_array === null)
         {
             $sw_asistencia = TRUE;
         }
@@ -267,7 +267,7 @@ class HomeController extends Controller
                 ->select(DB::raw($select))
                 ->first();
 
-            if(count($funcioario_horario_array) > 0)
+            if( ! $funcioario_horario_array === null)
             {
                 $sw_horario = TRUE;
             }

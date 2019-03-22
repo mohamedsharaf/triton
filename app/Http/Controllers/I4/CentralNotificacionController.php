@@ -16,6 +16,7 @@ use App\Models\Seguridad\SegPermisoRol;
 use App\Models\I4\Dep;
 use App\Models\I4\EstadoNotificacion;
 use App\Models\I4\I4NotiNotificacion;
+use App\Models\I4\Actividad;
 
 use PDF;
 
@@ -180,15 +181,165 @@ class CentralNotificacionController extends Controller
                     UPPER(a13.TipoActividad) AS tipo_actividad
                 ";
 
-                $array_where = '';
+                $array_where = 'TRUE';
 
-                if($request->has('anio_filter'))
+                $this->rol_id = Auth::user()->rol_id;
+
+                $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                    ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                    ->select("seg_permisos.codigo")
+                    ->get()
+                    ->toArray();
+
+                if(in_array(['codigo' => '2709'], $this->permisos))
                 {
-                    $array_where .= "YEAR(solicitud_fh)=" . $request->input('anio_filter');
+                    $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+                    $array_where      .= " AND $tabla1.funcionario_solicitante_id=" . $i4_funcionario_id;
                 }
                 else
                 {
-                    $array_where .= "TRUE";
+                    $departamentos_sw   = FALSE;
+                    $departamentos_sw_1 = FALSE;
+                    $departamentos      = " AND (";
+
+                    if(in_array(['codigo' => '2710'], $this->permisos))
+                    {
+                        $departamentos     .= "a9.id=1";
+                        $departamentos_sw   = TRUE;
+                        $departamentos_sw_1 = TRUE;
+                    }
+
+                    if(in_array(['codigo' => '2711'], $this->permisos))
+                    {
+                        if($departamentos_sw_1)
+                        {
+                            $departamentos .= " OR a9.id=2";
+                        }
+                        else
+                        {
+                            $departamentos     .= "a9.id=2";
+                            $departamentos_sw_1 = TRUE;
+                        }
+
+                        $departamentos_sw = TRUE;
+                    }
+
+                    if(in_array(['codigo' => '2712'], $this->permisos))
+                    {
+                        if($departamentos_sw_1)
+                        {
+                            $departamentos .= " OR a9.id=3";
+                        }
+                        else
+                        {
+                            $departamentos     .= "a9.id=3";
+                            $departamentos_sw_1 = TRUE;
+                        }
+
+                        $departamentos_sw = TRUE;
+                    }                    
+
+                    if(in_array(['codigo' => '2713'], $this->permisos))
+                    {
+                        if($departamentos_sw_1)
+                        {
+                            $departamentos .= " OR a9.id=4";
+                        }
+                        else
+                        {
+                            $departamentos     .= "a9.id=4";
+                            $departamentos_sw_1 = TRUE;
+                        }
+
+                        $departamentos_sw = TRUE;
+                    }
+
+                    if(in_array(['codigo' => '2714'], $this->permisos))
+                    {
+                        if($departamentos_sw_1)
+                        {
+                            $departamentos .= " OR a9.id=5";
+                        }
+                        else
+                        {
+                            $departamentos     .= "a9.id=5";
+                            $departamentos_sw_1 = TRUE;
+                        }
+
+                        $departamentos_sw = TRUE;
+                    }
+
+                    if(in_array(['codigo' => '2715'], $this->permisos))
+                    {
+                        if($departamentos_sw_1)
+                        {
+                            $departamentos .= " OR a9.id=6";
+                        }
+                        else
+                        {
+                            $departamentos     .= "a9.id=6";
+                            $departamentos_sw_1 = TRUE;
+                        }
+
+                        $departamentos_sw = TRUE;
+                    }
+
+                    if(in_array(['codigo' => '2716'], $this->permisos))
+                    {
+                        if($departamentos_sw_1)
+                        {
+                            $departamentos .= " OR a9.id=7";
+                        }
+                        else
+                        {
+                            $departamentos     .= "a9.id=7";
+                            $departamentos_sw_1 = TRUE;
+                        }
+
+                        $departamentos_sw = TRUE;
+                    }
+
+                    if(in_array(['codigo' => '2717'], $this->permisos))
+                    {
+                        if($departamentos_sw_1)
+                        {
+                            $departamentos .= " OR a9.id=8";
+                        }
+                        else
+                        {
+                            $departamentos     .= "a9.id=8";
+                            $departamentos_sw_1 = TRUE;
+                        }
+
+                        $departamentos_sw = TRUE;
+                    }
+
+                    if(in_array(['codigo' => '2718'], $this->permisos))
+                    {
+                        if($departamentos_sw_1)
+                        {
+                            $departamentos .= " OR a9.id=9";
+                        }
+                        else
+                        {
+                            $departamentos     .= "a9.id=9";
+                            $departamentos_sw_1 = TRUE;
+                        }
+
+                        $departamentos_sw = TRUE;
+                    }
+
+                    $departamentos .= ")";
+
+                    if($departamentos_sw)
+                    {
+                        $array_where .= $departamentos;
+                    }
+                }
+
+                if($request->has('anio_filter'))
+                {
+                    $array_where .= " AND YEAR(solicitud_fh)=" . $request->input('anio_filter');
                 }
 
                 $array_where .= $jqgrid->getWhere();
@@ -268,7 +419,11 @@ class CentralNotificacionController extends Controller
 
                         $row["departamento"],
 
-                        $row["tipo_actividad"],
+                        $this->utilitarios(array(
+                            'tipo'  => '5',
+                            'id'    => $row["id"],
+                            'valor' => $row["tipo_actividad"]
+                        )),
 
                         $row["Persona"],
                         $this->utilitarios(array(
@@ -557,7 +712,7 @@ class CentralNotificacionController extends Controller
 
                 return json_encode($respuesta);
                 break;
-            // === CERTIFICACION SEGIP ===
+            // === DOCUMENTO DE LA NOTIFICACION - BINARIO 64 ===
             case '3':
                 // === INICIALIZACION DE VARIABLES ===
                     $data1     = array();
@@ -644,6 +799,61 @@ class CentralNotificacionController extends Controller
                     $respuesta['sw']         = 1;
 
                 return json_encode($respuesta);
+                break;
+            // === DOCUMENTO DE LA ACTIVIDAD - BINARIO 64 ===
+            case '5':
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'        => 0,
+                        'titulo'    => '<div class="text-center"><strong>DOCUMENTO PDF</strong></div>',
+                        'respuesta' => '',
+                        'tipo'      => $tipo,
+                        'pdf'       => ""
+                    );
+                    $error  = FALSE;
+
+                // === VALIDAR ===
+                    $id = trim($request->input('id'));
+                    if($id == '')
+                    {
+                        $respuesta['respuesta'] .= "Seleccione una ACTIVIDAD.";
+                        return json_encode($respuesta);
+                    }
+
+                //=== OPERACION ===
+                    $consulta1 = I4NotiNotificacion::select('actividad_solicitante_id')->where('id', '=', $id)->first();
+                    if( ! ($consulta1 === null))
+                    {                        
+                        $consulta2 = Actividad::select('Documento', '_Documento')->where('id', '=', $consulta1->actividad_solicitante_id)->first();
+
+                        if( ! ($consulta2 === null))
+                        {
+                            $ultimos_tres = substr($consulta2['_Documento'], -3);
+                            if(strtoupper($ultimos_tres) == 'PDF')
+                            {
+                                $respuesta['pdf'] .= base64_encode($consulta2->Documento);
+
+                                $respuesta['respuesta'] .= "Se encontro el DOCUMENTO PDF." . $ultimos_tres;
+                                $respuesta['sw']         = 1;
+                            }
+                            else
+                            {
+                                $respuesta['respuesta'] .= "No es DOCUMENTO PDF." . $ultimos_tres;
+                            }
+                        }
+                        else
+                        {
+                            $respuesta['respuesta'] .= "No se logró encontrar la ACTIVIDAD.";
+                        }
+                    }
+                    else
+                    {
+                        $respuesta['respuesta'] .= "No se logró encontrar la NOTIFICACION.";
+                    }
+
+                //=== RESPUESTA ===
+                    return json_encode($respuesta);
                 break;
         }
     }
@@ -1126,6 +1336,19 @@ class CentralNotificacionController extends Controller
                 }
 
                 return($respuesta);
+                break;            
+            case '5':
+                switch($valor['valor'])
+                {
+                    case '':
+                        $respuesta = '';
+                        return($respuesta);
+                        break;
+                    default:
+                        $respuesta = '<button type="button" class="btn btn-xs btn-success" title="Mostrar actividad" onclick="utilitarios([33, ' . $valor['id'] . ']);"><strong>' . $valor['valor'] . '</strong></button>';
+                        return($respuesta);
+                        break;
+                }
                 break;
             default:
                 break;

@@ -365,6 +365,26 @@
                     });
                     return respuesta;
                     break;
+                // === MOSTRAR ARCHIVO PDF BINARIO 64 DE LA ACTIVIDAD===
+                case 33:
+                    swal({
+                        title            : "ARCHIVO PDF DE LA ACTIVIDAD",
+                        text             : "Espere que se genere el ARCHIVO PDF.",
+                        allowEscapeKey   : false,
+                        showConfirmButton: false,
+                        type             : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = "tipo=5&id=" + valor[1] + "&_token=" + csrf_token;
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                    break;
                 // === JQGRID 1 ===
                 case 40:
                     var edit1      = true;
@@ -910,6 +930,36 @@
                                         utilitarios(valor1);
 
                                         $(jqgrid1).trigger("reloadGrid");
+                                    }
+                                    else if(data.sw === 0){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 101;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+                                    }
+                                    else if(data.sw === 2){
+                                        window.location.reload();
+                                    }
+                                    swal.close();
+                                    $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                    break;
+                                // === MOSTRAR DOCUMENTO PDF  ===
+                                case '5':
+                                    if(data.sw === 1){
+                                        var valor1 = new Array();
+                                        valor1[0]  = 100;
+                                        valor1[1]  = data.titulo;
+                                        valor1[2]  = data.respuesta;
+                                        utilitarios(valor1);
+
+                                        $('#div_pdf').empty();
+                                        $('#div_pdf').append('<object id="object_pdf" data="data:application/pdf;base64,' + data.pdf + '" type="application/pdf" style="min-height:500px;width:100%"></object>');
+
+                                        $('#modal_3').modal();
+                                        setTimeout(function(){
+                                            $("#object_pdf").css("height", $( window ).height()-150 + 'px');
+                                        }, 300);
                                     }
                                     else if(data.sw === 0){
                                         var valor1 = new Array();
