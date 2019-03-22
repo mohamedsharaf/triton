@@ -743,6 +743,11 @@ class CentralNotificacionController extends Controller
 
                         $respuesta['pdf'] .= base64_encode($consulta1->notificacion_documento);
 
+                        header('Content-type: application/pdf');
+                        header("Cache-Control: no-cache");
+                        header("Pragma: no-cache");
+                        header("Content-Disposition: inline;filename=myfile.pdf'");
+
                         $respuesta['respuesta'] .= "Se encontro el DOCUMENTO PDF.";
                         $respuesta['sw']         = 1;
                     }
@@ -833,6 +838,11 @@ class CentralNotificacionController extends Controller
                             if(strtoupper($ultimos_tres) == 'PDF')
                             {
                                 $respuesta['pdf'] .= base64_encode($consulta2->Documento);
+
+                                header('Content-type: application/pdf');
+                                header("Cache-Control: no-cache");
+                                header("Pragma: no-cache");
+                                header("Content-Disposition: inline;filename=myfile.pdf'");
 
                                 $respuesta['respuesta'] .= "Se encontro el DOCUMENTO PDF." . $ultimos_tres;
                                 $respuesta['sw']         = 1;
