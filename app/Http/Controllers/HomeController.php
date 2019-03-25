@@ -224,10 +224,10 @@ class HomeController extends Controller
         }
 
         $asistencia_array = RrhhAsistencia::where("persona_id", "=", $usuario_array['persona_id'])
-            ->first();
+            ->count();
 
         $sw_asistencia = FALSE;
-        if( ! $asistencia_array === null)
+        if($asistencia_array > 0)
         {
             $sw_asistencia = TRUE;
         }
@@ -267,7 +267,7 @@ class HomeController extends Controller
                 ->select(DB::raw($select))
                 ->first();
 
-            if( ! $funcioario_horario_array === null)
+            if($funcioario_horario_array)
             {
                 $sw_horario = TRUE;
             }
