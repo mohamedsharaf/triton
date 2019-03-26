@@ -150,7 +150,7 @@
                 </li>
             @endif
             @if(in_array(['codigo' => '2401'], $permisos))
-                <li class="{{ isActiveRoute('institucion') }}">
+                <li class="{{ isActiveRoute('institucion') }}{{ isActiveRoute('derivacion') }}">
                     <a href="#"><i class="fa fa-code-fork"></i> <span class="nav-label">Derivaciones</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
                         @if(in_array(['codigo' => '2401'], $permisos))

@@ -310,7 +310,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="utilitarios([15]);">PDF</button>
+                    <button type="button" class="btn btn-primary" onclick="utilitarios([17]);">PDF</button>
                     <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                 </div>
             </div>

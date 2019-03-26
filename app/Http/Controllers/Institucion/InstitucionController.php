@@ -88,11 +88,13 @@ class InstitucionController extends Controller
         case '1':
             $jqgrid = new JqgridClass($request);
 
-            $institucion1 = "inst_instituciones";
-            $institucion2 = "inst_instituciones";
-            $municipio    = "ubge_municipios";
-            $provincia    = "ubge_provincias";
-            $departamento = "ubge_departamentos";
+            $institucion1      = "inst_instituciones";
+            $institucion2      = "inst_instituciones";
+            $municipio         = "ubge_municipios";
+            $provincia         = "ubge_provincias";
+            $departamento      = "ubge_departamentos";
+            $lugar_dependencia = "inst_lugares_dependencia";
+            $seg_ld_users      = "seg_ld_users";
 
             $select = "
             b.id,
@@ -112,13 +114,15 @@ class InstitucionController extends Controller
             e.nombre as departamento
             ";
 
-            $array_where = "$institucion1.institucion_id is null";
+            $array_where = "$institucion1.institucion_id is null and s.user_id = " . Auth::user()->id;
             $array_where .= $jqgrid->getWhere();
 
             $count = InstInstitucion::leftJoin("$institucion2 AS b", "b.institucion_id", "=", "$institucion1.id")
                 ->leftJoin("$municipio AS c", "c.id", "=", "$institucion1.ubge_municipios_id")
                 ->leftJoin("$provincia AS d", "d.id", "=", "c.provincia_id")
                 ->leftJoin("$departamento AS e", "e.id", "=", "d.departamento_id")
+                ->leftJoin("$lugar_dependencia AS l", "l.ubge_departamentos_id", "=", "e.id")
+                ->leftJoin("$seg_ld_users AS s", "s.lugar_dependencia_id", "=", "l.id")
                 ->whereRaw($array_where)
                 ->count();
 
@@ -128,6 +132,8 @@ class InstitucionController extends Controller
                 ->leftJoin("$municipio AS c", "c.id", "=", "$institucion1.ubge_municipios_id")
                 ->leftJoin("$provincia AS d", "d.id", "=", "c.provincia_id")
                 ->leftJoin("$departamento AS e", "e.id", "=", "d.departamento_id")
+                ->leftJoin("$lugar_dependencia AS l", "l.ubge_departamentos_id", "=", "e.id")
+                ->leftJoin("$seg_ld_users AS s", "s.lugar_dependencia_id", "=", "l.id")
                 ->whereRaw($array_where)
                 ->select(DB::raw($select))
                 ->orderBy($limit_offset['sidx'], $limit_offset['sord'])
