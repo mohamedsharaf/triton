@@ -122,9 +122,9 @@ class DerivacionController extends Controller
         case '1':
             $jqgrid = new JqgridClass($request);
             // === TABLAS DE LA BD PARA CONSULTAR INFO PARA EL GRID ===
-            $derivacion = "pvt_derivaciones";
-            $visitante = "rrhh_visitantes";
-            $persona = "rrhh_personas";
+            $derivacion  = "pvt_derivaciones";
+            $visitante   = "rrhh_visitantes";
+            $persona     = "rrhh_personas";
             $institucion = "inst_instituciones";
             // === COLUMNAS DE LA CONSULTA ===
             $select = "
@@ -312,7 +312,7 @@ class DerivacionController extends Controller
                 $data['municipio_id_nacimiento'] = trim($request->input('municipio_id_nacimiento'));
                 $data['municipio_id_residencia'] = trim($request->input('municipio_id_residencia'));
                 $data['motivo']                  = strtoupper($util->getNoAcentoNoComilla(trim($request->input('motivo'))));
-                $data['relato']                  = $util->getNoAcentoNoComilla(trim($request->input('relato')));
+                $data['relato']                  = $util->getNoAcentoNoComillaTextoLargo(trim($request->input('relato')));
                 $data['institucion_id']          = trim($request->input('institucion'));
 
                 $n_documento                     = trim($request->input('n_documento'));
@@ -440,7 +440,7 @@ class DerivacionController extends Controller
                 $data                   = [];
                 $data['estado']         = 1;
                 $data['motivo']         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('motivo'))));
-                $data['relato']         = $util->getNoAcentoNoComilla(trim($request->input('relato')));
+                $data['relato']         = $util->getNoAcentoNoComillaTextoLargo(trim($request->input('relato')));
                 $data['institucion_id'] = trim($request->input('institucion'));
                 $data['persona_id']     = trim($request->input('id'));
 
@@ -808,9 +808,7 @@ class DerivacionController extends Controller
                 PDF::Ln(10);
                 PDF::SetFont("times", "B", $ta1);
                 PDF::Cell(0, 0, 'MOTIVO DE CONSULTA', 1, false, 'L', 0, '', 0, false, 'M', 'M');
-                //PDF::Ln(8);
                 PDF::SetFont("times", "", $ta1);
-                //PDF::Cell(196, 0, 'MOTIVO: '.$consulta['motivo'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
                 PDF::writeHTML('MOTIVO: '.$consulta['motivo'], true, false, true, true, '');
                 PDF::writeHTML('RELATO: '.$consulta['relato'].'<br>', true, false, true, true, 'J');
                 PDF::SetFont("times", "B", $ta1);
@@ -820,19 +818,155 @@ class DerivacionController extends Controller
                 PDF::Cell(196, 0, 'OFICINA: '.$consulta['oficina'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
                 PDF::Ln(6);
                 PDF::Cell(136, 0, 'RESPONSABLE: '.$consulta['respcontacto'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-                PDF::Cell(30, 0, 'Telf.: '.$consulta['telfinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-                PDF::Cell(30, 0, 'Cel.: '.$consulta['celinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
                 PDF::Ln(6);
-                PDF::Cell(141, 0, 'Dirección: '.$consulta['direccion'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-                PDF::Cell(55, 0, 'Zona: '.$consulta['zona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(98, 0, 'Telf.: '.$consulta['telfinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(98, 0, 'Cel.: '.$consulta['celinst'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
                 PDF::Ln(6);
-                PDF::Cell(98, 0, 'Correo Electrónico: '.$consulta['email'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
-                PDF::Cell(98, 0, 'Municipio: '.$consulta['municipio'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(196, 0, 'Correo Electrónico: '.$consulta['email'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Ln(6);
+                PDF::Cell(196, 0, 'Dirección: '.$consulta['direccion'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Ln(6);
+                PDF::Cell(120, 0, 'Zona: '.$consulta['zona'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                PDF::Cell(76, 0, 'Municipio: '.$consulta['municipio'], 0, false, 'L', 0, '', 0, false, 'M', 'M');
 
                 PDF::Output('reporte_derivacion_' . date("YmdHis") . '.pdf', 'I');
                 break;
             case '2':
-                
+                $tipo_reporte = $request->input('tipo_reporte_id');
+                switch($tipo_reporte)
+                {
+                    case '1':
+                        $oficina_derivada_id  = $request->input('oficina_derivada_id') != Null ? $request->input('oficina_derivada_id') : 0;
+                        if ($request->input('fecha_del') == Null) {
+                            $primera_derivacion = PvtDerivacion::orderBy('id', 'asc')->limit(1)->first();
+                            $fecha_inicio = $primera_derivacion->fecha;
+                        } else $fecha_inicio = $request->input('fecha_del');
+                        $fecha_del            = $fecha_inicio;
+                        if ($request->input('fecha_al') == Null) {
+                            $ultima_derivacion = PvtDerivacion::orderBy('id', 'desc')->limit(1)->first();
+                            $fecha_fin = $ultima_derivacion->fecha;
+                        } else $fecha_fin = $request->input('fecha_al');
+                        $fecha_al             = $fecha_fin;
+                        $fh_actual            = date("Y-m-d H:i:s");
+                        $dir_logo_institucion = public_path($this->public_dir) . '/' . 'logo_fge_256_2018_3.png';
+                        // === VALIDAR IMAGENES ===
+                        if(!file_exists($dir_logo_institucion))
+                        {
+                            return "No existe el logo de la institución " . $dir_logo_institucion;
+                        }
+                        // === CONSULTA A LA BASE DE DATOS ===
+                        // === TABLAS PARA LA CONSULTA ===
+                        $derivacion  = "pvt_derivaciones";
+                        $visitante   = "rrhh_visitantes";
+                        $persona     = "rrhh_personas";
+                        $institucion = "inst_instituciones";
+                        // === COLUMNAS DE LA CONSULTA ===
+                        $select = "
+                        $derivacion.codigo,
+                        $derivacion.fecha,
+                        CONCAT_WS(' ', p.ap_paterno, p.ap_materno, p.nombre) as nombre,
+                        $derivacion.motivo,
+                        i.nombre as oficina";
+                        // === CONDICION POR DEFECTO ===
+                        $array_where = "$derivacion.user_id = " . Auth::user()->id;
+                        // === CONSULTA ===
+                        $consulta = PvtDerivacion::join("$institucion AS i", "i.id", "=", "$derivacion.institucion_id")
+                            ->join("$visitante AS v", "v.id", "=", "$derivacion.visitante_id")
+                            ->join("$persona AS p", "p.id", "=", "v.persona_id")
+                            ->whereRaw($array_where)
+                            ->whereRaw("case when ".$oficina_derivada_id."<>0 then i.id=".$oficina_derivada_id." else $derivacion.institucion_id in (select id from $institucion where institucion_id is not null) end and $derivacion.fecha between '".$fecha_del."'::date and '".$fecha_al."'::date")
+                            ->select(DB::raw($select))
+                            ->get();
+                        // === CARGAR VALORES ===
+                        $x1_array = [15,30,30,70,70,44];
+
+                        $data1 = array(
+                            'dir_logo_institucion' => $dir_logo_institucion,
+                            'x1_array'             => $x1_array,
+                        );
+
+                        $data2 = array(
+                            'fh_actual' => $fh_actual
+                        );
+                        // === HEADER ===
+                        PDF::setHeaderCallback(function($pdf) use($data1) {
+                            $pdf->Image($data1['dir_logo_institucion'], 230, 3, 0, 23, 'PNG');
+
+                            $pdf->Ln(7);
+                            $pdf->SetFont('times', 'B', 22);
+                            $pdf->Write(0, 'MINISTERIO PÚBLICO', '', 0, 'C', true, 0, false, false, 0);
+
+                            $pdf->SetFont('times', 'B', 18);
+                            $pdf->Write(0, 'DERIVACIONES', '', 0, 'C', true, 0, false, false, 0);
+                            $pdf->Ln(2.5);
+                            $pdf->SetFillColor(211, 200, 206);
+                            $pdf->SetFont("times", "B", 7);
+                            $y=8;
+                            $i= 0;
+                            $pdf->MultiCell($data1['x1_array'][$i++], $y, "N°", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                            $pdf->MultiCell($data1['x1_array'][$i++], $y, "CÓDIGO", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                            $pdf->MultiCell($data1['x1_array'][$i++], $y, "FECHA", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                            $pdf->MultiCell($data1['x1_array'][$i++], $y, "NOMBRE", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                            $pdf->MultiCell($data1['x1_array'][$i++], $y, "MOTIVO", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                            $pdf->MultiCell($data1['x1_array'][$i++], $y, "OFICINA", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                        });
+                        // === FOOTER ===
+                        PDF::setFooterCallback(function($pdf) use($data2){
+                            $style1 = array(
+                                'width' => 0.5,
+                                'cap'   => 'butt',
+                                'join'  => 'miter',
+                                'dash'  => '0',
+                                'phase' => 10,
+                                'color' => array(0, 0, 0)
+                            );
+
+                            $pdf->Line(10, 268, 206, 268, $style1);
+                            $pdf->SetY(-11);
+                            $pdf->SetFont("times", "I", 7);
+                            $pdf->Cell(86.3, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s", strtotime($data2['fh_actual'])), 0, 0, "L");
+                            $pdf->Cell(86.3, 4, 'Usuario: ' . substr(Auth::user()->email, 0, strpos(Auth::user()->email, '@')), 0, 0, "C");
+                            $pdf->Cell(86.4, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
+                        });
+                        PDF::setPageUnit('mm');
+
+                        PDF::SetMargins(10, 35, 10);
+                        PDF::getAliasNbPages();
+                        PDF::SetCreator('MINISTERIO PUBLICO');
+                        PDF::SetAuthor('TRITON');
+                        PDF::SetTitle('DERIVACIONES');
+                        PDF::SetSubject('DOCUMENTO');
+                        PDF::SetAutoPageBreak(FALSE, 10);
+                        // === BODY ===
+                        PDF::AddPage('L', 'LETTER');
+                        $c    = 1;
+                        $y    = 10;
+                        $fill = FALSE;
+                        PDF::SetFillColor(204, 239, 252);
+
+                        $ta1 = 8;
+                        PDF::SetFont("times", "", $ta1);
+                        foreach($consulta->toArray() AS $row)
+                        {
+                            $i  = 0;
+                            $y1 = PDF::GetY();
+                            if ($y + $y1 > 201)
+                            {
+                                PDF::Cell(310, 1, "", "T", 0, "L");
+                                PDF::AddPage('L', 'LETTER');
+                            }
+                            PDF::MultiCell($x1_array[$i++], $y, $c++, 1, "L", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                            PDF::MultiCell($x1_array[$i++], $y, "MP-".$row['codigo'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                            PDF::MultiCell($x1_array[$i++], $y, $row['fecha'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                            PDF::MultiCell($x1_array[$i++], $y, $row['nombre'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                            PDF::MultiCell($x1_array[$i++], $y, $row['motivo'] . "\n", 1, "L", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                            PDF::MultiCell($x1_array[$i++], $y, $row['oficina'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                            PDF::Ln();
+                            $fill = !$fill;
+                        }
+                        PDF::Output('derivaciones_' . date("YmdHis") . '.pdf', 'I');
+                        break;
+                }
                 break;
         }
     }

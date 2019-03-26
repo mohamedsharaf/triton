@@ -411,6 +411,17 @@
                 var val_json = $.parseJSON(ret.val_json);
 
                 $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
+                if (ret.nombre != "") {
+                    $('#btnOficina').removeClass('btn-white');
+                    $('#btnOficina').addClass('btn-primary');
+                    $('#btnInstitucion').removeClass('btn-primary');
+                    $('#btnInstitucion').addClass('btn-white');
+                } else {
+                    $('#btnInstitucion').removeClass('btn-white');
+                    $('#btnInstitucion').addClass('btn-primary');
+                    $('#btnOficina').removeClass('btn-primary');
+                    $('#btnOficina').addClass('btn-white');
+                }
                 if(ret.municipio != ""){
                     var dpm = ret.departamento + ', ' + ret.provincia + ', ' + ret.municipio;
                     $('#municipio_id').append('<option value="' + val_json.municipio_id + '">' + dpm + '</option>');

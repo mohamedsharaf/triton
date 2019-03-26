@@ -168,6 +168,24 @@
             language             : "es"
         });
 
+        $('#fecha_del').datepicker({
+            startView            : 2,
+            autoclose            : true,
+            format               : "yyyy-mm-dd",
+            startDate            : '-100y',
+            endDate              : '+0d',
+            language             : "es"
+        });
+
+        $('#fecha_al').datepicker({
+            startView            : 2,
+            autoclose            : true,
+            format               : "yyyy-mm-dd",
+            startDate            : '-100y',
+            endDate              : '+0d',
+            language             : "es"
+        });
+
         // === JQGRID 1 ===
         var valor1 = new Array();
         valor1[0]  = 10;
@@ -223,7 +241,7 @@
 
         // === ABRIR MODAL REPORTES ===
         $("#btnReportes").on( "click", function() {
-            utilitarios(14);
+            utilitarios([14]);
             $('#modal_2').modal();
         });
     });
@@ -338,9 +356,9 @@
                             var val_json = $.parseJSON(ret.val_json);
 
                             var ed = "";
-                            @if(in_array(['codigo' => '2401'], $permisos))
-                                ed = "<button type='button' class='btn btn-xs btn-success' title='Modificar Derivación' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                            @endif
+                            /* @if(in_array(['codigo' => '2401'], $permisos))
+                                ed = "<button type='button' class='btn btn-xs btn-success' title='Modificar Derivación' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
+                            @endif */
                             @if(in_array(['codigo' => '2401'], $permisos))
                                 pd = " <button type='button' class='btn btn-xs btn-warning' title='Imprimir Derivación' onclick=\"utilitarios([13, " + cl + ", 1]);\"><i class='fa fa-print'></i></button>";
                             @endif
@@ -403,7 +421,6 @@
 
                 $('#modal_1_title').empty();
                 $('#modal_1_title').append('Modificar institucion');
-                $("#institucion_id").val(valor[1]);
 
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
@@ -417,8 +434,8 @@
                 $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
                 $("#nombre").val(ret.nombre);
                 $("#direccion").val(ret.direccion);
-                $('#modal_1').modal();
-                break; */
+                $('#modal_1').modal(); */
+                break;
             // === REPORTES MODAL ===
             case 13:
                 var concatenar_valores = '?tipo='+valor[2]+'&id=' + valor[1];
@@ -523,13 +540,13 @@
             // === FORMULARIO REPORTES ===
             case 17:
                 if ($(form_2).valid()) {
+                    var tipo_reporte_id = $('#tipo_reporte').val();
                     var oficina_derivada_id = $('#oficina_derivada').val();
                     var fecha_del = $('#fecha_del').val();
                     var fecha_al = $('#fecha_al').val();
-                    altert('oficina='+oficina_derivada_id+',fecha del='+fecha_del+'fecha al='+fecha_al);
-                    //var concatenar_valores = '?tipo=2'+valor[2]+'&id=' + valor[1];
-                    //var win = window.open(url_controller + '/reportes' + concatenar_valores ,  '_blank');
-                    //win.focus();
+                    var concatenar_valores = '?tipo=2&tipo_reporte_id='+tipo_reporte_id+'&oficina_derivada_id='+oficina_derivada_id+'&fecha_del='+fecha_del+'&fecha_al='+fecha_al;
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores ,  '_blank');
+                    win.focus();
                 }
                 break;
             // === MENSAJE ERROR ===
