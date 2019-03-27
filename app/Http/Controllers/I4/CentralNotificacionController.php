@@ -237,7 +237,7 @@ class CentralNotificacionController extends Controller
                         }
 
                         $departamentos_sw = TRUE;
-                    }                    
+                    }
 
                     if(in_array(['codigo' => '2713'], $this->permisos))
                     {
@@ -829,7 +829,7 @@ class CentralNotificacionController extends Controller
                 //=== OPERACION ===
                     $consulta1 = I4NotiNotificacion::select('actividad_solicitante_id')->where('id', '=', $id)->first();
                     if( ! ($consulta1 === null))
-                    {                        
+                    {
                         $consulta2 = Actividad::select('Documento', '_Documento')->where('id', '=', $consulta1->actividad_solicitante_id)->first();
 
                         if( ! ($consulta2 === null))
@@ -1346,7 +1346,7 @@ class CentralNotificacionController extends Controller
                 }
 
                 return($respuesta);
-                break;            
+                break;
             case '5':
                 switch($valor['valor'])
                 {

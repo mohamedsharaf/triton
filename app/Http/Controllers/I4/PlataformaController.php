@@ -947,6 +947,9 @@ class PlataformaController extends Controller
                                         UPPER(a3.TipoActividad) AS tipo_actividad,
 
                                         UPPER(a4.Division) AS division,
+
+                                        UPPER(GROUP_CONCAT(DISTINCT a8.Funcionario ORDER BY a8.Funcionario ASC SEPARATOR ', ')) AS fiscal,
+
                                         (
                                             SELECT UPPER(GROUP_CONCAT(DISTINCT a61.Funcionario ORDER BY a61.Funcionario ASC SEPARATOR ', ')) AS fiscale
                                             FROM CasoFuncionario AS a60
@@ -1011,17 +1014,18 @@ class PlataformaController extends Controller
                                             }
                                         }
                                         $where1_1 .= ")";
-                                        $where1   .= $where1_1;
+                                        $where1   .= $where1_1 . " AND a7.FechaBaja IS NULL";
 
                                         $consulta1 = Caso::join("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
                                                         ->join("$tabla3 AS a3", "a3.id", "=", "a2.TipoActividad")
                                                         ->join("$tabla4 AS a4", "a4.id", "=", "$tabla1.DivisionFis")
                                                         ->leftJoin("$tabla7 AS a7", "a7.Caso", "=", "$tabla1.id")
+                                                        ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Funcionario")
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))
-                                                        // ->orderBy("a7.Funcionario", "ASC")
-                                                        ->orderBy("a2.CreationDate", "ASC")
+                                                        ->orderByRaw("a4.Division ASC, a8.Funcionario ASC")
+                                                        // ->orderBy("a2.CreationDate", "ASC")
                                                         ->get();
                                     }
                                     else
@@ -1045,7 +1049,7 @@ class PlataformaController extends Controller
                                             return dd("No tiene cuenta en el i4.");
                                         }
 
-                                        $where1   .= " AND a6.Dep=" . $consulta2["departamento_id"];
+                                        $where1   .= " AND a6.Dep=" . $consulta2["departamento_id"] . " AND a7.FechaBaja IS NULL";
 
                                         $consulta1 = Caso::join("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
                                                         ->join("$tabla3 AS a3", "a3.id", "=", "a2.TipoActividad")
@@ -1053,11 +1057,12 @@ class PlataformaController extends Controller
                                                         ->join("$tabla5 AS a5", "a5.id", "=", "a4.Oficina")
                                                         ->join("$tabla6 AS a6", "a6.id", "=", "a5.Muni")
                                                         ->leftJoin("$tabla7 AS a7", "a7.Caso", "=", "$tabla1.id")
+                                                        ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Funcionario")
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))
-                                                        // ->orderBy("a7.Funcionario", "ASC")
-                                                        ->orderBy("a2.CreationDate", "ASC")
+                                                        ->orderByRaw("a4.Division ASC, a8.Funcionario ASC")
+                                                        // ->orderBy("a2.CreationDate", "ASC")
                                                         ->get();
                                     }
 

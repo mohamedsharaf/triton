@@ -50,7 +50,7 @@ return [
             'charset'     => env('DB_CHARSET_MY', 'utf8mb4'),
             'collation'   => env('DB_COLLATION_MY', 'utf8mb4_unicode_ci'),
             'prefix'      => '',
-            'strict'      => true,
+            'strict'      => false,
             'engine'      => null,
         ],
 
