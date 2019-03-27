@@ -512,7 +512,12 @@ class DerivacionController extends Controller
                     $estado     = trim($request->input('estado'));
                     $page_limit = trim($request->input('page_limit'));
 
-                    $query = InstInstitucion::whereRaw("inst_instituciones.institucion_id is not null and inst_instituciones.nombre ilike '%$nombre%'")
+                    $query = InstInstitucion::leftJoin("ubge_municipios AS m", "m.id", "=", "inst_instituciones.ubge_municipios_id")
+                        ->leftJoin("ubge_provincias AS p", "p.id", "=", "m.provincia_id")
+                        ->leftJoin("ubge_departamentos AS d", "d.id", "=", "p.departamento_id")
+                        ->leftJoin("inst_lugares_dependencia AS l", "l.ubge_departamentos_id", "=", "d.id")
+                        ->leftJoin("seg_ld_users AS s", "s.lugar_dependencia_id", "=", "l.id")
+                        ->whereRaw("inst_instituciones.institucion_id is not null and inst_instituciones.nombre ilike '%$nombre%' and s.user_id = " . Auth::user()->id)
                         ->select(DB::raw("inst_instituciones.id, inst_instituciones.nombre AS text"))
                         ->orderByRaw("inst_instituciones.nombre ASC")
                         ->limit($page_limit)
