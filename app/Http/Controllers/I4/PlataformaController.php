@@ -1352,6 +1352,7 @@ class PlataformaController extends Controller
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))
+                                                        ->orderBy("a6.Funcionario", "ASC")
                                                         ->orderBy("a6.CreationDate", "ASC")
                                                         ->get();
                                     }
@@ -1386,6 +1387,7 @@ class PlataformaController extends Controller
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))
+                                                        ->orderBy("a6.Funcionario", "ASC")
                                                         ->orderBy("a6.CreationDate", "ASC")
                                                         ->get();
                                     }
