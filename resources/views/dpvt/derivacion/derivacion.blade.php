@@ -15,6 +15,7 @@
     <link href="{!! asset('inspinia_v27/css/plugins/select2/select2.min.css') !!}" rel="stylesheet">
 
     <link href="{!! asset('inspinia_v27/css/plugins/datapicker/datepicker3.css') !!}" rel="stylesheet">
+    <link href="{!! asset('inspinia_v27/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css') !!}" rel="stylesheet">
 @endsection
 
 @section('css')
@@ -345,6 +346,8 @@
   <!-- Select2 -->
     <script src="{{ asset('inspinia_v27/js/plugins/select2/select2.full.min.js') }}"></script>
     <script src="{{ asset('inspinia_v27/js/plugins/select2/es.js') }}"></script>
+    <!-- Input Mask-->
+    <script src="{{ asset('inspinia_v27/js/plugins/jasny/jasny-bootstrap.min.js') }}"></script>
     <!-- Data picker -->
     <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
     <script src="{{ asset('inspinia_v27/js/plugins/datapicker/bootstrap-datepicker.es.min.js') }}"></script>

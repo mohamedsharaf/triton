@@ -434,8 +434,8 @@
                 $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
                 $("#nombre").val(ret.nombre);
                 $("#direccion").val(ret.direccion);
-                $('#modal_1').modal(); */
-                break;
+                $('#modal_1').modal();
+                break; */
             // === REPORTES MODAL ===
             case 13:
                 var concatenar_valores = '?tipo='+valor[2]+'&id=' + valor[1];
@@ -501,6 +501,7 @@
                         },
                         n_documento:{
                             required: true,
+                            digits: true,
                             maxlength: 20
                         },
                         nombre:{
