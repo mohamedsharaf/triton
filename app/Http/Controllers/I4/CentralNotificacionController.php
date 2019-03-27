@@ -1073,6 +1073,24 @@ class CentralNotificacionController extends Controller
                             $pdf->SetFont("times", "I", 7);
                             $pdf->Cell(98, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s"), 0, 0, "L");
                             $pdf->Cell(98, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
+
+                            $y_n = 279;
+
+                            $pdf->SetFont("helvetica", "", 8);
+                            $pdf->SetY($y_n-25);
+                            $pdf->Cell(98, 4, $consulta2['funcionario_notificador'], 0, 0, "C");
+                            $pdf->Cell(98, 4, $texto_persona, 0, 0, "C");
+
+                            $pdf->Ln();
+                            $pdf->SetFont("helvetica", "B", 10);
+                            $pdf->Cell(98, 4, 'FUNCIONARIO', 0, 0, "C");
+                            $pdf->Cell(98, 4, $texto_notificacion, 0, 0, "C");
+
+                            $pdf->Line(10, $y_n-10, 206, $y_n-10, $style1);
+                            $pdf->SetY($y_n-9);
+                            $pdf->SetFont("times", "I", 7);
+                            $pdf->Cell(98, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s"), 0, 0, "L");
+                            $pdf->Cell(98, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
                         });
 
                     PDF::setPageUnit('mm');
@@ -1184,12 +1202,131 @@ class CentralNotificacionController extends Controller
                             $mes1  = date("m", strtotime($consulta2['fecha_actividad']));
                             $dia1  = date("d", strtotime($consulta2['fecha_actividad']));
 
+                            if($consulta2['notificacion_observacion'] == "")
+                            {
+                                $observacion_texto = "...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................";
+                            }
+                            else
+                            {
+                                $observacion_texto = $consulta2['notificacion_observacion'];
+                            }
+
                             PDF::Ln(2);
                             PDF::SetFont("helvetica", "", 10);
                             $html = '
                             <p style="text-align:justify;"><i>En la ciudad de <b>' . $consulta2['municipio'] . '</b> a horas ' . $hora1 . ' del ' . $dia . ' de ' . $meses[$mes] . ' de ' . $anio . ', se notifica a <b>' . $persona_abogado . '</b> con <b>' . $consulta2['tipo_actividad'] . '</b> de fecha ' . $dia1 . ' de ' . $meses[$mes1] . ' de ' . $anio1 . $en_texto . '.</i></p>
                             <p style="text-align:justify;"><i><b>Observaciones: </b></i></p>
-                            <p style="text-align:justify;"><i>...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................</i></p>
+                            <p style="text-align:justify;"><i>' . $observacion_texto . '</i></p>
+                            ';
+                            PDF::writeHTML($html, true, false, true, true, '');
+
+                        // === BODY ===
+                            // === TITULO Y LOGO ===
+                                PDF::SetY(145);
+                                PDF::Image($dir_logo_institucion, 180, 145, 0, 23, 'PNG');
+
+                                PDF::SetFont('times', 'B', 20);
+                                PDF::Write(0, 'MINISTERIO PÚBLICO', '', 0, 'C', true, 0, false, false, 0);
+
+                                PDF::SetFont('times', 'B', 18);
+                                PDF::Write(0, $consulta2['EstadoNotificacion'], '', 0, 'C', true, 0, false, false, 0);
+
+                                PDF::SetFont('times', 'B', 13);
+                                PDF::Write(0, "CASO: " . $consulta2['Caso'], '', 0, 'C', true, 0, false, false, 0);
+
+                                PDF::write2DBarcode(
+                                    url()->full(),  // Código para imprimir
+                                    'QRCODE,L',     // Tipo de código de barras
+                                    10,             // x posición
+                                    145,              // y posición
+                                    25,             // Ancho
+                                    25,             // Altura
+                                    $style_qrcode,  // conjunto de opciones:
+                                    '',             // Indica la alineación del puntero al lado de la inserción del código de barras con respecto a la altura del código de barras. El valor puede ser:
+                                                        // T: arriba a la derecha para LTR o arriba a la izquierda para RTL
+                                                        // M: medio-derecha para LTR o middle-left para RTL
+                                                        // B: abajo a la derecha para LTR o abajo a la izquierda para RTL
+                                                        // N: siguiente línea
+                                    FALSE           // FALSE
+                                );
+
+                                PDF::SetFont('times', 'B', 10);
+                                PDF::Write(0, "    " . $consulta2['codigo'], '', 0, 'L', true, 0, false, false, 0);
+
+                        // === CONTENIDO DE LA NOTIFICACION ===
+                            $anio = date("Y", strtotime($consulta2['notificacion_fh']));
+                            $mes  = date("m", strtotime($consulta2['notificacion_fh']));
+                            $dia  = date("d", strtotime($consulta2['notificacion_fh']));
+                            $hora = date("H:i", strtotime($consulta2['notificacion_fh']));
+
+                            if($hora == '00:00')
+                            {
+                                $hora1 = '..........:...........';
+                            }
+                            else
+                            {
+                                $hora1 = $hora;
+                            }
+
+                            if($consulta2['UsoEntrega'] > 3)
+                            {
+                                $persona_abogado = $consulta2['Abogado'];
+                            }
+                            else
+                            {
+                                $persona_abogado = $consulta2['Persona'];
+                            }
+
+                            if($consulta2['estado_notificacion_id'] == 3)
+                            {
+                                $en_texto = ", haciendole entrega de la copia de acuerdo al Art. 163 y 164 del Código de Procedimiento Penal";
+                            }
+                            elseif($consulta2['estado_notificacion_id'] == 4)
+                            {
+                                if($consulta2['notificacion_testigo_nombre'] == '')
+                                {
+                                    $testigo_nombre = "....................................................................................................";
+                                }
+                                else
+                                {
+                                    $testigo_nombre = $consulta2['notificacion_testigo_nombre'];
+                                }
+
+                                if($consulta2['notificacion_testigo_n_documento'] == '')
+                                {
+                                    $testigo_n_documento = "..................................................";
+                                }
+                                else
+                                {
+                                    $testigo_n_documento = $consulta2['notificacion_testigo_n_documento'];
+                                }
+
+                                $en_texto = ", en presencia del testigo " . $testigo_nombre . " con Cédula de Identidad " . $testigo_n_documento . ", quien firma en constancia al pie del presente";
+                            }
+                            else
+                            {
+                                $en_texto = "";
+                            }
+
+                            $anio1 = date("Y", strtotime($consulta2['fecha_actividad']));
+                            $mes1  = date("m", strtotime($consulta2['fecha_actividad']));
+                            $dia1  = date("d", strtotime($consulta2['fecha_actividad']));
+
+                            if($consulta2['notificacion_observacion'] == "")
+                            {
+                                $observacion_texto = "...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................";
+                            }
+                            else
+                            {
+                                $observacion_texto = $consulta2['notificacion_observacion'];
+                            }
+
+                            PDF::Ln(2);
+                            PDF::SetFont("helvetica", "", 10);
+                            $html = '
+                            <p style="text-align:justify;"><i>En la ciudad de <b>' . $consulta2['municipio'] . '</b> a horas ' . $hora1 . ' del ' . $dia . ' de ' . $meses[$mes] . ' de ' . $anio . ', se notifica a <b>' . $persona_abogado . '</b> con <b>' . $consulta2['tipo_actividad'] . '</b> de fecha ' . $dia1 . ' de ' . $meses[$mes1] . ' de ' . $anio1 . $en_texto . '.</i></p>
+                            <p style="text-align:justify;"><i><b>Observaciones: </b></i></p>
+                            <p style="text-align:justify;"><i>' . $observacion_texto . '</i></p>
                             ';
                             PDF::writeHTML($html, true, false, true, true, '');
 

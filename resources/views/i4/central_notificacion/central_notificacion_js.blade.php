@@ -254,6 +254,8 @@
                         }
                     }
 
+                    $('#notificacion_observacion').val(ret.notificacion_observacion);
+
                     $('#notificacion_testigo_n_documento').val(val_json.notificacion_testigo_n_documento);
                     $('#notificacion_testigo_nombre').val(ret.notificacion_testigo_nombre);
 
