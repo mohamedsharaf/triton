@@ -155,14 +155,19 @@ class NotificacionController extends Controller
                         $validator = $this->validate($request,[
                             'caso_id'          => 'required',
                             'actividad_id'     => 'required',
-                            'solicitud_asunto' => 'max: 500'
+                            'solicitud_asunto' => 'max:500',
+                            'file'             => 'required|mimes:pdf|max:10240'
                         ],
                         [
                             'caso_id.required' => 'El CASO es obligatorio.',
 
                             'actividad_id.required' => 'La ACTIVIDAD es obligatorio.',
 
-                            'solicitud_asunto.max' => 'El campo ASUNTO debe contener :max caracteres como máximo.'
+                            'solicitud_asunto.max' => 'El campo ASUNTO debe contener :max caracteres como máximo.',
+
+                            'file.required' => 'El archivo PDF es obligatorio.',
+                            'file.mimes'    => 'El archivo subido debe de ser de tipo PDF.',
+                            'file.max'      => 'El archivo debe pesar 5120 kilobytes como máximo.'
                         ]);
                     }
                     catch (Exception $e)
@@ -178,10 +183,12 @@ class NotificacionController extends Controller
                     $data1['persona_select']           = $request->input('persona_select');
                     $data1['solicitud_asunto']         = strtoupper($util->getNoAcentoNoComilla(trim($request->input('solicitud_asunto'))));
 
-                    if( ! $request->has('persona_select'))
+                    if($request->hasFile('file'))
                     {
-                        $respuesta['respuesta'] .= "Por lo menos a una persona se debe de NOTIFICAR.";
-                        return json_encode($respuesta);
+                        $documento        = $request->file('file');
+                        $documento_base64 = file_get_contents($documento->getRealPath());
+
+                        $documento_name = $documento->getClientOriginalName();
                     }
 
                 // === CONVERTIR VALORES VACIOS A NULL ===
@@ -198,10 +205,28 @@ class NotificacionController extends Controller
                     $funcionario_solicitante_id = Auth::user()->i4_funcionario_id;
                     $estado_notificacion_id     = 1;
                     $persona_estado             = 0;
+                    $ip                         = $request->ip();
 
                     $c_enviadas          = 0;
                     $c_anterior_enviadas = 0;
                     $c_no_procesadas     = 0;
+
+                    $iu             = Actividad::find($data1['actividad_solicitante_id']);
+                    $iu->Documento  = $documento_base64;
+                    $iu->_Documento = $documento_name;
+                    $iu->UpdaterIP  = $ip;
+
+                    $iu->timestamps = false;
+
+                    $iu->save();
+
+                    $respuesta['respuesta'] .= "Se actualizo el documento de la ACTIVIDAD.";
+
+                    if( ! $request->has('persona_select'))
+                    {
+                        $respuesta['respuesta'] .= "<br>Por favor seleccione por lo menos un DENUNCIADO, DENUNCIANTE o VICTIMA para NOTIFICAR.";
+                        return json_encode($respuesta);
+                    }
 
                     foreach($data1['persona_select'] as $persona_id)
                     {

@@ -28,6 +28,9 @@
     // === FORMULARIOS ===
         var form_1 = "#form_1";
 
+    // === DROPZONE ===
+        Dropzone.autoDiscover = false;
+
     $(document).ready(function(){
         //=== INICIALIZAR ===
             var valor1 = new Array();
@@ -91,6 +94,11 @@
             $("#victima_all_select").click(function(){
                 $(".victima_class").prop("checked", this.checked);
             });
+
+        // === DROPZONE ===
+            var valor1 = new Array();
+            valor1[0]  = 80;
+            utilitarios(valor1);
     });
 
     function utilitarios(valor){
@@ -187,8 +195,8 @@
             case 51:
                 var concatenar_valores = '?tipo=2';
 
-                var actividad_id   = $("#actividad_id").val();
-                var personas   = $("input[name='persona_select[]']:checked").val();
+                var actividad_id = $("#actividad_id").val();
+                var personas     = $("input[name = 'persona_select[]']: checked").val();
 
                 var valor_sw    = true;
                 var valor_error = '';
@@ -229,6 +237,88 @@
                     valor1[2]  = valor_error;
                     utilitarios(valor1);
                 }
+                break;
+            // === DROPZONE 1 ===
+            case 80:
+                $("#dropzoneForm_1").dropzone({
+                    url              : url_controller + "/send_ajax",
+                    method           : 'post',
+                    addRemoveLinks   : true,
+                    maxFilesize      : 10, // MB
+                    dictResponseError: "Ha ocurrido un error en el server.",
+                    acceptedFiles    : 'application/pdf',
+                    paramName        : "file", // The name that will be used to transfer the file
+                    maxFiles         : 1,
+                    clickable        : true,
+                    parallelUploads  : 1,
+                    params: {
+                        tipo  : 1,
+                        _token: csrf_token
+                    },
+                    // forceFallback:true,
+                    createImageThumbnails: true,
+                    maxThumbnailFilesize : 1,
+                    autoProcessQueue     : true,
+
+                    dictRemoveFile              : 'Eliminar',
+                    dictCancelUpload            : 'Cancelar',
+                    dictCancelUploadConfirmation: '¿Confirme la cancelación?',
+                    dictDefaultMessage          : "<strong>Arrastra el documento PDF aquí o haz clic para subir.</strong>",
+                    dictFallbackMessage         : 'Su navegador no soporta arrastrar y soltar la carga de archivos.',
+                    dictFallbackText            : 'Utilice el formulario de reserva de abajo para subir tus archivos, como en los viejos tiempos.',
+                    dictInvalidFileType         : 'El archivo no coincide con los tipos de archivo permitidos.',
+                    dictFileTooBig              : 'El archivo es demasiado grande.',
+                    dictMaxFilesExceeded        : 'Número máximo de archivos superado.',
+                    init: function(){
+                        this.on("sending", function(file, xhr, formData){
+                            formData.append("caso_id", $("#caso_id_1").val());
+                            formData.append("actividad_id", $("#actividad_id").val());
+
+                            $("input[name='persona_select[]']:checked").each(function(){
+                                formData.append("persona_select[]", $(this).val());
+                            });
+
+                            formData.append("solicitud_asunto", $("#solicitud_asunto").val());
+                        });
+                    },
+                    success: function(file, response){
+                        var data = $.parseJSON(response);
+                        if(data.sw === 1){
+                            var valor1 = new Array();
+                            valor1[0]  = 100;
+                            valor1[1]  = data.titulo;
+                            valor1[2]  = data.respuesta;
+                            utilitarios(valor1);
+
+                            $('#modal_1').modal('hide');
+                        }
+                        else if(data.sw === 0){
+                            if(data.error_sw === 1){
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = data.respuesta;
+                                utilitarios(valor1);
+                            }
+                            else
+                            {
+                                var respuesta_server = '';
+                                $.each(data.error.response.original, function(index, value) {
+                                    respuesta_server += value + '<br>';
+                                });
+                                var valor1 = new Array();
+                                valor1[0]  = 101;
+                                valor1[1]  = data.titulo;
+                                valor1[2]  = respuesta_server;
+                                utilitarios(valor1);
+                            }
+                        }
+                        else if(data.sw === 2){
+                            window.location.reload();
+                        }
+                        this.removeAllFiles(true);
+                    }
+                });
                 break;
             // === LLENAR TABLA 1 ===
             case 90:

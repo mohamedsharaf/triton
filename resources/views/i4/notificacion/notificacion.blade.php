@@ -22,6 +22,10 @@
 
         <link href="{!! asset('inspinia_v27/css/plugins/clockpicker/clockpicker.css') !!}" rel="stylesheet">
 
+    <!-- Dropzone -->
+        <link href="{!! asset('inspinia_v27/css/plugins/dropzone/basic.css') !!}" rel="stylesheet">
+        <link href="{!! asset('inspinia_v27/css/plugins/dropzone/dropzone.css') !!}" rel="stylesheet">
+
     <!-- TouchSpin -->
         <link href="{!! asset('inspinia_v27/css/plugins/touchspin/jquery.bootstrap-touchspin.min.css') !!}" rel="stylesheet">
 @endsection
@@ -234,8 +238,7 @@
                         <form id="form_1" role="form" action="#">
                             <input type="hidden" id="caso_id_1" name="caso_id" value=""/>
                             <input type="hidden" id="actividad_id" name="actividad_id" value=""/>
-                            <input type="hidden" id="tipo1" name="tipo" value="1"/>
-                            {{ csrf_field() }}
+
                             <div class="row">
                                 <div id="denunciado_tabla" class="table-responsive">
                                     <table class="table table-striped table-hover table-bordered">
@@ -380,13 +383,19 @@
                                 </div>
                             </div>
                         </form>
+
+                        <form action="#" class="dropzone" id="dropzoneForm_1">
+                            <div class="fallback">
+                                <input name="file" type="file"/>
+                            </div>
+                        </form>
                     </div>
 
-                    <div class="modal-footer">
+                    {{-- <div class="modal-footer">
                         <button type="button" class="btn btn-primary" onclick="utilitarios([51]);">Notificar</button>
 
                         <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
@@ -414,6 +423,9 @@
 
     <!-- Input Mask-->
         <script src="{{ asset('inspinia_v27/js/plugins/jasny/jasny-bootstrap.min.js') }}"></script>
+
+    <!-- DROPZONE -->
+        <script src="{{ asset('inspinia_v27/js/plugins/dropzone/dropzone.js') }}"></script>
 
     <!-- TouchSpin -->
         <script src="{{ asset('inspinia_v27/js/plugins/touchspin/jquery.bootstrap-touchspin.min.js') }}"></script>
