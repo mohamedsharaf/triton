@@ -407,6 +407,12 @@
                                         </select>
                                     </div>
 
+                                    <div id="funcionario_id_21_div" class="form-group">
+                                        <label for="funcionario_id_21">Usuario que registro</label>
+                                        <select name="funcionario_id_21" id="funcionario_id_21" data-placeholder="Usuario que registro" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
                                     <div class="row">
                                         <div class="col-sm-6">
                                             <div class="form-group">
@@ -455,10 +461,6 @@
 @section('js_plugins')
     <!-- Peity -->
         <script src="{{ asset('inspinia_v27/js/plugins/peity/jquery.peity.min.js') }}"></script>
-
-    <!-- jqGrid -->
-        <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/i18n/grid.locale-es.js') }}"></script>
-        <script src="{{ asset('inspinia_v27/js/plugins/jqGrid/jquery.jqGrid.min.js') }}"></script>
 
     <!-- Custom and plugin javascript -->
         <script src="{{ asset('inspinia_v27/js/inspinia.js') }}"></script>

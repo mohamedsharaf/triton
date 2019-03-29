@@ -908,12 +908,13 @@ class PlataformaController extends Controller
                     {
                         // === MEMORIALES ===
                         case '1':
-                            $division_id    = trim($request->input('division_id'));
-                            $funcionario_id = trim($request->input('funcionario_id'));
-                            $fecha_del      = trim($request->input('fecha_del'));
-                            $hora_del       = trim($request->input('hora_del'));
-                            $fecha_al       = trim($request->input('fecha_al'));
-                            $hora_al        = trim($request->input('hora_al'));
+                            $division_id      = trim($request->input('division_id'));
+                            $funcionario_id   = trim($request->input('funcionario_id'));
+                            $funcionario_id_1 = trim($request->input('funcionario_id_1'));
+                            $fecha_del        = trim($request->input('fecha_del'));
+                            $hora_del         = trim($request->input('hora_del'));
+                            $fecha_al         = trim($request->input('fecha_al'));
+                            $hora_al          = trim($request->input('hora_al'));
 
                             $fh_actual            = date("Y-m-d H:i:s");
                             $dir_logo_institucion = public_path($this->public_dir) . '/' . 'logo_fge_256_2018_3.png';
@@ -996,6 +997,27 @@ class PlataformaController extends Controller
                                         $where1   .= $where1_1;
                                     }
 
+                                    if($request->has('funcionario_id_1'))
+                                    {
+                                        $where1_1             = "";
+                                        $where1_1_sw          = TRUE;
+                                        $funcionario_id_array = explode(",", $funcionario_id_1);
+                                        foreach ($funcionario_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND (a9.id=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR a9.id=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1;
+                                    }
+
                                     if($request->has('division_id'))
                                     {
                                         $where1_1          = "";
@@ -1021,6 +1043,7 @@ class PlataformaController extends Controller
                                                         ->join("$tabla4 AS a4", "a4.id", "=", "$tabla1.DivisionFis")
                                                         ->leftJoin("$tabla7 AS a7", "a7.Caso", "=", "$tabla1.id")
                                                         ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Funcionario")
+                                                        ->leftJoin("$tabla8 AS a9", "a9.UserId", "=", "a2.CreatorUser")
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))
@@ -1058,6 +1081,7 @@ class PlataformaController extends Controller
                                                         ->join("$tabla6 AS a6", "a6.id", "=", "a5.Muni")
                                                         ->leftJoin("$tabla7 AS a7", "a7.Caso", "=", "$tabla1.id")
                                                         ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Funcionario")
+                                                        ->leftJoin("$tabla8 AS a9", "a9.UserId", "=", "a2.CreatorUser")
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))

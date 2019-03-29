@@ -28,10 +28,6 @@
     // === FORMULARIOS ===
         var form_1 = "#form_1";
 
-    // === JQGRID ===
-        var jqgrid1  = "#jqgrid1";
-        var pjqgrid1 = "#pjqgrid1";
-
     // === TIPO DE REPORTE ===
         var tipo_reporte_json   = $.parseJSON('{!! json_encode($tipo_reporte_array) !!}');
         var tipo_reporte_select = '';
@@ -100,7 +96,7 @@
             });
             $("#division_id_2").appendTo("#division_id_2_div");
 
-            $('#funcionario_id_2').select2({
+            $('#funcionario_id_2, #funcionario_id_21').select2({
                 // maximumSelectionLength: 1,
                 minimumInputLength    : 2,
                 ajax                  : {
@@ -150,70 +146,10 @@
                 align    : 'left',
                 donetext : 'Hecho'
             });
-
-        //=== TOUCHSPIN ===
-            // $("#dp_etapa_gestacion_semana").TouchSpin({
-            //     buttondown_class: 'btn btn-white',
-            //     buttonup_class: 'btn btn-white'
-            // });
-
-        //=== FLIPSWITCH ===
-            // $("#dp_etapa_gestacion_estado").change(function(){
-            //     if(this.checked){
-            //         $("#dp_etapa_gestacion_semana").prop('disabled', false);
-            //         $("#div_dp_etapa_gestacion_semana").slideDown("slow");
-            //     }
-            //     else{
-            //         $("#dp_etapa_gestacion_semana").prop('disabled', true);
-            //         $("#div_dp_etapa_gestacion_semana").slideUp("slow");
-            //     }
-            // });
-
-        // === JQGRID ===
-            // var valor1 = new Array();
-            // valor1[0]  = 40;
-            // utilitarios(valor1);
-
-        // === VALIDATE 1 ===
-            // var valor1 = new Array();
-            // valor1[0]  = 60;
-            // utilitarios(valor1);
-
-        // Add responsive to jqGrid
-            // $(window).bind('resize', function () {
-            //     var width = $('.tab-content').width() - 35;
-            //     $(jqgrid1).setGridWidth(width);
-            // });
-
-            // setTimeout(function(){
-            //     $('.wrapper-content').removeClass('animated fadeInRight');
-            //     var valor1 = new Array();
-            //     valor1[0]  = 0;
-            //     utilitarios(valor1);
-            // },300);
-
-            // $("#navbar-minimalize-button" ).on( "click", function() {
-            //     setTimeout(function(){
-            //         $('.wrapper-content').removeClass('animated fadeInRight');
-            //         var valor1 = new Array();
-            //         valor1[0]  = 0;
-            //         utilitarios(valor1);
-            //     },500);
-            // });
-    });
-
-    $(window).on('resize.jqGrid', function() {
-        // var valor1 = new Array();
-        // valor1[0]  = 0;
-        // utilitarios(valor1);
     });
 
     function utilitarios(valor){
         switch(valor[0]){
-            // === JQGRID REDIMENCIONAR ===
-            case 0:
-                $(jqgrid1).jqGrid('setGridWidth', $(".jqGrid_wrapper").width());
-                break;
             // === ABRIR MODAL - REGISTRAR ACTIVIDAD ===
             case 10:
                 if($("#caso_id_1").val() != ''){
@@ -234,32 +170,6 @@
             case 11:
                 $('#modal_2').modal();
                 break;
-            // === EDICION MODAL ===
-            case 20:
-                var valor1 = new Array();
-                valor1[0]  = 30;
-                utilitarios(valor1);
-
-                var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
-                var val_json = $.parseJSON(ret.val_json);
-
-                $('#modal_1_title').empty();
-                $('#modal_1_title').append('MODIFICAR RECINTO CARCELARIO');
-
-                $("#recinto_carcelario_id").val(valor[1]);
-
-                $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
-                $("#nombre").val(ret.nombre);
-                if(val_json.ret != ""){
-                    $('#Muni_id').append('<option value="' + val_json.Muni_id + '">' + ret.departamento + ', ' + ret.municipio + '</option>');
-                    $("#Muni_id").select2("val", val_json.Muni_id);
-                }
-                if(ret.tipo_recinto != ""){
-                    $("#tipo_recinto").select2("val", val_json.tipo_recinto);
-                }
-
-                $('#modal_1').modal();
-                break;
             // === BORRAR INFORMACION ===
             case 30:
                 $('#caso_b, #etapa_caso_b, #origen_caso_b, #estado_caso_b, #f_denuncia_b, #fiscal_asignado_b, #delito_principal_b, #modal_1_title, #actividad_tabla_b, #denunciante_b, #denunciado_b').empty();
@@ -277,183 +187,6 @@
             case 32:
                 $('#tipo_actividad_id_1').select2("val", "");
                 $("#actvidad_1").val('');
-                break;
-            // === JQGRID 1 ===
-            case 40:
-                var edit1      = true;
-                var ancho1     = 5;
-                var ancho_d    = 29;
-                @if(in_array(['codigo' => '2103'], $permisos))
-                    edit1  = false;
-                    ancho1 += ancho_d;
-                @endif
-
-                $(jqgrid1).jqGrid({
-                    // caption     : title_table,
-                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
-                    datatype    : 'json',
-                    mtype       : 'post',
-                    height      : 'auto',
-                    pager       : pjqgrid1,
-                    rowNum      : 10,
-                    rowList     : [10, 20, 30],
-                    sortname    : 'RecintosCarcelarios.created_at',
-                    sortorder   : "desc",
-                    viewrecords : true,
-                    shrinkToFit : false,
-                    hidegrid    : false,
-                    multiboxonly: true,
-                    altRows     : true,
-                    rownumbers  : true,
-                    // subGrid     : subgrid_sw,
-                    // multiselect  : true,
-                    //autowidth     : true,
-                    //gridview      :true,
-                    //forceFit      : true,
-                    //toolbarfilter : true,
-                    colNames : [
-                        "",
-
-                        "ESTADO",
-                        "TIPO DE RECINTO",
-                        "NOMBRE",
-                        "MUNICIPIO",
-                        "DEPARTAMENTO",
-
-                        ""
-                    ],
-                    colModel : [
-                        {
-                            name    : "act",
-                            index   : "",
-                            width   : ancho1,
-                            align   : "center",
-                            fixed   : true,
-                            sortable: false,
-                            resize  : false,
-                            search  : false,
-                            hidden  : edit1
-                        },
-
-                        {
-                            name       : "estado",
-                            index      : "RecintosCarcelarios.estado",
-                            width      : 120,
-                            align      : "center",
-                            stype      :'select',
-                            editoptions: {value:estado_jqgrid}
-                        },
-                        {
-                            name       : "tipo_recinto",
-                            index      : "RecintosCarcelarios.tipo_recinto",
-                            width      : 165,
-                            align      : "center",
-                            stype      :'select',
-                            editoptions: {value:tipo_recinto_jqgrid}
-                        },
-
-                        {
-                            name : "nombre",
-                            index: "RecintosCarcelarios.nombre",
-                            width: 400,
-                            align: "left"
-                        },
-                        {
-                            name       : "municipio",
-                            index      : "a2.Muni",
-                            width      : 400,
-                            align      : "left"
-                        },
-                        {
-                            name       : "departamento",
-                            index      : "a3.Dep",
-                            width      : 150,
-                            align      : "left",
-                            stype      :'select',
-                            editoptions: {value:departamento_jqgrid}
-                        },
-
-                        // === OCULTO ===
-                            {
-                                name  : "val_json",
-                                index : "",
-                                width : 10,
-                                align : "center",
-                                search: false,
-                                hidden: true
-                            }
-                    ],
-                    loadComplete : function(){
-                        $("tr.jqgrow:odd").addClass('myAltRowClass');
-                    },
-                    gridComplete : function() {
-                        var ids = $(jqgrid1).jqGrid('getDataIDs');
-                        for(var i = 0; i < ids.length; i++){
-                            var cl       = ids[i];
-                            var ret      = $(jqgrid1).jqGrid('getRowData', cl);
-                            var val_json = $.parseJSON(ret.val_json);
-
-                            var ed = "";
-                            @if(in_array(['codigo' => '2103'], $permisos))
-                                ed = "<button type='button' class='btn btn-xs btn-success' title='Modificar recinto carcelario' onclick=\"utilitarios([20, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                            @endif
-
-                            $(jqgrid1).jqGrid('setRowData', ids[i], {
-                                act : $.trim(ed)
-                            });
-                        }
-                    }
-                });
-
-                $(jqgrid1).jqGrid('filterToolbar',{
-                    searchOnEnter : true,
-                    stringResult  : true,
-                    defaultSearch : 'cn'
-                });
-
-                $(jqgrid1).jqGrid('navGrid', pjqgrid1, {
-                    edit  : false,
-                    add   : false,
-                    del   : false,
-                    search: false
-                })
-                @if(in_array(['codigo' => '2102'], $permisos))
-                    .navSeparatorAdd(pjqgrid1,{
-                        sepclass : "ui-separator"
-                    })
-                    .navButtonAdd(pjqgrid1,{
-                        "id"          : "add1",
-                        caption       : "",
-                        title         : 'Agregar nueva fila',
-                        buttonicon    : "ui-icon ui-icon-plusthick",
-                        onClickButton : function(){
-                            var valor1 = new Array();
-                            valor1[0]  = 30;
-                            utilitarios(valor1);
-
-                            var valor1 = new Array();
-                            valor1[0]  = 10;
-                            utilitarios(valor1);
-                        }
-                    })
-                @endif
-                @if(in_array(['codigo' => '2104'], $permisos))
-                    .navSeparatorAdd(pjqgrid1,{
-                        sepclass : "ui-separator"
-                    })
-                    .navButtonAdd(pjqgrid1,{
-                        "id"          : "print1",
-                        caption       : "",
-                        title         : 'Reportes',
-                        buttonicon    : "ui-icon ui-icon-print",
-                        onClickButton : function(){
-                            var valor1 = new Array();
-                            valor1[0]  = 70;
-                            utilitarios(valor1);
-                        }
-                    })
-                @endif
-                ;
                 break;
             // === BUSQUEDA CASO ===
             case 50:
@@ -563,13 +296,14 @@
             case 71:
                 var concatenar_valores = '?tipo=2';
 
-                var tipo_reporte   = $("#tipo_reporte_2").val();
-                var division_id    = $("#division_id_2").val();
-                var funcionario_id = $("#funcionario_id_2").val();
-                var fecha_del      = $("#fecha_del_2").val();
-                var hora_del       = $("#hora_del_2").val();
-                var fecha_al       = $("#fecha_al_2").val();
-                var hora_al        = $("#hora_al_2").val();
+                var tipo_reporte     = $("#tipo_reporte_2").val();
+                var division_id      = $("#division_id_2").val();
+                var funcionario_id   = $("#funcionario_id_2").val();
+                var funcionario_id_1 = $("#funcionario_id_21").val();
+                var fecha_del        = $("#fecha_del_2").val();
+                var hora_del         = $("#hora_del_2").val();
+                var fecha_al         = $("#fecha_al_2").val();
+                var hora_al          = $("#hora_al_2").val();
 
                 var valor_sw    = true;
                 var valor_error = '';
@@ -588,6 +322,10 @@
 
                 if($.trim(funcionario_id) != ''){
                     concatenar_valores += '&funcionario_id=' + funcionario_id;
+                }
+
+                if($.trim(funcionario_id_1) != ''){
+                    concatenar_valores += '&funcionario_id_1=' + funcionario_id_1;
                 }
 
                 if($.trim(fecha_del) != ''){
@@ -893,7 +631,6 @@
                         //console.error("Este callback maneja los errores", result);
                     }
                 });
-
                 return respuesta_ajax;
                 break;
             default:
