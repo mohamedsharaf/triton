@@ -352,7 +352,7 @@ class CentralNotificacionController extends Controller
                             ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a6.Oficina")
                             ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Muni")
                             ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.Dep")
-                            ->leftJoin("$tabla10 AS a10", "a10.id", "=", "$tabla1.actividad_solicitante_id")
+                            ->join("$tabla10 AS a10", "a10.id", "=", "$tabla1.actividad_solicitante_id")
                             ->leftJoin("$tabla11 AS a11", "a11.id", "=", "$tabla1.funcionario_solicitante_id")
                             ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.funcionario_notificador_id")
                             ->leftJoin("$tabla12 AS a13", "a13.id", "=", "a10.TipoActividad")
@@ -369,7 +369,7 @@ class CentralNotificacionController extends Controller
                             ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a6.Oficina")
                             ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Muni")
                             ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.Dep")
-                            ->leftJoin("$tabla10 AS a10", "a10.id", "=", "$tabla1.actividad_solicitante_id")
+                            ->join("$tabla10 AS a10", "a10.id", "=", "$tabla1.actividad_solicitante_id")
                             ->leftJoin("$tabla11 AS a11", "a11.id", "=", "$tabla1.funcionario_solicitante_id")
                             ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.funcionario_notificador_id")
                             ->leftJoin("$tabla12 AS a13", "a13.id", "=", "a10.TipoActividad")
@@ -1169,7 +1169,7 @@ class CentralNotificacionController extends Controller
 
                             if($consulta2['estado_notificacion_id'] == 3)
                             {
-                                $en_texto = ", haciendole entrega de la copia de acuerdo al Art. 163 y 164 del Código de Procedimiento Penal";
+                                $en_texto = ", haciendole entrega de la copia de acuerdo el Artículo 163 y 164 del Código de Procedimiento Penal";
                             }
                             elseif($consulta2['estado_notificacion_id'] == 4)
                             {
@@ -1191,7 +1191,11 @@ class CentralNotificacionController extends Controller
                                     $testigo_n_documento = $consulta2['notificacion_testigo_n_documento'];
                                 }
 
-                                $en_texto = ", en presencia del testigo " . $testigo_nombre . " con Cédula de Identidad " . $testigo_n_documento . ", quien firma en constancia al pie del presente";
+                                $en_texto = ", en presencia del testigo " . $testigo_nombre . " con Cédula de Identidad " . $testigo_n_documento . ", quien firma en constancia al pie del presente. Conforme al Artículo 163 del Procedimiento Penal";
+                            }
+                            elseif($consulta2['estado_notificacion_id'] == 5)
+                            {
+                                $en_texto = ". Quien impuesto de su tenor se dio por NOTIFICADO, en el <b>Tablero de la Fiscalía Departamental</b>, conforme el Artículo 58.II de la Ley 260, en presencia de un testigo de actuación";
                             }
                             else
                             {
