@@ -1071,7 +1071,7 @@ class CentralNotificacionController extends Controller
                             $pdf->Line(10, $y_n-10, 206, $y_n-10, $style1);
                             $pdf->SetY($y_n-9);
                             $pdf->SetFont("times", "I", 7);
-                            $pdf->Cell(98, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s"), 0, 0, "L");
+                            $pdf->Cell(98, 4, '', 0, 0, "L");
                             $pdf->Cell(98, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
 
                             $y_n = 279;
@@ -1089,7 +1089,7 @@ class CentralNotificacionController extends Controller
                             $pdf->Line(10, $y_n-10, 206, $y_n-10, $style1);
                             $pdf->SetY($y_n-9);
                             $pdf->SetFont("times", "I", 7);
-                            $pdf->Cell(98, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s"), 0, 0, "L");
+                            $pdf->Cell(98, 4, '', 0, 0, "L");
                             $pdf->Cell(98, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
                         });
 
