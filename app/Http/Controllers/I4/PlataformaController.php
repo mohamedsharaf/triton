@@ -25,7 +25,6 @@ use App\Models\I4\Calendario;
 use App\Models\I4\Persona;
 
 use App\Models\I4\Division;
-use App\Models\I4\Dep;
 
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
@@ -40,7 +39,8 @@ class PlataformaController extends Controller
 
         $this->tipo_reporte = [
             '1' => 'MEMORIALES',
-            '2' => 'REPARTO DE CASO'
+            '2' => 'REPARTO DE CASO',
+            '3' => 'OLAP - MEMORIALES'
         ];
 
         $this->public_dir = '/image/logo';
@@ -1312,7 +1312,6 @@ class PlataformaController extends Controller
                                         ) AS anteriores_fiscales
                                     ";
 
-
                                     $group_by_1 = "
                                         $tabla1.id,
                                         $tabla1.Caso,
@@ -1376,6 +1375,7 @@ class PlataformaController extends Controller
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))
+                                                        ->orderBy("$tabla1.FechaDenuncia", "ASC")
                                                         ->orderBy("a6.Funcionario", "ASC")
                                                         ->orderBy("a6.CreationDate", "ASC")
                                                         ->get();
@@ -1411,6 +1411,7 @@ class PlataformaController extends Controller
                                                         ->whereRaw($where1)
                                                         ->select(DB::raw($select1))
                                                         ->groupBy(DB::raw($group_by_1))
+                                                        ->orderBy("$tabla1.FechaDenuncia", "ASC")
                                                         ->orderBy("a6.Funcionario", "ASC")
                                                         ->orderBy("a6.CreationDate", "ASC")
                                                         ->get();
@@ -1574,6 +1575,340 @@ class PlataformaController extends Controller
 
                             PDF::Output('reparto_caso_' . date("YmdHis") . '.pdf', 'I');
                             break;
+
+                        // === OLAP - MEMORIALES ===
+                        case '3':
+                            $division_id      = trim($request->input('division_id'));
+                            $funcionario_id   = trim($request->input('funcionario_id'));
+                            $funcionario_id_1 = trim($request->input('funcionario_id_1'));
+                            $fecha_del        = trim($request->input('fecha_del'));
+                            $hora_del         = trim($request->input('hora_del'));
+                            $fecha_al         = trim($request->input('fecha_al'));
+                            $hora_al          = trim($request->input('hora_al'));
+
+                            // === CONSULTA A LA BASE DE DATOS ===
+                                //=== CONSULTA 1 ===
+                                    $tabla1  = "Caso";
+                                    $tabla2  = "Actividad";
+                                    $tabla3  = "TipoActividad";
+                                    $tabla4  = "Division";
+                                    $tabla5  = "Oficina";
+                                    $tabla6  = "Muni";
+                                    $tabla7  = "Dep";
+                                    $tabla8  = "Delito";
+                                    $tabla9  = "ClaseDelito";
+                                    $tabla10 = "EtapaCaso";
+                                    $tabla11 = "EstadoCaso";
+                                    $tabla12 = "OrigenCaso";
+                                    $tabla13 = "CasoFuncionario";
+                                    $tabla14 = "Funcionario";
+
+                                    $select1 = "
+                                        $tabla1.Caso,
+                                        $tabla1.CodCasoJuz,
+                                        $tabla1.FechaDenuncia,
+
+                                        a2.CreationDate,
+                                        UPPER(a2.CreatorFullName) AS creation_usuario,
+                                        UPPER(a2.Actividad) AS actividad,
+                                        a2.Fecha AS fecha,
+
+                                        UPPER(a3.TipoActividad) AS tipo_actividad,
+
+                                        UPPER(a4.Division) AS division,
+
+                                        UPPER(a5.Oficina) AS oficina,
+
+                                        UPPER(a6.Muni) AS municipio,
+
+                                        UPPER(a7.Dep) AS departamento,
+
+                                        UPPER(a8.Delito) AS delito,
+
+                                        UPPER(a9.ClaseDelito) AS clase_delito,
+
+                                        UPPER(a10.EtapaCaso) AS etapa_caso,
+
+                                        UPPER(a11.EstadoCaso) AS estado_caso,
+
+                                        UPPER(a12.OrigenCaso) AS origen_caso,
+
+                                        (
+                                            SELECT UPPER(GROUP_CONCAT(DISTINCT a51.Funcionario ORDER BY a51.Funcionario ASC SEPARATOR ', ')) AS fiscale
+                                            FROM CasoFuncionario AS a50
+                                            INNER JOIN Funcionario AS a51 ON a51.id=a50.Funcionario
+                                            WHERE a50.FechaBaja IS NULL AND a50.Caso=$tabla1.id
+                                        ) AS fiscales
+                                    ";
+
+                                    $group_by_1 = "
+                                        $tabla1.Caso,
+                                        $tabla1.CodCasoJuz,
+                                        $tabla1.FechaDenuncia,
+
+                                        a2.CreationDate,
+                                        a2.CreatorFullName,
+                                        a2.Actividad,
+                                        a2.Fecha,
+
+                                        a3.TipoActividad,
+
+                                        a4.Division,
+                                        a5.Oficina,
+                                        a6.Muni,
+                                        a7.Dep,
+
+                                        a8.Delito,
+
+                                        a9.ClaseDelito,
+
+                                        a10.EtapaCaso,
+
+                                        a11.EstadoCaso,
+
+                                        a12.OrigenCaso
+                                    ";
+
+                                    $where1 = "a2.estado_triton=1 AND a2.CreationDate >= '" . $fecha_del . " " . $hora_del . "' AND a2.CreationDate <= '" . $fecha_al . " " . $hora_al . "'";
+
+                                    if($request->has('funcionario_id'))
+                                    {
+                                        $where1_1             = "";
+                                        $where1_1_sw          = TRUE;
+                                        $funcionario_id_array = explode(",", $funcionario_id);
+                                        foreach ($funcionario_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND (a13.Funcionario=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR a13.Funcionario=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ") AND a13.FechaBaja IS NULL";
+                                        $where1   .= $where1_1;
+                                    }
+
+                                    if($request->has('funcionario_id_1'))
+                                    {
+                                        $where1_1             = "";
+                                        $where1_1_sw          = TRUE;
+                                        $funcionario_id_array = explode(",", $funcionario_id_1);
+                                        foreach ($funcionario_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND (a14.id=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR a14.id=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1;
+                                    }
+
+                                    if($request->has('division_id'))
+                                    {
+                                        $where1_1          = "";
+                                        $where1_1_sw       = TRUE;
+                                        $division_id_array = explode(",", $division_id);
+                                        foreach ($division_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND (a4.id=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR a4.id=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1 . " AND a13.FechaBaja IS NULL";
+
+                                        $consulta1 = Caso::join("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
+                                                        ->join("$tabla3 AS a3", "a3.id", "=", "a2.TipoActividad")
+                                                        ->join("$tabla4 AS a4", "a4.id", "=", "$tabla1.DivisionFis")
+                                                        ->join("$tabla5 AS a5", "a5.id", "=", "a4.Oficina")
+                                                        ->join("$tabla6 AS a6", "a6.id", "=", "a5.Muni")
+                                                        ->join("$tabla7 AS a7", "a7.id", "=", "a6.Dep")
+                                                        ->leftJoin("$tabla8 AS a8", "a8.id", "=", "$tabla1.DelitoPrincipal")
+                                                        ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.ClaseDelito")
+                                                        ->leftJoin("$tabla10 AS a10", "a10.id", "=", "$tabla1.EtapaCaso")
+                                                        ->leftJoin("$tabla11 AS a11", "a11.id", "=", "$tabla1.EstadoCaso")
+                                                        ->leftJoin("$tabla12 AS a12", "a12.id", "=", "$tabla1.OrigenCaso")
+                                                        ->leftJoin("$tabla13 AS a13", "a13.Caso", "=", "$tabla1.id")
+                                                        ->leftJoin("$tabla14 AS a14", "a14.UserId", "=", "a2.CreatorUser")
+                                                        ->whereRaw($where1)
+                                                        ->select(DB::raw($select1))
+                                                        ->groupBy(DB::raw($group_by_1))
+                                                        ->orderByRaw("a2.CreationDate ASC")
+                                                        ->get();
+                                    }
+                                    else
+                                    {
+                                        // === SEGURIDAD ===
+                                            $this->rol_id   = Auth::user()->rol_id;
+                                            $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                                                ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                                                ->select("seg_permisos.codigo")
+                                                                ->get()
+                                                                ->toArray();
+
+                                        if(in_array(['codigo' => '2204'], $this->permisos))
+                                        {
+                                            $where1   .= " AND a13.FechaBaja IS NULL";
+                                        }
+                                        else
+                                        {
+                                            $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+
+                                            if($i4_funcionario_id == "")
+                                            {
+                                                return dd("No tiene cuenta en el i4.");
+                                            }
+
+                                            $consulta2 = Funcionario::join("Division", "Division.id", "=", "Funcionario.Division")
+                                                            ->join("Oficina", "Oficina.id", "=", "Division.Oficina")
+                                                            ->join("Muni", "Muni.id", "=", "Oficina.Muni")
+                                                            ->whereRaw("Funcionario.id=" . $i4_funcionario_id)
+                                                            ->select(DB::raw("Muni.Dep AS departamento_id"))
+                                                            ->first();
+
+                                            if($consulta2 === null)
+                                            {
+                                                return dd("No tiene cuenta en el i4.");
+                                            }
+
+                                            $where1   .= " AND a6.Dep=" . $consulta2["departamento_id"] . " AND a13.FechaBaja IS NULL";
+                                        }
+
+                                        $consulta1 = Caso::join("$tabla2 AS a2", "a2.Caso", "=", "$tabla1.id")
+                                                        ->join("$tabla3 AS a3", "a3.id", "=", "a2.TipoActividad")
+                                                        ->join("$tabla4 AS a4", "a4.id", "=", "$tabla1.DivisionFis")
+                                                        ->join("$tabla5 AS a5", "a5.id", "=", "a4.Oficina")
+                                                        ->join("$tabla6 AS a6", "a6.id", "=", "a5.Muni")
+                                                        ->join("$tabla7 AS a7", "a7.id", "=", "a6.Dep")
+                                                        ->leftJoin("$tabla8 AS a8", "a8.id", "=", "$tabla1.DelitoPrincipal")
+                                                        ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.ClaseDelito")
+                                                        ->leftJoin("$tabla10 AS a10", "a10.id", "=", "$tabla1.EtapaCaso")
+                                                        ->leftJoin("$tabla11 AS a11", "a11.id", "=", "$tabla1.EstadoCaso")
+                                                        ->leftJoin("$tabla12 AS a12", "a12.id", "=", "$tabla1.OrigenCaso")
+                                                        ->leftJoin("$tabla13 AS a13", "a13.Caso", "=", "$tabla1.id")
+                                                        ->leftJoin("$tabla14 AS a14", "a14.UserId", "=", "a2.CreatorUser")
+                                                        ->whereRaw($where1)
+                                                        ->select(DB::raw($select1))
+                                                        ->groupBy(DB::raw($group_by_1))
+                                                        ->orderByRaw("a2.CreationDate ASC")
+                                                        ->get();
+                                    }
+
+                                    if($consulta1->isEmpty())
+                                    {
+                                        return dd("No se encontraron CASOS.");
+                                    }
+
+                            //=== EXCEL ===
+                                set_time_limit(3600);
+                                ini_set('memory_limit','-1');
+                                Excel::create('memoriales_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                                    $excel->sheet('Memoriales', function($sheet) use($consulta1){
+                                        $sheet->row(1, [
+                                            'DEPARTAMENTO',
+                                            'MUNICIPIO',
+                                            'OFICINA',
+                                            'DIVISION',
+
+                                            'NUMERO DE CASO',
+                                            'CODIGO JUZGADO',
+                                            'FECHA DE LA DENUNCIA',
+                                            'ETAPA DEL CASO',
+                                            'ESTADO DEL CASO',
+                                            'ORIGEN DEL CASO',
+                                            'CLASE DE DELITO',
+                                            'DELITO PRINCIPAL',
+                                            'FISCAL ASIGNADO',
+
+                                            'FECHA DE LA ACTIVIDAD',
+                                            'TIPO DE ACTIVIDAD',
+                                            'DESCRIPCION DE LA ACTIVIDAD',
+
+                                            'FECHA DE CREACION DE LA ACTIVIDAD',
+                                            'USUARIO QUE CREO LA ACTIVIDAD'
+                                        ]);
+
+                                        $sheet->row(1, function($row){
+                                            $row->setBackground('#CCCCCC');
+                                            $row->setFontWeight('bold');
+                                            $row->setAlignment('center');
+                                        });
+
+                                        $sheet->freezeFirstRow();
+                                        $sheet->setAutoFilter();
+
+                                        $sw = FALSE;
+                                        $c  = 1;
+
+                                        foreach($consulta1 as $index1 => $row1)
+                                        {
+                                            $sheet->row($c+1, [
+                                                $row1["departamento"],
+                                                $row1["municipio"],
+                                                $row1["oficina"],
+                                                $row1["division"],
+
+                                                $row1["Caso"],
+                                                $row1["CodCasoJuz"],
+                                                $row1["FechaDenuncia"],
+                                                $row1["etapa_caso"],
+                                                $row1["estado_caso"],
+                                                $row1["origen_caso"],
+                                                $row1["clase_delito"],
+                                                $row1["delito"],
+                                                $row1["fiscales"],
+
+                                                $row1["fecha"],
+                                                $row1["tipo_actividad"],
+                                                $row1["actividad"],
+
+                                                $row1["CreationDate"],
+                                                $row1["creation_usuario"]
+                                            ]);
+
+                                            $c++;
+
+                                            if($sw)
+                                            {
+                                                $sheet->row($c, function($row){
+                                                    $row->setBackground('#deeaf6');
+                                                });
+
+                                                $sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $sw = TRUE;
+                                            }
+                                        }
+
+                                        // $sheet->cells('A2:R' . ($c), function($cells){
+                                        //     $cells->setAlignment('center');
+                                        // });
+
+                                        $sheet->setAutoSize(true);
+                                    });
+
+                                    $excel->setActiveSheetIndex(0);
+                                })->export('xlsx');
+                            break;
+
                     }
                 }
                 else

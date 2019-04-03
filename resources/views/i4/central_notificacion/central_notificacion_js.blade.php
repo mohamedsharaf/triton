@@ -642,7 +642,9 @@
 
                                 var noti1 = "";
                                 @if(in_array(['codigo' => '2702'], $permisos))
-                                    noti1 = "<button type='button' class='btn btn-xs btn-primary' title='Notificar' onclick=\"utilitarios([10, " + cl + ", '" + ret.caso + "', '" + ret.codigo + "']);\"><i class='fa fa-bell'></i></button>";
+                                    if(val_json.estado != 3){
+                                        noti1 = "<button type='button' class='btn btn-xs btn-primary' title='Notificar' onclick=\"utilitarios([10, " + cl + ", '" + ret.caso + "', '" + ret.codigo + "']);\"><i class='fa fa-bell'></i></button>";
+                                    }
                                 @endif
 
                                 var pdf1 = "";
@@ -655,14 +657,18 @@
                                 var upl1 = "";
                                 @if(in_array(['codigo' => '2707'], $permisos))
                                     if(val_json.uso_entrega >= 3 && val_json.uso_entrega <= 4){
-                                        upl1 = " <button type='button' class='btn btn-xs btn-success' title='Subir documento PDF' onclick=\"utilitarios([11, " + cl + "]);\"><i class='fa fa-upload'></i></button>";
+                                        if(val_json.estado != 3){
+                                            upl1 = " <button type='button' class='btn btn-xs btn-success' title='Subir documento PDF' onclick=\"utilitarios([11, " + cl + "]);\"><i class='fa fa-upload'></i></button>";
+                                        }
                                     }
                                 @endif
 
                                 var cer1 = "";
                                 @if(in_array(['codigo' => '2708'], $permisos))
                                     if(val_json.notificacion_estado == 2){
-                                        cer1 = " <button type='button' class='btn btn-xs btn-warning' title='Cerrar NOTIFICACION' onclick=\"utilitarios([32, " + cl + ", '" + ret.codigo + "']);\"><i class='fa fa-lock'></i></button>";
+                                        if(val_json.estado != 3){
+                                            cer1 = " <button type='button' class='btn btn-xs btn-warning' title='Cerrar NOTIFICACION' onclick=\"utilitarios([32, " + cl + ", '" + ret.codigo + "']);\"><i class='fa fa-lock'></i></button>";
+                                        }
                                     }
                                 @endif
 
