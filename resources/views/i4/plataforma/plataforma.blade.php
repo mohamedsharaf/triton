@@ -397,7 +397,7 @@
 
                                     <div id="division_id_2_div" class="form-group">
                                         <label for="division_id_2">División</label>
-                                        <select name="division_id_2" id="division_id_2" data-placeholder="Departamento" multiple="multiple" style="width: 100%;">
+                                        <select name="division_id_2" id="division_id_2" data-placeholder="División" multiple="multiple" style="width: 100%;">
                                         </select>
                                     </div>
 
