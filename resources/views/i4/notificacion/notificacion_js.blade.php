@@ -353,20 +353,6 @@
                         sw_tupla = true;
                     @endif
 
-                    @if(in_array(['codigo' => '2503'], $permisos) AND $i4_funcionario_id != '')
-                        if(value.Notificaciones == 1){
-                            respuesta += '<td class="text-center">';
-                            respuesta += '<button type="button" class="btn btn-xs btn-danger" title="Eliminar notificación" onclick="utilitarios([70, ' + value.id + ']);">';
-                            respuesta += '<i class="fa fa-trash"></i>';
-                            respuesta += '</button>';
-
-                            respuesta += '</td>';
-
-                            sw_tupla_1 = false;
-                        }
-                        sw_tupla = true;
-                    @endif
-
                     if(sw_tupla){
                         if(sw_tupla_1){
                             respuesta += '<td class="text-center">';

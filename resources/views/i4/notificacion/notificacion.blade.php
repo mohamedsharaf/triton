@@ -158,7 +158,7 @@
                                         <th class="text-center">FECHA</th>
                                         <th class="text-center">TIPO DE ACTIVIDAD</th>
                                         <th class="text-center">ACTIVIDAD DESCRIPCION</th>
-                                        @if(in_array(['codigo' => '2503'], $permisos) AND $i4_funcionario_id != '')
+                                        @if(in_array(['codigo' => '2502'], $permisos) AND $i4_funcionario_id != '')
                                             <th></th>
                                         @endif
                                     </tr>
