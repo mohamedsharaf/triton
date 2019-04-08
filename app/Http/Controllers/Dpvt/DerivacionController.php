@@ -18,9 +18,11 @@ use App\Models\Rrhh\RrhhVisitante;
 use App\Models\Rrhh\RrhhPersona;
 
 use nusoap_client;
+use Maatwebsite\Excel\Facades\Excel;
 use Exception;
 use PDF;
 use function GuzzleHttp\json_encode;
+use App\Models\UbicacionGeografica\UbgeDepartamento;
 
 class DerivacionController extends Controller
 {
@@ -32,6 +34,8 @@ class DerivacionController extends Controller
     private $rol_id;
     private $permisos;
     private $user_id;
+    private $reporte_data_1;
+    private $consulta_reporte_adm;
 
     /**
     * Create a new controller instance.
@@ -62,6 +66,7 @@ class DerivacionController extends Controller
 
         $this->tipo_reporte = [
             '1' => 'REPORTE DERIVACIONES ATENDIDAS',
+            '2' => 'REPORTE OLAP'
         ];
 
         $this->public_dir = '/image/logo';
@@ -134,7 +139,9 @@ class DerivacionController extends Controller
             CONCAT_WS(' ', p.ap_paterno, p.ap_materno, p.nombre) as nombre,
             $derivacion.motivo,
             i.nombre as oficina,
-            $derivacion.codigo";
+            $derivacion.codigo,
+            $derivacion.relato,
+            i.id as idoficina";
             // === CONDICION POR DEFECTO ===
             $array_where = "$derivacion.user_id = " . Auth::user()->id;
             $array_where .= $jqgrid->getWhere();
@@ -168,7 +175,9 @@ class DerivacionController extends Controller
             foreach ($query as $row)
             {
                 $val_array = array(
-                    'estado'=> $row["estado"]
+                    'estado'     => $row["estado"],
+                    'relato'     => $row["relato"],
+                    'oficina_id' => $row["idoficina"]
                 );
 
                 $respuesta['rows'][$i]['id'] = $row["id"];
@@ -392,7 +401,7 @@ class DerivacionController extends Controller
                 // === INICIALIZACION DE VARIABLES ===
                 $respuesta = array(
                     'sw'         => 0,
-                    'titulo'     => '<div class="text-center"><strong>REGISTRO DE DERIVACIONES</strong></div>',
+                    'titulo'     => '<div class="text-center"><strong>ACTUALIZACIÓN DE DERIVACIÓN</strong></div>',
                     'respuesta'  => '',
                     'tipo'       => $tipo,
                     'iu'         => 1
@@ -476,6 +485,70 @@ class DerivacionController extends Controller
                 //=== respuesta ===
                 return json_encode($respuesta);
                 break;
+            case '3':
+                $this->rol_id   = Auth::user()->rol_id;
+                $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                    ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                    ->select("seg_permisos.codigo")
+                    ->get()
+                    ->toArray();
+                $id = trim($request->input('ed_derivacion_id'));
+                // === LIBRERIAS ===
+                $util = new UtilClass();
+                if($id != '')
+                {
+                    if(!in_array(['codigo' => '2403'], $this->permisos))
+                    {
+                        $respuesta['respuesta'] .= "No tiene permiso para EDITAR.";
+                        return json_encode($respuesta);
+                    }
+                }
+                // === INICIALIZACION DE VARIABLES ===
+                $respuesta = array(
+                    'sw'         => 0,
+                    'titulo'     => '<div class="text-center"><strong>REGISTRO DE DERIVACIONES</strong></div>',
+                    'respuesta'  => '',
+                    'tipo'       => $tipo,
+                    'iu'         => 1
+                );
+                // === VALIDATE ===
+                try
+                {
+                    $validator = $this->validate($request,[
+                        'ed_motivo'      => 'required',
+                        'ed_relato'      => 'required',
+                        'ed_institucion_id' => 'required'
+                    ],
+                    [
+                        'ed_motivo.required' => 'El campo MOTIVO es obligatorio.',
+                        'ed_motivo.required' => 'El campo RELATO es obligatorio.',
+                        'ed_institucion_id.required' => 'El campo OFICINA es obligatorio.'
+                    ]);
+                }
+                catch (Exception $e)
+                {
+                    $respuesta['error_sw'] = 2;
+                    $respuesta['error']    = $e;
+                    return json_encode($respuesta);
+                }
+                // === OPERACION ===
+                $data               = [];
+                $data['motivo']     = strtoupper($util->getNoAcentoNoComilla(trim($request->input('ed_motivo'))));
+                $data['relato']     = $util->getNoAcentoNoComillaTextoLargo(trim($request->input('ed_relato')));
+                $data['oficina_id'] = trim($request->input('ed_institucion_id'));
+                // === EDITAR DERIVACION ====
+                $derivacion = PvtDerivacion::find($id);
+                $derivacion->motivo         = $data['motivo'];
+                $derivacion->relato         = $data['relato'];
+                $derivacion->institucion_id = $data['oficina_id'];
+                $derivacion->save();
+
+                $respuesta['respuesta'] .= "La DERIVACIÓN se editó con éxito.";
+                $respuesta['sw']         = 1;
+                $respuesta['iu']         = 2;
+                //=== respuesta ===
+                return json_encode($respuesta);
+                break;
             case '100':
                 if($request->has('q'))
                 {
@@ -484,14 +557,14 @@ class DerivacionController extends Controller
                     $page_limit = trim($request->input('page_limit'));
 
                     $query = UbgeMunicipio::leftJoin("ubge_provincias", "ubge_provincias.id", "=", "ubge_municipios.provincia_id")
-                                ->leftJoin("ubge_departamentos", "ubge_departamentos.id", "=", "ubge_provincias.departamento_id")
-                                ->whereRaw("CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) ilike '%$nombre%'")
-                                ->where("ubge_municipios.estado", "=", $estado)
-                                ->select(DB::raw("ubge_municipios.id, CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) AS text"))
-                                ->orderByRaw("ubge_municipios.codigo ASC")
-                                ->limit($page_limit)
-                                ->get()
-                                ->toArray();
+                        ->leftJoin("ubge_departamentos", "ubge_departamentos.id", "=", "ubge_provincias.departamento_id")
+                        ->whereRaw("CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) ilike '%$nombre%'")
+                        ->where("ubge_municipios.estado", "=", $estado)
+                        ->select(DB::raw("ubge_municipios.id, CONCAT_WS(', ', ubge_departamentos.nombre, ubge_provincias.nombre, ubge_municipios.nombre) AS text"))
+                        ->orderByRaw("ubge_municipios.codigo ASC")
+                        ->limit($page_limit)
+                        ->get()
+                        ->toArray();
 
                     if(count($query) > 0)
                     {
@@ -565,6 +638,58 @@ class DerivacionController extends Controller
                     $respuesta["respuesta"] = "El campo CEDULA DE IDENTIDAD es obligatorio";
                 }
                 return json_encode($respuesta);
+                break;
+            case '400':
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = InstInstitucion::whereRaw("inst_instituciones.institucion_id is not null and inst_instituciones.nombre ilike '%$nombre%'")
+                        ->select(DB::raw("inst_instituciones.id, inst_instituciones.nombre AS text"))
+                        ->orderByRaw("inst_instituciones.nombre ASC")
+                        ->limit($page_limit)
+                        ->get()
+                        ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
+                break;
+            case '500':
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = UbgeDepartamento::whereRaw("ubge_departamentos.nombre ilike '%$nombre%'")
+                        ->where("ubge_departamentos.estado", "=", $estado)
+                        ->select(DB::raw("ubge_departamentos.id, ubge_departamentos.nombre AS text"))
+                        ->orderByRaw("ubge_departamentos.nombre ASC")
+                        ->limit($page_limit)
+                        ->get()
+                        ->toArray();
+
+                    if(count($query) > 0)
+                    {
+                        $respuesta = [
+                            "results"  => $query,
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
                 break;
             default:
                 break;
@@ -971,7 +1096,109 @@ class DerivacionController extends Controller
                         }
                         PDF::Output('derivaciones_' . date("YmdHis") . '.pdf', 'I');
                         break;
+                    case '2':
+                        if ($request->input('rep_fecha_del') == Null) {
+                            $primera_derivacion = PvtDerivacion::orderBy('id', 'asc')->limit(1)->first();
+                            $fecha_inicio = $primera_derivacion->fecha;
+                        } else $fecha_inicio = $request->input('rep_fecha_del');
+                        $fecha_del = $fecha_inicio;
+                        if ($request->input('rep_fecha_al') == Null) {
+                            $ultima_derivacion = PvtDerivacion::orderBy('id', 'desc')->limit(1)->first();
+                            $fecha_fin = $ultima_derivacion->fecha;
+                        } else $fecha_fin = $request->input('rep_fecha_al');
+                        $fecha_al  = $fecha_fin;
+                        $this->reporte_data_1 = [
+                            'departamento_id'     => $request->input('rep_departamento_id')     != Null ? $request->input('rep_departamento_id') : 0,
+                            'municipio_id'        => $request->input('rep_municipio_id')        != Null ? $request->input('rep_municipio_id') : 0,
+                            'oficina_derivada_id' => $request->input('rep_oficina_derivada_id') != Null ? $request->input('rep_oficina_derivada_id') : 0,
+                            'fecha_del'           => $fecha_del,
+                            'fecha_al'            => $fecha_al
+                        ];
+                        Excel::create('Derivaciones_' . date('Y-m-d_H-i-s'), function($excel){
+                            // === CONSULTA A LA BASE DE DATOS ===
+                            // === TABLAS PARA LA CONSULTA ===
+                            $derivacion   = "pvt_derivaciones";
+                            $institucion  = "inst_instituciones";
+                            $municipio    = "ubge_municipios";
+                            $provincia    = "ubge_provincias";
+                            $departamento = "ubge_departamentos";
+                            $visitante    = "rrhh_visitantes";
+                            $persona      = "rrhh_personas";
+                            // === COLUMNAS DE LA CONSULTA ===
+                            $select = "
+                            $derivacion.codigo,
+                            $derivacion.fecha,
+                            CONCAT_WS(' ', r.ap_paterno, r.ap_materno, r.nombre) as nombre,
+                            $derivacion.motivo,
+                            i.nombre as oficina";
+                            // === CONDICION POR DEFECTO ===
+                            $array_where = "$derivacion.user_id = " . Auth::user()->id;
+                            // === CONSULTA ===
+                            $this->consulta_reporte_adm = PvtDerivacion::join("$institucion AS i", "i.id", "=", "$derivacion.institucion_id")
+                                ->join("$municipio AS m", "m.id", "=", "i.ubge_municipios_id")
+                                ->join("$provincia AS p", "p.id", "=", "m.provincia_id")
+                                ->join("$departamento AS e", "e.id", "=", "p.departamento_id")
+                                ->join("$visitante AS v", "v.id", "=", "$derivacion.visitante_id")
+                                ->join("$persona AS r", "r.id", "=", "v.persona_id")
+                                ->whereRaw($array_where)
+                                ->whereRaw("(case when ".$this->reporte_data_1['departamento_id']."<>0 then e.id = ".$this->reporte_data_1['departamento_id']." else e.id is not null end) and (case when ".$this->reporte_data_1['municipio_id']."<> 0 then m.id = ".$this->reporte_data_1['municipio_id']." else m.id is not null end) and (case when ".$this->reporte_data_1['oficina_derivada_id']."<>0 then i.id = ".$this->reporte_data_1['oficina_derivada_id']." else i.id is not null end) and $derivacion.fecha between '".$this->reporte_data_1['fecha_del']."'::date and '".$this->reporte_data_1['fecha_al']."'::date")
+                                ->select(DB::raw($select))
+                                ->orderBy("$derivacion.fecha", 'ASC')
+                                ->get()
+                                ->toArray();
+                            $excel->sheet('Derivaciones', function($sheet){
+                                $sheet->row(1, []);
+                                $sheet->row(2, [
+                                    'CODIGO',
+                                    'FECHA',
+                                    'NOMBRE',
+                                    'MOTIVO',
+                                    'OFICINA DERIVADA'
+                                ]);
+                                $sheet->row(1, function($row){
+                                    $row->setBackground('#CCCCCC');
+                                    $row->setFontWeight('bold');
+                                    $row->setAlignment('center');
+                                });
+                                $sheet->freezeFirstRow();
+                                $sheet->setAutoFilter();
+
+                                $sheet->setColumnFormat([
+                                    'B' => 'dd-mm-yyyy'
+                                ]);
+
+                                $sw = FALSE;
+
+                                foreach($this->consulta_reporte_adm as $index => $row1)
+                                {
+                                    $sheet->row($index+2, [
+                                        "MP-".$row1["codigo"],
+                                        $row1["fecha"],
+                                        $row1["nombre"],
+                                        $row1["motivo"],
+                                        $row1["oficina"]
+                                    ]);
+                                    if($sw)
+                                    {
+                                        $sheet->row($index+2, function($row){
+                                            $row->setBackground('#deeaf6');
+                                        });
+                                        $sw = FALSE;
+                                    }
+                                    else
+                                    {
+                                        $sw = TRUE;
+                                    }
+                                }
+                                $sheet->setAutoSize(true);
+                            });
+                        })->export('xlsx');
+                        break;
+                    default:
+                        break;
                 }
+                break;
+            default:
                 break;
         }
     }

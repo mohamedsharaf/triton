@@ -65,6 +65,9 @@
                             <a class="btn btn-primary btn-xs" target="_blank" style="color: #FFFFFF" id="btnReportes">
                                 <strong>Reportes</strong>
                             </a>
+                            {{-- <a class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF" id="btnReportesAdministrativos">
+                                <strong>Reportes Adm.</strong>
+                            </a> --}}
                             {{-- <a href="https://docs.google.com/document/d/18kymkTHBqgmCiuChxyWU2e1QEpRVvS8w25xyhT1dGpw/edit?usp=sharing" class="btn btn-warning btn-xs" target="_blank" style="color: #FFFFFF">
                                 <strong>Manual</strong>
                             </a> --}}
@@ -312,6 +315,109 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" onclick="utilitarios([17]);">PDF</button>
+                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal_3" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+
+                    <h4 class="modal-title">
+                        <span id="modal_3_title"></span>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 b-r">
+                            <form id="form_3" role="form" action="#">
+                                {{ csrf_field() }}
+                                <input type="hidden" id="ed_derivacion_id" name="ed_derivacion_id" value=""/>
+                                <input type="hidden" id="tipo3" name="tipo" value="3"/>
+                                <div class="form-group">
+                                    <label>Motivo</label>
+                                    <input type="text" class="form-control" id="ed_motivo" name="ed_motivo" placeholder="Motivo de consulta">
+                                </div>
+                                <div class="form-group">
+                                    <label>Relato</label>
+                                    <textarea rows="5" class="form-control" id="ed_relato" name="ed_relato" placeholder="Relato del motivo de derivación"></textarea>
+                                </div>
+                                <div id="ed_institucion_id_div" class="form-group">
+                                    <label>Oficina derivada</label>
+                                    <select name="ed_institucion_id" id="ed_institucion_id" data-placeholder="Seleccione la oficina" multiple="multiple" style="width: 100%;">
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="utilitarios([18]);">Guardar</button>
+                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal_4" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+
+                    <h4 class="modal-title">
+                        <span id="modal_4_title"></span>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12 b-r">
+                            <form id="form_4" role="form" action="#">
+                                {{ csrf_field() }}
+                                <div id="rep_departamento_div" class="form-group">
+                                    <label for="departamento">Departamento</label>
+                                    <select name="rep_departamento_id" id="rep_departamento_id" data-placeholder="Departamento" multiple="multiple" style="width: 100%;">
+                                    </select>
+                                </div>
+                                <div id="rep_municipio_div" class="form-group">
+                                    <label for="departamento">Municipio</label>
+                                    <select name="rep_municipio_id" id="rep_municipio_id" data-placeholder="Municipio" multiple="multiple" style="width: 100%;">
+                                    </select>
+                                </div>
+                                <div id="rep_oficina_derivada_div" class="form-group">
+                                    <label for="oficina_derivada">Oficina derivada</label>
+                                    <select name="rep_oficina_derivada_id" id="rep_oficina_derivada_id" data-placeholder="Oficina derivada" multiple="multiple" style="width: 100%;">
+                                    </select>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>Fecha del</label>
+                                            <input type="text" class="form-control" id="rep_fecha_del" name="rep_fecha_del" placeholder="Fecha del" data-mask="9999-99-99">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>Fecha al</label>
+                                            <input type="text" class="form-control" id="rep_fecha_al" name="rep_fecha_al" placeholder="Fecha al" data-mask="9999-99-99">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="utilitarios([20]);">Excel</button>
                     <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                 </div>
             </div>
