@@ -26,6 +26,8 @@
     // === FORMULARIOS ===
     var form_1 = "#form_1";
     var form_2 = "#form_2";
+    var form_3 = "#form_3";
+    var form_4 = "#form_4";
 
     // === JQGRID ===
     var jqgrid1  = "#jqgrid1";
@@ -159,6 +161,31 @@
         });
         $("#oficina_derivada").appendTo("#oficina_derivada_div");
 
+        $('#ed_institucion_id').select2({
+            maximumSelectionLength: 1,
+            minimumInputLength    : 2,
+            ajax                  : {
+                url     : url_controller + '/send_ajax',
+                type    : 'post',
+                dataType: 'json',
+                data    : function (params) {
+                    return {
+                        q         : params.term,
+                        page_limit: 10,
+                        estado    : 1,
+                        tipo      : 200,
+                        _token    : csrf_token
+                    };
+                },
+                results: function (data, page) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+        $("#ed_institucion_id_div").appendTo("#oficina_derivada_div");
+
         $('#f_nacimiento').datepicker({
             startView            : 2,
             autoclose            : true,
@@ -186,14 +213,116 @@
             language             : "es"
         });
 
+        $('#rep_fecha_del').datepicker({
+            startView            : 2,
+            autoclose            : true,
+            format               : "yyyy-mm-dd",
+            startDate            : '-100y',
+            endDate              : '+0d',
+            language             : "es"
+        });
+
+        $('#rep_fecha_AL').datepicker({
+            startView            : 2,
+            autoclose            : true,
+            format               : "yyyy-mm-dd",
+            startDate            : '-100y',
+            endDate              : '+0d',
+            language             : "es"
+        });
+
+        $('#rep_oficina_derivada_id').select2({
+            maximumSelectionLength: 1,
+            minimumInputLength    : 2,
+            ajax                  : {
+                url     : url_controller + '/send_ajax',
+                type    : 'post',
+                dataType: 'json',
+                data    : function (params) {
+                    return {
+                        q         : params.term,
+                        page_limit: 10,
+                        estado    : 1,
+                        tipo      : 400,
+                        _token    : csrf_token
+                    };
+                },
+                results: function (data, page) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+        $("#rep_oficina_derivada_id").appendTo("#rep_oficina_derivada_div");
+
+        $('#rep_municipio_id').select2({
+            maximumSelectionLength: 1,
+            minimumInputLength    : 2,
+            ajax                  : {
+                url     : url_controller + '/send_ajax',
+                type    : 'post',
+                dataType: 'json',
+                data    : function (params) {
+                    return {
+                        q         : params.term,
+                        page_limit: 10,
+                        estado    : 1,
+                        tipo      : 100,
+                        _token    : csrf_token
+                    };
+                },
+                results: function (data, page) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+        $("#rep_municipio_id").appendTo("#rep_municipio_div");
+        
+        $('#rep_departamento_id').select2({
+            maximumSelectionLength: 1,
+            minimumInputLength    : 2,
+            ajax                  : {
+                url     : url_controller + '/send_ajax',
+                type    : 'post',
+                dataType: 'json',
+                data    : function (params) {
+                    return {
+                        q         : params.term,
+                        page_limit: 10,
+                        estado    : 1,
+                        tipo      : 500,
+                        _token    : csrf_token
+                    };
+                },
+                results: function (data, page) {
+                    return {
+                        results: data
+                    };
+                }
+            }
+        });
+        $("#rep_departamento_id").appendTo("#rep_departamento_div");
         // === JQGRID 1 ===
         var valor1 = new Array();
         valor1[0]  = 10;
         utilitarios(valor1);
 
-        // === VALIDATE 1 ===
+        // === VALIDATE FORMULARIO 1 ===
         var valor1 = new Array();
         valor1[0]  = 16;
+        utilitarios(valor1);
+
+        // === VALIDATE FORMULARIO 3 ===
+        var valor1 = new Array();
+        valor1[0]  = 19;
+        utilitarios(valor1);
+
+        // === VALIDATE FORMULARIO 4 ===
+        var valor1 = new Array();
+        valor1[0]  = 21;
         utilitarios(valor1);
 
         // Add responsive to jqGrid
@@ -243,6 +372,19 @@
         $("#btnReportes").on( "click", function() {
             utilitarios([14]);
             $('#modal_2').modal();
+        });
+        // === ABRIR MODAL REPORTES ADM ===
+        $("#btnReportesAdministrativos").on( "click", function() {
+            $('#modal_4_title').empty();
+            $('#modal_4_title').append('Reportes Administrativos');
+            $('#rep_departamento_id').select2("val", "");
+            $('#rep_departamento_id option').remove();
+            $('#rep_municipio_id').select2("val", "");
+            $('#rep_municipio_id option').remove();
+            $('#rep_oficina_derivada_id').select2("val", "");
+            $('#rep_oficina_derivada_id option').remove();
+            $(form_4)[0].reset();
+            $('#modal_4').modal();
         });
     });
 
@@ -356,9 +498,9 @@
                             var val_json = $.parseJSON(ret.val_json);
 
                             var ed = "";
-                            /* @if(in_array(['codigo' => '2401'], $permisos))
+                            @if(in_array(['codigo' => '2401'], $permisos))
                                 ed = "<button type='button' class='btn btn-xs btn-success' title='Modificar Derivación' onclick=\"utilitarios([12, " + cl + "]);\"><i class='fa fa-pencil'></i></button>";
-                            @endif */
+                            @endif
                             @if(in_array(['codigo' => '2401'], $permisos))
                                 pd = " <button type='button' class='btn btn-xs btn-warning' title='Imprimir Derivación' onclick=\"utilitarios([13, " + cl + ", 1]);\"><i class='fa fa-print'></i></button>";
                             @endif
@@ -415,27 +557,21 @@
                 break;
             // === EDICION MODAL ===
             case 12:
-                /* var valor1 = new Array();
-                valor1[0]  = 14;
-                utilitarios(valor1);
-
-                $('#modal_1_title').empty();
-                $('#modal_1_title').append('Modificar institucion');
-
+                $('#modal_3_title').empty();
+                $('#modal_3_title').append('Modificar derivación');
+                $('#ed_institucion_id').select2("val", "");
+                $('#ed_institucion_id option').remove();
+                $("#ed_derivacion_id").val('');
+                $(form_3)[0].reset();
                 var ret      = $(jqgrid1).jqGrid('getRowData', valor[1]);
                 var val_json = $.parseJSON(ret.val_json);
-
-                $(".estado_class[value=" + val_json.estado + "]").prop('checked', true);
-                if(ret.municipio != ""){
-                    var dpm = ret.departamento + ', ' + ret.provincia + ', ' + ret.municipio;
-                    $('#municipio_id').append('<option value="' + val_json.municipio_id + '">' + dpm + '</option>');
-                    $("#municipio_id").select2("val", val_json.municipio_id);
-                }
-                $("#lugar_dependencia_id").select2("val", val_json.lugar_dependencia_id);
-                $("#nombre").val(ret.nombre);
-                $("#direccion").val(ret.direccion);
-                $('#modal_1').modal();
-                break; */
+                $('#ed_institucion_id').append('<option value="' + val_json.oficina_id + '">' + ret.oficina + '</option>');
+                $("#ed_institucion_id").select2("val", val_json.oficina_id);
+                $("#ed_motivo").val(ret.motivo);
+                $("#ed_relato").val(val_json.relato);
+                $("#ed_derivacion_id").val(valor[1]);
+                $('#modal_3').modal();
+                break;
             // === REPORTES MODAL ===
             case 13:
                 var concatenar_valores = '?tipo='+valor[2]+'&id=' + valor[1];
@@ -549,6 +685,73 @@
                     var win = window.open(url_controller + '/reportes' + concatenar_valores ,  '_blank');
                     win.focus();
                 }
+                break;
+            // === GUARDAR REGISTRO EDICION ===
+            case 18:
+                if($(form_3).valid()) {
+                    swal({
+                        title             : "ENVIANDO INFORMACIÓN",
+                        text              : "Espere a que guarde la información.",
+                        allowEscapeKey    : false,
+                        showConfirmButton : false,
+                        type              : "info"
+                    });
+                    $(".sweet-alert div.sa-info").removeClass("sa-icon sa-info").addClass("fa fa-refresh fa-4x fa-spin");
+
+                    var valor1 = new Array();
+                    valor1[0]  = 150;
+                    valor1[1]  = url_controller + '/send_ajax';
+                    valor1[2]  = 'POST';
+                    valor1[3]  = true;
+                    valor1[4]  = $(form_3).serialize();
+                    valor1[5]  = 'json';
+                    utilitarios(valor1);
+                } else {
+                    var valor1 = new Array();
+                    valor1[0]  = 101;
+                    valor1[1]  = '<div class="text-center"><strong>ERROR DE VALIDACION</strong></div>';
+                    valor1[2]  = "¡Favor complete o corrija los datos solicitados!";
+                    utilitarios(valor1);
+                }
+                break;
+            // === VALIDACION EDICION ===
+            case 19:
+                $(form_3).validate({
+                    rules: {
+                        ed_motivo:{
+                            required: true
+                        },
+                        ed_relato:{
+                            required: true
+                        },
+                        ed_institucion_id:{
+                            required: true
+                        }
+                    }
+                });
+                break;
+            // === FORMULARIO REPORTES ADM ===
+            case 20:
+                if ($(form_4).valid()) {
+                    var rep_departamento_id     = $('#rep_departamento_id').val();
+                    var rep_municipio_id        = $('#rep_municipio_id').val();
+                    var rep_oficina_derivada_id = $('#rep_oficina_derivada_id').val();
+                    var rep_fecha_del           = $('#rep_fecha_del').val();
+                    var rep_fecha_al            = $('#rep_fecha_al').val();
+                    var concatenar_valores      = '?tipo=2&tipo_reporte_id=2&rep_departamento_id='+rep_departamento_id+'&rep_municipio_id='+rep_municipio_id+'&rep_oficina_derivada_id='+rep_oficina_derivada_id+'&rep_fecha_del='+rep_fecha_del+'&rep_fecha_al='+rep_fecha_al;
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores ,  '_blank');
+                    win.focus();
+                }
+                break;
+            // === VALIDACION FORMULARIO REPORTES ADM ===
+            case 21:
+                $(form_4).validate({
+                    rules: {
+                        rep_departamento_id:{
+                            required: true
+                        }
+                    }
+                });
                 break;
             // === MENSAJE ERROR ===
             case 100:
@@ -669,6 +872,39 @@
                                 swal.close();
                                 $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
                                 break;
+                            case '3':
+                                if(data.sw === 1){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 100;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+
+                                    $(jqgrid1).trigger("reloadGrid");
+                                    if(data.iu === 1){
+                                        $('#ed_institucion_id').select2("val", "");
+                                        $('#ed_institucion_id option').remove();
+                                        $("#ed_derivacion_id").val('');
+                                        $(form_3)[0].reset();
+                                        $('#modal_3').modal('hide');
+                                    }
+                                    else if(data.iu === 2){
+                                        $('#modal_3').modal('hide');
+                                    }
+                                }
+                                else if(data.sw === 0){
+                                    var valor1 = new Array();
+                                    valor1[0]  = 101;
+                                    valor1[1]  = data.titulo;
+                                    valor1[2]  = data.respuesta;
+                                    utilitarios(valor1);
+                                }
+                                else if(data.sw === 2){
+                                    window.location.reload();
+                                }
+                                swal.close();
+                                $(".sweet-alert div.fa-refresh").removeClass("fa fa-refresh fa-4x fa-spin").addClass("sa-icon sa-info");
+                                break;
                             case '300':
                                 if(data.sw === 1) {
                                     $("#persona_id").val(data.results.id);
@@ -705,12 +941,9 @@
                     error: function(result) {
                         alert(result.responseText);
                         window.location.reload();
-                        //console.error("Este callback maneja los errores", result);
                     }
                 });
                 break;
-            
-            
             default:
                 break;
         }
