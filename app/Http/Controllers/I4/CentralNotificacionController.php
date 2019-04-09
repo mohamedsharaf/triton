@@ -45,7 +45,8 @@ class CentralNotificacionController extends Controller
             '2' => 'SI'
         ];
 
-        $this->public_dir = '/image/logo';
+        $this->public_dir     = '/image/logo';
+        $this->public_dir_tmp = '/storage/tmp';
     }
 
     public function index()
@@ -1341,6 +1342,65 @@ class CentralNotificacionController extends Controller
                     return "La BOLETA DE SALIDA no existe";
                 }
                 break;
+            // === DOCUMENTO DE LA ACTIVIDAD - BINARIO 64 ===
+            case '100':
+                // === INICIALIZACION DE VARIABLES ===
+                    $data1     = array();
+                    $respuesta = array(
+                        'sw'        => 0,
+                        'titulo'    => '<div class="text-center"><strong>DOCUMENTO PDF</strong></div>',
+                        'respuesta' => '',
+                        'tipo'      => $tipo,
+                        'pdf'       => ""
+                    );
+                    $error  = FALSE;
+
+                // === VALIDAR ===
+                    $id = trim($request->input('id'));
+                    if($id == '')
+                    {
+                        return dd("Seleccione una ACTIVIDAD.");
+                    }
+
+                //=== OPERACION ===
+                    $consulta1 = I4NotiNotificacion::select('actividad_solicitante_id')->where('id', '=', $id)->first();
+                    if( ! ($consulta1 === null))
+                    {
+                        $consulta2 = Actividad::select('Documento', '_Documento')->where('id', '=', $consulta1->actividad_solicitante_id)->first();
+
+                        if( ! ($consulta2 === null))
+                        {
+                            $ultimos_tres = substr($consulta2['_Documento'], -3);
+                            if(strtoupper($ultimos_tres) == 'PDF')
+                            {
+                                $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
+                                file_put_contents($file, $consulta2->Documento);
+
+                                // $respuesta['pdf'] .= base64_encode($consulta2->Documento);
+
+                                // header('Content-type: application/pdf');
+                                // header("Cache-Control: no-cache");
+                                // header("Pragma: no-cache");
+                                // header("Content-Disposition: inline;filename=myfile.pdf'");
+                            }
+                            else
+                            {
+                                return dd("No es DOCUMENTO PDF es " . $ultimos_tres);
+                            }
+                        }
+                        else
+                        {
+                            return dd("No se logró encontrar la ACTIVIDAD.");
+                        }
+                    }
+                    else
+                    {
+                        return dd("No se logró encontrar la NOTIFICACION.");
+                    }
+
+                //=== RESPUESTA ===
+                    return response()->download($file)->deleteFileAfterSend(true);;
+                break;
             default:
                 break;
         }
@@ -1496,7 +1556,7 @@ class CentralNotificacionController extends Controller
                         return($respuesta);
                         break;
                     default:
-                        $respuesta = '<button type="button" class="btn btn-xs btn-success" title="Mostrar actividad" onclick="utilitarios([33, ' . $valor['id'] . ']);"><strong>' . $valor['valor'] . '</strong></button>';
+                        $respuesta = '<button type="button" class="btn btn-xs btn-success" title="Mostrar actividad" onclick="utilitarios([34, ' . $valor['id'] . ']);"><strong>' . $valor['valor'] . '</strong></button>';
                         return($respuesta);
                         break;
                 }

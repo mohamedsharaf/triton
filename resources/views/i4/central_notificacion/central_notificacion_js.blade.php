@@ -387,6 +387,15 @@
                     valor1[5]  = 'json';
                     utilitarios(valor1);
                     break;
+
+                // === REPORTES FILA CEDULA Y CONSTANCIA DE NOTIFICACION ===
+                case 34:
+                    var concatenar_valores = '';
+                    concatenar_valores     += "?tipo=100&id=" + valor[1];
+
+                    var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
+                    win.focus();
+                    break;
                 // === JQGRID 1 ===
                 case 40:
                     var edit1      = true;

@@ -88,7 +88,7 @@
 
                         <div class="ibox-tools" style="margin-top: 4px;">
                             @if(in_array(['codigo' => '2706'], $permisos))
-                                <button type="button" class="btn btn-info btn-xs">
+                                <button type="button" class="btn btn-info btn-xs" onclick="utilitarios([11]);">
                                     <strong>Reportes</strong>
                                 </button>
                             @endif
