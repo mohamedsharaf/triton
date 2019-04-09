@@ -17,7 +17,9 @@ use App\Models\I4\Dep;
 use App\Models\I4\EstadoNotificacion;
 use App\Models\I4\I4NotiNotificacion;
 use App\Models\I4\Actividad;
+use App\Models\I4\Funcionario;
 
+use Maatwebsite\Excel\Facades\Excel;
 use PDF;
 
 use Exception;
@@ -30,8 +32,8 @@ class CentralNotificacionController extends Controller
 
         $this->estado = [
             '1' => 'HABILITADA',
-            '2' => 'ANULADA',
-            '3' => 'CERRADA'
+            // '2' => 'ANULADA',
+            '3' => 'NOTIFICADO'
         ];
 
         $this->persona_estado = [
@@ -43,6 +45,11 @@ class CentralNotificacionController extends Controller
         $this->si_no = [
             '1' => 'NO',
             '2' => 'SI'
+        ];
+
+        $this->tipo_reporte = [
+            '1' => 'NOTIFICADOS',
+            '10' => 'OLAP - CENTRAL DE NOTIFICACIONES'
         ];
 
         $this->public_dir     = '/image/logo';
@@ -74,6 +81,7 @@ class CentralNotificacionController extends Controller
                 'estado_array'              => $this->estado,
                 'persona_estado_array'      => $this->persona_estado,
                 'si_no_array'               => $this->si_no,
+                'tipo_reporte_array'        => $this->tipo_reporte,
                 'departamento_array'        => Dep::select(DB::raw("id, UPPER(Dep) AS nombre"))
                                                 ->orderBy("Dep")
                                                 ->get()
@@ -866,6 +874,33 @@ class CentralNotificacionController extends Controller
                 //=== RESPUESTA ===
                     return json_encode($respuesta);
                 break;
+
+            // === SELECT2 RELLENAR FUNCIONARIO DEL I4 ===
+            case '102':
+                if($request->has('q'))
+                {
+                    $nombre     = $request->input('q');
+                    $estado     = trim($request->input('estado'));
+                    $page_limit = trim($request->input('page_limit'));
+
+                    $query = Funcionario::whereRaw("CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres)) LIKE '%$nombre%' AND CuentaActiva=1")
+                                ->select(DB::raw("id, UPPER(CONCAT_WS(' - ', NumDocId, CONCAT_WS(' ', ApPat, ApMat, Nombres))) AS text"))
+                                ->orderByRaw("CONCAT_WS(' ', ApPat, ApMat, Nombres) ASC")
+                                ->limit($page_limit)
+                                ->get();
+
+                    if( ! $query->isEmpty())
+                    {
+                        $respuesta = [
+                            "results"  => $query->toArray(),
+                            "paginate" => [
+                                "more" =>true
+                            ]
+                        ];
+                        return json_encode($respuesta);
+                    }
+                }
+                break;
         }
     }
 
@@ -1153,10 +1188,12 @@ class CentralNotificacionController extends Controller
                             if($hora == '00:00')
                             {
                                 $hora1 = '..........:...........';
+                                $fecha1 = '.......... de .............................. de ....................';
                             }
                             else
                             {
-                                $hora1 = $hora;
+                                $hora1  = $hora;
+                                $fecha1 = $dia . ' de ' . $meses[$mes] . ' de ' . $anio;
                             }
 
                             if($consulta2['UsoEntrega'] > 3)
@@ -1219,7 +1256,7 @@ class CentralNotificacionController extends Controller
                             PDF::Ln(2);
                             PDF::SetFont("helvetica", "", 10);
                             $html = '
-                            <p style="text-align:justify;"><i>En la ciudad de <b>' . $consulta2['municipio'] . '</b> a horas ' . $hora1 . ' del ' . $dia . ' de ' . $meses[$mes] . ' de ' . $anio . ', se notifica a <b>' . $persona_abogado . '</b> con <b>' . $consulta2['tipo_actividad'] . '</b> de fecha ' . $dia1 . ' de ' . $meses[$mes1] . ' de ' . $anio1 . $en_texto . '.</i></p>
+                            <p style="text-align:justify;"><i>En la ciudad de <b>' . $consulta2['municipio'] . '</b> a horas ' . $hora1 . ' del ' . $fecha1 . ', se notifica a <b>' . $persona_abogado . '</b> con <b>' . $consulta2['tipo_actividad'] . '</b> de fecha ' . $dia1 . ' de ' . $meses[$mes1] . ' de ' . $anio1 . $en_texto . '.</i></p>
                             <p style="text-align:justify;"><i><b>Observaciones: </b></i></p>
                             <p style="text-align:justify;"><i>' . $observacion_texto . '</i></p>
                             ';
@@ -1259,77 +1296,10 @@ class CentralNotificacionController extends Controller
                                 PDF::Write(0, "    " . $consulta2['codigo'], '', 0, 'L', true, 0, false, false, 0);
 
                         // === CONTENIDO DE LA NOTIFICACION ===
-                            $anio = date("Y", strtotime($consulta2['notificacion_fh']));
-                            $mes  = date("m", strtotime($consulta2['notificacion_fh']));
-                            $dia  = date("d", strtotime($consulta2['notificacion_fh']));
-                            $hora = date("H:i", strtotime($consulta2['notificacion_fh']));
-
-                            if($hora == '00:00')
-                            {
-                                $hora1 = '..........:...........';
-                            }
-                            else
-                            {
-                                $hora1 = $hora;
-                            }
-
-                            if($consulta2['UsoEntrega'] > 3)
-                            {
-                                $persona_abogado = $consulta2['Abogado'];
-                            }
-                            else
-                            {
-                                $persona_abogado = $consulta2['Persona'];
-                            }
-
-                            if($consulta2['estado_notificacion_id'] == 3)
-                            {
-                                $en_texto = ", haciendole entrega de la copia de acuerdo al Art. 163 y 164 del Código de Procedimiento Penal";
-                            }
-                            elseif($consulta2['estado_notificacion_id'] == 4)
-                            {
-                                if($consulta2['notificacion_testigo_nombre'] == '')
-                                {
-                                    $testigo_nombre = "....................................................................................................";
-                                }
-                                else
-                                {
-                                    $testigo_nombre = $consulta2['notificacion_testigo_nombre'];
-                                }
-
-                                if($consulta2['notificacion_testigo_n_documento'] == '')
-                                {
-                                    $testigo_n_documento = "..................................................";
-                                }
-                                else
-                                {
-                                    $testigo_n_documento = $consulta2['notificacion_testigo_n_documento'];
-                                }
-
-                                $en_texto = ", en presencia del testigo " . $testigo_nombre . " con Cédula de Identidad " . $testigo_n_documento . ", quien firma en constancia al pie del presente";
-                            }
-                            else
-                            {
-                                $en_texto = "";
-                            }
-
-                            $anio1 = date("Y", strtotime($consulta2['fecha_actividad']));
-                            $mes1  = date("m", strtotime($consulta2['fecha_actividad']));
-                            $dia1  = date("d", strtotime($consulta2['fecha_actividad']));
-
-                            if($consulta2['notificacion_observacion'] == "")
-                            {
-                                $observacion_texto = "...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................";
-                            }
-                            else
-                            {
-                                $observacion_texto = $consulta2['notificacion_observacion'];
-                            }
-
                             PDF::Ln(2);
                             PDF::SetFont("helvetica", "", 10);
                             $html = '
-                            <p style="text-align:justify;"><i>En la ciudad de <b>' . $consulta2['municipio'] . '</b> a horas ' . $hora1 . ' del ' . $dia . ' de ' . $meses[$mes] . ' de ' . $anio . ', se notifica a <b>' . $persona_abogado . '</b> con <b>' . $consulta2['tipo_actividad'] . '</b> de fecha ' . $dia1 . ' de ' . $meses[$mes1] . ' de ' . $anio1 . $en_texto . '.</i></p>
+                            <p style="text-align:justify;"><i>En la ciudad de <b>' . $consulta2['municipio'] . '</b> a horas ' . $hora1 . ' del ' . $fecha1 . ', se notifica a <b>' . $persona_abogado . '</b> con <b>' . $consulta2['tipo_actividad'] . '</b> de fecha ' . $dia1 . ' de ' . $meses[$mes1] . ' de ' . $anio1 . $en_texto . '.</i></p>
                             <p style="text-align:justify;"><i><b>Observaciones: </b></i></p>
                             <p style="text-align:justify;"><i>' . $observacion_texto . '</i></p>
                             ';
@@ -1340,6 +1310,745 @@ class CentralNotificacionController extends Controller
                 else
                 {
                     return "La BOLETA DE SALIDA no existe";
+                }
+                break;
+            // === REPORTE PDF - EXCEL - REPORTES ===
+            case '2':
+                if($request->has('tipo_reporte'))
+                {
+                    switch($request->input('tipo_reporte'))
+                    {
+                        // === MEMORIALES ===
+                        case '1':
+                            $departamento_id  = trim($request->input('departamento_id'));
+                            $funcionario_id   = trim($request->input('funcionario_id'));
+                            $funcionario_id_1 = trim($request->input('funcionario_id_1'));
+                            $fecha_del        = trim($request->input('fecha_del'));
+                            $hora_del         = trim($request->input('hora_del'));
+                            $fecha_al         = trim($request->input('fecha_al'));
+                            $hora_al          = trim($request->input('hora_al'));
+
+                            $fh_actual            = date("Y-m-d H:i:s");
+                            $dir_logo_institucion = public_path($this->public_dir) . '/' . 'logo_fge_256_2018_3.png';
+
+                            // === VALIDAR IMAGENES ===
+                                if( ! file_exists($dir_logo_institucion))
+                                {
+                                    return "No existe el logo de la institución " . $dir_logo_institucion;
+                                }
+
+                            // === CONSULTA A LA BASE DE DATOS ===
+                                //=== CONSULTA 1 ===
+                                    $tabla1  = "i4_noti_notificaciones";
+                                    $tabla2  = "EstadoNotificacion";
+                                    $tabla3  = "Persona";
+                                    $tabla4  = "Abogado";
+                                    $tabla5  = "Caso";
+                                    $tabla6  = "Division";
+                                    $tabla7  = "Oficina";
+                                    $tabla8  = "Muni";
+                                    $tabla9  = "Dep";
+                                    $tabla10 = "Actividad";
+                                    $tabla11 = "Funcionario";
+                                    $tabla12 = "TipoActividad";
+
+                                    $select1 = "
+                                        $tabla1.id,
+                                        $tabla1.caso_id,
+                                        $tabla1.persona_id,
+                                        $tabla1.abogado_id,
+                                        $tabla1.actividad_solicitante_id,
+                                        $tabla1.actividad_notificacion_id,
+                                        $tabla1.funcionario_solicitante_id,
+                                        $tabla1.funcionario_notificador_id,
+                                        $tabla1.funcionario_entrega_id,
+                                        $tabla1.estado_notificacion_id,
+
+                                        $tabla1.estado,
+                                        $tabla1.codigo,
+
+                                        $tabla1.solicitud_fh,
+                                        $tabla1.solicitud_asunto,
+
+                                        $tabla1.persona_estado,
+
+                                        $tabla1.persona_municipio,
+                                        $tabla1.persona_zona,
+                                        $tabla1.persona_direccion,
+                                        $tabla1.persona_telefono,
+                                        $tabla1.persona_celular,
+                                        $tabla1.persona_email,
+
+                                        $tabla1.abogado_municipio,
+                                        $tabla1.abogado_zona,
+                                        $tabla1.abogado_direccion,
+                                        $tabla1.abogado_telefono,
+                                        $tabla1.abogado_celular,
+                                        $tabla1.abogado_email,
+
+                                        $tabla1.notificacion_estado,
+                                        $tabla1.notificacion_fh,
+                                        $tabla1.notificacion_observacion,
+                                        $tabla1.notificacion_testigo_nombre,
+                                        $tabla1.notificacion_testigo_n_documento,
+
+                                        UPPER(a2.EstadoNotificacion) AS EstadoNotificacion,
+                                        a2.UsoEntrega,
+
+                                        UPPER(a3.Persona) AS Persona,
+
+                                        UPPER(a4.Abogado) AS Abogado,
+
+                                        a5.Caso,
+
+                                        UPPER(a6.Division) AS division,
+
+                                        UPPER(a9.Dep) AS departamento,
+
+                                        UPPER(a11.Funcionario) AS funcionario_solicitante,
+
+                                        UPPER(a12.Funcionario) AS funcionario_notificador,
+
+                                        UPPER(a13.TipoActividad) AS tipo_actividad
+                                    ";
+
+                                    $where1 = "$tabla1.estado=3 AND $tabla1.notificacion_fh >= '" . $fecha_del . " " . $hora_del . "' AND $tabla1.notificacion_fh <= '" . $fecha_al . " " . $hora_al . "'";
+
+                                    if($request->has('funcionario_id'))
+                                    {
+                                        $where1_1             = "";
+                                        $where1_1_sw          = TRUE;
+                                        $funcionario_id_array = explode(",", $funcionario_id);
+                                        foreach ($funcionario_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND ($tabla1.funcionario_solicitante_id=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR $tabla1.funcionario_solicitante_id=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1;
+                                    }
+
+                                    if($request->has('funcionario_id_1'))
+                                    {
+                                        $where1_1             = "";
+                                        $where1_1_sw          = TRUE;
+                                        $funcionario_id_array = explode(",", $funcionario_id_1);
+                                        foreach ($funcionario_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND ($tabla1.funcionario_notificador_id=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR $tabla1.funcionario_notificador_id=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1;
+                                    }
+
+                                    // if($request->has('departamento_id'))
+                                    // {
+                                    //     $where1_1              = "";
+                                    //     $where1_1_sw           = TRUE;
+                                    //     $departamento_id_array = explode(",", $departamento_id);
+                                    //     foreach ($departamento_id_array as $valor1)
+                                    //     {
+                                    //         if($where1_1_sw)
+                                    //         {
+                                    //             $where1_1    .= " AND (a9.id=" . $valor1;
+                                    //             $where1_1_sw = FALSE;
+                                    //         }
+                                    //         else
+                                    //         {
+                                    //             $where1_1 .= " OR a9.id=" . $valor1;
+                                    //         }
+                                    //     }
+                                    //     $where1_1 .= ")";
+                                    //     $where1   .= $where1_1;
+                                    // }
+
+                                    $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+
+                                    if($i4_funcionario_id == "")
+                                    {
+                                        return dd("No tiene cuenta en el i4.");
+                                    }
+
+                                    $consulta2 = Funcionario::join("Division", "Division.id", "=", "Funcionario.Division")
+                                                    ->join("Oficina", "Oficina.id", "=", "Division.Oficina")
+                                                    ->join("Muni", "Muni.id", "=", "Oficina.Muni")
+                                                    ->whereRaw("Funcionario.id=" . $i4_funcionario_id)
+                                                    ->select(DB::raw("Muni.Dep AS departamento_id"))
+                                                    ->first();
+
+                                    if($consulta2 === null)
+                                    {
+                                        return dd("No tiene cuenta en el i4.");
+                                    }
+
+                                    $where1 .= " AND a9.id=" . $consulta2["departamento_id"] . "";
+
+                                    $consulta1 = I4NotiNotificacion::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.estado_notificacion_id")
+                                                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                                                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.abogado_id")
+                                                    ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.caso_id")
+                                                    ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.DivisionFis")
+                                                    ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a6.Oficina")
+                                                    ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Muni")
+                                                    ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.Dep")
+                                                    ->join("$tabla10 AS a10", "a10.id", "=", "$tabla1.actividad_solicitante_id")
+                                                    ->leftJoin("$tabla11 AS a11", "a11.id", "=", "$tabla1.funcionario_solicitante_id")
+                                                    ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.funcionario_notificador_id")
+                                                    ->leftJoin("$tabla12 AS a13", "a13.id", "=", "a10.TipoActividad")
+                                                    ->whereRaw($where1)
+                                                    ->select(DB::raw($select1))
+                                                    ->orderBy("a11.Funcionario", "ASC")
+                                                    ->orderBy("$tabla1.notificacion_fh", "ASC")
+                                                    ->get();
+
+                                    if($consulta1->isEmpty())
+                                    {
+                                        return dd("No se encontraron NOTIFICACIONES NOTIFICADAS.");
+                                    }
+
+                            // === CARGAR VALORES ===
+                                $x1_array = [
+                                    7,
+                                    20,
+                                    17,
+                                    35,
+                                    18,
+                                    35,
+                                    35,
+                                    35,
+                                    35,
+                                    35,
+                                    38
+                                ];
+
+                                $data1 = array(
+                                    'dir_logo_institucion' => $dir_logo_institucion,
+                                    'x1_array'             => $x1_array,
+                                    'url_pdf'              => url()->full()
+                                );
+
+                                $data2 = array(
+                                    'fh_actual' => $fh_actual
+                                );
+
+                                $style_qrcode = array(
+                                    'border'        => 0,
+                                    'vpadding'      => 'auto',
+                                    'hpadding'      => 'auto',
+                                    'fgcolor'       => array(0, 0, 0),
+                                    'bgcolor'       => false, //array(255,255,255)
+                                    'module_width'  => 1, // width of a single module in points
+                                    'module_height' => 1 // height of a single module in points
+                                );
+
+                            // === HEADER ===
+                                PDF::setHeaderCallback(function($pdf) use($data1){
+                                    $pdf->Image($data1['dir_logo_institucion'], 297, 6, 0, 23, 'PNG');
+
+                                    $pdf->Ln(7);
+                                    $pdf->SetFont('times', 'B', 22);
+                                    $pdf->Write(0, 'MINISTERIO PÚBLICO', '', 0, 'C', true, 0, false, false, 0);
+
+                                    $pdf->SetFont('times', 'B', 18);
+                                    $pdf->Write(0, $this->tipo_reporte['1'], '', 0, 'C', true, 0, false, false, 0);
+
+                                    $pdf->Ln(2.5);
+
+                                    $pdf->SetFillColor(211, 200, 206);
+                                    $pdf->SetFont("times", "B", 6);
+
+                                    $y=8;
+                                    $i= 0;
+
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "No", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "CASO", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "CODIGO\nFECHA DE NOTIFICACION", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "PERSONA A NOTIFICAR", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "EN CALIDAD DE", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "RESOLUCION", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "NOTIFICACION REALIZADO POR", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "FISCAL SOLICITANTE", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "DIVISION", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "NOTIFICADOR", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "FIRMA", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+
+                                    $style_qrcode = array(
+                                        'border'        => 0,
+                                        'vpadding'      => 'auto',
+                                        'hpadding'      => 'auto',
+                                        'fgcolor'       => array(0, 0, 0),
+                                        'bgcolor'       => false, //array(255,255,255)
+                                        'module_width'  => 1, // width of a single module in points
+                                        'module_height' => 1 // height of a single module in points
+                                    );
+
+                                    $this->utilitarios(array(
+                                        'tipo'    => '112',
+                                        'code'    => $data1['url_pdf'],
+                                        'type'    => 'QRCODE,L',
+                                        'x'       => 8.2,
+                                        'y'       => 3,
+                                        'w'       => 25,
+                                        'h'       => 25,
+                                        'style'   => $style_qrcode,
+                                        'align'   => '',
+                                        'distort' => FALSE
+                                    ));
+                                });
+                            // === FOOTER ===
+                                PDF::setFooterCallback(function($pdf) use($data2){
+                                    $style1 = array(
+                                        'width' => 0.5,
+                                        'cap'   => 'butt',
+                                        'join'  => 'miter',
+                                        'dash'  => '0',
+                                        'phase' => 10,
+                                        'color' => array(0, 0, 0)
+                                    );
+
+                                    $pdf->Line(10, 204, 320, 204, $style1);
+                                    $pdf->SetY(-11);
+                                    $pdf->SetFont("times", "I", 7);
+                                    $pdf->Cell(155, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s", strtotime($data2['fh_actual'])), 0, 0, "L");
+                                    $pdf->Cell(155, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
+                                });
+
+                            PDF::setPageUnit('mm');
+
+                            PDF::SetMargins(10, 35.3, 10);
+                            PDF::getAliasNbPages();
+                            PDF::SetCreator('MINISTERIO PUBLICO');
+                            PDF::SetAuthor('TRITON');
+                            PDF::SetTitle($this->tipo_reporte['1']);
+                            PDF::SetSubject('DOCUMENTO');
+                            PDF::SetKeywords($this->tipo_reporte['1']);
+
+                            PDF::SetAutoPageBreak(FALSE, 10);
+
+                            // === BODY ===
+                                PDF::AddPage('L', 'FOLIO');
+
+                                $c    = 1;
+                                $y    = 16.85;
+                                $fill = FALSE;
+                                PDF::SetFont("times", "", 2);
+                                PDF::SetFillColor(204, 239, 252);
+
+                                $ta1 = 6;
+                                PDF::SetFont("times", "", $ta1);
+
+                                foreach($consulta1->toArray() AS $row1)
+                                {
+                                    $i  = 0;
+                                    $y1 = PDF::GetY();
+                                    if ($y + $y1 > 204)
+                                    {
+                                        PDF::Cell(310, 1, "", "T", 0, "L");
+                                        PDF::AddPage('L', 'FOLIO');
+                                    }
+
+                                    PDF::MultiCell($x1_array[$i++], $y, $c++, 1, "R", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['Caso'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['codigo'] . "\n" . $row1['notificacion_fh'], 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['Persona'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $this->persona_estado[$row1['persona_estado']] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['tipo_actividad'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['EstadoNotificacion'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['funcionario_solicitante'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['division'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['funcionario_notificador'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, "", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+
+                                    PDF::Ln();
+                                    $fill = !$fill;
+                                }
+
+                            PDF::Output('memoriales_' . date("YmdHis") . '.pdf', 'I');
+                            break;
+                        // === OLAP - MEMORIALES ===
+                        case '10':
+                            $departamento_id  = trim($request->input('departamento_id'));
+                            $funcionario_id   = trim($request->input('funcionario_id'));
+                            $funcionario_id_1 = trim($request->input('funcionario_id_1'));
+                            $fecha_del        = trim($request->input('fecha_del'));
+                            $hora_del         = trim($request->input('hora_del'));
+                            $fecha_al         = trim($request->input('fecha_al'));
+                            $hora_al          = trim($request->input('hora_al'));
+
+                            // === CONSULTA A LA BASE DE DATOS ===
+                                //=== CONSULTA 1 ===
+                                    $tabla1  = "i4_noti_notificaciones";
+                                    $tabla2  = "EstadoNotificacion";
+                                    $tabla3  = "Persona";
+                                    $tabla4  = "Abogado";
+                                    $tabla5  = "Caso";
+                                    $tabla6  = "Division";
+                                    $tabla7  = "Oficina";
+                                    $tabla8  = "Muni";
+                                    $tabla9  = "Dep";
+                                    $tabla10 = "Actividad";
+                                    $tabla11 = "Funcionario";
+                                    $tabla12 = "TipoActividad";
+
+                                    $select1 = "
+                                        $tabla1.id,
+                                        $tabla1.caso_id,
+                                        $tabla1.persona_id,
+                                        $tabla1.abogado_id,
+                                        $tabla1.actividad_solicitante_id,
+                                        $tabla1.actividad_notificacion_id,
+                                        $tabla1.funcionario_solicitante_id,
+                                        $tabla1.funcionario_notificador_id,
+                                        $tabla1.funcionario_entrega_id,
+                                        $tabla1.estado_notificacion_id,
+
+                                        $tabla1.estado,
+                                        $tabla1.codigo,
+
+                                        $tabla1.solicitud_fh,
+                                        $tabla1.solicitud_asunto,
+
+                                        $tabla1.persona_estado,
+
+                                        $tabla1.persona_municipio,
+                                        $tabla1.persona_zona,
+                                        $tabla1.persona_direccion,
+                                        $tabla1.persona_telefono,
+                                        $tabla1.persona_celular,
+                                        $tabla1.persona_email,
+
+                                        $tabla1.abogado_municipio,
+                                        $tabla1.abogado_zona,
+                                        $tabla1.abogado_direccion,
+                                        $tabla1.abogado_telefono,
+                                        $tabla1.abogado_celular,
+                                        $tabla1.abogado_email,
+
+                                        $tabla1.notificacion_estado,
+                                        $tabla1.notificacion_fh,
+                                        $tabla1.notificacion_observacion,
+                                        $tabla1.notificacion_testigo_nombre,
+                                        $tabla1.notificacion_testigo_n_documento,
+
+                                        UPPER(a2.EstadoNotificacion) AS EstadoNotificacion,
+                                        a2.UsoEntrega,
+
+                                        UPPER(a3.Persona) AS Persona,
+
+                                        UPPER(a4.Abogado) AS Abogado,
+
+                                        a5.Caso,
+
+                                        UPPER(a6.Division) AS division,
+
+                                        UPPER(a7.Oficina) AS oficina,
+
+                                        UPPER(a8.Muni) AS municipio,
+
+                                        UPPER(a9.Dep) AS departamento,
+
+                                        UPPER(a11.Funcionario) AS funcionario_solicitante,
+
+                                        UPPER(a12.Funcionario) AS funcionario_notificador,
+
+                                        UPPER(a13.TipoActividad) AS tipo_actividad
+                                    ";
+
+                                    $where1 = "$tabla1.solicitud_fh >= '" . $fecha_del . " " . $hora_del . "' AND $tabla1.solicitud_fh <= '" . $fecha_al . " " . $hora_al . "'";
+
+                                    if($request->has('funcionario_id'))
+                                    {
+                                        $where1_1             = "";
+                                        $where1_1_sw          = TRUE;
+                                        $funcionario_id_array = explode(",", $funcionario_id);
+                                        foreach ($funcionario_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND ($tabla1.funcionario_solicitante_id=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR $tabla1.funcionario_solicitante_id=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1;
+                                    }
+
+                                    if($request->has('funcionario_id_1'))
+                                    {
+                                        $where1_1             = "";
+                                        $where1_1_sw          = TRUE;
+                                        $funcionario_id_array = explode(",", $funcionario_id_1);
+                                        foreach ($funcionario_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND ($tabla1.funcionario_notificador_id=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR $tabla1.funcionario_notificador_id=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1;
+                                    }
+
+                                    if($request->has('departamento_id'))
+                                    {
+                                        $where1_1              = "";
+                                        $where1_1_sw           = TRUE;
+                                        $departamento_id_array = explode(",", $departamento_id);
+                                        foreach ($departamento_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND (a9.id=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR a9.id=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1;
+                                    }
+
+                                    // === SEGURIDAD ===
+                                        $this->rol_id   = Auth::user()->rol_id;
+                                        $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
+                                                            ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
+                                                            ->select("seg_permisos.codigo")
+                                                            ->get()
+                                                            ->toArray();
+
+                                    if(in_array(['codigo' => '2719'], $this->permisos))
+                                    {
+                                        if($request->has('departamento_id'))
+                                        {
+                                            $where1_1              = "";
+                                            $where1_1_sw           = TRUE;
+                                            $departamento_id_array = explode(",", $departamento_id);
+                                            foreach ($departamento_id_array as $valor1)
+                                            {
+                                                if($where1_1_sw)
+                                                {
+                                                    $where1_1    .= " AND (a9.id=" . $valor1;
+                                                    $where1_1_sw = FALSE;
+                                                }
+                                                else
+                                                {
+                                                    $where1_1 .= " OR a9.id=" . $valor1;
+                                                }
+                                            }
+                                            $where1_1 .= ")";
+                                            $where1   .= $where1_1;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+
+                                        if($i4_funcionario_id == "")
+                                        {
+                                            return dd("No tiene cuenta en el i4.");
+                                        }
+
+                                        $consulta2 = Funcionario::join("Division", "Division.id", "=", "Funcionario.Division")
+                                                        ->join("Oficina", "Oficina.id", "=", "Division.Oficina")
+                                                        ->join("Muni", "Muni.id", "=", "Oficina.Muni")
+                                                        ->whereRaw("Funcionario.id=" . $i4_funcionario_id)
+                                                        ->select(DB::raw("Muni.Dep AS departamento_id"))
+                                                        ->first();
+
+                                        if($consulta2 === null)
+                                        {
+                                            return dd("No tiene cuenta en el i4.");
+                                        }
+
+                                        $where1 .= " AND a9.id=" . $consulta2["departamento_id"] . "";
+                                    }
+
+                                    $consulta1 = I4NotiNotificacion::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.estado_notificacion_id")
+                                                    ->leftJoin("$tabla3 AS a3", "a3.id", "=", "$tabla1.persona_id")
+                                                    ->leftJoin("$tabla4 AS a4", "a4.id", "=", "$tabla1.abogado_id")
+                                                    ->leftJoin("$tabla5 AS a5", "a5.id", "=", "$tabla1.caso_id")
+                                                    ->leftJoin("$tabla6 AS a6", "a6.id", "=", "a5.DivisionFis")
+                                                    ->leftJoin("$tabla7 AS a7", "a7.id", "=", "a6.Oficina")
+                                                    ->leftJoin("$tabla8 AS a8", "a8.id", "=", "a7.Muni")
+                                                    ->leftJoin("$tabla9 AS a9", "a9.id", "=", "a8.Dep")
+                                                    ->join("$tabla10 AS a10", "a10.id", "=", "$tabla1.actividad_solicitante_id")
+                                                    ->leftJoin("$tabla11 AS a11", "a11.id", "=", "$tabla1.funcionario_solicitante_id")
+                                                    ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.funcionario_notificador_id")
+                                                    ->leftJoin("$tabla12 AS a13", "a13.id", "=", "a10.TipoActividad")
+                                                    ->whereRaw($where1)
+                                                    ->select(DB::raw($select1))
+                                                    ->orderBy("a11.Funcionario", "ASC")
+                                                    ->orderBy("$tabla1.notificacion_fh", "ASC")
+                                                    ->get();
+
+                                    if($consulta1->isEmpty())
+                                    {
+                                        return dd("No se encontraron NOTIFICACIONES NOTIFICADAS.");
+                                    }
+
+                            //=== EXCEL ===
+                                set_time_limit(3600);
+                                ini_set('memory_limit','-1');
+                                Excel::create('memoriales_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                                    $excel->sheet('Memoriales', function($sheet) use($consulta1){
+                                        $sheet->row(1, [
+                                            'DEPARTAMENTO',
+                                            'MUNICIPIO',
+                                            'OFICINA',
+                                            'DIVISION',
+
+                                            'ESTADO',
+                                            'SITUACION',
+                                            'ESTADO NOTIFICACION',
+                                            '¿CON PDF?',
+
+                                            'CASO',
+                                            'CODIGO',
+
+                                            'FECHA Y HORA DE SOLICITUD',
+                                            'FECHA Y HORA DE NOTIFICACION',
+
+                                            'TIPO DE ACTIVIDAD',
+
+                                            'PERSONA A NOTIFICAR',
+                                            'UBICACION',
+
+                                            'ABOGADO A NOTIFICAR',
+                                            'UBICACION ABOGADO',
+
+                                            'ASUNTO',
+                                            'OBSERVACION',
+
+                                            'TESTIGO CI',
+                                            'TESTIGO NOMBRE',
+
+                                            'SOLICITANTE',
+                                            'NOTIFICADOR'
+                                        ]);
+
+                                        $sheet->row(1, function($row){
+                                            $row->setBackground('#CCCCCC');
+                                            $row->setFontWeight('bold');
+                                            $row->setAlignment('center');
+                                        });
+
+                                        $sheet->freezeFirstRow();
+                                        $sheet->setAutoFilter();
+
+                                        $sw = FALSE;
+                                        $c  = 1;
+                                        $this->estado = [
+                                            '1' => 'HABILITADA',
+                                            // '2' => 'ANULADA',
+                                            '3' => 'NOTIFICADO'
+                                        ];
+
+                                        $this->persona_estado = [
+                                            '1' => 'DENUNCIADO',
+                                            '2' => 'DENUNCIANTE',
+                                            '3' => 'VICTIMA'
+                                        ];
+
+                                        $this->si_no = [
+                                            '1' => 'NO',
+                                            '2' => 'SI'
+                                        ];
+
+                                        foreach($consulta1 as $index1 => $row1)
+                                        {
+                                            $sheet->row($c+1, [
+                                                $row1["departamento"],
+                                                $row1["municipio"],
+                                                $row1["oficina"],
+                                                $row1["division"],
+
+                                                $this->estado[$row1["estado"]],
+                                                $this->persona_estado[$row1["persona_estado"]],
+                                                $row1["EstadoNotificacion"],
+                                                $this->si_no[$row1["notificacion_estado"]],
+
+                                                $row1["Caso"],
+                                                $row1["codigo"],
+
+                                                $row1["solicitud_fh"],
+                                                $row1["notificacion_fh"],
+
+                                                $row1["tipo_actividad"],
+
+                                                $row1["Persona"],
+                                                $row1["delito"],
+
+                                                $row1["Abogado"],
+                                                $row1["fecha"],
+
+                                                $row1["solicitud_asunto"],
+                                                $row1["notificacion_observacion"],
+
+                                                $row1["notificacion_testigo_n_documento"],
+                                                $row1["notificacion_testigo_nombre"],
+
+                                                $row1["funcionario_solicitante"],
+                                                $row1["funcionario_notificador"]
+                                            ]);
+
+                                            $c++;
+
+                                            if($sw)
+                                            {
+                                                $sheet->row($c, function($row){
+                                                    $row->setBackground('#deeaf6');
+                                                });
+
+                                                $sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $sw = TRUE;
+                                            }
+                                        }
+
+                                        // $sheet->cells('A2:R' . ($c), function($cells){
+                                        //     $cells->setAlignment('center');
+                                        // });
+
+                                        $sheet->setAutoSize(true);
+                                    });
+
+                                    $excel->setActiveSheetIndex(0);
+                                })->export('xlsx');
+                            break;
+
+                    }
+                }
+                else
+                {
+                    return "TIPO DE REPORTE no existe";
                 }
                 break;
             // === DOCUMENTO DE LA ACTIVIDAD - BINARIO 64 ===
@@ -1560,6 +2269,23 @@ class CentralNotificacionController extends Controller
                         return($respuesta);
                         break;
                 }
+                break;
+            case '112':
+                PDF::write2DBarcode(
+                    $valor['code'], // Código para imprimir
+                    $valor['type'], // Tipo de código de barras
+                    $valor['x'],    // x posición
+                    $valor['y'],    // y posición
+                    $valor['w'],    // Ancho
+                    $valor['h'],    // Altura
+                    $valor['style'],// conjunto de opciones:
+                    $valor['align'],// Indica la alineación del puntero al lado de la inserción del código de barras con respecto a la altura del código de barras. El valor puede ser:
+                                    // T: arriba a la derecha para LTR o arriba a la izquierda para RTL
+                                    // M: medio-derecha para LTR o middle-left para RTL
+                                    // B: abajo a la derecha para LTR o abajo a la izquierda para RTL
+                                    // N: siguiente línea
+                    $valor['distort']   // FALSE
+                );
                 break;
             default:
                 break;

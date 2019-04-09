@@ -88,7 +88,7 @@
 
                         <div class="ibox-tools" style="margin-top: 4px;">
                             @if(in_array(['codigo' => '2706'], $permisos))
-                                <button type="button" class="btn btn-info btn-xs" onclick="utilitarios([11]);">
+                                <button type="button" class="btn btn-info btn-xs" onclick="utilitarios([12]);">
                                     <strong>Reportes</strong>
                                 </button>
                             @endif
@@ -252,6 +252,92 @@
 
                     <div id="div_pdf" class="modal-body">
 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal_4" class="modal inmodal fade" role="dialog" data-keyboard="false" data-backdrop="static">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times;</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+
+                        <h4 class="modal-title">
+                            REPORTES
+                        </h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="form_2" role="form" action="#">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div id="tipo_reporte_2_div" class="form-group">
+                                        <label for="tipo_reporte_2">Tipo de reporte</label>
+                                        <select name="tipo_reporte_2" id="tipo_reporte_2" data-placeholder="Tipo de reporte" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div id="departamento_id_2_div" class="form-group">
+                                        <label for="departamento_id_2">Departamento</label>
+                                        <select name="departamento_id_2" id="departamento_id_2" data-placeholder="Departamento" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div id="funcionario_id_2_div" class="form-group">
+                                        <label for="funcionario_id_2">Fiscal solicitante</label>
+                                        <select name="funcionario_id_2" id="funcionario_id_2" data-placeholder="Fiscal solicitante" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div id="funcionario_id_21_div" class="form-group">
+                                        <label for="funcionario_id_21">Notificador</label>
+                                        <select name="funcionario_id_21" id="funcionario_id_21" data-placeholder="Notificador" multiple="multiple" style="width: 100%;">
+                                        </select>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="fecha_del_2">Fecha del</label>
+                                            <input type="text" class="form-control" id="fecha_del_2" name="fecha_del_2" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date('Y-m-d') }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="hora_del_2">Hora del</label>
+                                                <input type="text" class="form-control" id="hora_del_2" name="hora_del_2" placeholder="hora:minuto" data-mask="99:99" value="00:00">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="fecha_al_2">Fecha al</label>
+                                                <input type="text" class="form-control" id="fecha_al_2" name="fecha_al_2" placeholder="año-mes-día" data-mask="9999-99-99" value="{{ date('Y-m-d') }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="hora_al_2">Hora al</label>
+                                                <input type="text" class="form-control" id="hora_al_2" name="hora_al_2" placeholder="hora:minuto" data-mask="99:99" value="{{ date('H:i') }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="utilitarios([71]);">GENERAR</button>
+                        <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Salir</button>
                     </div>
                 </div>
             </div>

@@ -40,7 +40,8 @@ class PlataformaController extends Controller
         $this->tipo_reporte = [
             '1' => 'MEMORIALES',
             '2' => 'REPARTO DE CASO',
-            '3' => 'OLAP - MEMORIALES'
+            '3' => 'CASOS INGRESADOS',
+            '10' => 'OLAP - MEMORIALES'
         ];
 
         $this->public_dir = '/image/logo';
@@ -900,7 +901,7 @@ class PlataformaController extends Controller
                     return "La ACTIVIDAD no existe";
                 }
                 break;
-            // === REPORTE PDF - REPORTES ===
+            // === REPORTE PDF - EXCEL - REPORTES ===
             case '2':
                 if($request->has('tipo_reporte'))
                 {
@@ -1576,8 +1577,341 @@ class PlataformaController extends Controller
                             PDF::Output('reparto_caso_' . date("YmdHis") . '.pdf', 'I');
                             break;
 
-                        // === OLAP - MEMORIALES ===
+                        // === CASOS INGRESADOS ===
                         case '3':
+                            $division_id    = trim($request->input('division_id'));
+                            $funcionario_id = trim($request->input('funcionario_id'));
+                            $fecha_del      = trim($request->input('fecha_del'));
+                            $hora_del       = trim($request->input('hora_del'));
+                            $fecha_al       = trim($request->input('fecha_al'));
+                            $hora_al        = trim($request->input('hora_al'));
+
+                            $fh_actual            = date("Y-m-d H:i:s");
+                            $dir_logo_institucion = public_path($this->public_dir) . '/' . 'logo_fge_256_2018_3.png';
+
+                            // === VALIDAR IMAGENES ===
+                                if( ! file_exists($dir_logo_institucion))
+                                {
+                                    return "No existe el logo de la institución " . $dir_logo_institucion;
+                                }
+
+                            // === CONSULTA A LA BASE DE DATOS ===
+                                //=== CONSULTA 1 ===
+                                    $tabla1 = "Caso";
+                                    $tabla2 = "Delito";
+                                    $tabla3 = "Division";
+                                    $tabla4 = "Oficina";
+                                    $tabla5 = "Muni";
+                                    $tabla6 = "CasoFuncionario";
+
+                                    $select1 = "
+                                        $tabla1.id,
+                                        $tabla1.Caso,
+                                        $tabla1.FechaDenuncia,
+                                        $tabla1.DivisionFis,
+                                        $tabla1.CreationDate,
+
+                                        UPPER(a2.Delito) AS delito_principal,
+
+                                        UPPER(a3.Division) AS division,
+
+                                        a6.CreationDate,
+                                        a6.FechaAlta AS f_reparto,
+
+                                        (
+                                            SELECT UPPER(GROUP_CONCAT(DISTINCT a40.Persona ORDER BY a40.Persona ASC SEPARATOR ', ')) AS denunciante
+                                            FROM Persona AS a40
+                                            WHERE a40.EsDenunciante=1 AND a40.Caso=$tabla1.id
+                                        ) AS denunciantes,
+
+                                        (
+                                            SELECT UPPER(GROUP_CONCAT(DISTINCT a50.Persona ORDER BY a50.Persona ASC SEPARATOR ', ')) AS denunciado
+                                            FROM Persona AS a50
+                                            WHERE a50.EsDenunciado=1 AND a50.Caso=$tabla1.id
+                                        ) AS denunciados,
+
+                                        (
+                                            SELECT UPPER(GROUP_CONCAT(DISTINCT a61.Funcionario ORDER BY a61.Funcionario ASC SEPARATOR ', ')) AS fiscale
+                                            FROM CasoFuncionario AS a60
+                                            INNER JOIN Funcionario AS a61 ON a61.id=a60.Funcionario
+                                            WHERE a60.FechaBaja IS NULL AND a60.Caso=$tabla1.id
+                                        ) AS fiscales,
+
+                                        (
+                                            SELECT UPPER(GROUP_CONCAT(DISTINCT a71.Funcionario ORDER BY a71.FechaAlta DESC SEPARATOR ', ')) AS anterior_fiscale
+                                            FROM CasoFuncionario AS a70
+                                            INNER JOIN Funcionario AS a71 ON a71.id=a70.Funcionario
+                                            WHERE a70.FechaBaja IS NOT NULL AND a70.Caso=$tabla1.id
+                                        ) AS anteriores_fiscales
+                                    ";
+
+                                    $group_by_1 = "
+                                        $tabla1.id,
+                                        $tabla1.Caso,
+                                        $tabla1.FechaDenuncia,
+                                        $tabla1.DivisionFis,
+                                        $tabla1.CreationDate,
+
+                                        a2.Delito,
+
+                                        a3.Division,
+
+                                        a6.CreationDate,
+                                        a6.FechaAlta
+                                    ";
+
+                                    $where1 = "$tabla1.FechaDenuncia >= '" . $fecha_del . "' AND $tabla1.FechaDenuncia <= ' " . $fecha_al . "' AND a6.FechaBaja IS NULL";
+
+                                    if($request->has('funcionario_id'))
+                                    {
+                                        $where1_1             = "";
+                                        $where1_1_sw          = TRUE;
+                                        $funcionario_id_array = explode(",", $funcionario_id);
+                                        foreach ($funcionario_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND (a6.Funcionario=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR a6.Funcionario=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1;
+                                    }
+
+                                    if($request->has('division_id'))
+                                    {
+                                        $where1_1          = "";
+                                        $where1_1_sw       = TRUE;
+                                        $division_id_array = explode(",", $division_id);
+                                        foreach ($division_id_array as $valor1)
+                                        {
+                                            if($where1_1_sw)
+                                            {
+                                                $where1_1    .= " AND (a3.id=" . $valor1;
+                                                $where1_1_sw = FALSE;
+                                            }
+                                            else
+                                            {
+                                                $where1_1 .= " OR a3.id=" . $valor1;
+                                            }
+                                        }
+                                        $where1_1 .= ")";
+                                        $where1   .= $where1_1;
+
+                                        $consulta1 = Caso::join("$tabla2 AS a2", "a2.id", "=", "$tabla1.DelitoPrincipal")
+                                                        ->join("$tabla3 AS a3", "a3.id", "=", "$tabla1.DivisionFis")
+                                                        ->leftJoin("$tabla6 AS a6", "a6.Caso", "=", "$tabla1.id")
+                                                        ->whereRaw($where1)
+                                                        ->select(DB::raw($select1))
+                                                        ->groupBy(DB::raw($group_by_1))
+                                                        ->orderBy("$tabla1.FechaDenuncia", "ASC")
+                                                        ->orderBy("a6.Funcionario", "ASC")
+                                                        ->orderBy("a6.CreationDate", "ASC")
+                                                        ->get();
+                                    }
+                                    else
+                                    {
+                                        $i4_funcionario_id = Auth::user()->i4_funcionario_id;
+
+                                        if($i4_funcionario_id == "")
+                                        {
+                                            return dd("No tiene cuenta en el i4.");
+                                        }
+
+                                        $consulta2 = Funcionario::join("Division", "Division.id", "=", "Funcionario.Division")
+                                                        ->join("Oficina", "Oficina.id", "=", "Division.Oficina")
+                                                        ->join("Muni", "Muni.id", "=", "Oficina.Muni")
+                                                        ->whereRaw("Funcionario.id=" . $i4_funcionario_id)
+                                                        ->select(DB::raw("Muni.Dep AS departamento_id"))
+                                                        ->first();
+
+                                        if($consulta2 === null)
+                                        {
+                                            return dd("No tiene cuenta en el i4.");
+                                        }
+
+                                        $where1   .= " AND a5.Dep=" . $consulta2["departamento_id"];
+
+                                        $consulta1 = Caso::join("$tabla2 AS a2", "a2.id", "=", "$tabla1.DelitoPrincipal")
+                                                        ->join("$tabla3 AS a3", "a3.id", "=", "$tabla1.DivisionFis")
+                                                        ->join("$tabla4 AS a4", "a4.id", "=", "a3.Oficina")
+                                                        ->join("$tabla5 AS a5", "a5.id", "=", "a4.Muni")
+                                                        ->leftJoin("$tabla6 AS a6", "a6.Caso", "=", "$tabla1.id")
+                                                        ->whereRaw($where1)
+                                                        ->select(DB::raw($select1))
+                                                        ->groupBy(DB::raw($group_by_1))
+                                                        ->orderBy("$tabla1.FechaDenuncia", "ASC")
+                                                        ->orderBy("a6.Funcionario", "ASC")
+                                                        ->orderBy("a6.CreationDate", "ASC")
+                                                        ->get();
+                                    }
+
+                                    if($consulta1->isEmpty())
+                                    {
+                                        return dd("No se encontraron CASOS.");
+                                    }
+
+                            // === CARGAR VALORES ===
+                                $x1_array = [
+                                    8,
+                                    20,
+                                    15,
+                                    50,
+                                    50,
+                                    35,
+                                    50,
+                                    50,
+                                    32
+                                ];
+
+                                $data1 = array(
+                                    'dir_logo_institucion' => $dir_logo_institucion,
+                                    'x1_array'             => $x1_array,
+                                    'url_pdf'              => url()->full()
+                                );
+
+                                $data2 = array(
+                                    'fh_actual' => $fh_actual
+                                );
+
+                                $style_qrcode = array(
+                                    'border'        => 0,
+                                    'vpadding'      => 'auto',
+                                    'hpadding'      => 'auto',
+                                    'fgcolor'       => array(0, 0, 0),
+                                    'bgcolor'       => false, //array(255,255,255)
+                                    'module_width'  => 1, // width of a single module in points
+                                    'module_height' => 1 // height of a single module in points
+                                );
+
+                            // === HEADER ===
+                                PDF::setHeaderCallback(function($pdf) use($data1){
+                                    $pdf->Image($data1['dir_logo_institucion'], 297, 6, 0, 23, 'PNG');
+
+                                    $pdf->Ln(7);
+                                    $pdf->SetFont('times', 'B', 22);
+                                    $pdf->Write(0, 'MINISTERIO PÚBLICO', '', 0, 'C', true, 0, false, false, 0);
+
+                                    $pdf->SetFont('times', 'B', 18);
+                                    $pdf->Write(0, $this->tipo_reporte['3'], '', 0, 'C', true, 0, false, false, 0);
+
+                                    $pdf->Ln(2.5);
+
+                                    $pdf->SetFillColor(211, 200, 206);
+                                    $pdf->SetFont("times", "B", 7);
+
+                                    $y=8;
+                                    $i= 0;
+
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "No", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "NUMERO CASO", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "FECHA DENUNCIA", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "DENUNCIANTE", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "DENUNCIADO", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "DELITO PRINCIPAL", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "ANTERIORES FISCALES", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "FECHA DE REPARTO\nFISCAL ASIGNADO", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+                                    $pdf->MultiCell($data1['x1_array'][$i++], $y, "FIRMA", 1, "C", 1, 0, "", "", true, 0, false, true, $y, "M");
+
+                                    $style_qrcode = array(
+                                        'border'        => 0,
+                                        'vpadding'      => 'auto',
+                                        'hpadding'      => 'auto',
+                                        'fgcolor'       => array(0, 0, 0),
+                                        'bgcolor'       => false, //array(255,255,255)
+                                        'module_width'  => 1, // width of a single module in points
+                                        'module_height' => 1 // height of a single module in points
+                                    );
+
+                                    $this->utilitarios(array(
+                                        'tipo'    => '112',
+                                        'code'    => $data1['url_pdf'],
+                                        'type'    => 'QRCODE,L',
+                                        'x'       => 8.2,
+                                        'y'       => 3,
+                                        'w'       => 25,
+                                        'h'       => 25,
+                                        'style'   => $style_qrcode,
+                                        'align'   => '',
+                                        'distort' => FALSE
+                                    ));
+                                });
+                            // === FOOTER ===
+                                PDF::setFooterCallback(function($pdf) use($data2){
+                                    $style1 = array(
+                                        'width' => 0.5,
+                                        'cap'   => 'butt',
+                                        'join'  => 'miter',
+                                        'dash'  => '0',
+                                        'phase' => 10,
+                                        'color' => array(0, 0, 0)
+                                    );
+
+                                    $pdf->Line(10, 204, 320, 204, $style1);
+                                    $pdf->SetY(-11);
+                                    $pdf->SetFont("times", "I", 7);
+                                    $pdf->Cell(155, 4, 'Fecha de emisión: ' . date("d/m/Y H:i:s", strtotime($data2['fh_actual'])), 0, 0, "L");
+                                    $pdf->Cell(155, 4, "Página " . $pdf->getAliasNumPage() . "/" . $pdf->getAliasNbPages(), 0, 0, "R");
+                                });
+
+                            PDF::setPageUnit('mm');
+
+                            PDF::SetMargins(10, 35.3, 10);
+                            PDF::getAliasNbPages();
+                            PDF::SetCreator('MINISTERIO PUBLICO');
+                            PDF::SetAuthor('TRITON');
+                            PDF::SetTitle($this->tipo_reporte['2']);
+                            PDF::SetSubject('DOCUMENTO');
+                            PDF::SetKeywords($this->tipo_reporte['2']);
+
+                            PDF::SetAutoPageBreak(FALSE, 10);
+
+                            // === BODY ===
+                                PDF::AddPage('L', 'FOLIO');
+
+                                $c    = 1;
+                                $y    = 16.85;
+                                $fill = FALSE;
+                                PDF::SetFont("times", "", 2);
+                                PDF::SetFillColor(204, 239, 252);
+
+                                $ta1 = 6;
+                                PDF::SetFont("times", "", $ta1);
+
+                                foreach($consulta1->toArray() AS $row1)
+                                {
+                                    $i  = 0;
+                                    $y1 = PDF::GetY();
+                                    if ($y + $y1 > 204)
+                                    {
+                                        PDF::Cell(310, 1, "", "T", 0, "L");
+                                        PDF::AddPage('L', 'FOLIO');
+                                    }
+
+                                    PDF::MultiCell($x1_array[$i++], $y, $c++, 1, "R", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['Caso'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['FechaDenuncia'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['denunciantes'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['denunciados'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['delito_principal'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['anteriores_fiscales'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, $row1['f_reparto'] . "\n" . $row1['fiscales'] . "\n", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+                                    PDF::MultiCell($x1_array[$i++], $y, "", 1, "C", $fill, 0, "", "", true, 0, false, true, $y, "M");
+
+                                    PDF::Ln();
+                                    $fill = !$fill;
+                                }
+
+                            PDF::Output('reparto_caso_' . date("YmdHis") . '.pdf', 'I');
+                            break;
+
+                        // === OLAP - MEMORIALES ===
+                        case '10':
                             $division_id      = trim($request->input('division_id'));
                             $funcionario_id   = trim($request->input('funcionario_id'));
                             $funcionario_id_1 = trim($request->input('funcionario_id_1'));
@@ -1915,139 +2249,6 @@ class PlataformaController extends Controller
                 {
                     return "TIPO DE REPORTE no existe";
                 }
-                break;
-            case '10':
-                // === SEGURIDAD ===
-                    $this->rol_id   = Auth::user()->rol_id;
-                    $this->permisos = SegPermisoRol::join("seg_permisos", "seg_permisos.id", "=", "seg_permisos_roles.permiso_id")
-                                        ->where("seg_permisos_roles.rol_id", "=", $this->rol_id)
-                                        ->select("seg_permisos.codigo")
-                                        ->get()
-                                        ->toArray();
-
-                // === INICIALIZACION DE VARIABLES ===
-                    $data1     = array();
-
-                // === PERMISOS ===
-                    if(!in_array(['codigo' => '2104'], $this->permisos))
-                    {
-                        return "No tiene permiso para GENERAR REPORTES.";
-                    }
-
-                //=== CARGAR VARIABLES ===
-
-                //=== CONSULTA BASE DE DATOS ===
-                    //=== CONSULTA 1 ===
-                        $tabla1 = "RecintosCarcelarios";
-                        $tabla2 = "Muni";
-                        $tabla3 = "Dep";
-
-                        $select = "
-                            $tabla1.id,
-                            $tabla1.Muni_id,
-                            $tabla1.estado,
-                            $tabla1.tipo_recinto,
-                            $tabla1.nombre,
-                            $tabla1.created_at,
-                            $tabla1.updated_at,
-
-                            a2.Dep AS departamento_id,
-                            UPPER(a2.Muni) AS municipio,
-
-                            UPPER(a3.Dep) AS departamento
-                        ";
-
-                        $array_where = "TRUE";
-
-                        set_time_limit(3600);
-                        ini_set('memory_limit','-1');
-
-                        $consulta1 = RecintoCarcelario::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.Muni_id")
-                            ->leftJoin("$tabla3 AS a3", "a3.id", "=", "a2.Dep")
-                            ->whereRaw($array_where)
-                            ->select(DB::raw($select))
-                            ->orderByRaw("a3.Dep ASC, a2.Muni ASC, $tabla1.nombre ASC")
-                            ->get()
-                            ->toArray();
-
-                //=== EXCEL ===
-                    if(count($consulta1) > 0)
-                    {
-                        Excel::create('recintos_carcelarios_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
-                            $excel->sheet('RECINTOS CARCELARIOS', function($sheet) use($consulta1){
-                                $sheet->row(1, [
-                                    'ESTADO',
-
-                                    'TIPO DE RECINTO',
-                                    'NOMBRE DEL RECINTO CARCELARIO',
-                                    'MUNICIPIO',
-                                    'DEPARTAMENTO'
-                                ]);
-
-                                $sheet->row(1, function($row){
-                                    $row->setBackground('#CCCCCC');
-                                    $row->setFontWeight('bold');
-                                    $row->setAlignment('center');
-                                });
-
-                                $sheet->freezeFirstRow();
-                                $sheet->setAutoFilter();
-
-                                // $sheet->setColumnFormat([
-                                //     'A' => 'yyyy-mm-dd hh:mm:ss'
-                                // ]);
-
-                                $sw = FALSE;
-                                $c  = 1;
-
-                                foreach($consulta1 as $index1 => $row1)
-                                {
-                                    $sheet->row($c+1, [
-                                        $this->estado[$row1["estado"]],
-
-                                        $this->tipo_recinto[$row1["tipo_recinto"]],
-                                        $row1["nombre"],
-                                        $row1["municipio"],
-                                        $row1["departamento"]
-                                    ]);
-                                    $c++;
-
-                                    if($sw)
-                                    {
-                                        $sheet->row($c, function($row){
-                                            $row->setBackground('#deeaf6');
-                                        });
-
-                                        $sw = FALSE;
-                                    }
-                                    else
-                                    {
-                                        $sw = TRUE;
-                                    }
-                                }
-
-                                // $sheet->cells('A2:A' . ($c), function($cells){
-                                //     $cells->setAlignment('right');
-                                // });
-
-                                $sheet->cells('A1:B' . ($c), function($cells){
-                                    $cells->setAlignment('center');
-                                });
-
-                                $sheet->cells('C2:E' . ($c), function($cells){
-                                    $cells->setAlignment('left');
-                                });
-
-                                $sheet->setAutoSize(true);
-                            });
-
-                            $excel->setActiveSheetIndex(0);
-                        })->export('xlsx');
-                    }
-                    else
-                    {
-                        return "No se encontraron resultados.";
-                    }
                 break;
             default:
                 break;
