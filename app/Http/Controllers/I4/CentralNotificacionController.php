@@ -1704,6 +1704,11 @@ class CentralNotificacionController extends Controller
                                     $tabla10 = "Actividad";
                                     $tabla11 = "Funcionario";
                                     $tabla12 = "TipoActividad";
+                                    $tabla13 = "Delito";
+                                    $tabla14 = "ClaseDelito";
+                                    $tabla15 = "EtapaCaso";
+                                    $tabla16 = "EstadoCaso";
+                                    $tabla17 = "OrigenCaso";
 
                                     $select1 = "
                                         $tabla1.id,
@@ -1753,6 +1758,7 @@ class CentralNotificacionController extends Controller
                                         UPPER(a4.Abogado) AS Abogado,
 
                                         a5.Caso,
+                                        a5.FechaDenuncia,
 
                                         UPPER(a6.Division) AS division,
 
@@ -1766,7 +1772,17 @@ class CentralNotificacionController extends Controller
 
                                         UPPER(a12.Funcionario) AS funcionario_notificador,
 
-                                        UPPER(a13.TipoActividad) AS tipo_actividad
+                                        UPPER(a13.TipoActividad) AS tipo_actividad,
+
+                                        UPPER(a14.Delito) AS delito,
+
+                                        UPPER(a15.ClaseDelito) AS clase_delito,
+
+                                        UPPER(a16.EtapaCaso) AS etapa_caso,
+
+                                        UPPER(a17.EstadoCaso) AS estado_caso,
+
+                                        UPPER(a18.OrigenCaso) AS origen_caso
                                     ";
 
                                     $where1 = "$tabla1.solicitud_fh >= '" . $fecha_del . " " . $hora_del . "' AND $tabla1.solicitud_fh <= '" . $fecha_al . " " . $hora_al . "'";
@@ -1901,6 +1917,11 @@ class CentralNotificacionController extends Controller
                                                     ->leftJoin("$tabla11 AS a11", "a11.id", "=", "$tabla1.funcionario_solicitante_id")
                                                     ->leftJoin("$tabla11 AS a12", "a12.id", "=", "$tabla1.funcionario_notificador_id")
                                                     ->leftJoin("$tabla12 AS a13", "a13.id", "=", "a10.TipoActividad")
+                                                    ->leftJoin("$tabla13 AS a14", "a14.id", "=", "a5.DelitoPrincipal")
+                                                    ->leftJoin("$tabla14 AS a15", "a15.id", "=", "a14.ClaseDelito")
+                                                    ->leftJoin("$tabla15 AS a16", "a16.id", "=", "a5.EtapaCaso")
+                                                    ->leftJoin("$tabla16 AS a17", "a17.id", "=", "a5.EstadoCaso")
+                                                    ->leftJoin("$tabla17 AS a18", "a18.id", "=", "a5.OrigenCaso")
                                                     ->whereRaw($where1)
                                                     ->select(DB::raw($select1))
                                                     ->orderBy("a11.Funcionario", "ASC")
@@ -1949,7 +1970,14 @@ class CentralNotificacionController extends Controller
                                             'TESTIGO NOMBRE',
 
                                             'SOLICITANTE',
-                                            'NOTIFICADOR'
+                                            'NOTIFICADOR',
+
+                                            'FECHA DE LA DENUNCIA',
+                                            'ETAPA DEL CASO',
+                                            'ESTADO DEL CASO',
+                                            'ORIGEN DEL CASO',
+                                            'CLASE DE DELITO',
+                                            'DELITO PRINCIPAL'
                                         ]);
 
                                         $sheet->row(1, function($row){
@@ -2002,10 +2030,26 @@ class CentralNotificacionController extends Controller
                                                 $row1["tipo_actividad"],
 
                                                 $row1["Persona"],
-                                                $row1["delito"],
+                                                $this->utilitarios(array(
+                                                    'tipo'      => '4',
+                                                    'municipio' => $row1["persona_municipio"],
+                                                    'zona'      => $row1["persona_zona"],
+                                                    'direccion' => $row1["persona_direccion"],
+                                                    'telefono'  => $row1["persona_telefono"],
+                                                    'celular'   => $row1["persona_celular"],
+                                                    'email'     => $row1["persona_email"]
+                                                )),
 
                                                 $row1["Abogado"],
-                                                $row1["fecha"],
+                                                $this->utilitarios(array(
+                                                    'tipo'      => '4',
+                                                    'municipio' => $row1["abogado_municipio"],
+                                                    'zona'      => $row1["abogado_zona"],
+                                                    'direccion' => $row1["abogado_direccion"],
+                                                    'telefono'  => $row1["abogado_telefono"],
+                                                    'celular'   => $row1["abogado_celular"],
+                                                    'email'     => $row1["abogado_email"]
+                                                )),
 
                                                 $row1["solicitud_asunto"],
                                                 $row1["notificacion_observacion"],
@@ -2014,10 +2058,22 @@ class CentralNotificacionController extends Controller
                                                 $row1["notificacion_testigo_nombre"],
 
                                                 $row1["funcionario_solicitante"],
-                                                $row1["funcionario_notificador"]
+                                                $row1["funcionario_notificador"],
+
+                                                $row1["FechaDenuncia"],
+                                                $row1["etapa_caso"],
+                                                $row1["estado_caso"],
+                                                $row1["origen_caso"],
+                                                $row1["clase_delito"],
+                                                $row1["delito"]
                                             ]);
 
                                             $c++;
+
+                                            $sheet->getCell('M' . $c)
+                                                ->getHyperlink()
+                                                ->setUrl(url('/central_notificacion') . '/reportes?tipo=100&id=' . $row1["id"])
+                                                ->setTooltip('Haga clic aquí para acceder al PDF.');
 
                                             if($sw)
                                             {

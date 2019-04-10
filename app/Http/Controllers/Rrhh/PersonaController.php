@@ -869,12 +869,12 @@ class PersonaController extends Controller
                         }
                         else
                         {
-                            $respuesta['respuesta'] .= "Registre la FECHA DE NACIMIENTO.";
+                            dd("Registre la FECHA DE NACIMIENTO.");
                         }
                     }
                     else
                     {
-                        $respuesta['respuesta'] .= "No se logró encontrar a la PERSONA.";
+                        dd("No se logró encontrar a la PERSONA.");
                     }
                 break;
             case '11':
