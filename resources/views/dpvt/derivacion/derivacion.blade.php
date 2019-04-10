@@ -113,10 +113,6 @@
                             <div class="col-sm-6">
                                 <div class="row">
                                     <div class="col-sm-6">
-                                        {{-- <div class="form-group">
-                                            <label>Cédula de Identidad</label>
-                                            <input type="text" class="form-control" id="n_documento" name="n_documento" placeholder="Cédula de Identidad">
-                                        </div> --}}
                                         <label>Cédula de Identidad</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" id="n_documento" name="n_documento" placeholder="Cédula de Identidad">

@@ -252,7 +252,7 @@ class InstitucionController extends Controller
                 try
                 {
                     $validator = $this->validate($request,[
-                        'nombre'       => 'required|max:50',
+                        'nombre'       => 'required|max:255',
                         'municipio'    => 'required',
                         'email'        => 'required|email',
                         'respcontacto' => 'required',
