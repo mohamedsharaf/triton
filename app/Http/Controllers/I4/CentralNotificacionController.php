@@ -1318,7 +1318,7 @@ class CentralNotificacionController extends Controller
                 {
                     switch($request->input('tipo_reporte'))
                     {
-                        // === MEMORIALES ===
+                        // === NOTIFICACIONES ===
                         case '1':
                             $departamento_id  = trim($request->input('departamento_id'));
                             $funcionario_id   = trim($request->input('funcionario_id'));
@@ -1678,9 +1678,9 @@ class CentralNotificacionController extends Controller
                                     $fill = !$fill;
                                 }
 
-                            PDF::Output('memoriales_' . date("YmdHis") . '.pdf', 'I');
+                            PDF::Output('notificaciones_realizadas_' . date("YmdHis") . '.pdf', 'I');
                             break;
-                        // === OLAP - MEMORIALES ===
+                        // === OLAP - NOTICACIONES ===
                         case '10':
                             $departamento_id  = trim($request->input('departamento_id'));
                             $funcionario_id   = trim($request->input('funcionario_id'));
@@ -1936,8 +1936,8 @@ class CentralNotificacionController extends Controller
                             //=== EXCEL ===
                                 set_time_limit(3600);
                                 ini_set('memory_limit','-1');
-                                Excel::create('memoriales_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
-                                    $excel->sheet('Memoriales', function($sheet) use($consulta1){
+                                Excel::create('Central_Notificaciones_' . date('Y-m-d_H-i-s'), function($excel) use($consulta1){
+                                    $excel->sheet('Notificaciones', function($sheet) use($consulta1){
                                         $sheet->row(1, [
                                             'DEPARTAMENTO',
                                             'MUNICIPIO',

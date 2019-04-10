@@ -1865,9 +1865,9 @@ class PlataformaController extends Controller
                             PDF::getAliasNbPages();
                             PDF::SetCreator('MINISTERIO PUBLICO');
                             PDF::SetAuthor('TRITON');
-                            PDF::SetTitle($this->tipo_reporte['2']);
+                            PDF::SetTitle($this->tipo_reporte['3']);
                             PDF::SetSubject('DOCUMENTO');
-                            PDF::SetKeywords($this->tipo_reporte['2']);
+                            PDF::SetKeywords($this->tipo_reporte['3']);
 
                             PDF::SetAutoPageBreak(FALSE, 10);
 
@@ -1907,7 +1907,7 @@ class PlataformaController extends Controller
                                     $fill = !$fill;
                                 }
 
-                            PDF::Output('reparto_caso_' . date("YmdHis") . '.pdf', 'I');
+                            PDF::Output('casos_por_fecha_denuncia_' . date("YmdHis") . '.pdf', 'I');
                             break;
 
                         // === OLAP - MEMORIALES ===
