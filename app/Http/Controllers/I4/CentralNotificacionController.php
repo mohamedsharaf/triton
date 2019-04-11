@@ -2113,7 +2113,7 @@ class CentralNotificacionController extends Controller
                 break;
             // === DOCUMENTO DE LA ACTIVIDAD - BINARIO 64 ===
             case '100':
-                ob_start();
+                // ob_start();
                 // === INICIALIZACION DE VARIABLES ===
                     $data1     = array();
                     $respuesta = array(
@@ -2168,8 +2168,15 @@ class CentralNotificacionController extends Controller
                     }
 
                 //=== RESPUESTA ===
-                    ob_end_clean();
-                    return response()->download($file)->deleteFileAfterSend(true);;
+                    // ob_end_clean();
+                    $cabecera_pd = [
+                        'Content-Type' => 'application/pdf',
+                        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0", false',                        
+                        'Pragma' => 'no-cache',
+                        'Content-Disposition' => 'inline',
+                        'filename' => '"' . $consulta2->_Documento . '"'
+                    ];
+                    return response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
                 break;
             default:
                 break;
