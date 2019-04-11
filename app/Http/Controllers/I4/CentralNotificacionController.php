@@ -817,7 +817,7 @@ class CentralNotificacionController extends Controller
                 break;
             // === DOCUMENTO DE LA ACTIVIDAD - BINARIO 64 ===
             case '5':
-                ob_start();
+                // ob_start();
                 // === INICIALIZACION DE VARIABLES ===
                     $data1     = array();
                     $respuesta = array(
@@ -848,7 +848,7 @@ class CentralNotificacionController extends Controller
                             $ultimos_tres = substr($consulta2['_Documento'], -3);
                             if(strtoupper($ultimos_tres) == 'PDF')
                             {
-                                $respuesta['pdf'] .= base64_encode($consulta2->Documento);
+                                $respuesta['pdf'] .= htmlspecialchars(base64_encode($consulta2->Documento));
 
                                 header('Content-type: application/pdf');
                                 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
@@ -875,7 +875,7 @@ class CentralNotificacionController extends Controller
                     }
 
                 //=== RESPUESTA ===                
-                    ob_end_clean();
+                    // ob_end_clean();
                     return json_encode($respuesta);
                 break;
 
@@ -2113,6 +2113,7 @@ class CentralNotificacionController extends Controller
                 break;
             // === DOCUMENTO DE LA ACTIVIDAD - BINARIO 64 ===
             case '100':
+                ob_start();
                 // === INICIALIZACION DE VARIABLES ===
                     $data1     = array();
                     $respuesta = array(
@@ -2144,10 +2145,10 @@ class CentralNotificacionController extends Controller
                             {
                                 $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];                               
 
-                                header('Content-type: application/pdf');
-                                header("Cache-Control: no-cache");
-                                header("Pragma: no-cache");
-                                header("Content-Disposition: inline;filename='" . $file . "'");
+                                // header('Content-type: application/pdf');
+                                // header("Cache-Control: no-cache");
+                                // header("Pragma: no-cache");
+                                // header("Content-Disposition: inline;filename='" . $consulta2['_Documento'] . "'");
 
                                 file_put_contents($file, $consulta2->Documento);
                             }
@@ -2167,6 +2168,7 @@ class CentralNotificacionController extends Controller
                     }
 
                 //=== RESPUESTA ===
+                    ob_end_clean();
                     return response()->download($file)->deleteFileAfterSend(true);;
                 break;
             default:
@@ -2324,7 +2326,7 @@ class CentralNotificacionController extends Controller
                         return($respuesta);
                         break;
                     default:
-                        $respuesta = '<button type="button" class="btn btn-xs btn-success" title="Mostrar actividad" onclick="utilitarios([33, ' . $valor['id'] . ']);"><strong>' . $valor['valor'] . '</strong></button>';
+                        $respuesta = '<button type="button" class="btn btn-xs btn-success" title="Mostrar actividad" onclick="utilitarios([34, ' . $valor['id'] . ']);"><strong>' . $valor['valor'] . '</strong></button>';
                         return($respuesta);
                         break;
                 }
