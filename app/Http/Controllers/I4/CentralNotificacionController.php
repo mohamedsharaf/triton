@@ -2148,7 +2148,7 @@ class CentralNotificacionController extends Controller
                                 // header('Content-type: application/pdf');
                                 // header("Cache-Control: no-cache");
                                 // header("Pragma: no-cache");
-                                // header("Content-Disposition: inline;filename='" . $consulta2['_Documento'] . "'");
+                                header("Content-Disposition: inline; filename=\"" . $consulta2['_Documento'] . "?" . time() . "\"");
 
                                 file_put_contents($file, $consulta2->Documento);
                             }
