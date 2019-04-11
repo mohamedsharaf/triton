@@ -849,9 +849,11 @@ class CentralNotificacionController extends Controller
                                 $respuesta['pdf'] .= base64_encode($consulta2->Documento);
 
                                 header('Content-type: application/pdf');
+                                header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+                                header("Cache-Control: post-check=0, pre-check=0", false);
                                 header("Cache-Control: no-cache");
                                 header("Pragma: no-cache");
-                                header("Content-Disposition: inline;filename=myfile.pdf'");
+                                header("Content-Disposition: inline;filename='" . $consulta2->Documento . "'");
 
                                 $respuesta['respuesta'] .= "Se encontro el DOCUMENTO PDF." . $ultimos_tres;
                                 $respuesta['sw']         = 1;
