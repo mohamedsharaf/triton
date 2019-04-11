@@ -749,16 +749,17 @@ class CentralNotificacionController extends Controller
                         // $my_bytea  = stream_get_contents($consulta1->notificacion_documento);
                         // $my_string = pg_unescape_bytea($my_bytea);
                         // $html_data = htmlspecialchars($my_string);
-
+                        ob_start();
                         $respuesta['pdf'] .= base64_encode($consulta1->notificacion_documento);
 
                         header('Content-type: application/pdf');
                         header("Cache-Control: no-cache");
                         header("Pragma: no-cache");
-                        header("Content-Disposition: inline;filename='" . $consulta1->notificacion_documento . "'");
+                        header("Content-Disposition: inline;filename='documento_respaldo.pdf'");
 
                         $respuesta['respuesta'] .= "Se encontro el DOCUMENTO PDF.";
                         $respuesta['sw']         = 1;
+                        ob_end_clean();
                     }
                     else
                     {
@@ -851,9 +852,8 @@ class CentralNotificacionController extends Controller
                                 header('Content-type: application/pdf');
                                 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
                                 header("Cache-Control: post-check=0, pre-check=0", false);
-                                header("Cache-Control: no-cache");
                                 header("Pragma: no-cache");
-                                header("Content-Disposition: inline;filename='" . $consulta2->Documento . "'");
+                                header("Content-Disposition: inline;filename='" . $consulta2->_Documento . "'");
 
                                 $respuesta['respuesta'] .= "Se encontro el DOCUMENTO PDF." . $ultimos_tres;
                                 $respuesta['sw']         = 1;
