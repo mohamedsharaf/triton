@@ -817,6 +817,7 @@ class CentralNotificacionController extends Controller
                 break;
             // === DOCUMENTO DE LA ACTIVIDAD - BINARIO 64 ===
             case '5':
+                ob_start();
                 // === INICIALIZACION DE VARIABLES ===
                     $data1     = array();
                     $respuesta = array(
@@ -847,7 +848,6 @@ class CentralNotificacionController extends Controller
                             $ultimos_tres = substr($consulta2['_Documento'], -3);
                             if(strtoupper($ultimos_tres) == 'PDF')
                             {
-                                ob_start();
                                 $respuesta['pdf'] .= base64_encode($consulta2->Documento);
 
                                 header('Content-type: application/pdf');
@@ -858,7 +858,6 @@ class CentralNotificacionController extends Controller
 
                                 $respuesta['respuesta'] .= "Se encontro el DOCUMENTO PDF." . $ultimos_tres;
                                 $respuesta['sw']         = 1;
-                                ob_end_clean();
                             }
                             else
                             {
@@ -875,7 +874,8 @@ class CentralNotificacionController extends Controller
                         $respuesta['respuesta'] .= "No se logró encontrar la NOTIFICACION.";
                     }
 
-                //=== RESPUESTA ===
+                //=== RESPUESTA ===                
+                    ob_end_clean();
                     return json_encode($respuesta);
                 break;
 
