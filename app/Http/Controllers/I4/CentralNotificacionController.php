@@ -755,7 +755,7 @@ class CentralNotificacionController extends Controller
                         header('Content-type: application/pdf');
                         header("Cache-Control: no-cache");
                         header("Pragma: no-cache");
-                        header("Content-Disposition: inline;filename=myfile.pdf'");
+                        header("Content-Disposition: inline;filename='" . $consulta1->notificacion_documento . "'");
 
                         $respuesta['respuesta'] .= "Se encontro el DOCUMENTO PDF.";
                         $respuesta['sw']         = 1;
@@ -2320,7 +2320,7 @@ class CentralNotificacionController extends Controller
                         return($respuesta);
                         break;
                     default:
-                        $respuesta = '<button type="button" class="btn btn-xs btn-success" title="Mostrar actividad" onclick="utilitarios([34, ' . $valor['id'] . ']);"><strong>' . $valor['valor'] . '</strong></button>';
+                        $respuesta = '<button type="button" class="btn btn-xs btn-success" title="Mostrar actividad" onclick="utilitarios([33, ' . $valor['id'] . ']);"><strong>' . $valor['valor'] . '</strong></button>';
                         return($respuesta);
                         break;
                 }
