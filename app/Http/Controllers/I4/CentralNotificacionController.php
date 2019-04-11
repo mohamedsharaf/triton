@@ -2192,6 +2192,8 @@ class CentralNotificacionController extends Controller
                                     ->header('Content-length', strlen($file_contents))
                                     ->header('Content-Disposition', 'attachment; filename=' . $consulta2->_Documento);
                     
+                    ob_end_clean();
+
                     return $respuesta;
                 break;
             default:
