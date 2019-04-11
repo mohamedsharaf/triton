@@ -2171,6 +2171,8 @@ class CentralNotificacionController extends Controller
                 //=== RESPUESTA ===
                     // ob_end_clean();
                     $cabecera_pd = [
+                        'Pragma' => 'public',
+                        'Expires' => '0',
                         'Content-Type' => 'application/pdf',
                         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0", false',                        
                         'Pragma' => 'no-cache',
@@ -2178,8 +2180,17 @@ class CentralNotificacionController extends Controller
                         'filename' => '"' . $file_name . '"'
                     ];
 
-                    $respuesta = response()->download($file, $file_name, $cabecera_pd)->deleteFileAfterSend(true);
-                    ob_end_clean();
+                    // $respuesta = response()->download($file, $file_name, $cabecera_pd)->deleteFileAfterSend();
+
+                    // ob_end_clean();
+                    $file_contents = $consulta2->Documento;
+
+                    $respuesta = response($file_contents)
+                                    ->header('Cache-Control', 'no-cache private')
+                                    ->header('Content-Description', 'File Transfer')
+                                    ->header('Content-Type', 'application/octet-stream')
+                                    ->header('Content-length', strlen($file_contents))
+                                    ->header('Content-Disposition', 'attachment; filename=' . $consulta2->_Documento);
                     
                     return $respuesta;
                 break;
