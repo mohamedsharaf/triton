@@ -2138,15 +2138,14 @@ class CentralNotificacionController extends Controller
                             $ultimos_tres = substr($consulta2['_Documento'], -3);
                             if(strtoupper($ultimos_tres) == 'PDF')
                             {
-                                $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
+                                $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];                               
+
+                                header('Content-type: application/pdf');
+                                header("Cache-Control: no-cache");
+                                header("Pragma: no-cache");
+                                header("Content-Disposition: inline;filename='" . $file . "'");
+
                                 file_put_contents($file, $consulta2->Documento);
-
-                                // $respuesta['pdf'] .= base64_encode($consulta2->Documento);
-
-                                // header('Content-type: application/pdf');
-                                // header("Cache-Control: no-cache");
-                                // header("Pragma: no-cache");
-                                // header("Content-Disposition: inline;filename=myfile.pdf'");
                             }
                             else
                             {
