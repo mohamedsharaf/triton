@@ -2176,7 +2176,11 @@ class CentralNotificacionController extends Controller
                         'Content-Disposition' => 'inline',
                         'filename' => '"' . $consulta2->_Documento . '"'
                     ];
-                    return response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
+
+                    $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
+                    ob_end_clean();
+                    
+                    return $respuesta;
                 break;
             default:
                 break;
