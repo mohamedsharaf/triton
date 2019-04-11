@@ -847,6 +847,7 @@ class CentralNotificacionController extends Controller
                             $ultimos_tres = substr($consulta2['_Documento'], -3);
                             if(strtoupper($ultimos_tres) == 'PDF')
                             {
+                                ob_start();
                                 $respuesta['pdf'] .= base64_encode($consulta2->Documento);
 
                                 header('Content-type: application/pdf');
@@ -857,6 +858,7 @@ class CentralNotificacionController extends Controller
 
                                 $respuesta['respuesta'] .= "Se encontro el DOCUMENTO PDF." . $ultimos_tres;
                                 $respuesta['sw']         = 1;
+                                ob_end_clean();
                             }
                             else
                             {
