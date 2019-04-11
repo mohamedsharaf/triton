@@ -2143,7 +2143,8 @@ class CentralNotificacionController extends Controller
                             $ultimos_tres = substr($consulta2['_Documento'], -3);
                             if(strtoupper($ultimos_tres) == 'PDF')
                             {
-                                $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];                               
+                                $file_name = time() . "_" . $consulta2['_Documento'];  
+                                $file      = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];                               
 
                                 // header('Content-type: application/pdf');
                                 // header("Cache-Control: no-cache");
@@ -2174,10 +2175,10 @@ class CentralNotificacionController extends Controller
                         'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0", false',                        
                         'Pragma' => 'no-cache',
                         'Content-Disposition' => 'inline',
-                        'filename' => '"' . $consulta2->_Documento . '"'
+                        'filename' => '"' . $file_name . '"'
                     ];
 
-                    $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
+                    $respuesta = response()->download($file, $file_name, $cabecera_pd)->deleteFileAfterSend(true);
                     ob_end_clean();
                     
                     return $respuesta;
