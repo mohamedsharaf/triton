@@ -460,7 +460,7 @@
                 // === REPORTES FILA CEDULA Y CONSTANCIA DE NOTIFICACION ===
                 case 34:
                     var concatenar_valores = '';
-                    concatenar_valores     += "?tipo=100&id=" + valor[1];
+                    concatenar_valores     += "?tipo=100&id=" + valor[1] + "&" + Math.random();
 
                     var win = window.open(url_controller + '/reportes' + concatenar_valores,  '_blank');
                     win.focus();
