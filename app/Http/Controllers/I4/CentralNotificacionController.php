@@ -2183,12 +2183,12 @@ class CentralNotificacionController extends Controller
                     // $respuesta = response()->download($file, $file_name, $cabecera_pd)->deleteFileAfterSend();
 
                     // ob_end_clean();
-                    $file_contents = $consulta2->Documento;
+                    $file_contents = base64_decode(htmlspecialchars(base64_encode($consulta2->Documento)));
 
                     $respuesta = response($file_contents)
-                                    ->header('Cache-Control', 'no-cache private')
-                                    ->header('Content-Description', 'File Transfer')
-                                    ->header('Content-Type', 'application/octet-stream')
+                                    ->header('Cache-Control', 'no-cache')
+                                    ->header('Content-Description', 'MINISTERIO PUBLICO')
+                                    ->header('Content-Type', 'application/pdf')
                                     ->header('Content-length', strlen($file_contents))
                                     ->header('Content-Disposition', 'attachment; filename=' . $consulta2->_Documento);
                     
