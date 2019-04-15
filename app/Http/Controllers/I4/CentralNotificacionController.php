@@ -2136,6 +2136,8 @@ class CentralNotificacionController extends Controller
                     $consulta1 = I4NotiNotificacion::select('actividad_solicitante_id')->where('id', '=', $id)->first();
                     if( ! ($consulta1 === null))
                     {
+                        set_time_limit(3600);
+                        ini_set('memory_limit','-1');
                         $consulta2 = Actividad::select('Documento', '_Documento')->where('id', '=', $consulta1->actividad_solicitante_id)->first();
 
                         if( ! ($consulta2 === null))
@@ -2172,7 +2174,7 @@ class CentralNotificacionController extends Controller
                         'Expires'                   => '0',
                         'Content-Type'              => 'application/pdf',
                         'Content-Description'       => 'MINISTERIO PUBLICO',
-                        'Content-Disposition'       => 'attachment; filename        = "' . $consulta2['_Documento'] . '"',
+                        'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
                         'Content-Transfer-Encoding' => 'binary',
                         'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
                         'Content-length'            => filesize($file)
