@@ -2143,15 +2143,9 @@ class CentralNotificacionController extends Controller
                             $ultimos_tres = substr($consulta2['_Documento'], -3);
                             if(strtoupper($ultimos_tres) == 'PDF')
                             {
-                                $file_name = time() . "_" . $consulta2['_Documento'];
-                                $file      = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
+                                $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
 
-                                // header('Content-type: application/pdf');
-                                // header("Cache-Control: no-cache");
-                                // header("Pragma: no-cache");
-                                // header("Content-Disposition: inline; filename=\"" . $consulta2['_Documento'] . "?" . time() . "\"");
-
-                                // file_put_contents($file, $consulta2->Documento);
+                                file_put_contents($file, $consulta2->Documento);
                             }
                             else
                             {
@@ -2169,6 +2163,25 @@ class CentralNotificacionController extends Controller
                     }
 
                 //=== RESPUESTA ===
+                    $cabecera_pd = [
+                        'Pragma'                    => 'private',
+                        'Expires'                   => '0',
+                        'Content-Type'              => 'application/pdf',
+                        'Content-Description'       => 'MINISTERIO PUBLICO',
+                        'Content-Disposition'       => 'attachment; filename        = "' . $consulta2['_Documento'] . '"',
+                        'Content-Transfer-Encoding' => 'binary',
+                        'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
+                        'Content-length'            => strlen($file)
+                    ];
+
+                    $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
+
+                    // ob_clean();
+                    // flush();
+
+                    // dd($respuesta);
+
+
                     // ob_end_clean();
                     // $cabecera_pd = [
                     //     'Pragma' => 'public',
@@ -2183,20 +2196,20 @@ class CentralNotificacionController extends Controller
                     // $respuesta = response()->download($file, $file_name, $cabecera_pd)->deleteFileAfterSend();
 
                     // ob_end_clean();
-                    ob_clean();
+                    // ob_clean();
                     // flush();
 
-                    $file_contents = $consulta2->Documento;
+                    // $file_contents = $consulta2->Documento;
 
-                    $respuesta = response($file_contents)
-                                    ->header('Pragma', 'private')
-                                    ->header('Expires', 0)
-                                    ->header('Content-Type', 'application/pdf')
-                                    ->header('Content-Description', 'MINISTERIO PUBLICO')
-                                    ->header('Content-Disposition', 'attachment; filename=' . $consulta2->_Documento)
-                                    ->header('Content-Transfer-Encoding', 'binary')
-                                    ->header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
-                                    ->header('Content-length', strlen($file_contents));
+                    // $respuesta = response($file_contents)
+                    //                 ->header('Pragma', 'private')
+                    //                 ->header('Expires', 0)
+                    //                 ->header('Content-Type', 'application/pdf')
+                    //                 ->header('Content-Description', 'MINISTERIO PUBLICO')
+                    //                 ->header('Content-Disposition', 'attachment; filename=' . $consulta2->_Documento)
+                    //                 ->header('Content-Transfer-Encoding', 'binary')
+                    //                 ->header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
+                    //                 ->header('Content-length', strlen($file_contents));
                     // dd($respuesta);
                     // ob_end_clean();
 
