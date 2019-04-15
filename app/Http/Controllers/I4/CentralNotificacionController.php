@@ -2136,8 +2136,6 @@ class CentralNotificacionController extends Controller
                     $consulta1 = I4NotiNotificacion::select('actividad_solicitante_id')->where('id', '=', $id)->first();
                     if( ! ($consulta1 === null))
                     {
-                        set_time_limit(3600);
-                        ini_set('memory_limit','-1');
                         $consulta2 = Actividad::select('Documento', '_Documento')->where('id', '=', $consulta1->actividad_solicitante_id)->first();
 
                         if( ! ($consulta2 === null))
@@ -2147,7 +2145,10 @@ class CentralNotificacionController extends Controller
                             {
                                 $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
 
-                                file_put_contents($file, $consulta2->Documento);
+                                set_time_limit(3600);
+                                ini_set('memory_limit','-1');
+
+                                $file_size = file_put_contents($file, $consulta2->Documento);
 
                                 // PDF::AddPage('P', 'LETTER');
 
@@ -2169,18 +2170,18 @@ class CentralNotificacionController extends Controller
                     }
 
                 //=== RESPUESTA ===
-                    $cabecera_pd = [
-                        'Pragma'                    => 'private',
-                        'Expires'                   => '0',
-                        'Content-Type'              => 'application/pdf',
-                        'Content-Description'       => 'MINISTERIO PUBLICO',
-                        'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
-                        'Content-Transfer-Encoding' => 'binary',
-                        'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
-                        'Content-length'            => filesize($file)
-                    ];
+                    // $cabecera_pd = [
+                    //     'Pragma'                    => 'private',
+                    //     'Expires'                   => '0',
+                    //     'Content-Type'              => 'application/pdf',
+                    //     'Content-Description'       => 'MINISTERIO PUBLICO',
+                    //     'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
+                    //     'Content-Transfer-Encoding' => 'binary',
+                    //     'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
+                    //     'Content-length'            => $file_size
+                    // ];
 
-                    $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
+                    // $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
 
                     // ob_clean();
                     // flush();
@@ -2219,7 +2220,7 @@ class CentralNotificacionController extends Controller
                     // dd($respuesta);
                     // ob_end_clean();
 
-                    return $respuesta;
+                    // return $respuesta;
                 break;
             default:
                 break;
