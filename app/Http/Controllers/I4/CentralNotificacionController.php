@@ -2146,6 +2146,10 @@ class CentralNotificacionController extends Controller
                                 $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
 
                                 file_put_contents($file, $consulta2->Documento);
+
+                                // PDF::AddPage('P', 'LETTER');
+
+                                // PDF::Output('notificacion_' . date("YmdHis") . '.pdf', 'I');
                             }
                             else
                             {
@@ -2171,13 +2175,13 @@ class CentralNotificacionController extends Controller
                         'Content-Disposition'       => 'attachment; filename        = "' . $consulta2['_Documento'] . '"',
                         'Content-Transfer-Encoding' => 'binary',
                         'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
-                        'Content-length'            => strlen($file)
+                        'Content-length'            => filesize($file)
                     ];
 
                     $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
 
-                    // ob_clean();
-                    // flush();
+                    ob_clean();
+                    flush();
 
                     // dd($respuesta);
 
