@@ -2180,8 +2180,8 @@ class CentralNotificacionController extends Controller
 
                     $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
 
-                    ob_clean();
-                    flush();
+                    // ob_clean();
+                    // flush();
 
                     // dd($respuesta);
 
