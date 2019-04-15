@@ -645,7 +645,6 @@
                             maxlength: 50
                         },
                         ap_paterno:{
-                            required: true,
                             maxlength: 50
                         },
                         f_nacimiento:{
