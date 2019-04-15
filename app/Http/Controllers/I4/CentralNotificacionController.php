@@ -2170,18 +2170,18 @@ class CentralNotificacionController extends Controller
                     }
 
                 //=== RESPUESTA ===
-                    // $cabecera_pd = [
-                    //     'Pragma'                    => 'private',
-                    //     'Expires'                   => '0',
-                    //     'Content-Type'              => 'application/pdf',
-                    //     'Content-Description'       => 'MINISTERIO PUBLICO',
-                    //     'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
-                    //     'Content-Transfer-Encoding' => 'binary',
-                    //     'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
-                    //     'Content-length'            => $file_size
-                    // ];
+                    $cabecera_pd = [
+                        'Pragma'                    => 'private',
+                        'Expires'                   => '0',
+                        'Content-Type'              => 'application/pdf',
+                        'Content-Description'       => 'MINISTERIO PUBLICO',
+                        'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
+                        'Content-Transfer-Encoding' => 'binary',
+                        'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
+                        'Content-length'            => $file_size
+                    ];
 
-                    // $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
+                    $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
 
                     // ob_clean();
                     // flush();
@@ -2220,7 +2220,7 @@ class CentralNotificacionController extends Controller
                     // dd($respuesta);
                     // ob_end_clean();
 
-                    // return $respuesta;
+                    return $respuesta;
                 break;
             default:
                 break;
