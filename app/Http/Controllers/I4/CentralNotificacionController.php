@@ -2143,7 +2143,9 @@ class CentralNotificacionController extends Controller
                             $ultimos_tres = substr($consulta2['_Documento'], -3);
                             if(strtoupper($ultimos_tres) == 'PDF')
                             {
-                                $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
+                                // $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
+
+                                $file = "/tmp/" . $consulta2['_Documento'];
 
                                 set_time_limit(3600);
                                 ini_set('memory_limit','-1');
@@ -2152,8 +2154,8 @@ class CentralNotificacionController extends Controller
 
                                 // $file_size = file_get_contents($file, $consulta2->Documento);
 
-                                $fp = fopen($file, 'w');
-                                fwrite($fp, $consulta2['Documento']);
+                                $fp        = fopen($file, 'w');
+                                $file_size = fwrite($fp, $consulta2['Documento']);
                                 fclose($fp);
 
                                 // PDF::AddPage('P', 'LETTER');
@@ -2176,18 +2178,29 @@ class CentralNotificacionController extends Controller
                     }
 
                 //=== RESPUESTA ===
+                    // $cabecera_pd = [
+                    //     'Pragma'                    => 'private',
+                    //     'Expires'                   => '0',
+                    //     'Content-Type'              => 'application/pdf',
+                    //     'Content-Description'       => 'MINISTERIO PUBLICO',
+                    //     'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
+                    //     'Content-Transfer-Encoding' => 'binary',
+                    //     'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
+                    //     'Content-length'            => filesize($file)
+                    // ];
+
                     $cabecera_pd = [
-                        'Pragma'                    => 'private',
-                        'Expires'                   => '0',
                         'Content-Type'              => 'application/pdf',
-                        'Content-Description'       => 'MINISTERIO PUBLICO',
-                        'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
-                        'Content-Transfer-Encoding' => 'binary',
-                        'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
-                        'Content-length'            => filesize($file)
+                        'Cache-Control'             => 'private, must-revalidate, post-check=0, pre-check=0, max-age=1',
+                        'Pragma'                    => 'public',
+                        'Expires'                   => 'Sat, 26 Jul 1997 05:00:00 GMT',
+                        'Last-Modified'             => gmdate('D, d M Y H:i:s').' GMT',
+                        'Pragma'                    => 'public',
+                        'Content-Disposition'       => 'inline; filename="' . $consulta2['_Documento'] . '"',
+                        'Content-length'            => $file_size
                     ];
 
-                    $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
+                    // $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
 
                     // ob_clean();
                     // flush();
@@ -2226,7 +2239,7 @@ class CentralNotificacionController extends Controller
                     // dd($respuesta);
                     // ob_end_clean();
 
-                    return $respuesta;
+                    return response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
                 break;
             default:
                 break;
