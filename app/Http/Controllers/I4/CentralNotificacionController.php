@@ -2148,7 +2148,13 @@ class CentralNotificacionController extends Controller
                                 set_time_limit(3600);
                                 ini_set('memory_limit','-1');
 
-                                $file_size = file_put_contents($file, $consulta2->Documento);
+                                // $file_size = file_put_contents($file, $consulta2->Documento);
+
+                                // $file_size = file_get_contents($file, $consulta2->Documento);
+
+                                $fp = fopen($file, 'w');
+                                fwrite($fp, $consulta2['Documento']);
+                                fclose($fp);
 
                                 // PDF::AddPage('P', 'LETTER');
 
@@ -2178,7 +2184,7 @@ class CentralNotificacionController extends Controller
                         'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
                         'Content-Transfer-Encoding' => 'binary',
                         'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
-                        'Content-length'            => $file_size
+                        'Content-length'            => filesize($file)
                     ];
 
                     $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
