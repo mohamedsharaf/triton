@@ -2154,7 +2154,7 @@ class CentralNotificacionController extends Controller
 
                                 // $file_size = file_get_contents($file, $consulta2->Documento);
 
-                                $file_size = strlen($consulta2['Documento'])/1024/1024;
+                                $file_size = strlen($consulta2['Documento']);
 
                                 $fp        = fopen($file, 'w');
                                 fwrite($fp, $consulta2['Documento'], $file_size);
