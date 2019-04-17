@@ -2156,12 +2156,12 @@ class CentralNotificacionController extends Controller
 
                                 $array_documento = str_split($consulta2['Documento'], 524288);
 
-                                $fp = fopen($file, 'w');
                                 foreach($array_documento as $valor)
                                 {
+                                    $fp = fopen($file, 'a+');
                                     fwrite($fp, $valor);
+                                    fclose($fp);
                                 }
-                                fclose($fp);
 
                                 // $file_size = strlen($consulta2['Documento']);
 
@@ -2249,7 +2249,7 @@ class CentralNotificacionController extends Controller
                     //     'Content-length'            => $file_size
                     // ];
 
-                    $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
+                    // $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
 
                     // ob_clean();
                     // flush();
