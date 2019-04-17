@@ -2143,9 +2143,9 @@ class CentralNotificacionController extends Controller
                             $ultimos_tres = substr($consulta2['_Documento'], -3);
                             if(strtoupper($ultimos_tres) == 'PDF')
                             {
-                                // $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
+                                $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
 
-                                $file = "/tmp/" . $consulta2['_Documento'];
+                                // $file = "/tmp/" . $consulta2['_Documento'];
 
                                 set_time_limit(3600);
                                 ini_set('memory_limit','-1');
@@ -2154,11 +2154,58 @@ class CentralNotificacionController extends Controller
 
                                 // $file_size = file_get_contents($file, $consulta2->Documento);
 
-                                $file_size = strlen($consulta2['Documento']);
+                                $array_documento = str_split($consulta2['Documento'], 524288);
 
-                                $fp        = fopen($file, 'w');
-                                fwrite($fp, $consulta2['Documento'], $file_size);
+                                $fp = fopen($file, 'w');
+                                foreach($array_documento as $valor)
+                                {
+                                    fwrite($fp, $valor);
+                                }
                                 fclose($fp);
+
+                                // $file_size = strlen($consulta2['Documento']);
+
+                                // $fp        = fopen($file, 'w');
+                                // fwrite($fp, $consulta2['Documento'], 1048576);
+                                // fwrite($fp, $consulta2['Documento'], 332209);
+                                // fclose($fp);
+
+
+                                // $sp = fopen(base64_decode($consulta2['Documento']), 'r');
+                                // $sp = base64_decode($consulta2['Documento']);
+
+                                // $file_size = strlen($consulta2['Documento']);
+
+                                // dd($file_size);
+
+                                // $fp = fopen($file, 'wb');
+                                // for($i = 0; $i < $file_size; $i++)
+                                // {
+                                //     $data = pack(base64_encode($consulta2['Documento']), $i);
+                                //     fwrite($fp, $data);
+                                // }
+                                // fclose($fp);
+
+                                // $file_size = $file_size/1024;
+
+                                // dd($file_size);
+
+                                // return $consulta2['Documento'];
+                                // $sp = base64_encode($consulta2['Documento']);
+                                // $op = fopen($file, 'w');
+
+                                // while (!feof($sp)) {
+                                //     $buffer = fread($sp, 1024);  // use a buffer of 512 bytes
+                                //     fwrite($op, $buffer);
+                                // }
+
+                                // append new data
+                                // fwrite($op, $new_data);
+
+                                // close handles
+                                // fclose($op);
+                                // fclose($sp);
+
 
                                 // PDF::AddPage('P', 'LETTER');
 
@@ -2180,29 +2227,29 @@ class CentralNotificacionController extends Controller
                     }
 
                 //=== RESPUESTA ===
-                    // $cabecera_pd = [
-                    //     'Pragma'                    => 'private',
-                    //     'Expires'                   => '0',
-                    //     'Content-Type'              => 'application/pdf',
-                    //     'Content-Description'       => 'MINISTERIO PUBLICO',
-                    //     'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
-                    //     'Content-Transfer-Encoding' => 'binary',
-                    //     'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
-                    //     'Content-length'            => filesize($file)
-                    // ];
-
                     $cabecera_pd = [
+                        'Pragma'                    => 'private',
+                        'Expires'                   => '0',
                         'Content-Type'              => 'application/pdf',
-                        'Cache-Control'             => 'private, must-revalidate, post-check=0, pre-check=0, max-age=1',
-                        'Pragma'                    => 'public',
-                        'Expires'                   => 'Sat, 26 Jul 1997 05:00:00 GMT',
-                        'Last-Modified'             => gmdate('D, d M Y H:i:s').' GMT',
-                        'Pragma'                    => 'public',
-                        'Content-Disposition'       => 'inline; filename="' . $consulta2['_Documento'] . '"',
-                        'Content-length'            => $file_size
+                        'Content-Description'       => 'MINISTERIO PUBLICO',
+                        'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
+                        'Content-Transfer-Encoding' => 'binary',
+                        'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
+                        'Content-length'            => filesize($file)
                     ];
 
-                    // $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
+                    // $cabecera_pd = [
+                    //     'Content-Type'              => 'application/pdf',
+                    //     'Cache-Control'             => 'private, must-revalidate, post-check=0, pre-check=0, max-age=1',
+                    //     'Pragma'                    => 'public',
+                    //     'Expires'                   => 'Sat, 26 Jul 1997 05:00:00 GMT',
+                    //     'Last-Modified'             => gmdate('D, d M Y H:i:s').' GMT',
+                    //     'Pragma'                    => 'public',
+                    //     'Content-Disposition'       => 'inline; filename="' . $consulta2['_Documento'] . '"',
+                    //     'Content-length'            => $file_size
+                    // ];
+
+                    $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
 
                     // ob_clean();
                     // flush();
