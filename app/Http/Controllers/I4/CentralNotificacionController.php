@@ -2145,23 +2145,25 @@ class CentralNotificacionController extends Controller
                             {
                                 $file = public_path($this->public_dir_tmp) . "/" . $consulta2['_Documento'];
 
+                                $file_size = file_put_contents($file, $consulta2->Documento);
+
                                 // $file = "/tmp/" . $consulta2['_Documento'];
 
-                                set_time_limit(3600);
-                                ini_set('memory_limit','-1');
+                                // set_time_limit(3600);
+                                // ini_set('memory_limit','-1');
 
                                 // $file_size = file_put_contents($file, $consulta2->Documento);
 
                                 // $file_size = file_get_contents($file, $consulta2->Documento);
 
-                                $array_documento = str_split($consulta2['Documento'], 524288);
+                                // $array_documento = str_split($consulta2['Documento'], 524288);
 
-                                foreach($array_documento as $valor)
-                                {
-                                    $fp = fopen($file, 'a+');
-                                    fwrite($fp, $valor);
-                                    fclose($fp);
-                                }
+                                // foreach($array_documento as $valor)
+                                // {
+                                //     $fp = fopen($file, 'a+');
+                                //     fwrite($fp, $valor);
+                                //     fclose($fp);
+                                // }
 
                                 // $file_size = strlen($consulta2['Documento']);
 
@@ -2207,9 +2209,6 @@ class CentralNotificacionController extends Controller
                                 // fclose($sp);
 
 
-                                // PDF::AddPage('P', 'LETTER');
-
-                                // PDF::Output('notificacion_' . date("YmdHis") . '.pdf', 'I');
                             }
                             else
                             {
@@ -2235,7 +2234,7 @@ class CentralNotificacionController extends Controller
                         'Content-Disposition'       => 'attachment; filename="' . $consulta2['_Documento'] . '"',
                         'Content-Transfer-Encoding' => 'binary',
                         'Cache-Control'             => 'must-revalidate, post-check = 0, pre-check = 0',
-                        'Content-length'            => filesize($file)
+                        'Content-length'            => $file_size
                     ];
 
                     // $cabecera_pd = [
@@ -2251,11 +2250,6 @@ class CentralNotificacionController extends Controller
 
                     // $respuesta = response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
 
-                    // ob_clean();
-                    // flush();
-
-                    // dd($respuesta);
-
 
                     // ob_end_clean();
                     // $cabecera_pd = [
@@ -2270,10 +2264,6 @@ class CentralNotificacionController extends Controller
 
                     // $respuesta = response()->download($file, $file_name, $cabecera_pd)->deleteFileAfterSend();
 
-                    // ob_end_clean();
-                    // ob_clean();
-                    // flush();
-
                     // $file_contents = $consulta2->Documento;
 
                     // $respuesta = response($file_contents)
@@ -2285,8 +2275,6 @@ class CentralNotificacionController extends Controller
                     //                 ->header('Content-Transfer-Encoding', 'binary')
                     //                 ->header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
                     //                 ->header('Content-length', strlen($file_contents));
-                    // dd($respuesta);
-                    // ob_end_clean();
 
                     return response()->download($file, $consulta2['_Documento'], $cabecera_pd)->deleteFileAfterSend(true);
                 break;
