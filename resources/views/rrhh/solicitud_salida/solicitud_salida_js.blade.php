@@ -406,11 +406,24 @@
             tipo_salida_por_dias_tipo_salida[value.id] = value.tipo_salida;
         });
 
+    // === CONTADOR DE GESTIONES ===
+        var anio_filter = '';
+        var f_inicial   = 2018
+        var f_final     = {!! date('Y') !!};
+        for(var i=f_inicial; i <= f_final; i++)
+        {
+            anio_filter += '<option value="' + i + '">' + i + '</option>';
+        }
+
     // === DROPZONE ===
         Dropzone.autoDiscover = false;
 
     $(document).ready(function(){
         //=== INICIALIZAR ===
+            $('#anio_filter, #anio_filter_2').append(anio_filter);
+            $("#anio_filter option[value=" + {!! date('Y') !!} +"]").attr("selected","selected");
+            $("#anio_filter_2 option[value=" + {!! date('Y') !!} +"]").attr("selected","selected");
+
             $('#tipo_salida_id').append(tipo_salida_por_horas_select);
             $('#tipo_salida_id_2').append(tipo_salida_por_dias_select);
             $("#tipo_salida_id, #tipo_salida_id_2").select2({
@@ -593,9 +606,41 @@
             valor1[0]  = 56;
             utilitarios(valor1);
 
+        // === CHANGE SELECT GESTION - POR HORAS ===
+            $("#anio_filter").on("change", function(){
+                if(this.value != ''){
+                    $(jqgrid1).jqGrid('setGridParam',{
+                        url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1&anio_filter=' + this.value,
+                        datatype: 'json'
+                    }).trigger('reloadGrid');
+                }
+                else{
+                    $(jqgrid1).jqGrid('setGridParam',{
+                        url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                        datatype: 'json'
+                    }).trigger('reloadGrid');
+                }
+            });
+
+        // === CHANGE SELECT GESTION - POR DIAS ===
+            $("#anio_filter_2").on("change", function(){
+                if(this.value != ''){
+                    $(jqgrid2).jqGrid('setGridParam',{
+                        url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&anio_filter=' + this.value,
+                        datatype: 'json'
+                    }).trigger('reloadGrid');
+                }
+                else{
+                    $(jqgrid2).jqGrid('setGridParam',{
+                        url: url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2',
+                        datatype: 'json'
+                    }).trigger('reloadGrid');
+                }
+            });
+
         // Add responsive to jqGrid
             $(window).bind('resize', function () {
-                var width = $('.tab-content').width() - 35;
+                var width = $('.tab-content').width();
                 $(jqgrid1).setGridWidth(width);
                 $(jqgrid2).setGridWidth(width);
             });
@@ -627,8 +672,8 @@
         switch(valor[0]){
             // === JQGRID REDIMENCIONAR ===
             case 0:
-                $(jqgrid1).jqGrid('setGridWidth', $(".tab-content").width() - 30);
-                $(jqgrid2).jqGrid('setGridWidth', $(".tab-content").width() - 30);
+                $(jqgrid1).jqGrid('setGridWidth', $(".tab-content").width()-2);
+                $(jqgrid2).jqGrid('setGridWidth', $(".tab-content").width()-2);
                 break;
             // === JQGRID 1 ===
             case 10:
@@ -656,8 +701,8 @@
                 @endif
 
                 $(jqgrid1).jqGrid({
-                    caption     : title_table,
-                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1',
+                    // caption     : title_table,
+                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=1&anio_filter=' + $('#anio_filter').val(),
                     datatype    : 'json',
                     mtype       : 'post',
                     height      : 'auto',
@@ -1419,7 +1464,16 @@
                     utilitarios(valor1);
                 }
                 break;
+            // === NUEVA SOLICITUD POR HORAS ===
+            case 23:
+                var valor1 = new Array();
+                valor1[0]  = 14;
+                utilitarios(valor1);
 
+                var valor1 = new Array();
+                valor1[0]  = 11;
+                utilitarios(valor1);
+                break;
             // === JQGRID 2 ===
             case 50:
                 var edit1      = true;
@@ -1446,8 +1500,8 @@
                 @endif
 
                 $(jqgrid2).jqGrid({
-                    caption     : title_table_2,
-                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2',
+                    // caption     : title_table_2,
+                    url         : url_controller + '/view_jqgrid?_token=' + csrf_token + '&tipo=2&anio_filter=' + $('#anio_filter_2').val(),
                     datatype    : 'json',
                     mtype       : 'post',
                     height      : 'auto',
@@ -1952,6 +2006,16 @@
                         }
                     }
                 });
+                break;
+            // === NUEVA SOLICITUD POR DIAS ===
+            case 57:
+                var valor1 = new Array();
+                valor1[0]  = 54;
+                utilitarios(valor1);
+
+                var valor1 = new Array();
+                valor1[0]  = 51;
+                utilitarios(valor1);
                 break;
 
             // === MENSAJE ERROR ===

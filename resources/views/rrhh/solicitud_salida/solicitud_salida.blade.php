@@ -139,15 +139,37 @@
               </ul>
               <div class="tab-content">
                 <div id="tab-1" class="tab-pane active">
-                  <div class="panel-body">
-                    <div class="jqGrid_wrapper">
-                      <table id="jqgrid1"></table>
-                      <div id="pjqgrid1"></div>
+                  <div class="panel-body" style="padding: 0px 0px 0px 0px;">
+                    <div class="row">
+                        <div class="col-lg-12">
+                              <div class="ibox float-e-margins">
+                                  <div class="ibox-title" style="padding-top: 12px; padding-bottom: 0px;">
+                                      <div class="ibox-tools">
+                                          De sus <span class="badge badge-danger">120</span> minutos (2 horas) al mes, ya uso <span class="badge badge-danger">{{ round($n_horas * 60, 0) }}</span> minutos, le quedan <span class="badge badge-danger">{{ round(120 - $n_horas * 60, 0) }}</span> minutos.
+
+                                          @if(in_array(['codigo' => '1002'], $permisos))
+                                              <button type="button" class="btn btn-primary btn-xs" onclick="utilitarios([23]);">
+                                                  <strong>Nueva solicitud</strong>
+                                              </button>
+                                          @endif
+
+                                          <select id="anio_filter" data-placeholder="Gestión">
+                                              <option value="">Todos</option>
+                                          </select>
+                                      </div>
+                                  </div>
+
+                                  <div class="ibox-content" style="padding: 0px 0px 0px 0px;">
+                                      <div class="jqGrid_wrapper">
+                                          <table id="jqgrid1"></table>
+                                          <div id="pjqgrid1"></div>
+                                      </div>
+                                  </div>
+                              </div>
+                        </div>
                     </div>
 
-                    <br>
-
-                    <div id="" class="row">
+                    <div class="row">
                       <div class="col-lg-12">
                         <div class="alert alert-danger">
                           <h3>Artículo 31. SALIDAS DE EMERGENCIA (EN HORA DE OFICINA)</h3>
@@ -167,13 +189,6 @@
                           <p class="text-justify">
                             Cualquier salida no reportada, así como la ausencia no justificada en el lugar de trabajo serán consideradas como abandono de funciones.
                           </p>
-                        </div>
-
-                        <div class="alert alert-info">
-                          <h3>SALIDAS PARTICULARES</h3>
-                          <ul>
-                            <li>De sus <span class="badge badge-danger">120</span> minutos (2 horas) al mes, ya uso <span class="badge badge-danger">{{ round($n_horas * 60, 0) }}</span> minutos, le quedan <span class="badge badge-danger">{{ round(120 - $n_horas * 60, 0) }}</span> minutos.</li>
-                          </ul>
                         </div>
 
                         <div class="alert alert-success">
@@ -197,15 +212,35 @@
                 </div>
 
                 <div id="tab-2" class="tab-pane">
-                  <div class="panel-body">
-                    <div class="jqGrid_wrapper">
-                      <table id="jqgrid2"></table>
-                      <div id="pjqgrid2"></div>
-                    </div>
+                  <div class="panel-body" style="padding: 0px 0px 0px 0px;">
+                      <div class="row">
+                          <div class="col-lg-12">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title" style="padding-top: 12px; padding-bottom: 0px;">
+                                        <div class="ibox-tools">
+                                            @if(in_array(['codigo' => '1002'], $permisos))
+                                                <button type="button" class="btn btn-primary btn-xs" onclick="utilitarios([57]);">
+                                                    <strong>Nueva solicitud</strong>
+                                                </button>
+                                            @endif
 
-                    <br>
+                                            <select id="anio_filter_2" data-placeholder="Gestión">
+                                                <option value="">Todos</option>
+                                            </select>
+                                        </div>
+                                    </div>
 
-                    <div id="" class="row">
+                                    <div class="ibox-content" style="padding: 0px 0px 0px 0px;">
+                                        <div class="jqGrid_wrapper">
+                                            <table id="jqgrid2"></table>
+                                            <div id="pjqgrid2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                          </div>
+                      </div>
+
+                    <div class="row">
                       <div class="col-lg-12">
                         <div class="alert alert-danger">
                           <h3>Artículo 28. LICENCIAS CON GOCE DE HABERES.</h3>

@@ -16,19 +16,13 @@ use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegPermisoRol;
 
-use App\Models\UbicacionGeografica\UbgeDepartamento;
 use App\Models\UbicacionGeografica\UbgeMunicipio;
 
 use App\Models\Institucion\InstLugarDependencia;
-use App\Models\Institucion\InstUnidadDesconcentrada;
-use App\Models\Institucion\InstAuo;
-use App\Models\Institucion\InstTipoCargo;
-use App\Models\Institucion\InstCargo;
 
 use App\Models\Rrhh\RrhhPersona;
 use App\Models\Rrhh\RrhhFuncionario;
 use App\Models\Rrhh\RrhhFthc;
-use App\Models\Rrhh\RrhhHorario;
 use App\Models\Rrhh\RrhhTipoSalida;
 use App\Models\Rrhh\RrhhSalida;
 use App\Models\Rrhh\RrhhAsistencia;
@@ -36,7 +30,6 @@ use App\Models\Rrhh\RrhhLogMarcacion;
 
 use App\User;
 
-use Maatwebsite\Excel\Facades\Excel;
 use PDF;
 
 use Exception;
@@ -900,7 +893,7 @@ class HomeController extends Controller
                     if($consulta1['estado_segip'] == '1')
                     {
                         $c_usuario = User::where('persona_id', '=', $id)->select("id")->first();
-                        if(count($c_usuario) > 0)
+                        if(!($c_usuario === null))
                         {
                             $iu1       = User::find($c_usuario['id']);
                             $iu1->name = $data['nombre'];
@@ -1114,7 +1107,7 @@ class HomeController extends Controller
                         ->whereRaw($array_where)
                         ->select(DB::raw($select))
                         ->first();
-                    if(count($query) > 0)
+                    if(!($query === null))
                     {
                         $respuesta['consulta'] = $query;
                         $respuesta['sw']       = 2;
@@ -1161,7 +1154,7 @@ class HomeController extends Controller
                         ->whereRaw($array_where)
                         ->select(DB::raw($select))
                         ->first();
-                    if(count($query) > 0)
+                    if(!($query === null))
                     {
                         $respuesta['consulta'] = $query;
                         $respuesta['sw']       = 2;
@@ -1184,7 +1177,7 @@ class HomeController extends Controller
                         ->get()
                         ->first();
 
-                    if(count($query) > 0)
+                    if(!($query === null))
                     {
                         $respuesta['consulta'] = $query;
                         $respuesta['sw']       = 2;
@@ -1211,7 +1204,7 @@ class HomeController extends Controller
                                 ->get()
                                 ->toArray();
 
-                    if(count($query) > 0)
+                    if(!($query === null))
                     {
                         $respuesta = [
                             "results"  => $query,
@@ -1531,9 +1524,9 @@ class HomeController extends Controller
 
                     // === CONSULTA A LA BASE DE DATOS ===
                         $consulta1 = RrhhSalida::where('id', '=', $salida_id)
-                            ->first();
+                                        ->first();
 
-                        if( ! (count($consulta1) > 0))
+                        if($consulta1 === null)
                         {
                             return "No existe la PAPELETA DE SALIDA";
                         }
@@ -1602,7 +1595,7 @@ class HomeController extends Controller
                             ->select(DB::raw($select))
                             ->first();
 
-                        if( ! (count($consulta2) > 0))
+                        if($consulta2 === null)
                         {
                             return "No existe la PERSONA.";
                         }
@@ -1617,7 +1610,7 @@ class HomeController extends Controller
                             ->select(DB::raw($select))
                             ->first();
 
-                        if( ! (count($consulta3) > 0))
+                        if($consulta3 === null)
                         {
                             return "No existe la INMEDIATO SUPERIOR.";
                         }
@@ -1634,7 +1627,7 @@ class HomeController extends Controller
                             ->select(DB::raw($select))
                             ->first();
 
-                        if( ! (count($consulta4) > 0))
+                        if($consulta4 === null)
                         {
                             return "Usted no es funcionario del MINISTERIO PUBLICO.";
                         }

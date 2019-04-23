@@ -12,13 +12,6 @@ use App\Libraries\JqgridClass;
 use App\Libraries\UtilClass;
 
 use App\Models\Seguridad\SegPermisoRol;
-use App\Models\Seguridad\SegLdUser;
-
-use App\Models\Institucion\InstLugarDependencia;
-use App\Models\Institucion\InstUnidadDesconcentrada;
-use App\Models\Institucion\InstAuo;
-use App\Models\Institucion\InstTipoCargo;
-use App\Models\Institucion\InstCargo;
 
 use App\Models\Rrhh\RrhhPersona;
 use App\Models\Rrhh\RrhhFuncionario;
@@ -27,7 +20,6 @@ use App\Models\Rrhh\RrhhHorario;
 use App\Models\Rrhh\RrhhTipoSalida;
 use App\Models\Rrhh\RrhhSalida;
 
-use Maatwebsite\Excel\Facades\Excel;
 use PDF;
 
 use Exception;
@@ -43,9 +35,6 @@ class SolicitudSalidaController extends Controller
 
     private $rol_id;
     private $permisos;
-
-    private $reporte_1;
-    private $reporte_data_1;
 
     public function __construct()
     {
@@ -167,7 +156,7 @@ class SolicitudSalidaController extends Controller
                 ->select(DB::raw($select))
                 ->first();
 
-            if(count($consulta1) > 0)
+            if(!($consulta1 === null))
             {
                 $funcionario_sw = TRUE;
             }
@@ -334,6 +323,11 @@ class SolicitudSalidaController extends Controller
 
                     $array_where = "$tabla1.persona_id=" . $persona_id  . " AND a2.tipo_cronograma=1";
 
+                    if($request->has('anio_filter'))
+                    {
+                        $array_where .= " AND EXTRACT(YEAR FROM $tabla1.f_salida)=" . $request->input('anio_filter');
+                    }
+
                     $array_where .= $jqgrid->getWhere();
 
                     $count = RrhhSalida::leftJoin("$tabla2 AS a2", "a2.id", "=", "$tabla1.tipo_salida_id")
@@ -474,6 +468,11 @@ class SolicitudSalidaController extends Controller
                     ";
 
                     $array_where = "$tabla1.persona_id=" . $persona_id  . " AND a2.tipo_cronograma=2";
+
+                    if($request->has('anio_filter'))
+                    {
+                        $array_where .= " AND EXTRACT(YEAR FROM $tabla1.f_salida)=" . $request->input('anio_filter');
+                    }
 
                     $array_where .= $jqgrid->getWhere();
 
@@ -709,7 +708,7 @@ class SolicitudSalidaController extends Controller
                         $anio_modificar_salida = date('Y', strtotime($data1['f_salida']));
                         if($anio_actual_salida != $anio_modificar_salida)
                         {
-                            $respuesta['respuesta'] .= "No se puede cambiar el año de una FECHA DE SALIDA.";
+                            $respuesta['respuesta'] .= "No se puede cambiar el año de la FECHA DE SALIDA.";
                             return json_encode($respuesta);
                         }
                     }
@@ -796,16 +795,15 @@ class SolicitudSalidaController extends Controller
                         ->select('horario_id_1', 'horario_id_2', 'cargo_id', 'unidad_desconcentrada_id')
                         ->first();
 
-                    if(count($consulta3) > 0)
+                    if(!($consulta3 === null))
                     {
                         $array_where = "estado='1' AND fecha='" . $data1['f_salida'] . "' AND lugar_dependencia_id=" . $consulta1['lugar_dependencia_id'];
 
                         $consulta7 = RrhhFthc::whereRaw($array_where)
-                            ->get()
-                            ->toArray();
+                                        ->get();
 
                         // === HORARIO ASIGNADO ===
-                        if(count($consulta7) < 1)
+                        if($consulta7->isEmpty())
                         {
                             $sw_horario  = FALSE;
                             $dia_horario = FALSE;
@@ -814,7 +812,6 @@ class SolicitudSalidaController extends Controller
                             $respuesta_dia_horario = '';
 
                             $fh_salida  = $data1['f_salida'] . ' ' . $data1['h_salida'];
-                            $fh_retorno = $data1['f_salida'] . ' ' . $data1['h_retorno'];
 
                             if($consulta3['horario_id_1'] != '')
                             {
@@ -1132,9 +1129,8 @@ class SolicitudSalidaController extends Controller
                         else
                         {
                             $fh_salida  = $data1['f_salida'] . ' ' . $data1['h_salida'];
-                            $fh_retorno = $data1['f_salida'] . ' ' . $data1['h_retorno'];
 
-                            foreach($consulta7 as $row7)
+                            foreach($consulta7->toArray() as $row7)
                             {
                                 switch($row7['tipo_fthc'])
                                 {
@@ -1215,7 +1211,10 @@ class SolicitudSalidaController extends Controller
                         $consulta6 = RrhhSalida::where('id', '=', $id)
                             ->first();
 
-                        if(date('Y', strtotime($consulta6['f_salida'])) == date('Y', strtotime($data1['f_salida'])))
+                        $anio_actual_salida    = date('Y', strtotime($consulta6['f_salida']));
+                        $anio_modificar_salida = date('Y', strtotime($data1['f_salida']));
+
+                        if($anio_actual_salida == $anio_modificar_salida)
                         {
                             if(($consulta6['validar_superior'] == '1') && ($consulta6['validar_rrhh'] == '1'))
                             {
@@ -1360,20 +1359,20 @@ class SolicitudSalidaController extends Controller
                         return json_encode($respuesta);
                     }
 
-                    if($opcion == 'e')
-                    {
-                        $consulta10 = RrhhSalida::where('id', '=', $id)
-                            ->select('id', 'f_salida')
-                            ->first();
+                    // if($opcion == 'e')
+                    // {
+                    //     $consulta10 = RrhhSalida::where('id', '=', $id)
+                    //         ->select('id', 'f_salida')
+                    //         ->first();
 
-                        $anio_actual_salida    = date('Y', strtotime($consulta10['f_salida']));
-                        $anio_modificar_salida = date('Y', strtotime($data1['f_salida']));
-                        if($anio_actual_salida != $anio_modificar_salida)
-                        {
-                            $respuesta['respuesta'] .= "No se puede cambiar el año de una FECHA DE SALIDA.";
-                            return json_encode($respuesta);
-                        }
-                    }
+                    //     $anio_actual_salida    = date('Y', strtotime($consulta10['f_salida']));
+                    //     $anio_modificar_salida = date('Y', strtotime($data1['f_salida']));
+                    //     if($anio_actual_salida != $anio_modificar_salida)
+                    //     {
+                    //         $respuesta['respuesta'] .= "No se puede cambiar el año de una FECHA DE SALIDA.";
+                    //         return json_encode($respuesta);
+                    //     }
+                    // }
 
                     // === INFORMACION DEL FUNCIONARIO ===
                         $tabla1 = "rrhh_funcionarios";
@@ -1445,7 +1444,7 @@ class SolicitudSalidaController extends Controller
                             ->select(DB::raw($select))
                             ->first();
 
-                        if(!(count($consulta1) > 0))
+                        if($consulta1 === null)
                         {
                             $respuesta['respuesta'] .= "Usted no es funcionario del MINISTERIO PUBLICO.";
                             return json_encode($respuesta);
@@ -1517,7 +1516,7 @@ class SolicitudSalidaController extends Controller
                                         ->first();
                                 }
 
-                                if(count($consulta6) > 0)
+                                if(!($consulta6 === null))
                                 {
                                     $respuesta['respuesta'] .= "Ya se genero PAPELETA DE CUMPLEAÑOS para la gestión " . $anio_actual . ".";
                                     return json_encode($respuesta);
@@ -1578,7 +1577,7 @@ class SolicitudSalidaController extends Controller
                         ->toArray();
 
                     $mensaje_fthc = '';
-                    if(count($consulta3) > 0)
+                    if(!($consulta3 === null))
                     {
                         foreach ($consulta3 as $row3)
                         {
@@ -1923,7 +1922,7 @@ class SolicitudSalidaController extends Controller
 
                     if(!(($consulta2['validar_superior'] == '2') || ($consulta2['validar_rrhh'] == '2')))
                     {
-                        if(!(count($consulta1) > 0))
+                        if($consulta1 === null)
                         {
                             $iu         = RrhhSalida::find($id);
                             $iu->estado = $data1['estado'];
@@ -2085,13 +2084,12 @@ class SolicitudSalidaController extends Controller
                         ->select(DB::raw("$tabla1.persona_id AS id, CONCAT_WS(' - ', a2.n_documento, CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre)) AS text"))
                         ->orderByRaw("CONCAT_WS(' ', a2.ap_paterno, a2.ap_materno, a2.nombre) ASC")
                         ->limit($page_limit)
-                        ->get()
-                        ->toArray();
+                        ->get();
 
-                    if(count($query) > 0)
+                    if( ! $query->isEmpty())
                     {
                         $respuesta = [
-                            "results"  => $query,
+                            "results"  => $query->toArray(),
                             "paginate" => [
                                 "more" =>true
                             ]
@@ -2332,7 +2330,7 @@ class SolicitudSalidaController extends Controller
                         $consulta1 = RrhhSalida::where('id', '=', $salida_id)
                             ->first();
 
-                        if( ! (count($consulta1) > 0))
+                        if($consulta1 === null)
                         {
                             return "No existe la PAPELETA DE SALIDA";
                         }
@@ -2401,7 +2399,7 @@ class SolicitudSalidaController extends Controller
                             ->select(DB::raw($select))
                             ->first();
 
-                        if( ! (count($consulta2) > 0))
+                        if($consulta2 === null)
                         {
                             return "No existe la PERSONA.";
                         }
@@ -2416,7 +2414,7 @@ class SolicitudSalidaController extends Controller
                             ->select(DB::raw($select))
                             ->first();
 
-                        if( ! (count($consulta3) > 0))
+                        if($consulta3 === null)
                         {
                             return "No existe la INMEDIATO SUPERIOR.";
                         }
@@ -2433,7 +2431,7 @@ class SolicitudSalidaController extends Controller
                             ->select(DB::raw($select))
                             ->first();
 
-                        if( ! (count($consulta4) > 0))
+                        if($consulta4 === null)
                         {
                             return "Usted no es funcionario del MINISTERIO PUBLICO.";
                         }
